@@ -16,7 +16,7 @@ dependencies {
 
   implementation("org.eclipse.jetty:jetty-server:9.4.30.v20200611")
   implementation("org.eclipse.jetty:jetty-servlet:9.4.30.v20200611")
-  implementation("org.eclipse.jetty:jetty-servlets:9.4.30.v20200611s")
+  implementation("org.eclipse.jetty:jetty-servlets:9.4.30.v20200611")
 
   implementation("com.graphql-java-kickstart:graphql-java-servlet:9.1.0")
   implementation(project(":hypertrace-core-graphql-impl"))
