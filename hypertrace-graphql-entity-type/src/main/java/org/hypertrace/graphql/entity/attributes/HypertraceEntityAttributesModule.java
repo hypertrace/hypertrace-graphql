@@ -5,6 +5,7 @@ import static org.hypertrace.core.graphql.attributes.AttributeModelScope.API_TRA
 import static org.hypertrace.core.graphql.attributes.AttributeModelScope.BACKEND;
 import static org.hypertrace.core.graphql.attributes.AttributeModelScope.BACKEND_TRACE;
 import static org.hypertrace.core.graphql.attributes.AttributeModelScope.SERVICE;
+import static org.hypertrace.core.graphql.attributes.AttributeModelScope.SPAN;
 import static org.hypertrace.core.graphql.attributes.AttributeModelScope.TRACE;
 import static org.hypertrace.core.graphql.attributes.IdMapping.forForeignId;
 import static org.hypertrace.core.graphql.attributes.IdMapping.forId;
@@ -37,5 +38,7 @@ public class HypertraceEntityAttributesModule extends AbstractModule {
     idBinder.addBinding().toInstance(forForeignId(BACKEND_TRACE, API, "callerApiId"));
     idBinder.addBinding().toInstance(forForeignId(BACKEND_TRACE, TRACE, "traceId"));
     idBinder.addBinding().toInstance(forForeignId(BACKEND_TRACE, BACKEND, "backendId"));
+
+    idBinder.addBinding().toInstance(forForeignId(SPAN, API_TRACE, "apiTraceId"));
   }
 }
