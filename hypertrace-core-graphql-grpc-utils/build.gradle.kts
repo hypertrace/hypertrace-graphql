@@ -16,8 +16,8 @@ dependencies {
   api("io.grpc:grpc-stub:1.30.2")
   api(project(":hypertrace-core-graphql-context"))
 
-  implementation("org.hypertrace.core.grpcutils:grpc-context-utils:0.1.0")
-  implementation("org.hypertrace.core.grpcutils:grpc-client-utils:0.1.0")
+  implementation("org.hypertrace.core.grpcutils:grpc-context-utils:0.1.1")
+  implementation("org.hypertrace.core.grpcutils:grpc-client-utils:0.1.1")
   implementation("io.grpc:grpc-context:1.30.2")
   implementation("io.reactivex.rxjava3:rxjava:3.0.2")
   implementation(project(":hypertrace-core-graphql-spi"))
