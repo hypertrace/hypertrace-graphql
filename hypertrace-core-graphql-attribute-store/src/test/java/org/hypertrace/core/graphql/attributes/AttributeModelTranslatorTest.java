@@ -30,6 +30,7 @@ class AttributeModelTranslatorTest {
             .setUnit("unit")
             .setOnlyAggregationsAllowed(true)
             .addAllSupportedAggregations(List.of(AggregateFunction.SUM, AggregateFunction.AVG))
+            .setGroupable(true)
             .build();
 
     this.expectedModel =
@@ -45,6 +46,7 @@ class AttributeModelTranslatorTest {
                 List.of(
                     AttributeModelMetricAggregationType.SUM,
                     AttributeModelMetricAggregationType.AVG))
+            .groupable(true)
             .build();
   }
 

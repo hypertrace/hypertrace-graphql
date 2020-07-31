@@ -46,6 +46,7 @@ class MetadataResponseBuilderTest {
     when(mockModel.displayName()).thenReturn("display name");
     when(mockModel.type()).thenReturn(AttributeModelType.STRING);
     when(mockModel.units()).thenReturn("unit");
+    when(mockModel.groupable()).thenReturn(true);
     when(mockModel.requiresAggregation()).thenReturn(true);
     when(mockModel.supportedMetricAggregationTypes())
         .thenReturn(
@@ -76,6 +77,7 @@ class MetadataResponseBuilderTest {
                 .onlyAggregationsAllowed(true)
                 .supportedAggregations(
                     List.of(MetricAggregationType.SUM, MetricAggregationType.AVG))
+                .groupable(true)
                 .build()),
         this.builder.build(this.models).blockingGet());
   }
@@ -100,6 +102,7 @@ class MetadataResponseBuilderTest {
                 .units("unit")
                 .onlyAggregationsAllowed(true)
                 .supportedAggregations(List.of(MetricAggregationType.AVG))
+                .groupable(true)
                 .build()),
         this.builder.build(this.models).blockingGet());
   }

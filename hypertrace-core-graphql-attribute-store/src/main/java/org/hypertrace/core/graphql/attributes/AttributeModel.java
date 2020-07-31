@@ -19,4 +19,6 @@ public interface AttributeModel {
   boolean requiresAggregation();
 
   List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes();
+
+  boolean groupable();
 }
