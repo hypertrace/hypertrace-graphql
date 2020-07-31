@@ -25,8 +25,8 @@ class AttributeModelTranslator {
               this.convertType(attributeMetadata.getValueKind()),
               attributeMetadata.getUnit(),
               attributeMetadata.getOnlyAggregationsAllowed(),
-              this.convertMetricAggregationTypes(
-                  attributeMetadata.getSupportedAggregationsList())));
+              this.convertMetricAggregationTypes(attributeMetadata.getSupportedAggregationsList()),
+              attributeMetadata.getGroupable()));
     } catch (Exception e) {
       LOGGER.warn("Dropping attribute {} : {}", attributeMetadata.getId(), e.getMessage());
       return Optional.empty();

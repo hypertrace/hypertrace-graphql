@@ -17,4 +17,5 @@ class DefaultAttributeModel implements AttributeModel {
   String units;
   boolean requiresAggregation;
   List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes;
+  boolean groupable;
 }

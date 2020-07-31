@@ -20,4 +20,5 @@ class DefaultAttributeMetadata implements AttributeMetadata {
   String units;
   boolean onlyAggregationsAllowed;
   List<MetricAggregationType> supportedAggregations;
+  boolean groupable;
 }

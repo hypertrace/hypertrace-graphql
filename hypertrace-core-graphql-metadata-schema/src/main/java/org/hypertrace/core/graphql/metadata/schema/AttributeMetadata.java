@@ -18,6 +18,7 @@ public interface AttributeMetadata {
   String ATTRIBUTE_METADATA_UNITS_NAME = "units";
   String ATTRIBUTE_METADATA_ONLY_AGGREGATIONS_ALLOWED_NAME = "onlyAggregationsAllowed";
   String ATTRIBUTE_METADATA_SUPPORTED_AGGREGATIONS_NAME = "supportedAggregations";
+  String ATTRIBUTE_METADATA_GROUPABLE_NAME = "groupable";
 
   @GraphQLField
   @GraphQLNonNull
@@ -53,4 +54,9 @@ public interface AttributeMetadata {
   @GraphQLNonNull
   @GraphQLName(ATTRIBUTE_METADATA_SUPPORTED_AGGREGATIONS_NAME)
   List<MetricAggregationType> supportedAggregations();
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(ATTRIBUTE_METADATA_GROUPABLE_NAME)
+  boolean groupable();
 }

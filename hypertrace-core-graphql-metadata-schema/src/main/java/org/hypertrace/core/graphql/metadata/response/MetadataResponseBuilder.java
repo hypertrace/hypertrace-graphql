@@ -55,7 +55,8 @@ public class MetadataResponseBuilder {
                     type,
                     model.units(),
                     model.requiresAggregation(),
-                    aggregations))
+                    aggregations,
+                    model.groupable()))
         .cast(AttributeMetadata.class)
         .onErrorComplete();
   }
