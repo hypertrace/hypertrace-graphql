@@ -11,9 +11,16 @@ public interface AggregatableOrderArgument extends OrderArgument {
   String ARGUMENT_NAME = "orderBy"; // TODO rename to order
   String TYPE_NAME = "AggregatableOrder";
   String METRIC_AGGREGATION_ORDER_AGGREGATION_TYPE = "aggregation";
+  String METRIC_AGGREGATION_ORDER_AGGREGATION_SIZE = "size";
 
   @GraphQLField
   @GraphQLName(METRIC_AGGREGATION_ORDER_AGGREGATION_TYPE)
   @Nullable
   MetricAggregationType aggregation();
+
+  // For percentile this is needed.
+  @GraphQLField
+  @GraphQLName(METRIC_AGGREGATION_ORDER_AGGREGATION_SIZE)
+  @Nullable
+  Integer size();
 }

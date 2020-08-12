@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -65,9 +66,12 @@ class AggregatableOrderByExpressionListConverter
     return Maybe.fromOptional(Optional.ofNullable(orderArgument.value().aggregation()))
         .flatMapSingle(this.aggregationTypeConverter::convert)
         .flatMapSingle(
-            aggregationType ->
+            aggregationType -> orderArgument.value().size() == null ?
                 this.metricAggregationExpressionConverter.convertForNoArgsOrAlias(
-                    orderArgument.attribute(), aggregationType))
+                    orderArgument.attribute(), aggregationType) :
+                this.metricAggregationExpressionConverter.convertForArgsButNoAlias(
+                    orderArgument.attribute(), aggregationType, List.of(Objects.requireNonNull(orderArgument.value().size())))
+            )
         .switchIfEmpty(this.columnExpressionConverter.convert(orderArgument.attribute()));
   }
 }
