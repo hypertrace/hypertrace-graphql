@@ -44,5 +44,8 @@ class AggregatableOrderArgumentDeserializationConfig implements ArgumentDeserial
 
     @JsonProperty(METRIC_AGGREGATION_ORDER_AGGREGATION_TYPE)
     MetricAggregationType aggregation;
+
+    @JsonProperty(METRIC_AGGREGATION_ORDER_AGGREGATION_SIZE)
+    Integer size;
   }
 }

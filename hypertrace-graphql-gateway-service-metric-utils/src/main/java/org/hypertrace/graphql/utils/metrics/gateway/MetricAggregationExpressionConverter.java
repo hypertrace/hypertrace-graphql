@@ -52,11 +52,18 @@ class MetricAggregationExpressionConverter
 
   Single<Expression> convertForNoArgsOrAlias(
       AttributeModel attribute, AttributeModelMetricAggregationType aggregationType) {
+    return convertForArgsButNoAlias(attribute, aggregationType, Collections.emptyList());
+  }
+
+  Single<Expression> convertForArgsButNoAlias(
+      AttributeModel attribute,
+      AttributeModelMetricAggregationType aggregationType,
+      List<Object> arguments) {
     return this.buildAggregationFunctionExpression(
-            attribute,
-            aggregationType,
-            Collections.emptyList(),
-            StringValue.getDefaultInstance().getValue())
+        attribute,
+        aggregationType,
+        arguments,
+        StringValue.getDefaultInstance().getValue())
         .map(functionExpression -> Expression.newBuilder().setFunction(functionExpression).build());
   }
 
