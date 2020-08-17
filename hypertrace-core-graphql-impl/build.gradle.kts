@@ -27,7 +27,7 @@ dependencies {
 
   implementation("org.slf4j:slf4j-api:1.7.3")
   implementation("com.google.inject:guice:4.2.3")
-  implementation("io.grpc:grpc-netty:1.30.2")
+  implementation("io.grpc:grpc-netty:1.31.1")
 
   testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
   testImplementation("org.mockito:mockito-core:3.2.4")
