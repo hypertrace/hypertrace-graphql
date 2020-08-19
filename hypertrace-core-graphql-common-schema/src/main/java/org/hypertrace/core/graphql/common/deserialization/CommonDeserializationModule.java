@@ -6,6 +6,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeKeyArgument;
+import org.hypertrace.core.graphql.common.schema.id.IdArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
@@ -18,6 +19,10 @@ public class CommonDeserializationModule extends AbstractModule {
         Multibinder.newSetBinder(binder(), ArgumentDeserializationConfig.class);
 
     deserializationConfigMultibinder.addBinding().to(TimeRangeArgumentDeserializationConfig.class);
+    deserializationConfigMultibinder
+        .addBinding()
+        .toInstance(
+            ArgumentDeserializationConfig.forPrimitive(IdArgument.ARGUMENT_NAME, IdArgument.class));
     deserializationConfigMultibinder
         .addBinding()
         .toInstance(
