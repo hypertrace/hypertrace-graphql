@@ -34,7 +34,7 @@ public class GraphQlServiceImpl {
 
   }
 
-  GraphQlServiceConfig getGraphQlServiceConfig() {
+  public GraphQlServiceConfig getGraphQlServiceConfig() {
     return graphQlServiceConfig;
   }
 
