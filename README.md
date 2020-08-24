@@ -19,7 +19,7 @@ Here are some of the important graphql queries:
 
 ### 1. Get all traces in provided time range
 
-```curl
+```graphql
 curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d\
 '{
   traces(
@@ -38,7 +38,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d\
 
 ### 2. Find trace using TraceID
 
-```curl
+```graphql
 curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 '{
   traces(
@@ -65,7 +65,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 
 ### 3. Get all services your application is using
 
-```curl
+```graphql
 curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 '{
   entities(
@@ -87,7 +87,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 
 ### 4. Get all backends your application is using
 
-```curl
+```graphql
 curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 '{
   entities(
@@ -109,7 +109,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 
 ### 5. Get all API's your application is using
 
-```curl
+```graphql
 curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 '{
   entities(
@@ -131,7 +131,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 
 ### 6. Get service and backend dependency graph
 
-```curl
+```graphql
 curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 '{
   entities(
