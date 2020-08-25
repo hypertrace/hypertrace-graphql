@@ -32,7 +32,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
 }'
 ```
 
-### 2. Find trace using TraceID
+### 2. Verify trace exists
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
