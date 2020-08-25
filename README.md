@@ -24,6 +24,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
 '{
   traces(
     type: API_TRACE
+    limit: 10
     between: {
       startTime: "2015-01-01T00:00:00.000Z"
       endTime: "2025-01-01T00:00:00.000Z"
