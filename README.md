@@ -12,6 +12,7 @@ Hypertrace GraphQL service serves the GraphQL API which will be used by Hypertra
 ## Queries
 Here are some of the important GraphQL queries:
 
+
 ### 1. Verify trace exists
 
 ```graphql
@@ -26,7 +27,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
     filterBy: [
       {
         operator: EQUALS
-        value: "3c014357cb59578b"
+        value: "348bae39282251a5"
         type: ID
         idType: API_TRACE
       }
@@ -36,6 +37,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
   }
 }'
 ```
+
 
 ### 2. Get all service names
 
