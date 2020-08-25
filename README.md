@@ -15,12 +15,12 @@ GraphQL Service runs on port 23431 at `/graphql` by default
 
 
 ## Queries
-Here are some of the important graphql queries:
+Here are some of the important GraphQL queries:
 
 ### 1. Get all traces in provided time range
 
 ```graphql
-curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
+curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
 '{
   traces(
     type: API_TRACE
@@ -39,7 +39,7 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
 ### 2. Find trace using TraceID
 
 ```graphql
-curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
+curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   traces(
     type: API_TRACE
@@ -67,7 +67,7 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
 ### 3. Get all services your application is using
 
 ```graphql
-curl -s http://localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
+curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: SERVICE 
@@ -78,7 +78,6 @@ curl -s http://localhost:2020/graphql  -H 'Content-Type: application/graphql' -d
     offset: 0
   ) {
     results {
-      id
       name: attribute(key: "name")
     }
     total
@@ -89,7 +88,7 @@ curl -s http://localhost:2020/graphql  -H 'Content-Type: application/graphql' -d
 ### 4. Get all backends your application is using
 
 ```graphql
-curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
+curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: BACKEND
@@ -100,7 +99,6 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
     offset: 0
   ) {
     results {
-      id
       name: attribute(key: "name")
     }
     total
@@ -111,7 +109,7 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
 ### 5. Get all API's your application is using
 
 ```graphql
-curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
+curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: API
@@ -122,7 +120,6 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
     offset: 0
   ) {
     results {
-      id
       name: attribute(key: "name")
     }
     total
@@ -133,7 +130,7 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
 ### 6. Get service and backend dependency graph
 
 ```graphql
-curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
+curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: SERVICE
@@ -149,7 +146,6 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
       outgoingEdges_SERVICE: outgoingEdges(neighborType: SERVICE) {
         results {
           neighbor {
-            id
             name: attribute(key: "name")
           }
         }
@@ -157,7 +153,6 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
       outgoingEdges_BACKEND: outgoingEdges(neighborType: BACKEND) {
         results {
           neighbor {
-            id
             name: attribute(key: "name")
           }
         }
@@ -165,7 +160,6 @@ curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d 
       incomingEdges_SERVICE: incomingEdges(neighborType: SERVICE) {
         results {
           neighbor {
-            id
             name: attribute(key: "name")
           }
         }
