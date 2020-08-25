@@ -12,27 +12,8 @@ Hypertrace GraphQL service serves the GraphQL API which will be used by Hypertra
 ## Queries
 Here are some of the important GraphQL queries:
 
-### 1. Get all traces in provided time range
 
-```graphql
-curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
-'{
-  traces(
-    type: API_TRACE
-    limit: 10
-    between: {
-      startTime: "2015-01-01T00:00:00.000Z"
-      endTime: "2025-01-01T00:00:00.000Z"
-    }
-  ) {
-    results {
-      id
-    }
-  }
-}'
-```
-
-### 2. Verify trace exists
+### 1. Verify trace exists
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -52,14 +33,13 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
       }
     ]
   ) {
-    results {
-      apiName: attribute(key: "apiName") 
-    }
+    total
   }
 }'
 ```
 
-### 3. Get all service names
+
+### 2. Get all service names
 
 ```graphql
 curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
@@ -79,7 +59,7 @@ curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 4. Get all backend names
+### 3. Get all backend names
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -99,7 +79,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 5. Get all API names
+### 4. Get all API names
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -119,7 +99,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 6. Get service and backend dependency graph
+### 5. Get service and backend dependency graph
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
