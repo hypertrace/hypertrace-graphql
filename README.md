@@ -9,11 +9,6 @@ Hypertrace GraphQL service serves the GraphQL API which will be used by Hypertra
 
 `./gradlew run`
 
-## Ports
-
-GraphQL Service runs on port 23431 at `/graphql` by default
-
-
 ## Queries
 Here are some of the important GraphQL queries:
 
@@ -58,14 +53,13 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
     ]
   ) {
     results {
-      id
       apiName: attribute(key: "apiName") 
     }
   }
 }'
 ```
 
-### 3. Get all services your application is using
+### 3. Get all service names
 
 ```graphql
 curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
@@ -76,7 +70,6 @@ curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
       startTime: "2015-01-01T00:00:00Z"
       endTime: "2025-01-01T00:00:00Z"
     }
-    offset: 0
   ) {
     results {
       name: attribute(key: "name")
@@ -86,7 +79,7 @@ curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 4. Get all backends your application is using
+### 4. Get all backend names
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -97,7 +90,6 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
       startTime: "2015-01-01T00:00:00Z"
       endTime: "2025-01-01T00:00:00Z"
     }
-    offset: 0
   ) {
     results {
       name: attribute(key: "name")
@@ -107,7 +99,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 5. Get all API's your application is using
+### 5. Get all API names
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -118,7 +110,6 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
       startTime: "2015-01-01T00:00:00Z"
       endTime: "2025-01-01T00:00:00Z"
     }
-    offset: 0
   ) {
     results {
       name: attribute(key: "name")
@@ -135,7 +126,6 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: SERVICE
-    limit: 100
     between: {
       startTime: "2015-01-01T00:00:00.000Z"
       endTime: "2025-01-01T00:00:00.000Z"
