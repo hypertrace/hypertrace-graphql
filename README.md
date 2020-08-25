@@ -20,7 +20,7 @@ Here are some of the important graphql queries:
 ### 1. Get all traces in provided time range
 
 ```graphql
-curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d\
+curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d\
 '{
   traces(
     type: API_TRACE
@@ -39,7 +39,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d\
 ### 2. Find trace using TraceID
 
 ```graphql
-curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
+curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   traces(
     type: API_TRACE
@@ -50,7 +50,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
     filterBy: [
       {
         operator: EQUALS
-        value: "431fd38511f63001"
+        value: "348bae39282251a5"
         type: ID
         idType: API_TRACE
       }
@@ -58,6 +58,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
   ) {
     results {
       id
+      apiName: attribute(key: "apiName") 
     }
   }
 }'
@@ -66,7 +67,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 ### 3. Get all services your application is using
 
 ```graphql
-curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
+curl -s http://localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: SERVICE 
@@ -88,7 +89,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 ### 4. Get all backends your application is using
 
 ```graphql
-curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
+curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: BACKEND
@@ -110,7 +111,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 ### 5. Get all API's your application is using
 
 ```graphql
-curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
+curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: API
@@ -132,7 +133,7 @@ curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
 ### 6. Get service and backend dependency graph
 
 ```graphql
-curl 'http://localhost:2020/graphql' -H 'Content-Type: application/graphql' -d \
+curl -s http://localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 '{
   entities(
     type: SERVICE
