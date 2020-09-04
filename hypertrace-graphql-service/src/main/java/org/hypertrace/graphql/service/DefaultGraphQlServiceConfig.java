@@ -16,6 +16,8 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
 
   private static final String DEFAULT_TENANT_ID = "defaultTenantId";
 
+  private static final String MAX_IO_THREADS_PROPERTY = "threads.io.max";
+
   private static final String ATTRIBUTE_SERVICE_HOST_PROPERTY = "attribute.service.host";
   private static final String ATTRIBUTE_SERVICE_PORT_PROPERTY = "attribute.service.port";
 
@@ -28,6 +30,7 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   private final boolean asyncServlet;
   private final boolean corsEnabled;
   private final Optional<String> defaultTenantId;
+  private final int maxIoThreads;
   private final String attributeServiceHost;
   private final int attributeServicePort;
   private final String gatewayServiceHost;
@@ -40,6 +43,7 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
     this.asyncServlet = untypedConfig.getBoolean(GRAPHQL_ASYNC_SERVLET);
     this.corsEnabled = untypedConfig.getBoolean(GRAPHQL_CORS_ENABLED);
     this.defaultTenantId = optionallyGet(() -> untypedConfig.getString(DEFAULT_TENANT_ID));
+    this.maxIoThreads = untypedConfig.getInt(MAX_IO_THREADS_PROPERTY);
 
     this.attributeServiceHost = untypedConfig.getString(ATTRIBUTE_SERVICE_HOST_PROPERTY);
     this.attributeServicePort = untypedConfig.getInt(ATTRIBUTE_SERVICE_PORT_PROPERTY);
@@ -75,6 +79,11 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   @Override
   public Optional<String> getDefaultTenantId() {
     return this.defaultTenantId;
+  }
+
+  @Override
+  public int getMaxIoThreads() {
+    return this.maxIoThreads;
   }
 
   @Override

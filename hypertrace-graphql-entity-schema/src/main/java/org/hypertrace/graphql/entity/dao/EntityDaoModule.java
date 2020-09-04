@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import io.grpc.CallCredentials;
+import io.reactivex.rxjava3.core.Scheduler;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContextBuilder;
+import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
@@ -40,6 +42,7 @@ public class EntityDaoModule extends AbstractModule {
     requireBinding(GraphQlServiceConfig.class);
     requireBinding(GraphQlRequestContextBuilder.class);
     requireBinding(GrpcChannelRegistry.class);
+    requireBinding(Key.get(Scheduler.class, BoundedIoScheduler.class));
 
     requireBinding(
         Key.get(new TypeLiteral<Converter<Collection<AttributeRequest>, Set<Expression>>>() {}));

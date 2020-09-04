@@ -18,6 +18,7 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-gateway-service-utils")
+  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
   implementation(project(":hypertrace-graphql-attribute-scope"))
   implementation(project(":hypertrace-graphql-gateway-service-metric-utils"))
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")

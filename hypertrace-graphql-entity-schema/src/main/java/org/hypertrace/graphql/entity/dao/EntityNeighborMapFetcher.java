@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
@@ -25,11 +26,16 @@ class EntityNeighborMapFetcher {
 
   private final EntityDao entityDao;
   private final Converter<Value, Object> valueConverter;
+  private final Scheduler boundedIoScheduler;
 
   @Inject
-  EntityNeighborMapFetcher(EntityDao entityDao, Converter<Value, Object> valueConverter) {
+  EntityNeighborMapFetcher(
+      EntityDao entityDao,
+      Converter<Value, Object> valueConverter,
+      @BoundedIoScheduler Scheduler boundedIoScheduler) {
     this.entityDao = entityDao;
     this.valueConverter = valueConverter;
+    this.boundedIoScheduler = boundedIoScheduler;
   }
 
   Maybe<Map<InteractionResponse, Entity>> fetchNeighbors(
@@ -50,7 +56,7 @@ class EntityNeighborMapFetcher {
       Multimap<String, InteractionResponse> interactionsByNeighborId,
       Single<EntityRequest> neighborRequestSingle) {
     return neighborRequestSingle
-        .observeOn(Schedulers.io())
+        .observeOn(this.boundedIoScheduler)
         .flatMap(this.entityDao::getEntities)
         .flattenAsObservable(EntityResultSet::results)
         .flatMapStream(
