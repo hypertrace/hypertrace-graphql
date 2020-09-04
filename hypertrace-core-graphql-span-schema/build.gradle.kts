@@ -2,10 +2,6 @@ plugins {
   `java-library`
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_11
-}
-
 dependencies {
   api("com.google.inject:guice:4.2.3")
   api("com.graphql-java:graphql-java:14.0")

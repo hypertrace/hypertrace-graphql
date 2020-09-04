@@ -4,10 +4,6 @@ plugins {
   id("org.hypertrace.jacoco-report-plugin")
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_11
-}
-
 dependencies {
   api("com.graphql-java:graphql-java:14.0")
 

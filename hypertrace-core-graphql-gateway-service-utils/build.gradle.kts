@@ -4,10 +4,6 @@ plugins {
   id("org.hypertrace.jacoco-report-plugin")
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_11
-}
-
 dependencies {
   api("com.google.inject:guice:4.2.3")
   api("org.hypertrace.gateway.service:gateway-service-api:0.1.1")

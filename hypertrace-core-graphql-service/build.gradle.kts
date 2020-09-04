@@ -5,10 +5,6 @@ plugins {
   id("org.hypertrace.docker-publish-plugin")
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_11
-}
-
 dependencies {
   implementation("com.typesafe:config:1.4.0")
   implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.3")
