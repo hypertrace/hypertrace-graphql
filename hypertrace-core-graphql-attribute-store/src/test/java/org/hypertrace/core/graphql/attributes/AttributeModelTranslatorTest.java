@@ -63,4 +63,39 @@ class AttributeModelTranslatorTest {
             .build();
     assertEquals(Optional.empty(), this.translator.translate(unsupportedMetadata));
   }
+
+  @Test
+  void testStringArrayAttributeKindTranslation() {
+    this.translator = new AttributeModelTranslator();
+    this.metadata =
+        AttributeMetadata.newBuilder()
+            .setId("id")
+            .setScope(AttributeScope.API)
+            .setKey("key")
+            .setDisplayName("display name")
+            .setValueKind(AttributeKind.TYPE_STRING_ARRAY)
+            .setUnit("unit")
+            .setOnlyAggregationsAllowed(false)
+            .addAllSupportedAggregations(List.of(AggregateFunction.DISTINCT_COUNT, AggregateFunction.AVGRATE))
+            .setGroupable(false)
+            .build();
+
+    this.expectedModel =
+        DefaultAttributeModel.builder()
+            .id("id")
+            .scope(AttributeModelScope.API)
+            .key("key")
+            .displayName("display name")
+            .type(AttributeModelType.STRING_ARRAY)
+            .units("unit")
+            .requiresAggregation(false)
+            .supportedMetricAggregationTypes(
+                List.of(
+                    AttributeModelMetricAggregationType.DISTINCT_COUNT,
+                    AttributeModelMetricAggregationType.AVGRATE))
+            .groupable(false)
+            .build();
+
+    assertEquals(Optional.of(this.expectedModel), this.translator.translate(this.metadata));
+  }
 }

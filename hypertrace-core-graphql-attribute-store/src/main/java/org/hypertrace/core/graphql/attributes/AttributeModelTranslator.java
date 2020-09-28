@@ -81,10 +81,11 @@ class AttributeModelTranslator {
         return AttributeModelType.TIMESTAMP;
       case TYPE_STRING_MAP:
         return AttributeModelType.STRING_MAP;
+      case TYPE_STRING_ARRAY:
+        return AttributeModelType.STRING_ARRAY;
       case KIND_UNDEFINED:
       case UNRECOGNIZED:
       case TYPE_BYTES:
-      case TYPE_STRING_ARRAY:
       case TYPE_INT64_ARRAY:
       case TYPE_DOUBLE_ARRAY:
       case TYPE_BOOL_ARRAY:

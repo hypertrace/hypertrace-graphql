@@ -23,6 +23,8 @@ class AttributeTypeConverter implements Converter<AttributeModelType, AttributeT
         return Single.just(AttributeType.TIMESTAMP);
       case STRING_MAP:
         return Single.just(AttributeType.STRING_MAP);
+      case STRING_ARRAY:
+        return Single.just(AttributeType.STRING_ARRAY);
       default:
         return Single.error(
             new UnknownFormatConversionException(
