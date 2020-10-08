@@ -108,7 +108,7 @@ class GatewayServiceEntityEdgeFetcher {
       // This should not happen, but we're being defensive due to some underlying issues with entity
       // and interaction query mismatches
       LOG.error(
-          "Expected neighbor for interaction {} from source entity {} missing from response",
+          "Response missing neighbor entity for interaction {} from source entity {}",
           response,
           source);
       return Maybe.empty();
