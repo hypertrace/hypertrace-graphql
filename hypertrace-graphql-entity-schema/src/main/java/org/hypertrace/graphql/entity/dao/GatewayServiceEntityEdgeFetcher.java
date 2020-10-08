@@ -1,7 +1,9 @@
 package org.hypertrace.graphql.entity.dao;
 
 import static io.reactivex.rxjava3.core.Single.zip;
+import static java.util.Objects.isNull;
 
+import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
@@ -24,8 +26,11 @@ import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.MetricAggregationContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class GatewayServiceEntityEdgeFetcher {
+  private static final Logger LOG = LoggerFactory.getLogger(GatewayServiceEntityEdgeFetcher.class);
   static final EdgeResultSet EMPTY_EDGE_RESULT_SET = new ConvertedEdgeResultSet(List.of());
 
   private final EntityNeighborMapFetcher neighborMapFetcher;
@@ -85,23 +90,37 @@ class GatewayServiceEntityEdgeFetcher {
           EdgeSetGroupRequest edgeSetGroupRequest,
           Map<InteractionResponse, Entity> neighborMap) {
     return interactions
-        .flatMapSingle(
+        .flatMapMaybe(
             response ->
                 this.buildEdge(
-                    edgeSetGroupRequest, response.getInteraction(), neighborMap.get(response)))
+                    edgeSetGroupRequest, response.getInteraction(), key, neighborMap.get(response)))
         .collect(Collectors.toUnmodifiableList())
         .map(ConvertedEdgeResultSet::new)
         .map(edgeResultSet -> Map.entry(key, edgeResultSet));
   }
 
-  private Single<Edge> buildEdge(
-      EdgeSetGroupRequest edgeSetGroupRequest, EntityInteraction response, Entity neighbor) {
+  private Maybe<Edge> buildEdge(
+      EdgeSetGroupRequest edgeSetGroupRequest,
+      EntityInteraction response,
+      org.hypertrace.gateway.service.v1.entity.Entity source,
+      Entity neighbor) {
+    if (isNull(neighbor)) {
+      // This should not happen, but we're being defensive due to some underlying issues with entity
+      // and interaction query mismatches
+      LOG.error(
+          "Expected neighbor for interaction {} from source entity {} missing from response",
+          response,
+          source);
+      return Maybe.empty();
+    }
+
     return zip(
-        this.attributeMapConverter.convert(
-            edgeSetGroupRequest.attributeRequests(), response.getAttributeMap()),
-        this.metricAggregationContainerMapConverter.convert(
-            edgeSetGroupRequest.metricAggregationRequests(), response.getMetricsMap()),
-        (attributes, metrics) -> new ConvertedEdge(neighbor, attributes, metrics));
+            this.attributeMapConverter.convert(
+                edgeSetGroupRequest.attributeRequests(), response.getAttributeMap()),
+            this.metricAggregationContainerMapConverter.convert(
+                edgeSetGroupRequest.metricAggregationRequests(), response.getMetricsMap()),
+            (attributes, metrics) -> (Edge) new ConvertedEdge(neighbor, attributes, metrics))
+        .toMaybe();
   }
 
   @lombok.Value
