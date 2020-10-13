@@ -11,7 +11,7 @@ java {
 
 dependencies {
   implementation("com.typesafe:config:1.4.0")
-  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.2")
+  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.15")
   implementation("org.slf4j:slf4j-api:1.7.30")
 
   implementation("org.eclipse.jetty:jetty-server:9.4.30.v20200611")
