@@ -66,9 +66,4 @@ public class GraphQlService extends PlatformService {
   public boolean healthCheck() {
     return true;
   }
-
-  @Override
-  public String getServiceName() {
-    return graphQlServiceImpl.getGraphQlServiceConfig().getServiceName();
-  }
 }
