@@ -5,24 +5,24 @@ plugins {
 }
 
 dependencies {
-  api("com.google.inject:guice:4.2.3")
-  api("com.graphql-java:graphql-java:14.0")
-  api("io.grpc:grpc-api:1.31.1")
-  api("io.grpc:grpc-core:1.31.1")
-  api("io.grpc:grpc-stub:1.31.1")
+  api("com.google.inject:guice")
+  api("com.graphql-java:graphql-java")
+  api("io.grpc:grpc-api")
+  api("io.grpc:grpc-core")
+  api("io.grpc:grpc-stub")
   api(project(":hypertrace-core-graphql-context"))
 
-  implementation("org.hypertrace.core.grpcutils:grpc-context-utils:0.1.4")
-  implementation("org.hypertrace.core.grpcutils:grpc-client-utils:0.1.4")
-  implementation("io.grpc:grpc-context:1.31.1")
-  implementation("io.reactivex.rxjava3:rxjava:3.0.2")
+  implementation("org.hypertrace.core.grpcutils:grpc-context-utils")
+  implementation("org.hypertrace.core.grpcutils:grpc-client-utils")
+  implementation("io.grpc:grpc-context")
+  implementation("io.reactivex.rxjava3:rxjava")
   implementation(project(":hypertrace-core-graphql-spi"))
 
-  testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
-  testImplementation("org.mockito:mockito-core:3.2.4")
-  testImplementation("org.mockito:mockito-junit-jupiter:3.2.4")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.mockito:mockito-junit-jupiter")
 
-  testRuntimeOnly("io.grpc:grpc-netty:1.31.1")
+  testRuntimeOnly("io.grpc:grpc-netty")
 }
 
 tasks.test {
