@@ -1,5 +1,6 @@
 package org.hypertrace.core.graphql.context;
 
+import static java.util.Collections.emptyMap;
 import static org.hypertrace.core.graphql.context.DefaultGraphQlRequestContextBuilder.AUTHORIZATION_HEADER_KEY;
 import static org.hypertrace.core.graphql.context.DefaultGraphQlRequestContextBuilder.TENANT_ID_HEADER_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,6 +16,9 @@ import static org.mockito.Mockito.when;
 
 import com.google.inject.Injector;
 import graphql.schema.DataFetcher;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -102,5 +106,33 @@ class DefaultGraphQlRequestContextBuilderTest {
     when(this.mockRequest.getHeader(TENANT_ID_HEADER_KEY)).thenReturn("second tenant id");
     var thirdKey = this.contextBuilder.build(this.mockRequest, this.mockResponse).getCachingKey();
     assertNotEquals(firstKey, thirdKey);
+  }
+
+  @Test
+  void returnsEmptyMapIfNoTracingHeadersPresent() {
+    when(this.mockRequest.getHeaderNames()).thenReturn(Collections.enumeration(List.of("foo")));
+    assertEquals(emptyMap(), this.requestContext.getTracingContextHeaders());
+  }
+
+  @Test
+  void returnsLowerCasedTracingHeadersIfAnyMatches() {
+    when(this.mockRequest.getHeaderNames())
+        .thenReturn(
+            Collections.enumeration(
+                List.of(
+                    "traceSTATE", "traceparent", "other", "X-B3-traceid", "x-b3-parent-trace-id")));
+    when(this.mockRequest.getHeader(any(String.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0) + " value");
+    assertEquals(
+        Map.of(
+            "tracestate",
+            "traceSTATE value",
+            "traceparent",
+            "traceparent value",
+            "x-b3-traceid",
+            "X-B3-traceid value",
+            "x-b3-parent-trace-id",
+            "x-b3-parent-trace-id value"),
+        this.requestContext.getTracingContextHeaders());
   }
 }

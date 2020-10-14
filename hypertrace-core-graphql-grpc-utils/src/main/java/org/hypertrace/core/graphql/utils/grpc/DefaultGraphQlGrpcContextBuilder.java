@@ -6,6 +6,8 @@ import static org.hypertrace.core.grpcutils.context.RequestContextConstants.TENA
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import io.reactivex.rxjava3.core.Observable;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -37,10 +39,12 @@ class DefaultGraphQlGrpcContextBuilder implements GraphQlGrpcContextBuilder {
         GraphQlRequestContext requestContext,
         PlatformRequestContextBuilder platformRequestContextBuilder) {
       Map<String, String> grpcHeaders =
-          this.flattenOptionalMap(
-              Map.of(
-                  AUTHORIZATION_HEADER, this.extractAuthorizationHeader(requestContext),
-                  TENANT_ID_HEADER_KEY, this.extractTenantId(requestContext)));
+          this.mergeMaps(
+              requestContext.getTracingContextHeaders(),
+              this.flattenOptionalMap(
+                  Map.of(
+                      AUTHORIZATION_HEADER, this.extractAuthorizationHeader(requestContext),
+                      TENANT_ID_HEADER_KEY, this.extractTenantId(requestContext))));
 
       RequestContext platformContext = platformRequestContextBuilder.build(grpcHeaders);
       this.grpcContext = this.buildGrpcContext(platformContext);
@@ -85,6 +89,14 @@ class DefaultGraphQlGrpcContextBuilder implements GraphQlGrpcContextBuilder {
       return optionalMap.entrySet().stream()
           .map(entry -> entry.getValue().map(value -> Map.entry(entry.getKey(), value)))
           .flatMap(Optional::stream)
+          .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
+    }
+
+    @SafeVarargs
+    private Map<String, String> mergeMaps(Map<String, String>... maps) {
+      return Arrays.stream(maps)
+          .map(Map::entrySet)
+          .flatMap(Collection::stream)
           .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
     }
   }

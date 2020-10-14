@@ -140,4 +140,14 @@ class DefaultGraphQlGrpcContextBuilderTest {
     this.builder.build(this.mockRequestContext);
     verify(this.mockPlatformRequestContextBuilder).build(Map.of(TENANT_ID_HEADER_KEY, "tenant id"));
   }
+
+  @Test
+  void addsTracingHeadersToContext() {
+    when(this.mockRequestContext.getTenantId()).thenReturn(Optional.of("tenant id"));
+    when(this.mockRequestContext.getTracingContextHeaders())
+        .thenReturn(Map.of("traceid", "traceid value"));
+    this.builder.build(this.mockRequestContext);
+    verify(this.mockPlatformRequestContextBuilder)
+        .build(Map.of(TENANT_ID_HEADER_KEY, "tenant id", "traceid", "traceid value"));
+  }
 }

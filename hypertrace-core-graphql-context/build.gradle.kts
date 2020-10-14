@@ -10,6 +10,7 @@ dependencies {
   api("com.graphql-java-kickstart:graphql-java-servlet")
 
   implementation(project(":hypertrace-core-graphql-spi"))
+  implementation("com.google.guava:guava")
 
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")

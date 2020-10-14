@@ -1,12 +1,16 @@
 package org.hypertrace.core.graphql.context;
 
+import com.google.common.collect.Streams;
 import com.google.inject.Injector;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContext;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContextBuilder;
 import graphql.kickstart.servlet.context.GraphQLServletContext;
 import graphql.schema.DataFetcher;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.security.auth.Subject;
@@ -20,6 +24,8 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
   private static final String DEFAULT_CONTEXT_ID = "DEFAULT_CONTEXT_ID";
   static final String AUTHORIZATION_HEADER_KEY = "Authorization";
   static final String TENANT_ID_HEADER_KEY = "x-tenant-id";
+  static final Set<String> TRACING_CONTEXT_HEADER_KEY_PREFIXES =
+      Set.of("X-B3-", "traceparent", "tracestate");
 
   private final Injector injector;
   private final GraphQlServiceConfig serviceConfig;
@@ -73,6 +79,19 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
       HttpServletRequest request = this.servletContext.getHttpServletRequest();
       return Optional.ofNullable(request.getHeader(TENANT_ID_HEADER_KEY))
           .or(DefaultGraphQlRequestContextBuilder.this.serviceConfig::getDefaultTenantId);
+    }
+
+    @Override
+    public Map<String, String> getTracingContextHeaders() {
+      return Streams.stream(
+              this.servletContext.getHttpServletRequest().getHeaderNames().asIterator())
+          .filter(
+              header ->
+                  TRACING_CONTEXT_HEADER_KEY_PREFIXES.stream()
+                      .anyMatch(prefix -> header.toLowerCase().startsWith(prefix.toLowerCase())))
+          .collect(
+              Collectors.toUnmodifiableMap(
+                  String::toLowerCase, this.servletContext.getHttpServletRequest()::getHeader));
     }
 
     @Nonnull

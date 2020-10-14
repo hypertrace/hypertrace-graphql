@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.context;
 
 import graphql.kickstart.execution.context.GraphQLContext;
 import graphql.schema.DataFetcher;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 
@@ -16,6 +17,8 @@ public interface GraphQlRequestContext extends GraphQLContext {
   Optional<String> getAuthorizationHeader();
 
   Optional<String> getTenantId();
+
+  Map<String, String> getTracingContextHeaders();
 
   @Nonnull
   ContextualCachingKey getCachingKey();
