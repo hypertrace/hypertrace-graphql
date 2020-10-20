@@ -8,6 +8,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
@@ -88,7 +89,6 @@ public class EntityDaoModule extends AbstractModule {
                     Map<String, AggregatedMetricValue>,
                     Map<String, MetricAggregationContainer>>>() {}));
 
-    requireBinding(Key.get(new TypeLiteral<Converter<String, EntityType>>() {}));
-    requireBinding(Key.get(new TypeLiteral<Converter<EntityType, String>>() {}));
+    requireBinding(Key.get(new TypeLiteral<Converter<String, Optional<EntityType>>>() {}));
   }
 }

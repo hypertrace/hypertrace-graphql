@@ -23,7 +23,6 @@ import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.common.Value;
-import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -68,7 +67,5 @@ public class ExplorerDaoModule extends AbstractModule {
         Key.get(
             new TypeLiteral<
                 Converter<Collection<MetricSeriesRequest>, Set<TimeAggregation>>>() {}));
-
-    requireBinding(Key.get(new TypeLiteral<Converter<ExplorerContext, String>>() {}));
   }
 }

@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -40,7 +39,7 @@ class MetricQueryableBuilderUtil {
 
   <T> Single<List<T>> buildForEachMetricQueryable(
       GraphQlRequestContext context,
-      AttributeModelScope scope,
+      String scope,
       Stream<SelectedField> metricQueryableFieldStream,
       BiFunction<AttributeModel, SelectedField, Observable<T>> builder) {
 
@@ -51,7 +50,7 @@ class MetricQueryableBuilderUtil {
 
   private <T> Observable<T> buildForEachMetricContainer(
       GraphQlRequestContext context,
-      AttributeModelScope scope,
+      String scope,
       SelectedField metricQueryableField,
       BiFunction<AttributeModel, SelectedField, Observable<T>> builder) {
 
@@ -67,7 +66,7 @@ class MetricQueryableBuilderUtil {
 
   private <T> Observable<T> buildForEachMetricContainer(
       GraphQlRequestContext context,
-      AttributeModelScope scope,
+      String scope,
       SelectedField metricContainerField,
       Function<AttributeModel, Observable<T>> builder) {
     Optional<String> metricKey =

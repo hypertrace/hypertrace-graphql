@@ -4,13 +4,12 @@ import graphql.schema.SelectedField;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.stream.Stream;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface MetricRequestBuilder {
 
   Single<List<MetricRequest>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Stream<SelectedField> metricQueryableFieldStream);
 }

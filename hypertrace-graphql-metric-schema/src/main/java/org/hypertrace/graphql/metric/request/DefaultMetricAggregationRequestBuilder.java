@@ -24,7 +24,6 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -65,7 +64,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
   @Override
   public Single<List<MetricAggregationRequest>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Stream<SelectedField> metricQueryableFieldStream) {
     return this.metricQueryableBuilderUtil.buildForEachMetricQueryable(
         context, requestScope, metricQueryableFieldStream, this::build);

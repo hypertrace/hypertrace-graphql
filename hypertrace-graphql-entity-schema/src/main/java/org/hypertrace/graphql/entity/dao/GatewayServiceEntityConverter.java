@@ -8,10 +8,12 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
+import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
 import org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeLookupConverter.EdgeLookup;
@@ -33,6 +35,7 @@ class GatewayServiceEntityConverter {
           Map<String, MetricContainer>>
       metricContainerConverter;
   private final GatewayServiceEntityEdgeLookupConverter edgeLookupConverter;
+  private final Converter<String, Optional<EntityType>> entityTypeConverter;
 
   @Inject
   GatewayServiceEntityConverter(
@@ -43,10 +46,12 @@ class GatewayServiceEntityConverter {
               org.hypertrace.gateway.service.v1.entity.Entity,
               Map<String, MetricContainer>>
           metricContainerConverter,
-      GatewayServiceEntityEdgeLookupConverter edgeLookupConverter) {
+      GatewayServiceEntityEdgeLookupConverter edgeLookupConverter,
+      Converter<String, Optional<EntityType>> entityTypeConverter) {
     this.attributeMapConverter = attributeMapConverter;
     this.metricContainerConverter = metricContainerConverter;
     this.edgeLookupConverter = edgeLookupConverter;
+    this.entityTypeConverter = entityTypeConverter;
   }
 
   Single<EntityResultSet> convert(EntityRequest request, EntitiesResponse response) {
@@ -75,17 +80,19 @@ class GatewayServiceEntityConverter {
   private Single<Entity> convertEntity(
       EntityRequest entityRequest,
       org.hypertrace.gateway.service.v1.entity.Entity platformEntity,
-      Map<EntityType, EdgeResultSet> incomingEdges,
-      Map<EntityType, EdgeResultSet> outgoingEdges) {
+      Map<String, EdgeResultSet> incomingEdges,
+      Map<String, EdgeResultSet> outgoingEdges) {
     return zip(
+        this.entityTypeConverter.convert(entityRequest.entityType()),
         this.attributeMapConverter.convert(
             entityRequest.resultSetRequest().attributes(), platformEntity.getAttributeMap()),
         this.metricContainerConverter.convert(entityRequest.metricRequests(), platformEntity),
-        (attrMap, containerMap) ->
+        (entityTypeOptional, attrMap, containerMap) ->
             new ConvertedEntity(
                 attrMap
                     .get(entityRequest.resultSetRequest().idAttribute().attribute().key())
                     .toString(),
+                entityTypeOptional.orElse(null),
                 entityRequest.entityType(),
                 attrMap,
                 containerMap,
@@ -98,10 +105,11 @@ class GatewayServiceEntityConverter {
   private static class ConvertedEntity implements Entity {
     String id;
     EntityType type;
+    String typeString;
     Map<String, Object> attributeValues;
     Map<String, MetricContainer> metricContainers;
-    Map<EntityType, EdgeResultSet> incomingEdges;
-    Map<EntityType, EdgeResultSet> outgoingEdges;
+    Map<String, EdgeResultSet> incomingEdges;
+    Map<String, EdgeResultSet> outgoingEdges;
 
     @Override
     public Object attribute(String key) {
@@ -115,12 +123,12 @@ class GatewayServiceEntityConverter {
 
     @Override
     public EdgeResultSet incomingEdges(EntityType neighborType) {
-      return this.incomingEdges.getOrDefault(neighborType, EMPTY_EDGE_RESULT_SET);
+      return this.incomingEdges.getOrDefault(neighborType.getScopeString(), EMPTY_EDGE_RESULT_SET);
     }
 
     @Override
     public EdgeResultSet outgoingEdges(EntityType neighborType) {
-      return this.outgoingEdges.getOrDefault(neighborType, EMPTY_EDGE_RESULT_SET);
+      return this.outgoingEdges.getOrDefault(neighborType.getScopeString(), EMPTY_EDGE_RESULT_SET);
     }
   }
 

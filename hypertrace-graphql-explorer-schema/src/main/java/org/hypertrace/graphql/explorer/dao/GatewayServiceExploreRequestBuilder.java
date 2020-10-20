@@ -24,14 +24,12 @@ import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.graphql.explorer.request.ExploreRequest;
-import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 public class GatewayServiceExploreRequestBuilder {
-  private final Converter<ExplorerContext, String> contextConverter;
   private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
   private final Converter<
           List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>>
@@ -43,14 +41,12 @@ public class GatewayServiceExploreRequestBuilder {
 
   @Inject
   GatewayServiceExploreRequestBuilder(
-      Converter<ExplorerContext, String> contextConverter,
       Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter,
       Converter<List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>>
           orderConverter,
       Converter<Collection<AttributeRequest>, Set<Expression>> attributeConverter,
       Converter<Collection<MetricAggregationRequest>, Set<Expression>> aggregationConverter,
       Converter<Collection<MetricSeriesRequest>, Set<TimeAggregation>> seriesConverter) {
-    this.contextConverter = contextConverter;
     this.filterConverter = filterConverter;
     this.orderConverter = orderConverter;
     this.attributeConverter = attributeConverter;
@@ -61,7 +57,6 @@ public class GatewayServiceExploreRequestBuilder {
   Single<org.hypertrace.gateway.service.v1.explore.ExploreRequest> buildRequest(
       ExploreRequest request) {
     return zip(
-        this.contextConverter.convert(request.explorerContext()),
         this.attributeConverter.convert(
             Sets.difference(request.attributeRequests(), request.groupByAttributeRequests())),
         this.orderConverter.convert(request.orderArguments()),
@@ -69,9 +64,9 @@ public class GatewayServiceExploreRequestBuilder {
         this.filterConverter.convert(request.filterArguments()),
         this.buildAnyAggregations(request),
         this.buildAnyTimeAggregations(request),
-        (context, attributes, orderBys, groupBys, filter, aggregations, series) ->
+        (attributes, orderBys, groupBys, filter, aggregations, series) ->
             org.hypertrace.gateway.service.v1.explore.ExploreRequest.newBuilder()
-                .setContext(context)
+                .setContext(request.scope())
                 .setStartTimeMillis(request.timeRange().startTime().toEpochMilli())
                 .setEndTimeMillis(request.timeRange().endTime().toEpochMilli())
                 .addAllSelection(attributes)

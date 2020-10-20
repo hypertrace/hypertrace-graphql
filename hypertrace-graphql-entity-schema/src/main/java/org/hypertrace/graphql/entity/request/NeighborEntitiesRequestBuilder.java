@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
@@ -26,11 +25,9 @@ import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
-import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
-import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -45,7 +42,6 @@ class NeighborEntitiesRequestBuilder {
   private final GraphQlSelectionFinder selectionFinder;
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final MetricRequestBuilder metricRequestBuilder;
-  private final Converter<EntityType, AttributeModelScope> scopeConverter;
   private final EdgeRequestBuilder edgeRequestBuilder;
   private final AttributeStore attributeStore;
 
@@ -54,68 +50,56 @@ class NeighborEntitiesRequestBuilder {
       GraphQlSelectionFinder selectionFinder,
       ResultSetRequestBuilder resultSetRequestBuilder,
       MetricRequestBuilder metricRequestBuilder,
-      Converter<EntityType, AttributeModelScope> scopeConverter,
       EdgeRequestBuilder edgeRequestBuilder,
       AttributeStore attributeStore) {
     this.selectionFinder = selectionFinder;
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.metricRequestBuilder = metricRequestBuilder;
-    this.scopeConverter = scopeConverter;
     this.edgeRequestBuilder = edgeRequestBuilder;
     this.attributeStore = attributeStore;
   }
 
   Single<EntityRequest> buildNeighborRequest(
       GraphQlRequestContext context,
-      EntityType entityType,
+      String entityScope,
       TimeRangeArgument timeRange,
       Collection<String> neighborIds,
       Collection<SelectedField> edgeFields) {
 
-    return this.scopeConverter
-        .convert(entityType)
-        .flatMap(
-            entityScope ->
-                this.build(
-                    context,
-                    entityType,
-                    timeRange,
-                    entityScope,
-                    neighborIds,
-                    this.getNeighborFields(edgeFields)));
+    return this.build(
+        context, entityScope, timeRange, neighborIds, this.getNeighborFields(edgeFields));
   }
 
   private Single<EntityRequest> build(
       GraphQlRequestContext context,
-      EntityType entityType,
+      String entityScope,
       TimeRangeArgument timeRange,
-      AttributeModelScope scope,
       Collection<String> neighborIds,
       Collection<SelectedField> neighborFields) {
     return zip(
-        this.buildResultSetRequest(context, timeRange, scope, neighborIds, neighborFields),
-        this.metricRequestBuilder.build(context, scope, neighborFields.stream()),
+        this.buildResultSetRequest(context, timeRange, entityScope, neighborIds, neighborFields),
+        this.metricRequestBuilder.build(context, entityScope, neighborFields.stream()),
         this.edgeRequestBuilder.buildIncomingEdgeRequest(
             context, timeRange, this.getIncomingEdges(neighborFields)),
         this.edgeRequestBuilder.buildOutgoingEdgeRequest(
             context, timeRange, this.getOutgoingEdges(neighborFields)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new NeighborEntityRequest(
-                entityType, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
+                entityScope, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
   }
 
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
-      AttributeModelScope scope,
+      String entityScope,
       Collection<String> neighborIds,
       Collection<SelectedField> neighborFields) {
-    return this.getIdFilter(context, scope, neighborIds)
+    return this.getIdFilter(context, entityScope, neighborIds)
         .flatMap(
             filters ->
                 this.resultSetRequestBuilder.build(
                     context,
-                    scope,
+                    entityScope,
                     neighborIds.size(),
                     NEIGHBOR_QUERY_OFFSET,
                     timeRange,
@@ -125,9 +109,7 @@ class NeighborEntitiesRequestBuilder {
   }
 
   private Single<Collection<AttributeAssociation<FilterArgument>>> getIdFilter(
-      GraphQlRequestContext context,
-      AttributeModelScope neighborScope,
-      Collection<String> neighborIds) {
+      GraphQlRequestContext context, String neighborScope, Collection<String> neighborIds) {
     return this.attributeStore
         .getIdAttribute(context, neighborScope)
         .map(
@@ -177,7 +159,7 @@ class NeighborEntitiesRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class NeighborEntityRequest implements EntityRequest {
-    EntityType entityType;
+    String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;

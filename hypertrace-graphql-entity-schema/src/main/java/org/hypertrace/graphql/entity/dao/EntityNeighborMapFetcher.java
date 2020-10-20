@@ -20,7 +20,6 @@ import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
-import org.hypertrace.graphql.entity.schema.EntityType;
 
 class EntityNeighborMapFetcher {
 
@@ -40,7 +39,7 @@ class EntityNeighborMapFetcher {
 
   Maybe<Map<InteractionResponse, Entity>> fetchNeighbors(
       EdgeSetGroupRequest edgeRequest,
-      EntityType entityType,
+      String entityType,
       Collection<InteractionResponse> edgeResponses) {
     return this.mapInteractionsByNeighborId(edgeRequest.neighborIdAttribute(), edgeResponses)
         .filter(map -> map.size() > 0)

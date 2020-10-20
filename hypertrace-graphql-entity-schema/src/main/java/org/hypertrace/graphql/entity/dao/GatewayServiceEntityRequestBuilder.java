@@ -19,7 +19,6 @@ import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
-import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
@@ -32,7 +31,6 @@ class GatewayServiceEntityRequestBuilder {
           List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>>
       orderConverter;
   private final Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter;
-  private final Converter<EntityType, String> entityTypeConverter;
   private final Converter<Collection<MetricAggregationRequest>, Set<Expression>>
       aggregationConverter;
   private final Converter<Collection<MetricSeriesRequest>, Set<TimeAggregation>> seriesConverter;
@@ -44,14 +42,12 @@ class GatewayServiceEntityRequestBuilder {
       Converter<List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>>
           orderConverter,
       Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter,
-      Converter<EntityType, String> entityTypeConverter,
       Converter<Collection<MetricAggregationRequest>, Set<Expression>> aggregationConverter,
       Converter<Collection<MetricSeriesRequest>, Set<TimeAggregation>> seriesConverter,
       GatewayServiceEntityInteractionRequestBuilder interactionRequestBuilder) {
     this.filterConverter = filterConverter;
     this.orderConverter = orderConverter;
     this.selectionConverter = selectionConverter;
-    this.entityTypeConverter = entityTypeConverter;
     this.aggregationConverter = aggregationConverter;
     this.seriesConverter = seriesConverter;
     this.interactionRequestBuilder = interactionRequestBuilder;
@@ -60,7 +56,6 @@ class GatewayServiceEntityRequestBuilder {
   Single<EntitiesRequest> buildRequest(EntityRequest entityRequest) {
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest = entityRequest.resultSetRequest();
     return zip(
-        this.entityTypeConverter.convert(entityRequest.entityType()),
         this.selectionConverter.convert(resultSetRequest.attributes()),
         this.orderConverter.convert(resultSetRequest.orderArguments()),
         this.filterConverter.convert(resultSetRequest.filterArguments()),
@@ -72,8 +67,7 @@ class GatewayServiceEntityRequestBuilder {
                 .collect(flatten(MetricRequest::seriesRequests))),
         this.interactionRequestBuilder.build(entityRequest.incomingEdgeRequests()),
         this.interactionRequestBuilder.build(entityRequest.outgoingEdgeRequests()),
-        (entityTypeString,
-            selections,
+        (selections,
             orderBys,
             filter,
             aggregations,
@@ -81,7 +75,7 @@ class GatewayServiceEntityRequestBuilder {
             incomingInteractions,
             outgoingInteractions) ->
             EntitiesRequest.newBuilder()
-                .setEntityType(entityTypeString)
+                .setEntityType(entityRequest.entityType())
                 .setStartTimeMillis(resultSetRequest.timeRange().startTime().toEpochMilli())
                 .setEndTimeMillis(resultSetRequest.timeRange().endTime().toEpochMilli())
                 .addAllSelection(selections)

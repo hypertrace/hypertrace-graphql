@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface MetricAggregationRequestBuilder {
@@ -16,7 +15,7 @@ public interface MetricAggregationRequestBuilder {
 
   Single<List<MetricAggregationRequest>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Stream<SelectedField> metricQueryableFieldStream);
 
   MetricAggregationRequest build(
