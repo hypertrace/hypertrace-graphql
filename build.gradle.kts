@@ -15,4 +15,13 @@ subprojects {
       targetCompatibility = JavaVersion.VERSION_11
     }
   }
+
+  pluginManager.withPlugin("java-library") {
+    dependencies {
+      "api"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-platform"))
+      "annotationProcessor"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-platform"))
+      "testImplementation"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-test-platform"))
+      "compileOnly"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-platform"))
+    }
+  }
 }
