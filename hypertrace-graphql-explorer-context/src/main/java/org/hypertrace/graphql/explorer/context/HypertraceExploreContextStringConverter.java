@@ -9,6 +9,7 @@ class HypertraceExploreContextStringConverter implements Converter<ExplorerConte
   private static final String WELL_KNOWN_STRING_TRACE = "TRACE";
   private static final String WELL_KNOWN_STRING_API = "API";
   private static final String WELL_KNOWN_STRING_SERVICE = "SERVICE";
+  private static final String WELL_KNOWN_STRING_BACKEND = "BACKEND";
   private static final String WELL_KNOWN_STRING_API_TRACE = "API_TRACE";
   private static final String WELL_KNOWN_STRING_BACKEND_TRACE = "BACKEND_TRACE";
   private static final String WELL_KNOWN_STRING_SPAN = "EVENT";
@@ -22,6 +23,8 @@ class HypertraceExploreContextStringConverter implements Converter<ExplorerConte
         return Single.just(WELL_KNOWN_STRING_API);
       case SERVICE:
         return Single.just(WELL_KNOWN_STRING_SERVICE);
+      case BACKEND:
+        return Single.just(WELL_KNOWN_STRING_BACKEND);
       case API_TRACE:
         return Single.just(WELL_KNOWN_STRING_API_TRACE);
       case BACKEND_TRACE:
