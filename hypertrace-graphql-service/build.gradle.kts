@@ -18,7 +18,7 @@ dependencies {
   implementation(project(":hypertrace-graphql-impl"))
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
 
-  runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")
+  runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
 }
 
 application {
