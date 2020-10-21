@@ -14,8 +14,16 @@ class HypertraceExplorerContextScopeConverter
     switch ((HypertraceExplorerContext) explorerContext) {
       case TRACE:
         return Single.just(AttributeModelScope.TRACE);
+      case API:
+        return Single.just(AttributeModelScope.API);
+      case SERVICE:
+        return Single.just(AttributeModelScope.SERVICE);
+      case BACKEND:
+        return Single.just(AttributeModelScope.BACKEND);
       case API_TRACE:
         return Single.just(AttributeModelScope.API_TRACE);
+      case BACKEND_TRACE:
+        return Single.just(AttributeModelScope.BACKEND_TRACE);
       case SPAN:
         return Single.just(AttributeModelScope.SPAN);
       default:
