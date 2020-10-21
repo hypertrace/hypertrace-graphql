@@ -21,14 +21,20 @@ dependencies {
     api("com.typesafe:config:1.4.0")
     api("com.google.guava:guava:29.0-jre")
     api("com.graphql-java-kickstart:graphql-java-servlet:9.1.0")
-    api("io.grpc:grpc-api:1.32.1")
-    api("io.grpc:grpc-core:1.32.1")
-    api("io.grpc:grpc-stub:1.32.1")
-    api("io.grpc:grpc-context:1.32.1")
+    api("io.grpc:grpc-api:1.33.0")
+    api("io.grpc:grpc-core:1.33.0")
+    api("io.grpc:grpc-stub:1.33.0")
+    api("io.grpc:grpc-context:1.33.0")
     api("com.fasterxml.jackson.core:jackson-databind:2.11.0")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")
 
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.13.3")
-    runtime("io.grpc:grpc-netty:1.32.1")
+    runtime("io.grpc:grpc-netty:1.33.0")
+    runtime("io.netty:netty-codec-http2:4.1.53.Final") {
+      because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1020439")
+    }
+    runtime("io.netty:netty-handler-proxy:4.1.53.Final") {
+      because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1020439s")
+    }
   }
 }
