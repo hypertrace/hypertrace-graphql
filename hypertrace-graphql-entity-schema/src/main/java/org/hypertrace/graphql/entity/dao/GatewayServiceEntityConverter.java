@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
@@ -122,13 +123,27 @@ class GatewayServiceEntityConverter {
     }
 
     @Override
-    public EdgeResultSet incomingEdges(EntityType neighborType) {
-      return this.incomingEdges.getOrDefault(neighborType.getScopeString(), EMPTY_EDGE_RESULT_SET);
+    public EdgeResultSet incomingEdges(EntityType neighborType, String neighborScope) {
+      return this.incomingEdges.getOrDefault(
+          this.resolveEntityScope(neighborType, neighborScope), EMPTY_EDGE_RESULT_SET);
     }
 
     @Override
-    public EdgeResultSet outgoingEdges(EntityType neighborType) {
-      return this.outgoingEdges.getOrDefault(neighborType.getScopeString(), EMPTY_EDGE_RESULT_SET);
+    public EdgeResultSet outgoingEdges(EntityType neighborType, String neighborScope) {
+
+      return this.outgoingEdges.getOrDefault(
+          this.resolveEntityScope(neighborType, neighborScope), EMPTY_EDGE_RESULT_SET);
+    }
+
+    private String resolveEntityScope(
+        @Nullable EntityType entityType, @Nullable String entityScope) {
+      return Optional.ofNullable(entityType)
+          .map(EntityType::getScopeString)
+          .or(() -> Optional.ofNullable(entityScope))
+          .orElseThrow(
+              () ->
+                  new UnsupportedOperationException(
+                      "Either neighborType or neighborScope must be provided"));
     }
   }
 

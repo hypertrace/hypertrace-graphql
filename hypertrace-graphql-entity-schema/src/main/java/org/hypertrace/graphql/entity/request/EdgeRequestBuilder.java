@@ -25,6 +25,7 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.atttribute.scopes.HypertraceAttributeScopeString;
 import org.hypertrace.graphql.entity.schema.EntityType;
+import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
@@ -123,13 +124,18 @@ class EdgeRequestBuilder {
     return this.argumentDeserializer
         .deserializePrimitive(edgeSetField.getArguments(), NeighborEntityTypeArgument.class)
         .map(EntityType::getScopeString)
+        .or(
+            () ->
+                this.argumentDeserializer.deserializePrimitive(
+                    edgeSetField.getArguments(), NeighborEntityScopeArgument.class))
         .orElseThrow();
   }
 
   private Single<List<AttributeRequest>> getRequestedAndRequiredAttributes(
       GraphQlRequestContext context, Collection<SelectedField> edges, EdgeType edgeType) {
     return this.attributeRequestBuilder
-        .buildForAttributeQueryableFields(context, HypertraceAttributeScopeString.INTERACTION, edges.stream())
+        .buildForAttributeQueryableFields(
+            context, HypertraceAttributeScopeString.INTERACTION, edges.stream())
         .mergeWith(this.getNeighborIdAttribute(context, edgeType))
         .mergeWith(this.getNeighborTypeAttribute(context, edgeType))
         .collect(Collectors.toUnmodifiableList());

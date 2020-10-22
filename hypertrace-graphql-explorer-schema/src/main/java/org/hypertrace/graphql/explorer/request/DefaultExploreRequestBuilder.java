@@ -30,6 +30,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContextArgument;
+import org.hypertrace.graphql.explorer.schema.argument.ExplorerScopeArgument;
 import org.hypertrace.graphql.explorer.schema.argument.GroupByArgument;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
@@ -69,6 +70,10 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
         this.argumentDeserializer
             .deserializePrimitive(arguments, ExplorerContextArgument.class)
             .map(ExplorerContext::getScopeString)
+            .or(
+                () ->
+                    this.argumentDeserializer.deserializePrimitive(
+                        arguments, ExplorerScopeArgument.class))
             .orElseThrow();
 
     return this.build(requestContext, explorerScope, arguments, selectionSet);

@@ -13,6 +13,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetAr
 import org.hypertrace.graphql.explorer.fetcher.ExplorerFetcher;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContextArgument;
+import org.hypertrace.graphql.explorer.schema.argument.ExplorerScopeArgument;
 import org.hypertrace.graphql.explorer.schema.argument.GroupByArgument;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -26,7 +27,8 @@ public interface ExplorerSchema {
   @GraphQLName(EXPLORE_QUERY_NAME)
   @GraphQLDataFetcher(ExplorerFetcher.class)
   ExploreResultSet explore(
-      @GraphQLName(ExplorerContextArgument.ARGUMENT_NAME) @GraphQLNonNull ExplorerContext context,
+      @GraphQLName(ExplorerContextArgument.ARGUMENT_NAME) ExplorerContext context,
+      @GraphQLName(ExplorerScopeArgument.ARGUMENT_NAME) String scope,
       @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument timeRange,
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
       @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset,

@@ -7,6 +7,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeQueryable;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.core.graphql.common.schema.type.Typed;
+import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
 import org.hypertrace.graphql.metric.schema.MetricQueryable;
 
@@ -34,13 +35,13 @@ public interface Entity
   @GraphQLNonNull
   @GraphQLName(ENTITY_INCOMING_EDGES_KEY)
   EdgeResultSet incomingEdges(
-      @GraphQLNonNull @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME)
-          EntityType neighborType);
+      @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME) EntityType neighborType,
+      @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope);
 
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(ENTITY_OUTGOING_EDGES_KEY)
   EdgeResultSet outgoingEdges(
-      @GraphQLNonNull @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME)
-          EntityType neighborType);
+      @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME) EntityType neighborType,
+      @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope);
 }
