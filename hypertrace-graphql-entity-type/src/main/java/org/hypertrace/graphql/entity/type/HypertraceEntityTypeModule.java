@@ -3,8 +3,6 @@ package org.hypertrace.graphql.entity.type;
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import java.util.Optional;
-import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.graphql.entity.schema.EntityType;
 
 public class HypertraceEntityTypeModule extends AbstractModule {
@@ -13,8 +11,5 @@ public class HypertraceEntityTypeModule extends AbstractModule {
   protected void configure() {
     bind(Key.get(new TypeLiteral<Class<? extends EntityType>>() {}))
         .toInstance(HypertraceEntityType.class);
-
-    bind(Key.get(new TypeLiteral<Converter<String, Optional<EntityType>>>() {}))
-        .to(HypertraceStringEntityTypeConverter.class);
   }
 }
