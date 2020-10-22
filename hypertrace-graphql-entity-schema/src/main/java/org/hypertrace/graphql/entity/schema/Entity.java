@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.entity.schema;
 
+import graphql.annotations.annotationTypes.GraphQLDeprecate;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -15,12 +16,19 @@ public interface Entity
   String TYPE_NAME = "Entity";
   String ENTITY_INCOMING_EDGES_KEY = "incomingEdges";
   String ENTITY_OUTGOING_EDGES_KEY = "outgoingEdges";
+  String ENTITY_TYPE_STRING_KEY = "typeString";
 
   @Override
   @GraphQLField
-  @GraphQLNonNull
+  @GraphQLDeprecate
+  @Deprecated
   @GraphQLName(TYPE_FIELD_NAME)
   EntityType type();
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(ENTITY_TYPE_STRING_KEY)
+  String typeString();
 
   @GraphQLField
   @GraphQLNonNull

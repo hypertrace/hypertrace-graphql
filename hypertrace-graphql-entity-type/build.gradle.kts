@@ -8,4 +8,6 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
   implementation(project(":hypertrace-graphql-entity-schema"))
+
+  compileOnly(project(":hypertrace-graphql-attribute-scope"))
 }

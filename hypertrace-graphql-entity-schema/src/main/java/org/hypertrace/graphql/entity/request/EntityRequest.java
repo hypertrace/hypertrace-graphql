@@ -7,7 +7,7 @@ import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 public interface EntityRequest {
-  EntityType entityType();
+  String entityType();
 
   ResultSetRequest<AggregatableOrderArgument> resultSetRequest();
 

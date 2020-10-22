@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
@@ -26,7 +25,6 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
-import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -44,7 +42,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   private final AttributeRequestBuilder attributeRequestBuilder;
   private final ArgumentDeserializer argumentDeserializer;
   private final AttributeAssociator attributeAssociator;
-  private final Converter<ExplorerContext, AttributeModelScope> scopeConverter;
   private final ExploreSelectionRequestBuilder selectionRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
 
@@ -53,13 +50,11 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
       AttributeRequestBuilder attributeRequestBuilder,
       ArgumentDeserializer argumentDeserializer,
       AttributeAssociator attributeAssociator,
-      Converter<ExplorerContext, AttributeModelScope> scopeConverter,
       ExploreSelectionRequestBuilder selectionRequestBuilder,
       FilterRequestBuilder filterRequestBuilder) {
     this.attributeRequestBuilder = attributeRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.attributeAssociator = attributeAssociator;
-    this.scopeConverter = scopeConverter;
     this.selectionRequestBuilder = selectionRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
   }
@@ -70,21 +65,18 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet) {
 
-    ExplorerContext explorerContext =
+    String explorerScope =
         this.argumentDeserializer
             .deserializePrimitive(arguments, ExplorerContextArgument.class)
+            .map(ExplorerContext::getScopeString)
             .orElseThrow();
 
-    return this.scopeConverter
-        .convert(explorerContext)
-        .flatMap(
-            scope -> this.build(requestContext, explorerContext, scope, arguments, selectionSet));
+    return this.build(requestContext, explorerScope, arguments, selectionSet);
   }
 
   private Single<ExploreRequest> build(
       GraphQlRequestContext requestContext,
-      ExplorerContext explorerContext,
-      AttributeModelScope scope,
+      String explorerScope,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet) {
 
@@ -123,30 +115,30 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
 
     Single<Set<AttributeRequest>> attributeSelections =
         this.selectionRequestBuilder.getAttributeSelections(
-            requestContext, explorerContext, selectionSet);
+            requestContext, explorerScope, selectionSet);
 
     Single<Set<MetricAggregationRequest>> aggregationSelections =
         this.selectionRequestBuilder.getAggregationSelections(
-            requestContext, explorerContext, selectionSet);
+            requestContext, explorerScope, selectionSet);
 
     Single<List<AttributeAssociation<AggregatableOrderArgument>>> orderSingle =
         this.attributeAssociator
-            .associateAttributes(requestContext, scope, requestedOrders, OrderArgument::key)
+            .associateAttributes(requestContext, explorerScope, requestedOrders, OrderArgument::key)
             .collect(Collectors.toUnmodifiableList());
 
     Single<List<AttributeAssociation<FilterArgument>>> filterSingle =
-        this.filterRequestBuilder.build(requestContext, scope, requestedFilters);
+        this.filterRequestBuilder.build(requestContext, explorerScope, requestedFilters);
 
     return zip(
         attributeSelections,
         aggregationSelections,
         orderSingle,
         filterSingle,
-        this.buildGroupByAttributes(requestContext, scope, groupByKeys),
+        this.buildGroupByAttributes(requestContext, explorerScope, groupByKeys),
         (attributes, aggregations, orders, filters, groupByAttribute) ->
             new DefaultExploreRequest(
                 requestContext,
-                explorerContext,
+                explorerScope,
                 timeRange,
                 limit,
                 offset,
@@ -160,9 +152,9 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   }
 
   private Single<Set<AttributeRequest>> buildGroupByAttributes(
-      GraphQlRequestContext context, AttributeModelScope requestScope, Set<String> groupByKeys) {
+      GraphQlRequestContext context, String explorerScope, Set<String> groupByKeys) {
     return Observable.fromIterable(groupByKeys)
-        .flatMapSingle(key -> this.attributeRequestBuilder.buildForKey(context, requestScope, key))
+        .flatMapSingle(key -> this.attributeRequestBuilder.buildForKey(context, explorerScope, key))
         .collect(Collectors.toUnmodifiableSet());
   }
 
@@ -178,7 +170,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   @Accessors(fluent = true)
   private static class DefaultExploreRequest implements ExploreRequest {
     GraphQlRequestContext requestContext;
-    ExplorerContext explorerContext;
+    String scope;
     TimeRangeArgument timeRange;
     int limit;
     int offset;

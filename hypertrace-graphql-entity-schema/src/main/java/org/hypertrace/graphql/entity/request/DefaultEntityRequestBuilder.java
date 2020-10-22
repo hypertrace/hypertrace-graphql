@@ -13,12 +13,10 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
-import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -35,7 +33,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   private final MetricRequestBuilder metricRequestBuilder;
   private final ArgumentDeserializer argumentDeserializer;
   private final GraphQlSelectionFinder selectionFinder;
-  private final Converter<EntityType, AttributeModelScope> scopeConverter;
   private final EdgeRequestBuilder edgeRequestBuilder;
 
   @Inject
@@ -44,13 +41,11 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       MetricRequestBuilder metricRequestBuilder,
       ArgumentDeserializer argumentDeserializer,
       GraphQlSelectionFinder selectionFinder,
-      Converter<EntityType, AttributeModelScope> scopeConverter,
       EdgeRequestBuilder edgeRequestBuilder) {
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.metricRequestBuilder = metricRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.selectionFinder = selectionFinder;
-    this.scopeConverter = scopeConverter;
     this.edgeRequestBuilder = edgeRequestBuilder;
   }
 
@@ -59,21 +54,19 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       GraphQlRequestContext context,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet) {
-    EntityType entityType =
+    String entityScope =
         this.argumentDeserializer
             .deserializePrimitive(arguments, EntityTypeArgument.class)
+            .map(EntityType::getScopeString)
             .orElseThrow();
 
-    return this.scopeConverter
-        .convert(entityType)
-        .flatMap(scope -> this.build(context, arguments, entityType, scope, selectionSet));
+    return this.build(context, arguments, entityScope, selectionSet);
   }
 
   private Single<EntityRequest> build(
       GraphQlRequestContext context,
       Map<String, Object> arguments,
-      EntityType entityType,
-      AttributeModelScope scope,
+      String scope,
       DataFetchingFieldSelectionSet selectionSet) {
     return zip(
         this.resultSetRequestBuilder.build(
@@ -85,7 +78,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             context, this.timeRange(arguments), this.getOutgoingEdges(selectionSet)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new DefaultEntityRequest(
-                entityType, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
+                scope, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -118,7 +111,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEntityRequest implements EntityRequest {
-    EntityType entityType;
+    String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;

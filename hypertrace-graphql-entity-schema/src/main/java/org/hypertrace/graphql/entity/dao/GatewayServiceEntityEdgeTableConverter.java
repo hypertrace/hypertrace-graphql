@@ -20,30 +20,25 @@ import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
-import org.hypertrace.graphql.entity.schema.EntityType;
 
 class GatewayServiceEntityEdgeTableConverter
     implements BiConverter<
         EdgeSetGroupRequest,
         Collection<InteractionResponse>,
-        ImmutableTable<Entity, EntityType, EdgeResultSet>> {
+        ImmutableTable<Entity, String, EdgeResultSet>> {
 
-  private final Converter<String, EntityType> entityTypeConverter;
   private final Converter<Value, Object> valueConverter;
   private final GatewayServiceEntityEdgeFetcher edgeFetcher;
 
   @Inject
   GatewayServiceEntityEdgeTableConverter(
-      Converter<String, EntityType> entityTypeConverter,
-      Converter<Value, Object> valueConverter,
-      GatewayServiceEntityEdgeFetcher edgeFetcher) {
-    this.entityTypeConverter = entityTypeConverter;
+      Converter<Value, Object> valueConverter, GatewayServiceEntityEdgeFetcher edgeFetcher) {
     this.valueConverter = valueConverter;
     this.edgeFetcher = edgeFetcher;
   }
 
   @Override
-  public Single<ImmutableTable<Entity, EntityType, EdgeResultSet>> convert(
+  public Single<ImmutableTable<Entity, String, EdgeResultSet>> convert(
       EdgeSetGroupRequest request, Collection<InteractionResponse> responses) {
 
     return this.groupInteractionsByNeighborType(responses, request.neighborTypeAttribute())
@@ -52,7 +47,7 @@ class GatewayServiceEntityEdgeTableConverter
         .collect(toImmutableTable(Cell::getRowKey, Cell::getColumnKey, Cell::getValue));
   }
 
-  private Single<Map<EntityType, Collection<InteractionResponse>>> groupInteractionsByNeighborType(
+  private Single<Map<String, Collection<InteractionResponse>>> groupInteractionsByNeighborType(
       Collection<InteractionResponse> interactions, AttributeRequest neighborType) {
 
     return Observable.fromIterable(interactions)
@@ -61,16 +56,16 @@ class GatewayServiceEntityEdgeTableConverter
         .map(Multimap::asMap);
   }
 
-  private Single<Entry<EntityType, InteractionResponse>> builtInteractionTypeEntry(
+  private Single<Entry<String, InteractionResponse>> builtInteractionTypeEntry(
       InteractionResponse response, AttributeRequest neighborType) {
 
     return this.getEntityType(response.getInteraction().getAttributeMap().get(neighborType.alias()))
         .map(entityType -> Map.entry(entityType, response));
   }
 
-  private Observable<Cell<Entity, EntityType, EdgeResultSet>> flattenEdgeCells(
+  private Observable<Cell<Entity, String, EdgeResultSet>> flattenEdgeCells(
       EdgeSetGroupRequest request,
-      EntityType entityType,
+      String entityType,
       Collection<InteractionResponse> interactions) {
     return this.edgeFetcher
         .fetchForEntityType(entityType, request, interactions)
@@ -83,10 +78,7 @@ class GatewayServiceEntityEdgeTableConverter
                     entityEdgeResultSetEntry.getValue()));
   }
 
-  private Single<EntityType> getEntityType(Value entityTypeValue) {
-    return this.valueConverter
-        .convert(entityTypeValue)
-        .map(String::valueOf)
-        .flatMap(this.entityTypeConverter::convert);
+  private Single<String> getEntityType(Value entityTypeValue) {
+    return this.valueConverter.convert(entityTypeValue).map(String::valueOf);
   }
 }

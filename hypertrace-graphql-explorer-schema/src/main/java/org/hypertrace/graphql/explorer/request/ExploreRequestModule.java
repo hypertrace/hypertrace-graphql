@@ -4,17 +4,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
-import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
-import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
 
 public class ExploreRequestModule extends AbstractModule {
@@ -33,8 +30,5 @@ public class ExploreRequestModule extends AbstractModule {
         Key.get(
             new TypeLiteral<
                 Converter<MetricAggregationType, AttributeModelMetricAggregationType>>() {}));
-
-    requireBinding(Key.get(new TypeLiteral<Converter<AttributeScope, AttributeModelScope>>() {}));
-    requireBinding(Key.get(new TypeLiteral<Converter<ExplorerContext, AttributeModelScope>>() {}));
   }
 }

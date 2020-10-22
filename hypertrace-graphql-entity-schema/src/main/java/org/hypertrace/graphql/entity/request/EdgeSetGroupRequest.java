@@ -9,7 +9,7 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
 public interface EdgeSetGroupRequest {
 
-  Set<EntityType> entityTypes();
+  Set<String> entityTypes();
 
   // Includes neighbor id and type
   Collection<AttributeRequest> attributeRequests();
@@ -20,5 +20,5 @@ public interface EdgeSetGroupRequest {
 
   AttributeRequest neighborTypeAttribute();
 
-  Single<EntityRequest> buildNeighborRequest(EntityType entityType, Collection<String> neighborIds);
+  Single<EntityRequest> buildNeighborRequest(String entityType, Collection<String> neighborIds);
 }

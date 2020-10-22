@@ -8,7 +8,6 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
-import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -16,7 +15,7 @@ import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 public interface ExploreRequest {
   GraphQlRequestContext requestContext();
 
-  ExplorerContext explorerContext();
+  String scope();
 
   TimeRangeArgument timeRange();
 

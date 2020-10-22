@@ -57,7 +57,7 @@ class GatewayServiceEntityEdgeLookupConverter
 
   @Value
   static class EdgeLookup {
-    Table<Entity, EntityType, EdgeResultSet> incoming;
-    Table<Entity, EntityType, EdgeResultSet> outgoing;
+    Table<Entity, String, EdgeResultSet> incoming;
+    Table<Entity, String, EdgeResultSet> outgoing;
   }
 }

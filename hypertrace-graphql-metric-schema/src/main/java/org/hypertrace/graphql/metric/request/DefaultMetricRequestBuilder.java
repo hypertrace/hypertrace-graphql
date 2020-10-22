@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 class DefaultMetricRequestBuilder implements MetricRequestBuilder {
@@ -32,7 +31,7 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
   @Override
   public Single<List<MetricRequest>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Stream<SelectedField> metricQueryableFieldStream) {
     return this.metricQueryableBuilderUtil.buildForEachMetricQueryable(
         context, requestScope, metricQueryableFieldStream, this::collectAggregationsAndSeries);

@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
@@ -24,6 +23,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
+import org.hypertrace.graphql.atttribute.scopes.HypertraceAttributeScopeString;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
@@ -74,7 +74,7 @@ class EdgeRequestBuilder {
   private Single<EdgeSetGroupRequest> buildEdgeRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
-      Map<EntityType, Set<SelectedField>> edgesByType,
+      Map<String, Set<SelectedField>> edgesByType,
       EdgeType edgeType) {
 
     Set<SelectedField> allEdges =
@@ -87,7 +87,7 @@ class EdgeRequestBuilder {
         this.getNeighborIdAttribute(context, edgeType),
         this.getNeighborTypeAttribute(context, edgeType),
         this.metricAggregationRequestBuilder.build(
-            context, AttributeModelScope.INTERACTION, allEdges.stream()),
+            context, HypertraceAttributeScopeString.INTERACTION, allEdges.stream()),
         (attributeRequests, neighborIdRequest, neighborTypeRequest, metricRequests) ->
             new DefaultEdgeSetGroupRequest(
                 edgesByType.keySet(),
@@ -106,7 +106,7 @@ class EdgeRequestBuilder {
                             edgesByType.get(entityType))));
   }
 
-  private Map<EntityType, Set<SelectedField>> getEdgesByType(Stream<SelectedField> edgeSetStream) {
+  private Map<String, Set<SelectedField>> getEdgesByType(Stream<SelectedField> edgeSetStream) {
 
     return edgeSetStream.collect(
         Collectors.groupingBy(
@@ -119,16 +119,17 @@ class EdgeRequestBuilder {
         edgeSet.getSelectionSet(), SelectionQuery.namedChild(ResultSet.RESULT_SET_RESULTS_NAME));
   }
 
-  private EntityType getEntityType(SelectedField edgeSetField) {
+  private String getEntityType(SelectedField edgeSetField) {
     return this.argumentDeserializer
         .deserializePrimitive(edgeSetField.getArguments(), NeighborEntityTypeArgument.class)
+        .map(EntityType::getScopeString)
         .orElseThrow();
   }
 
   private Single<List<AttributeRequest>> getRequestedAndRequiredAttributes(
       GraphQlRequestContext context, Collection<SelectedField> edges, EdgeType edgeType) {
     return this.attributeRequestBuilder
-        .buildForAttributeQueryableFields(context, AttributeModelScope.INTERACTION, edges.stream())
+        .buildForAttributeQueryableFields(context, HypertraceAttributeScopeString.INTERACTION, edges.stream())
         .mergeWith(this.getNeighborIdAttribute(context, edgeType))
         .mergeWith(this.getNeighborTypeAttribute(context, edgeType))
         .collect(Collectors.toUnmodifiableList());
@@ -139,10 +140,10 @@ class EdgeRequestBuilder {
     switch (edgeType) {
       case INCOMING:
         return this.attributeRequestBuilder.buildForKey(
-            context, AttributeModelScope.INTERACTION, INCOMING_ENTITY_ID_KEY);
+            context, HypertraceAttributeScopeString.INTERACTION, INCOMING_ENTITY_ID_KEY);
       case OUTGOING:
         return this.attributeRequestBuilder.buildForKey(
-            context, AttributeModelScope.INTERACTION, OUTGOING_ENTITY_ID_KEY);
+            context, HypertraceAttributeScopeString.INTERACTION, OUTGOING_ENTITY_ID_KEY);
       default:
         return Single.error(new IllegalStateException("Unexpected value: " + edgeType));
     }
@@ -153,10 +154,10 @@ class EdgeRequestBuilder {
     switch (edgeType) {
       case INCOMING:
         return this.attributeRequestBuilder.buildForKey(
-            context, AttributeModelScope.INTERACTION, INCOMING_ENTITY_TYPE_KEY);
+            context, HypertraceAttributeScopeString.INTERACTION, INCOMING_ENTITY_TYPE_KEY);
       case OUTGOING:
         return this.attributeRequestBuilder.buildForKey(
-            context, AttributeModelScope.INTERACTION, OUTGOING_ENTITY_TYPE_KEY);
+            context, HypertraceAttributeScopeString.INTERACTION, OUTGOING_ENTITY_TYPE_KEY);
       default:
         return Single.error(new IllegalStateException("Unexpected value: " + edgeType));
     }
@@ -170,16 +171,16 @@ class EdgeRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEdgeSetGroupRequest implements EdgeSetGroupRequest {
-    Set<EntityType> entityTypes;
+    Set<String> entityTypes;
     Collection<AttributeRequest> attributeRequests;
     Collection<MetricAggregationRequest> metricAggregationRequests;
     AttributeRequest neighborIdAttribute;
     AttributeRequest neighborTypeAttribute;
-    BiFunction<EntityType, Collection<String>, Single<EntityRequest>> neighborRequestBuilder;
+    BiFunction<String, Collection<String>, Single<EntityRequest>> neighborRequestBuilder;
 
     @Override
     public Single<EntityRequest> buildNeighborRequest(
-        EntityType entityType, Collection<String> neighborIds) {
+        String entityType, Collection<String> neighborIds) {
       return this.neighborRequestBuilder.apply(entityType, neighborIds);
     }
   }

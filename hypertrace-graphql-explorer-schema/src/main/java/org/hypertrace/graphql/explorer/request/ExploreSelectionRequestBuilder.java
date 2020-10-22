@@ -20,7 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
@@ -32,7 +31,6 @@ import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.explorer.schema.ExploreResult;
-import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.SelectionAggregationTypeArgument;
 import org.hypertrace.graphql.explorer.schema.argument.SelectionKeyArgument;
 import org.hypertrace.graphql.explorer.schema.argument.SelectionSizeArgument;
@@ -48,7 +46,6 @@ class ExploreSelectionRequestBuilder {
   private final AttributeStore attributeStore;
   private final Converter<MetricAggregationType, AttributeModelMetricAggregationType>
       aggregationTypeConverter;
-  private final Converter<ExplorerContext, AttributeModelScope> scopeConverter;
   private final AttributeRequestBuilder attributeRequestBuilder;
   private final MetricAggregationRequestBuilder aggregationRequestBuilder;
 
@@ -59,39 +56,37 @@ class ExploreSelectionRequestBuilder {
       AttributeStore attributeStore,
       Converter<MetricAggregationType, AttributeModelMetricAggregationType>
           aggregationTypeConverter,
-      Converter<ExplorerContext, AttributeModelScope> scopeConverter,
       AttributeRequestBuilder attributeRequestBuilder,
       MetricAggregationRequestBuilder aggregationRequestBuilder) {
     this.selectionFinder = selectionFinder;
     this.argumentDeserializer = argumentDeserializer;
     this.attributeStore = attributeStore;
     this.aggregationTypeConverter = aggregationTypeConverter;
-    this.scopeConverter = scopeConverter;
     this.attributeRequestBuilder = attributeRequestBuilder;
     this.aggregationRequestBuilder = aggregationRequestBuilder;
   }
 
   Single<Set<AttributeRequest>> getAttributeSelections(
       GraphQlRequestContext requestContext,
-      ExplorerContext explorerContext,
+      String explorerScope,
       DataFetchingFieldSelectionSet exploreSelectionSet) {
     return this.getSelections(
-            requestContext, explorerContext, exploreSelectionSet, SelectionType.ATTRIBUTE)
+            requestContext, explorerScope, exploreSelectionSet, SelectionType.ATTRIBUTE)
         .map(arguments -> this.attributeRequestBuilder.buildForAttribute(arguments.getAttribute()))
         .collect(Collectors.toUnmodifiableSet());
   }
 
   Single<Set<MetricAggregationRequest>> getAggregationSelections(
       GraphQlRequestContext requestContext,
-      ExplorerContext explorerContext,
+      String explorerScope,
       DataFetchingFieldSelectionSet exploreSelectionSet) {
-    return this.buildAggregationRequests(requestContext, explorerContext, exploreSelectionSet)
+    return this.buildAggregationRequests(requestContext, explorerScope, exploreSelectionSet)
         .collect(Collectors.toUnmodifiableSet());
   }
 
   private Observable<SelectionArguments> getSelections(
       GraphQlRequestContext requestContext,
-      ExplorerContext explorerContext,
+      String explorerScope,
       DataFetchingFieldSelectionSet exploreSelectionSet,
       SelectionType selectionType) {
     return Observable.fromStream(
@@ -102,22 +97,19 @@ class ExploreSelectionRequestBuilder {
                         List.of(
                             RESULT_SET_RESULTS_NAME, ExploreResult.EXPLORE_RESULT_SELECTION_KEY))
                     .build()))
-        .flatMapSingle(field -> this.getSelectionArguments(requestContext, explorerContext, field))
+        .flatMapSingle(field -> this.getSelectionArguments(requestContext, explorerScope, field))
         .filter(arguments -> arguments.getSelectionType().equals(selectionType));
   }
 
   private Single<SelectionArguments> getSelectionArguments(
-      GraphQlRequestContext requestContext,
-      ExplorerContext explorerContext,
-      SelectedField selectedField) {
+      GraphQlRequestContext requestContext, String explorerScope, SelectedField selectedField) {
     String key =
         this.argumentDeserializer
             .deserializePrimitive(selectedField.getArguments(), SelectionKeyArgument.class)
             .orElseThrow();
 
-    return this.scopeConverter
-        .convert(explorerContext)
-        .flatMap(scope -> this.attributeStore.get(requestContext, scope, key))
+    return this.attributeStore
+        .get(requestContext, explorerScope, key)
         .map(attribute -> this.getSelectionArguments(attribute, selectedField));
   }
 
@@ -142,10 +134,10 @@ class ExploreSelectionRequestBuilder {
 
   Observable<MetricAggregationRequest> buildAggregationRequests(
       GraphQlRequestContext requestContext,
-      ExplorerContext explorerContext,
+      String explorerScope,
       DataFetchingFieldSelectionSet exploreSelectionSet) {
     return this.getSelections(
-            requestContext, explorerContext, exploreSelectionSet, SelectionType.AGGREGATION)
+            requestContext, explorerScope, exploreSelectionSet, SelectionType.AGGREGATION)
         .map(this::buildAggregationRequest);
   }
 

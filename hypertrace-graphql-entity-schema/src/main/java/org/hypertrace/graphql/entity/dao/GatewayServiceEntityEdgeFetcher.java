@@ -23,7 +23,6 @@ import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.schema.Edge;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
-import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.MetricAggregationContainer;
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ class GatewayServiceEntityEdgeFetcher {
   }
 
   Single<Map<org.hypertrace.gateway.service.v1.entity.Entity, EdgeResultSet>> fetchForEntityType(
-      EntityType entityType,
+      String entityType,
       EdgeSetGroupRequest edgeSetGroupRequest,
       Collection<InteractionResponse> interactions) {
     return this.neighborMapFetcher

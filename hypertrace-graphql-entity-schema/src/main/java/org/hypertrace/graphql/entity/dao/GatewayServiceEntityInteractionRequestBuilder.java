@@ -21,13 +21,11 @@ import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.entity.InteractionsRequest;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
-import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
 class GatewayServiceEntityInteractionRequestBuilder {
   private static final Integer DEFAULT_INTERACTION_LIMIT = 1000;
   private final Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter;
-  private final Converter<EntityType, String> entityTypeConverter;
   private final Converter<Collection<MetricAggregationRequest>, Set<Expression>>
       aggregationConverter;
   private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
@@ -35,11 +33,9 @@ class GatewayServiceEntityInteractionRequestBuilder {
   @Inject
   GatewayServiceEntityInteractionRequestBuilder(
       Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter,
-      Converter<EntityType, String> entityTypeConverter,
       Converter<Collection<MetricAggregationRequest>, Set<Expression>> aggregationConverter,
       Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter) {
     this.selectionConverter = selectionConverter;
-    this.entityTypeConverter = entityTypeConverter;
     this.aggregationConverter = aggregationConverter;
     this.filterConverter = filterConverter;
   }
@@ -71,7 +67,6 @@ class GatewayServiceEntityInteractionRequestBuilder {
 
   private Single<Filter> buildEntityTypeFilter(EdgeSetGroupRequest request) {
     return Observable.fromIterable(request.entityTypes())
-        .flatMapSingle(this.entityTypeConverter::convert)
         .collect(Collectors.toUnmodifiableSet())
         .map(
             entityTypes ->
