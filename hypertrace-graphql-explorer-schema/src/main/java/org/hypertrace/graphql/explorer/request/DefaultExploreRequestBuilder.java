@@ -26,6 +26,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderAr
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
@@ -45,6 +46,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   private final AttributeAssociator attributeAssociator;
   private final ExploreSelectionRequestBuilder selectionRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
+  private final AttributeScopeStringTranslator scopeStringTranslator;
 
   @Inject
   DefaultExploreRequestBuilder(
@@ -52,12 +54,14 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
       ArgumentDeserializer argumentDeserializer,
       AttributeAssociator attributeAssociator,
       ExploreSelectionRequestBuilder selectionRequestBuilder,
-      FilterRequestBuilder filterRequestBuilder) {
+      FilterRequestBuilder filterRequestBuilder,
+      AttributeScopeStringTranslator scopeStringTranslator) {
     this.attributeRequestBuilder = attributeRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.attributeAssociator = attributeAssociator;
     this.selectionRequestBuilder = selectionRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
+    this.scopeStringTranslator = scopeStringTranslator;
   }
 
   @Override
@@ -74,6 +78,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
                 () ->
                     this.argumentDeserializer.deserializePrimitive(
                         arguments, ExplorerScopeArgument.class))
+            .map(this.scopeStringTranslator::fromExternal)
             .orElseThrow();
 
     return this.build(requestContext, explorerScope, arguments, selectionSet);

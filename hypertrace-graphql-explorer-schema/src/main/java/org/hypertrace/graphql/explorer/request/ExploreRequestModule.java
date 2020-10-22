@@ -10,6 +10,7 @@ import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
@@ -30,5 +31,6 @@ public class ExploreRequestModule extends AbstractModule {
         Key.get(
             new TypeLiteral<
                 Converter<MetricAggregationType, AttributeModelMetricAggregationType>>() {}));
+    requireBinding(AttributeScopeStringTranslator.class);
   }
 }
