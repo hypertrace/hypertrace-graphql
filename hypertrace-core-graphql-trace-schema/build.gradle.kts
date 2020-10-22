@@ -11,7 +11,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok")
   compileOnly("org.projectlombok:lombok")
 
-  compileOnly(project(":hypertrace-core-graphql-attribute-scope"))
+  compileOnly(project(":hypertrace-core-graphql-attribute-scope-constants"))
 
   implementation("org.slf4j:slf4j-api")
   implementation("io.reactivex.rxjava3:rxjava")

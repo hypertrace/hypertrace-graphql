@@ -14,6 +14,7 @@ import org.hypertrace.core.graphql.attributes.AttributeModelType;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeType;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.metadata.schema.AttributeMetadata;
 
 public class MetadataResponseBuilder {
@@ -21,14 +22,17 @@ public class MetadataResponseBuilder {
   private final Converter<AttributeModelType, AttributeType> typeConverter;
   private final Converter<AttributeModelMetricAggregationType, MetricAggregationType>
       aggregationTypeConverter;
+  private final AttributeScopeStringTranslator scopeStringTranslator;
 
   @Inject
   MetadataResponseBuilder(
       Converter<AttributeModelType, AttributeType> typeConverter,
       Converter<AttributeModelMetricAggregationType, MetricAggregationType>
-          aggregationTypeConverter) {
+          aggregationTypeConverter,
+      AttributeScopeStringTranslator scopeStringTranslator) {
     this.typeConverter = typeConverter;
     this.aggregationTypeConverter = aggregationTypeConverter;
+    this.scopeStringTranslator = scopeStringTranslator;
   }
 
   public Single<List<AttributeMetadata>> build(List<AttributeModel> modelList) {
@@ -43,7 +47,7 @@ public class MetadataResponseBuilder {
             this.typeConverter.convert(model.type()),
             (aggregations, type) ->
                 new DefaultAttributeMetadata(
-                    model.scope(),
+                    this.scopeStringTranslator.toExternal(model.scope()),
                     model.key(),
                     model.displayName(),
                     type,

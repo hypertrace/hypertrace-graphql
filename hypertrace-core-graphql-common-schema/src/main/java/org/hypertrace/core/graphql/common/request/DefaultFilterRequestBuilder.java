@@ -16,19 +16,24 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
 
   private final AttributeAssociator attributeAssociator;
   private final AttributeStore attributeStore;
+  private final AttributeScopeStringTranslator scopeTranslator;
 
   @Inject
   DefaultFilterRequestBuilder(
-      AttributeAssociator attributeAssociator, AttributeStore attributeStore) {
+      AttributeAssociator attributeAssociator,
+      AttributeStore attributeStore,
+      AttributeScopeStringTranslator scopeTranslator) {
 
     this.attributeAssociator = attributeAssociator;
     this.attributeStore = attributeStore;
+    this.scopeTranslator = scopeTranslator;
   }
 
   @Override
@@ -59,6 +64,7 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
             .switchIfEmpty(Maybe.fromOptional(Optional.ofNullable(filterArgument.idScope())))
             .switchIfEmpty(
                 Single.error(new UnsupportedOperationException("ID filter must specify idScope")))
+            .map(this.scopeTranslator::fromExternal)
             .flatMap(
                 foreignScope ->
                     this.attributeStore.getForeignIdAttribute(requestContext, scope, foreignScope))

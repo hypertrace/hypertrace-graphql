@@ -15,8 +15,11 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok")
   compileOnly("org.projectlombok:lombok")
 
+  compileOnly(project(":hypertrace-core-graphql-attribute-scope-constants"))
+
   implementation(project(":hypertrace-core-graphql-deserialization"))
   implementation(project(":hypertrace-core-graphql-schema-utils"))
+
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")
   testImplementation("org.mockito:mockito-junit-jupiter")

@@ -14,6 +14,7 @@ import org.hypertrace.core.graphql.attributes.AttributeModelType;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeType;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +32,13 @@ class MetadataResponseBuilderTest {
   private Converter<AttributeModelMetricAggregationType, MetricAggregationType>
       mockAggregationTypeConverter;
 
+  @Mock private AttributeScopeStringTranslator mockScopeTranslator;
+
   @BeforeEach
   void beforeEach() {
     this.builder =
-        new MetadataResponseBuilder(this.mockTypeConverter, this.mockAggregationTypeConverter);
+        new MetadataResponseBuilder(
+            this.mockTypeConverter, this.mockAggregationTypeConverter, this.mockScopeTranslator);
     AttributeModel mockModel = mock(AttributeModel.class);
     when(mockModel.scope()).thenReturn("TRACE");
     when(mockModel.key()).thenReturn("key");
@@ -53,6 +57,7 @@ class MetadataResponseBuilderTest {
         .thenReturn(Single.just(MetricAggregationType.SUM));
     when(this.mockAggregationTypeConverter.convert(eq(AttributeModelMetricAggregationType.AVG)))
         .thenReturn(Single.just(MetricAggregationType.AVG));
+    when(this.mockScopeTranslator.toExternal("TRACE")).thenReturn("TRACE_EXTERNAL");
     this.models = List.of(mockModel);
   }
 
@@ -61,7 +66,7 @@ class MetadataResponseBuilderTest {
     assertEquals(
         List.of(
             DefaultAttributeMetadata.builder()
-                .scope("TRACE")
+                .scope("TRACE_EXTERNAL")
                 .name("key")
                 .displayName("display name")
                 .type(AttributeType.STRING)
@@ -87,7 +92,7 @@ class MetadataResponseBuilderTest {
     assertEquals(
         List.of(
             DefaultAttributeMetadata.builder()
-                .scope("TRACE")
+                .scope("TRACE_EXTERNAL")
                 .name("key")
                 .displayName("display name")
                 .type(AttributeType.STRING)

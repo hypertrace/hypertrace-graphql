@@ -26,6 +26,7 @@ public class AttributeUtilsModule extends AbstractModule {
         .to(AttributeModelMetricAggregationTypeConverter.class);
 
     bind(AttributeAssociator.class).to(DefaultAttributeAssociator.class);
+    bind(AttributeScopeStringTranslator.class).to(DefaultAttributeScopeStringTranslator.class);
 
     requireBinding(AttributeStore.class);
   }
