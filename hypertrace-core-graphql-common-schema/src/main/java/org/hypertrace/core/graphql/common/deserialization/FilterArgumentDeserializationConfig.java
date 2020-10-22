@@ -59,6 +59,9 @@ class FilterArgumentDeserializationConfig implements ArgumentDeserializationConf
     Object value;
 
     @JsonProperty(FILTER_ARGUMENT_ID_TYPE)
-    AttributeScope idScope;
+    AttributeScope idType;
+
+    @JsonProperty(FILTER_ARGUMENT_ID_SCOPE)
+    String idScope;
   }
 }

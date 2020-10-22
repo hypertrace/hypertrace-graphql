@@ -54,10 +54,11 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
                 filterArgument.key(), filterArgument.operator(), filterArgument.value()),
             FilterArgument::key);
       case ID:
-        return Maybe.fromOptional(Optional.ofNullable(filterArgument.idScope()))
+        return Maybe.fromOptional(Optional.ofNullable(filterArgument.idType()))
+            .map(AttributeScope::getScopeString)
+            .switchIfEmpty(Maybe.fromOptional(Optional.ofNullable(filterArgument.idScope())))
             .switchIfEmpty(
                 Single.error(new UnsupportedOperationException("ID filter must specify idScope")))
-            .map(AttributeScope::getScopeString)
             .flatMap(
                 foreignScope ->
                     this.attributeStore.getForeignIdAttribute(requestContext, scope, foreignScope))
@@ -83,6 +84,7 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
     String key;
     FilterOperatorType operator;
     Object value;
-    AttributeScope idScope = null;
+    String idScope = null;
+    AttributeScope idType = null;
   }
 }

@@ -35,7 +35,7 @@ class FilterArgumentDeserializationConfigTest {
 
     @Override
     public String getExternalScopeString() {
-      return "SCOPE";
+      return name();
     }
   }
 
@@ -82,6 +82,6 @@ class FilterArgumentDeserializationConfigTest {
     assertEquals(FilterOperatorType.EQUALS, result.get(0).operator());
     assertEquals(FilterType.ATTRIBUTE, result.get(0).type());
     assertEquals("fooValue", result.get(0).value());
-    assertEquals(TestAttributeScope.SCOPE, result.get(0).idScope());
+    assertEquals(TestAttributeScope.SCOPE, result.get(0).idType());
   }
 }

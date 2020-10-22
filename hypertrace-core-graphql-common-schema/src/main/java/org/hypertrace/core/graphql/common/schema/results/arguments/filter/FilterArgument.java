@@ -1,5 +1,6 @@
 package org.hypertrace.core.graphql.common.schema.results.arguments.filter;
 
+import graphql.annotations.annotationTypes.GraphQLDeprecate;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -16,6 +17,7 @@ public interface FilterArgument {
   String FILTER_ARGUMENT_OPERATOR = "operator";
   String FILTER_ARGUMENT_VALUE = "value";
   String FILTER_ARGUMENT_ID_TYPE = "idType"; // TODO rename
+  String FILTER_ARGUMENT_ID_SCOPE = "idScope";
 
   @GraphQLField
   @GraphQLNonNull
@@ -40,5 +42,11 @@ public interface FilterArgument {
   @GraphQLField
   @GraphQLName(FILTER_ARGUMENT_ID_TYPE)
   @Nullable
-  AttributeScope idScope();
+  @GraphQLDeprecate
+  AttributeScope idType();
+
+  @GraphQLField
+  @GraphQLName(FILTER_ARGUMENT_ID_SCOPE)
+  @Nullable
+  String idScope();
 }
