@@ -88,7 +88,5 @@ public class EntityDaoModule extends AbstractModule {
                     Collection<MetricAggregationRequest>,
                     Map<String, AggregatedMetricValue>,
                     Map<String, MetricAggregationContainer>>>() {}));
-
-    requireBinding(Key.get(new TypeLiteral<Converter<String, Optional<EntityType>>>() {}));
   }
 }

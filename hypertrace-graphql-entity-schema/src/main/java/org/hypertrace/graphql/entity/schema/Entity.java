@@ -13,23 +13,16 @@ import org.hypertrace.graphql.metric.schema.MetricQueryable;
 
 @GraphQLName(Entity.TYPE_NAME)
 public interface Entity
-    extends AttributeQueryable, MetricQueryable, Identifiable, Typed<EntityType> {
+    extends AttributeQueryable, MetricQueryable, Identifiable, Typed<String> {
   String TYPE_NAME = "Entity";
   String ENTITY_INCOMING_EDGES_KEY = "incomingEdges";
   String ENTITY_OUTGOING_EDGES_KEY = "outgoingEdges";
-  String ENTITY_TYPE_STRING_KEY = "typeString";
 
   @Override
   @GraphQLField
-  @GraphQLDeprecate
-  @Deprecated
-  @GraphQLName(TYPE_FIELD_NAME)
-  EntityType type();
-
-  @GraphQLField
   @GraphQLNonNull
-  @GraphQLName(ENTITY_TYPE_STRING_KEY)
-  String typeString();
+  @GraphQLName(TYPE_FIELD_NAME)
+  String type();
 
   @GraphQLField
   @GraphQLNonNull
