@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
@@ -43,7 +43,7 @@ class NeighborEntitiesRequestBuilder {
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final MetricRequestBuilder metricRequestBuilder;
   private final EdgeRequestBuilder edgeRequestBuilder;
-  private final AttributeStore attributeStore;
+  private final FilterRequestBuilder filterRequestBuilder;
 
   @Inject
   NeighborEntitiesRequestBuilder(
@@ -51,12 +51,12 @@ class NeighborEntitiesRequestBuilder {
       ResultSetRequestBuilder resultSetRequestBuilder,
       MetricRequestBuilder metricRequestBuilder,
       EdgeRequestBuilder edgeRequestBuilder,
-      AttributeStore attributeStore) {
+      FilterRequestBuilder filterRequestBuilder) {
     this.selectionFinder = selectionFinder;
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.metricRequestBuilder = metricRequestBuilder;
     this.edgeRequestBuilder = edgeRequestBuilder;
-    this.attributeStore = attributeStore;
+    this.filterRequestBuilder = filterRequestBuilder;
   }
 
   Single<EntityRequest> buildNeighborRequest(
@@ -108,15 +108,10 @@ class NeighborEntitiesRequestBuilder {
                     neighborFields.stream()));
   }
 
-  private Single<Collection<AttributeAssociation<FilterArgument>>> getIdFilter(
+  private Single<List<AttributeAssociation<FilterArgument>>> getIdFilter(
       GraphQlRequestContext context, String neighborScope, Collection<String> neighborIds) {
-    return this.attributeStore
-        .getIdAttribute(context, neighborScope)
-        .map(
-            idAttribute ->
-                AttributeAssociation.<FilterArgument>of(
-                    idAttribute, new EntityNeighborIdFilter(idAttribute.key(), neighborIds)))
-        .map(Set::of);
+    return this.filterRequestBuilder.build(
+        context, neighborScope, Set.of(new EntityNeighborIdFilter(neighborIds, neighborScope)));
   }
 
   private Stream<SelectedField> getIncomingEdges(Collection<SelectedField> neighborFields) {
@@ -149,11 +144,12 @@ class NeighborEntitiesRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class EntityNeighborIdFilter implements FilterArgument {
-    FilterType type = FilterType.ATTRIBUTE;
-    String key;
+    FilterType type = FilterType.ID;
+    String key = null;
     FilterOperatorType operator = FilterOperatorType.IN;
     Collection<String> value;
-    AttributeScope idScope = null; // Easier to use a plain attribute filter rather than convert
+    AttributeScope idType = null;
+    String idScope;
   }
 
   @Value

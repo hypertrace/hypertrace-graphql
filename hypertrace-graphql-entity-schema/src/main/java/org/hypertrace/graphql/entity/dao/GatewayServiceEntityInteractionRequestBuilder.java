@@ -84,6 +84,7 @@ class GatewayServiceEntityInteractionRequestBuilder {
     String key;
     FilterOperatorType operator = FilterOperatorType.IN;
     Collection<String> value;
-    AttributeScope idScope = null;
+    AttributeScope idType = null;
+    String idScope = null;
   }
 }

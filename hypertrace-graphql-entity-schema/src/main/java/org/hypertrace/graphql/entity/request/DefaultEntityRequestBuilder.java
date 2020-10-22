@@ -22,6 +22,7 @@ import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.schema.EntityType;
+import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
@@ -58,6 +59,10 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
         this.argumentDeserializer
             .deserializePrimitive(arguments, EntityTypeArgument.class)
             .map(EntityType::getScopeString)
+            .or(
+                () ->
+                    this.argumentDeserializer.deserializePrimitive(
+                        arguments, EntityScopeArgument.class))
             .orElseThrow();
 
     return this.build(context, arguments, entityScope, selectionSet);

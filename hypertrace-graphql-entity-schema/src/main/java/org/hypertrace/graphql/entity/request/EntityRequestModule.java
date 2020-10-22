@@ -3,6 +3,7 @@ package org.hypertrace.graphql.entity.request;
 import com.google.inject.AbstractModule;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
+import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -21,6 +22,6 @@ public class EntityRequestModule extends AbstractModule {
     requireBinding(AttributeRequestBuilder.class);
     requireBinding(MetricAggregationRequestBuilder.class);
     requireBinding(GraphQlSelectionFinder.class);
-    requireBinding(AttributeStore.class);
+    requireBinding(FilterRequestBuilder.class);
   }
 }

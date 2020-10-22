@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContextArgument;
+import org.hypertrace.graphql.explorer.schema.argument.ExplorerScopeArgument;
 import org.hypertrace.graphql.explorer.schema.argument.SelectionAggregationTypeArgument;
 import org.hypertrace.graphql.explorer.schema.argument.SelectionKeyArgument;
 import org.hypertrace.graphql.explorer.schema.argument.SelectionSizeArgument;
@@ -21,6 +22,12 @@ public class ExplorerDeserializationModule extends AbstractModule {
         .toInstance(
             ArgumentDeserializationConfig.forPrimitive(
                 ExplorerContextArgument.ARGUMENT_NAME, ExplorerContextArgument.class));
+
+    deserializationConfigMultibinder
+        .addBinding()
+        .toInstance(
+            ArgumentDeserializationConfig.forPrimitive(
+                ExplorerScopeArgument.ARGUMENT_NAME, ExplorerScopeArgument.class));
 
     deserializationConfigMultibinder
         .addBinding()
