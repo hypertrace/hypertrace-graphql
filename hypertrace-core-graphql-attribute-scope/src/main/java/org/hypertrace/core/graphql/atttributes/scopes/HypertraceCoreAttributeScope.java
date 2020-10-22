@@ -16,9 +16,4 @@ enum HypertraceCoreAttributeScope implements AttributeScope {
   public String getScopeString() {
     return this.scope;
   }
-
-  @Override
-  public String getExternalScopeString() {
-    return this.name();
-  }
 }

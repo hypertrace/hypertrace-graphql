@@ -8,11 +8,9 @@ import static org.mockito.Mockito.when;
 
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
-import java.util.Optional;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
 import org.hypertrace.core.graphql.attributes.AttributeModelType;
-import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeType;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.common.utils.Converter;
@@ -27,9 +25,7 @@ class MetadataResponseBuilderTest {
 
   private MetadataResponseBuilder builder;
   private List<AttributeModel> models;
-  @Mock private Converter<String, Optional<AttributeScope>> mockScopeConverter;
   @Mock private Converter<AttributeModelType, AttributeType> mockTypeConverter;
-  @Mock private AttributeScope mockScope;
 
   @Mock
   private Converter<AttributeModelMetricAggregationType, MetricAggregationType>
@@ -38,8 +34,7 @@ class MetadataResponseBuilderTest {
   @BeforeEach
   void beforeEach() {
     this.builder =
-        new MetadataResponseBuilder(
-            this.mockScopeConverter, this.mockTypeConverter, this.mockAggregationTypeConverter);
+        new MetadataResponseBuilder(this.mockTypeConverter, this.mockAggregationTypeConverter);
     AttributeModel mockModel = mock(AttributeModel.class);
     when(mockModel.scope()).thenReturn("TRACE");
     when(mockModel.key()).thenReturn("key");
@@ -52,9 +47,6 @@ class MetadataResponseBuilderTest {
         .thenReturn(
             List.of(
                 AttributeModelMetricAggregationType.SUM, AttributeModelMetricAggregationType.AVG));
-    when(this.mockScopeConverter.convert("TRACE"))
-        .thenReturn(Single.just(Optional.of(this.mockScope)));
-
     when(this.mockTypeConverter.convert(eq(AttributeModelType.STRING)))
         .thenReturn(Single.just(AttributeType.STRING));
     when(this.mockAggregationTypeConverter.convert(eq(AttributeModelMetricAggregationType.SUM)))
@@ -69,8 +61,7 @@ class MetadataResponseBuilderTest {
     assertEquals(
         List.of(
             DefaultAttributeMetadata.builder()
-                .scope(this.mockScope)
-                .scopeString("TRACE")
+                .scope("TRACE")
                 .name("key")
                 .displayName("display name")
                 .type(AttributeType.STRING)
@@ -96,8 +87,7 @@ class MetadataResponseBuilderTest {
     assertEquals(
         List.of(
             DefaultAttributeMetadata.builder()
-                .scope(this.mockScope)
-                .scopeString("TRACE")
+                .scope("TRACE")
                 .name("key")
                 .displayName("display name")
                 .type(AttributeType.STRING)

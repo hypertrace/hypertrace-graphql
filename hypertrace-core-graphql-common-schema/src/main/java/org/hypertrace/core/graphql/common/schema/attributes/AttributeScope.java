@@ -9,7 +9,4 @@ public interface AttributeScope {
 
   // Temporary measure until the scope enum is removed entirely
   String getScopeString();
-
-  // TODO - rename all scopes to match external names and remove this
-  String getExternalScopeString();
 }

@@ -24,7 +24,6 @@ public class MetadataSchemaModule extends AbstractModule {
 
     requireBinding(AttributeStore.class);
 
-    requireBinding(Key.get(new TypeLiteral<Converter<String, Optional<AttributeScope>>>() {}));
     requireBinding(Key.get(new TypeLiteral<Converter<AttributeModelType, AttributeType>>() {}));
     requireBinding(
         Key.get(

@@ -32,11 +32,6 @@ class FilterArgumentDeserializationConfigTest {
     public String getScopeString() {
       return "SCOPE";
     }
-
-    @Override
-    public String getExternalScopeString() {
-      return name();
-    }
   }
 
   @BeforeEach

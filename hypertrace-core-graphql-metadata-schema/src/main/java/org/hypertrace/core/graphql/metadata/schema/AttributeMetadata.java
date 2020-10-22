@@ -13,7 +13,6 @@ import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationTyp
 public interface AttributeMetadata {
   String TYPE_NAME = "AttributeMetadata";
   String ATTRIBUTE_METADATA_SCOPE_NAME = "scope";
-  String ATTRIBUTE_METADATA_SCOPE_STRING_NAME = "scopeString";
   String ATTRIBUTE_METADATA_NAME_NAME = "name";
   String ATTRIBUTE_METADATA_DISPLAY_NAME = "displayName";
   String ATTRIBUTE_METADATA_TYPE_NAME = "type";
@@ -23,15 +22,9 @@ public interface AttributeMetadata {
   String ATTRIBUTE_METADATA_GROUPABLE_NAME = "groupable";
 
   @GraphQLField
-  @GraphQLName(ATTRIBUTE_METADATA_SCOPE_NAME)
-  @GraphQLDeprecate
-  @Deprecated
-  AttributeScope scope();
-
-  @GraphQLField
   @GraphQLNonNull
-  @GraphQLName(ATTRIBUTE_METADATA_SCOPE_STRING_NAME)
-  String scopeString();
+  @GraphQLName(ATTRIBUTE_METADATA_SCOPE_NAME)
+  String scope();
 
   @GraphQLField
   @GraphQLNonNull

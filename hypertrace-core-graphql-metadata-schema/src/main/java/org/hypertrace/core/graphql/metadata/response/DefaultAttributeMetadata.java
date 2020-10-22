@@ -13,8 +13,7 @@ import org.hypertrace.core.graphql.metadata.schema.AttributeMetadata;
 @Builder
 @Accessors(fluent = true)
 class DefaultAttributeMetadata implements AttributeMetadata {
-  AttributeScope scope;
-  String scopeString;
+  String scope;
   String name;
   String displayName;
   AttributeType type;
