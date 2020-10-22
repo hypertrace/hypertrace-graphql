@@ -1,7 +1,5 @@
 package org.hypertrace.core.graphql.attributes;
 
-import static org.hypertrace.core.graphql.attributes.AttributeModelScope.SPAN;
-import static org.hypertrace.core.graphql.attributes.AttributeModelScope.TRACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,9 +35,9 @@ class CachingAttributeStoreTest {
   @Mock IdLookup mockIdLookup;
 
   private final AttributeModel traceAttribute =
-      DefaultAttributeModel.builder().scope(TRACE).key("traceKey").build();
+      DefaultAttributeModel.builder().scope("TRACE").key("traceKey").build();
   private final AttributeModel spanAttribute =
-      DefaultAttributeModel.builder().scope(SPAN).key("spanKey").build();
+      DefaultAttributeModel.builder().scope("SPAN").key("spanKey").build();
 
   private AttributeStore attributeStore;
 
@@ -87,7 +85,7 @@ class CachingAttributeStoreTest {
 
     assertThrows(
         NoSuchElementException.class,
-        this.attributeStore.get(context, SPAN, "nonExistentKey")::blockingGet);
+        this.attributeStore.get(context, "SPAN", "nonExistentKey")::blockingGet);
   }
 
   @Test
@@ -172,11 +170,11 @@ class CachingAttributeStoreTest {
   void supportsAndCachesIdLookup() {
     GraphQlRequestContext context = this.buildNewMockContext();
     DefaultAttributeModel spanIdAttribute =
-        DefaultAttributeModel.builder().scope(SPAN).key("id").build();
+        DefaultAttributeModel.builder().scope("SPAN").key("id").build();
 
     when(this.mockAttributeClient.queryAll(eq(context)))
         .thenReturn(Observable.just(spanIdAttribute));
-    when(this.mockIdLookup.idKey(eq(SPAN))).thenReturn(Optional.of("id"));
+    when(this.mockIdLookup.idKey(eq("SPAN"))).thenReturn(Optional.of("id"));
 
     assertEquals(
         spanIdAttribute,
@@ -192,22 +190,22 @@ class CachingAttributeStoreTest {
   @Test
   void returnsErrorForMissingIdMapping() {
     assertThrows(
-        NoSuchElementException.class, this.attributeStore.getIdAttribute(null, SPAN)::blockingGet);
+        NoSuchElementException.class, this.attributeStore.getIdAttribute(null, "SPAN")::blockingGet);
   }
 
   @Test
   void supportsForeignIdLookup() {
     GraphQlRequestContext context = this.buildNewMockContext();
     DefaultAttributeModel spanTraceIdAttribute =
-        DefaultAttributeModel.builder().scope(SPAN).key("traceId").build();
+        DefaultAttributeModel.builder().scope("SPAN").key("traceId").build();
 
-    when(this.mockIdLookup.foreignIdKey(eq(SPAN), eq(TRACE))).thenReturn(Optional.of("traceId"));
+    when(this.mockIdLookup.foreignIdKey(eq("SPAN"), eq("TRACE"))).thenReturn(Optional.of("traceId"));
     when(this.mockAttributeClient.queryAll(eq(context)))
         .thenReturn(Observable.just(spanTraceIdAttribute));
 
     assertEquals(
         spanTraceIdAttribute,
-        this.attributeStore.getForeignIdAttribute(context, SPAN, TRACE).blockingGet());
+        this.attributeStore.getForeignIdAttribute(context, "SPAN", "TRACE").blockingGet());
   }
 
   @Test

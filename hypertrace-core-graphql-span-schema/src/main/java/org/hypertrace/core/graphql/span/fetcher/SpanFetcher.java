@@ -4,7 +4,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
+import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.span.dao.SpanDao;
@@ -31,7 +31,7 @@ public class SpanFetcher extends InjectableDataFetcher<SpanResultSet> {
       return this.requestBuilder
           .build(
               environment.getContext(),
-              AttributeModelScope.SPAN,
+              HypertraceCoreAttributeScopeString.SPAN,
               environment.getArguments(),
               environment.getSelectionSet())
           .flatMap(this.spanDao::getSpans)

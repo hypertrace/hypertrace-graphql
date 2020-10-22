@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeQueryable;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeKeyArgument;
@@ -36,14 +35,14 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
 
   @Override
   public Single<AttributeRequest> buildForId(
-      GraphQlRequestContext context, AttributeModelScope attributeScope) {
+      GraphQlRequestContext context, String attributeScope) {
     return this.attributeStore.getIdAttribute(context, attributeScope).map(this::buildForAttribute);
   }
 
   @Override
   public Observable<AttributeRequest> buildForAttributeQueryableSelectionSet(
       GraphQlRequestContext context,
-      AttributeModelScope attributeScope,
+      String attributeScope,
       DataFetchingFieldSelectionSet attributeQueryableSelectionSet) {
     return Observable.fromStream(
             this.getAttributeKeysForAttributeQueryableSelectionSet(attributeQueryableSelectionSet))
@@ -54,7 +53,7 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
   @Override
   public Observable<AttributeRequest> buildForAttributeQueryableFields(
       GraphQlRequestContext context,
-      AttributeModelScope attributeScope,
+      String attributeScope,
       Stream<SelectedField> attributeQueryableFields) {
     return Observable.fromStream(attributeQueryableFields)
         .map(SelectedField::getSelectionSet)
@@ -67,7 +66,7 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
   @Override
   public Observable<AttributeRequest> buildForAttributeQueryableFieldsAndId(
       GraphQlRequestContext context,
-      AttributeModelScope attributeScope,
+      String attributeScope,
       Stream<SelectedField> attributeQueryableFields) {
     return this.buildForAttributeQueryableFields(context, attributeScope, attributeQueryableFields)
         .mergeWith(this.buildForId(context, attributeScope))
@@ -76,7 +75,7 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
 
   @Override
   public Single<AttributeRequest> buildForKey(
-      GraphQlRequestContext context, AttributeModelScope requestScope, String attributeKey) {
+      GraphQlRequestContext context, String requestScope, String attributeKey) {
     return this.attributeStore
         .get(context, requestScope, attributeKey)
         .map(this::buildForAttribute);

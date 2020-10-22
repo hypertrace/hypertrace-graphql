@@ -24,30 +24,26 @@ class GatewayServiceTraceRequestBuilder {
   private final Converter<List<AttributeAssociation<OrderArgument>>, List<OrderByExpression>>
       orderConverter;
   private final Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter;
-  private final GatewayServiceTraceTypeConverter traceTypeConverter;
 
   @Inject
   GatewayServiceTraceRequestBuilder(
       Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter,
       Converter<List<AttributeAssociation<OrderArgument>>, List<OrderByExpression>> orderConverter,
-      Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter,
-      GatewayServiceTraceTypeConverter traceTypeConverter) {
+      Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter) {
     this.filterConverter = filterConverter;
     this.orderConverter = orderConverter;
     this.selectionConverter = selectionConverter;
-    this.traceTypeConverter = traceTypeConverter;
   }
 
   Single<TracesRequest> buildRequest(TraceRequest request) {
 
     return zip(
-        this.traceTypeConverter.convert(request.traceType()),
         this.selectionConverter.convert(request.resultSetRequest().attributes()),
         this.orderConverter.convert(request.resultSetRequest().orderArguments()),
         this.filterConverter.convert(request.resultSetRequest().filterArguments()),
-        (traceScope, selections, orderBys, filters) ->
+        (selections, orderBys, filters) ->
             TracesRequest.newBuilder()
-                .setScope(traceScope)
+                .setScope(request.traceType().getScopeString())
                 .setStartTimeMillis(
                     request.resultSetRequest().timeRange().startTime().toEpochMilli())
                 .setEndTimeMillis(request.resultSetRequest().timeRange().endTime().toEpochMilli())

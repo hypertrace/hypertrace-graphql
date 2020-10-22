@@ -9,12 +9,12 @@ import lombok.experimental.Accessors;
 @Value
 @Accessors(fluent = true)
 class DefaultIdMapping implements IdMapping {
-  @Nonnull AttributeModelScope containingScope;
+  @Nonnull String containingScope;
   @Nonnull String idAttribute;
-  @Nullable AttributeModelScope foreignScope;
+  @Nullable String foreignScope;
 
   @Override
-  public AttributeModelScope foreignScope() {
+  public String foreignScope() {
     return Optional.ofNullable(this.foreignScope).orElse(containingScope);
   }
 }

@@ -9,7 +9,7 @@ import javax.inject.Singleton;
 @Singleton
 class IdLookup {
 
-  private final ImmutableTable<AttributeModelScope, AttributeModelScope, String> idTable;
+  private final ImmutableTable<String, String, String> idTable;
 
   @Inject
   IdLookup(Set<IdMapping> idMappings) {
@@ -20,11 +20,11 @@ class IdLookup {
                     IdMapping::containingScope, IdMapping::foreignScope, IdMapping::idAttribute));
   }
 
-  Optional<String> idKey(AttributeModelScope scope) {
+  Optional<String> idKey(String scope) {
     return this.foreignIdKey(scope, scope);
   }
 
-  Optional<String> foreignIdKey(AttributeModelScope scope, AttributeModelScope foreignScope) {
+  Optional<String> foreignIdKey(String scope, String foreignScope) {
     return Optional.ofNullable(this.idTable.get(scope, foreignScope));
   }
 }

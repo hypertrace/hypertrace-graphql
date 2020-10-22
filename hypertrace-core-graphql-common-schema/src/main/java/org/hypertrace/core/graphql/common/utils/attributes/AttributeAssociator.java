@@ -4,7 +4,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.function.Function;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
@@ -12,13 +11,13 @@ public interface AttributeAssociator {
 
   <T> Observable<AttributeAssociation<T>> associateAttributes(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Collection<T> inputs,
       Function<T, String> attributeKeyMapper);
 
   <T> Single<AttributeAssociation<T>> associateAttribute(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       T input,
       Function<T, String> attributeKeyMapper);
 }

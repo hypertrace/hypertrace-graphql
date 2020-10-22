@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
@@ -53,7 +52,7 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
   @Override
   public Single<ResultSetRequest<OrderArgument>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet) {
     return this.build(context, requestScope, arguments, selectionSet, OrderArgument.class);
@@ -62,7 +61,7 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
   @Override
   public <O extends OrderArgument> Single<ResultSetRequest<O>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet,
       Class<O> orderArgumentClass) {
@@ -112,7 +111,7 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
   @Override
   public <O extends OrderArgument> Single<ResultSetRequest<O>> build(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       int limit,
       int offset,
       TimeRangeArgument timeRange,

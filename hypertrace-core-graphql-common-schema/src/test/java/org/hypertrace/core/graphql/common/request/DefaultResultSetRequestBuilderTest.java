@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
@@ -66,12 +65,12 @@ class DefaultResultSetRequestBuilderTest {
   @Test
   void canBuildRequest() {
     when(this.mockAttributeAssociator.associateAttributes(
-            any(), eq(AttributeModelScope.SPAN), eq(List.of(this.mockOrderArgument)), any()))
+            any(), eq("SPAN"), eq(List.of(this.mockOrderArgument)), any()))
         .thenReturn(
             Observable.just(
                 AttributeAssociation.of(this.mockFooAttribute, this.mockOrderArgument)));
     when(this.mockFilterBuilder.build(
-            any(), eq(AttributeModelScope.SPAN), eq(List.of(this.mockFilterArgument))))
+            any(), eq("SPAN"), eq(List.of(this.mockFilterArgument))))
         .thenReturn(
             Single.just(
                 List.of(AttributeAssociation.of(this.mockFooAttribute, this.mockFilterArgument))));
@@ -97,7 +96,7 @@ class DefaultResultSetRequestBuilderTest {
         this.requestBuilder
             .build(
                 this.mockContext,
-                AttributeModelScope.SPAN,
+                "SPAN",
                 Collections.emptyMap(), // Arg parser mocked, don't need values
                 this.mockSelectionSet)
             .blockingGet();

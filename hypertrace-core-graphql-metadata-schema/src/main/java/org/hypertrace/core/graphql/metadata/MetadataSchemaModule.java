@@ -4,8 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import java.util.Optional;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeModelType;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
@@ -24,7 +24,7 @@ public class MetadataSchemaModule extends AbstractModule {
 
     requireBinding(AttributeStore.class);
 
-    requireBinding(Key.get(new TypeLiteral<Converter<AttributeModelScope, AttributeScope>>() {}));
+    requireBinding(Key.get(new TypeLiteral<Converter<String, Optional<AttributeScope>>>() {}));
     requireBinding(Key.get(new TypeLiteral<Converter<AttributeModelType, AttributeType>>() {}));
     requireBinding(
         Key.get(

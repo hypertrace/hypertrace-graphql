@@ -5,7 +5,6 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.function.Function;
 import javax.inject.Inject;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
@@ -22,7 +21,7 @@ class DefaultAttributeAssociator implements AttributeAssociator {
   @Override
   public <T> Observable<AttributeAssociation<T>> associateAttributes(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       Collection<T> inputs,
       Function<T, String> attributeKeyMapper) {
     return Observable.fromIterable(inputs)
@@ -33,7 +32,7 @@ class DefaultAttributeAssociator implements AttributeAssociator {
   @Override
   public <T> Single<AttributeAssociation<T>> associateAttribute(
       GraphQlRequestContext context,
-      AttributeModelScope requestScope,
+      String requestScope,
       T input,
       Function<T, String> attributeKeyMapper) {
     return this.attributeStore

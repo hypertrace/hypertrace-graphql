@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.hypertrace.core.attribute.service.v1.AggregateFunction;
 import org.hypertrace.core.attribute.service.v1.AttributeKind;
 import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
-import org.hypertrace.core.attribute.service.v1.AttributeScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ class AttributeModelTranslator {
       return Optional.of(
           new DefaultAttributeModel(
               attributeMetadata.getId(),
-              this.convertScope(attributeMetadata.getScope()),
+              attributeMetadata.getScopeString(),
               attributeMetadata.getKey(),
               attributeMetadata.getDisplayName(),
               this.convertType(attributeMetadata.getValueKind()),
@@ -92,48 +91,6 @@ class AttributeModelTranslator {
       default:
         throw new UnknownFormatConversionException(
             String.format("Unrecognized attribute kind %s", kind.name()));
-    }
-  }
-
-  private AttributeModelScope convertScope(AttributeScope scope) {
-    switch (scope) {
-      case TRACE:
-        return AttributeModelScope.TRACE;
-      case EVENT:
-        return AttributeModelScope.SPAN;
-      case INTERACTION:
-        return AttributeModelScope.INTERACTION;
-      case DOMAIN_EVENT:
-        return AttributeModelScope.DOMAIN_EVENT;
-      case API:
-        return AttributeModelScope.API;
-      case SERVICE:
-        return AttributeModelScope.SERVICE;
-      case DOMAIN:
-        return AttributeModelScope.DOMAIN;
-      case TRANSACTION:
-        return AttributeModelScope.TRANSACTION;
-      case SESSION:
-        return AttributeModelScope.SESSION;
-      case API_TRACE:
-        return AttributeModelScope.API_TRACE;
-      case BACKEND:
-        return AttributeModelScope.BACKEND;
-      case BACKEND_TRACE:
-        return AttributeModelScope.BACKEND_TRACE;
-      case ACTOR:
-        return AttributeModelScope.ACTOR;
-      case SCOPE_UNDEFINED:
-      case ENTITY:
-      case EVENT_EVENT_EDGE:
-      case ENTITY_EVENT_EDGE:
-      case ENTITY_ENTITY_EDGE:
-      case THREAT_ACTOR:
-      case CLUSTERS_SNAPSHOT:
-      case UNRECOGNIZED:
-      default:
-        throw new UnknownFormatConversionException(
-            String.format("Unrecognized attribute scope %s", scope.name()));
     }
   }
 }

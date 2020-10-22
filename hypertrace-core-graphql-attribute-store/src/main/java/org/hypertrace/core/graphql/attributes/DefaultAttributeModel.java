@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 class DefaultAttributeModel implements AttributeModel {
   String id;
-  AttributeModelScope scope;
+  String scope;
   String key;
   String displayName;
   AttributeModelType type;

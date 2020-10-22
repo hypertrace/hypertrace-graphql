@@ -5,23 +5,23 @@ import javax.annotation.Nonnull;
 
 public interface IdMapping {
 
-  AttributeModelScope containingScope();
+  String containingScope();
 
   String idAttribute();
 
-  default AttributeModelScope foreignScope() {
+  default String foreignScope() {
     return null;
   }
 
-  static IdMapping forId(@Nonnull AttributeModelScope scope, @Nonnull String idAttribute) {
+  static IdMapping forId(@Nonnull String scope, @Nonnull String idAttribute) {
     Objects.requireNonNull(scope);
     Objects.requireNonNull(idAttribute);
     return new DefaultIdMapping(scope, idAttribute, null);
   }
 
   static IdMapping forForeignId(
-      @Nonnull AttributeModelScope scope,
-      @Nonnull AttributeModelScope foreignScope,
+      @Nonnull String scope,
+      @Nonnull String foreignScope,
       @Nonnull String idAttribute) {
     Objects.requireNonNull(scope);
     Objects.requireNonNull(foreignScope);

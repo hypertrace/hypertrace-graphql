@@ -1,20 +1,20 @@
 package org.hypertrace.core.graphql.common.request;
 
+import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
-import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
@@ -22,23 +22,19 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
 
   private final AttributeAssociator attributeAssociator;
   private final AttributeStore attributeStore;
-  private final Converter<AttributeScope, AttributeModelScope> scopeConverter;
 
   @Inject
   DefaultFilterRequestBuilder(
-      AttributeAssociator attributeAssociator,
-      AttributeStore attributeStore,
-      Converter<AttributeScope, AttributeModelScope> scopeConverter) {
+      AttributeAssociator attributeAssociator, AttributeStore attributeStore) {
 
     this.attributeAssociator = attributeAssociator;
     this.attributeStore = attributeStore;
-    this.scopeConverter = scopeConverter;
   }
 
   @Override
   public Single<List<AttributeAssociation<FilterArgument>>> build(
       GraphQlRequestContext requestContext,
-      AttributeModelScope scope,
+      String scope,
       Collection<FilterArgument> filterArguments) {
     return Observable.fromIterable(filterArguments)
         .flatMapSingle(filter -> this.normalize(requestContext, scope, filter))
@@ -46,9 +42,7 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
   }
 
   private Single<AttributeAssociation<FilterArgument>> normalize(
-      GraphQlRequestContext requestContext,
-      AttributeModelScope scope,
-      FilterArgument filterArgument) {
+      GraphQlRequestContext requestContext, String scope, FilterArgument filterArgument) {
     switch (filterArgument.type()) {
       case STRING:
       case NUMERIC:
@@ -60,8 +54,10 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
                 filterArgument.key(), filterArgument.operator(), filterArgument.value()),
             FilterArgument::key);
       case ID:
-        return this.scopeConverter
-            .convert(filterArgument.idScope())
+        return Maybe.fromOptional(Optional.ofNullable(filterArgument.idScope()))
+            .switchIfEmpty(
+                Single.error(new UnsupportedOperationException("ID filter must specify idScope")))
+            .map(AttributeScope::getScopeString)
             .flatMap(
                 foreignScope ->
                     this.attributeStore.getForeignIdAttribute(requestContext, scope, foreignScope))

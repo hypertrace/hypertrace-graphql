@@ -6,7 +6,7 @@ public interface AttributeModel {
 
   String id();
 
-  AttributeModelScope scope();
+  String scope();
 
   String key();
 

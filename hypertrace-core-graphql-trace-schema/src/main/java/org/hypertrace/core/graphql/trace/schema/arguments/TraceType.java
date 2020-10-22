@@ -10,4 +10,8 @@ public enum TraceType {
   BACKEND_TRACE;
 
   static final String TYPE_NAME = "TraceType";
+
+  public String getScopeString() {
+    return name();
+  }
 }

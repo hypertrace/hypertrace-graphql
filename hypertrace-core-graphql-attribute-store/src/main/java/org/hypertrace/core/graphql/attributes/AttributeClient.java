@@ -14,8 +14,6 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 class AttributeClient {
@@ -23,7 +21,6 @@ class AttributeClient {
   private final AttributeServiceStub attributeServiceClient;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final AttributeModelTranslator translator;
-  private static final Logger LOG = LoggerFactory.getLogger(AttributeClient.class);
 
   @Inject
   AttributeClient(

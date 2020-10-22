@@ -33,9 +33,7 @@ class CachingAttributeStore implements AttributeStore {
     this.idLookup = idLookup;
   }
 
-  // Has science gone too far?!
-  private final LoadingCache<
-          ContextualCachingKey, Single<Table<AttributeModelScope, String, AttributeModel>>>
+  private final LoadingCache<ContextualCachingKey, Single<Table<String, String, AttributeModel>>>
       cache =
           CacheBuilder.newBuilder()
               .maximumSize(1000)
@@ -48,8 +46,7 @@ class CachingAttributeStore implements AttributeStore {
   }
 
   @Override
-  public Single<AttributeModel> get(
-      GraphQlRequestContext context, AttributeModelScope scope, String key) {
+  public Single<AttributeModel> get(GraphQlRequestContext context, String scope, String key) {
     return this.getOrInvalidate(context)
         .map(table -> Optional.ofNullable(table.get(scope, key)))
         .flatMapMaybe(Maybe::fromOptional)
@@ -58,25 +55,23 @@ class CachingAttributeStore implements AttributeStore {
 
   @Override
   public Single<Map<String, AttributeModel>> get(
-      GraphQlRequestContext context, AttributeModelScope scope, Collection<String> keys) {
+      GraphQlRequestContext context, String scope, Collection<String> keys) {
     return this.getOrInvalidate(context)
         .flatMap(table -> this.getValuesOrError(scope, table.row(scope), keys));
   }
 
   @Override
-  public Single<AttributeModel> getIdAttribute(
-      GraphQlRequestContext context, AttributeModelScope scope) {
+  public Single<AttributeModel> getIdAttribute(GraphQlRequestContext context, String scope) {
     return this.getIdKey(scope).flatMap(key -> this.get(context, scope, key));
   }
 
   @Override
   public Single<AttributeModel> getForeignIdAttribute(
-      GraphQlRequestContext context, AttributeModelScope scope, AttributeModelScope foreignScope) {
+      GraphQlRequestContext context, String scope, String foreignScope) {
     return this.getForeignIdKey(scope, foreignScope).flatMap(key -> this.get(context, scope, key));
   }
 
-  private Single<Table<AttributeModelScope, String, AttributeModel>> loadTable(
-      ContextualCachingKey cachingKey) {
+  private Single<Table<String, String, AttributeModel>> loadTable(ContextualCachingKey cachingKey) {
     return this.attributeClient
         .queryAll(cachingKey.getContext())
         .toList()
@@ -84,35 +79,33 @@ class CachingAttributeStore implements AttributeStore {
         .cache();
   }
 
-  private Table<AttributeModelScope, String, AttributeModel> buildTable(
-      List<AttributeModel> attributes) {
+  private Table<String, String, AttributeModel> buildTable(List<AttributeModel> attributes) {
     return attributes.stream()
         .collect(
             ImmutableTable.toImmutableTable(
                 AttributeModel::scope, AttributeModel::key, Function.identity()));
   }
 
-  private Single<Table<AttributeModelScope, String, AttributeModel>> getOrInvalidate(
+  private Single<Table<String, String, AttributeModel>> getOrInvalidate(
       GraphQlRequestContext context) {
     return this.cache
         .getUnchecked(context.getCachingKey())
         .doOnError(x -> this.cache.invalidate(context.getCachingKey()));
   }
 
-  private Single<String> getForeignIdKey(
-      AttributeModelScope scope, AttributeModelScope foreignScope) {
+  private Single<String> getForeignIdKey(String scope, String foreignScope) {
     return Maybe.fromOptional(this.idLookup.foreignIdKey(scope, foreignScope))
         .switchIfEmpty(
             Single.error(this.buildErrorForMissingForeignScopeMapping(scope, foreignScope)));
   }
 
-  private Single<String> getIdKey(AttributeModelScope scope) {
+  private Single<String> getIdKey(String scope) {
     return Maybe.fromOptional(this.idLookup.idKey(scope))
         .switchIfEmpty(Single.error(this.buildErrorForMissingIdMapping(scope)));
   }
 
   private Single<Map<String, AttributeModel>> getValuesOrError(
-      AttributeModelScope scope,
+      String scope,
       Map<String, AttributeModel> definedAttributes,
       Collection<String> requestedAttributeKeys) {
     return Observable.fromIterable(requestedAttributeKeys)
@@ -124,22 +117,21 @@ class CachingAttributeStore implements AttributeStore {
         .collect(Collectors.toUnmodifiableMap(AttributeModel::key, Function.identity()));
   }
 
-  private NoSuchElementException buildErrorForMissingAttribute(
-      AttributeModelScope scope, String key) {
+  private NoSuchElementException buildErrorForMissingAttribute(String scope, String key) {
     return new NoSuchElementException(
-        String.format("No attribute available for scope '%s' and key '%s'", scope.name(), key));
+        String.format("No attribute available for scope '%s' and key '%s'", scope, key));
   }
 
   private NoSuchElementException buildErrorForMissingForeignScopeMapping(
-      AttributeModelScope scope, AttributeModelScope foreignScope) {
+      String scope, String foreignScope) {
     return new NoSuchElementException(
         String.format(
             "No id attribute registered for scope '%s' and foreign scope '%s'",
-            scope.name(), foreignScope.name()));
+            scope, foreignScope));
   }
 
-  private NoSuchElementException buildErrorForMissingIdMapping(AttributeModelScope scope) {
+  private NoSuchElementException buildErrorForMissingIdMapping(String scope) {
     return new NoSuchElementException(
-        String.format("No id attribute registered for scope '%s'", scope.name()));
+        String.format("No id attribute registered for scope '%s'", scope));
   }
 }

@@ -9,13 +9,13 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 public interface AttributeStore {
   Single<List<AttributeModel>> getAll(GraphQlRequestContext context);
 
-  Single<AttributeModel> get(GraphQlRequestContext context, AttributeModelScope scope, String key);
+  Single<AttributeModel> get(GraphQlRequestContext context, String scope, String key);
 
   Single<Map<String, AttributeModel>> get(
-      GraphQlRequestContext context, AttributeModelScope scope, Collection<String> keys);
+      GraphQlRequestContext context, String scope, Collection<String> keys);
 
-  Single<AttributeModel> getIdAttribute(GraphQlRequestContext context, AttributeModelScope scope);
+  Single<AttributeModel> getIdAttribute(GraphQlRequestContext context, String scope);
 
   Single<AttributeModel> getForeignIdAttribute(
-      GraphQlRequestContext context, AttributeModelScope scope, AttributeModelScope foreignScope);
+      GraphQlRequestContext context, String scope, String foreignScope);
 }

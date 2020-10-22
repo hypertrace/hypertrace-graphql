@@ -26,7 +26,17 @@ class FilterArgumentDeserializationConfigTest {
   private ArgumentDeserializer argumentDeserializer;
 
   private enum TestAttributeScope implements AttributeScope {
-    SCOPE
+    SCOPE;
+
+    @Override
+    public String getScopeString() {
+      return "SCOPE";
+    }
+
+    @Override
+    public String getExternalScopeString() {
+      return "SCOPE";
+    }
   }
 
   @BeforeEach

@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.hypertrace.core.attribute.service.v1.AggregateFunction;
 import org.hypertrace.core.attribute.service.v1.AttributeKind;
 import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
-import org.hypertrace.core.attribute.service.v1.AttributeScope;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +22,7 @@ class AttributeModelTranslatorTest {
     this.metadata =
         AttributeMetadata.newBuilder()
             .setId("id")
-            .setScope(AttributeScope.TRACE)
+            .setScopeString("TRACE")
             .setKey("key")
             .setDisplayName("display name")
             .setValueKind(AttributeKind.TYPE_STRING)
@@ -36,7 +35,7 @@ class AttributeModelTranslatorTest {
     this.expectedModel =
         DefaultAttributeModel.builder()
             .id("id")
-            .scope(AttributeModelScope.TRACE)
+            .scope("TRACE")
             .key("key")
             .displayName("display name")
             .type(AttributeModelType.STRING)
@@ -70,20 +69,21 @@ class AttributeModelTranslatorTest {
     this.metadata =
         AttributeMetadata.newBuilder()
             .setId("id")
-            .setScope(AttributeScope.API)
+            .setScopeString("TRACE")
             .setKey("key")
             .setDisplayName("display name")
             .setValueKind(AttributeKind.TYPE_STRING_ARRAY)
             .setUnit("unit")
             .setOnlyAggregationsAllowed(false)
-            .addAllSupportedAggregations(List.of(AggregateFunction.DISTINCT_COUNT, AggregateFunction.AVGRATE))
+            .addAllSupportedAggregations(
+                List.of(AggregateFunction.DISTINCT_COUNT, AggregateFunction.AVGRATE))
             .setGroupable(false)
             .build();
 
     this.expectedModel =
         DefaultAttributeModel.builder()
             .id("id")
-            .scope(AttributeModelScope.API)
+            .scope("TRACE")
             .key("key")
             .displayName("display name")
             .type(AttributeModelType.STRING_ARRAY)

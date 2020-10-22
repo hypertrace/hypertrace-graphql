@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModelScope;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
@@ -19,16 +18,12 @@ class DefaultTraceRequestBuilder implements TraceRequestBuilder {
 
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final ArgumentDeserializer argumentDeserializer;
-  private final TraceTypeToAttributeModelScopeConverter scopeConverter;
 
   @Inject
   DefaultTraceRequestBuilder(
-      ResultSetRequestBuilder resultSetRequestBuilder,
-      ArgumentDeserializer argumentDeserializer,
-      TraceTypeToAttributeModelScopeConverter scopeConverter) {
+      ResultSetRequestBuilder resultSetRequestBuilder, ArgumentDeserializer argumentDeserializer) {
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
-    this.scopeConverter = scopeConverter;
   }
 
   @Override
@@ -42,20 +37,17 @@ class DefaultTraceRequestBuilder implements TraceRequestBuilder {
             .deserializePrimitive(arguments, TraceTypeArgument.class)
             .orElseThrow();
 
-    return this.scopeConverter
-        .convert(traceType)
-        .flatMap(scope -> this.build(context, traceType, scope, arguments, selectionSet));
+    return this.build(context, traceType, arguments, selectionSet);
   }
 
   private Single<TraceRequest> build(
       GraphQlRequestContext context,
       TraceType traceType,
-      AttributeModelScope scope,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet) {
 
     return this.resultSetRequestBuilder
-        .build(context, scope, arguments, selectionSet)
+        .build(context, traceType.getScopeString(), arguments, selectionSet)
         .map(resultSetRequest -> new DefaultTraceRequest(context, resultSetRequest, traceType));
   }
 

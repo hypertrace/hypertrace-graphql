@@ -1,6 +1,5 @@
 package org.hypertrace.core.graphql.common.request;
 
-import static org.hypertrace.core.graphql.attributes.AttributeModelScope.SPAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -49,13 +48,13 @@ class DefaultAttributeRequestBuilderTest {
         .thenReturn(Stream.of(this.mockSelectedField));
     when(this.mockArgumentDeserializer.deserializePrimitive(any(), eq(AttributeKeyArgument.class)))
         .thenReturn(Optional.of("fooKey"));
-    when(this.mockAttributeStore.get(eq(this.mockContext), eq(SPAN), eq("fooKey")))
+    when(this.mockAttributeStore.get(eq(this.mockContext), eq("SPAN"), eq("fooKey")))
         .thenReturn(Single.just(this.mockAttribute));
     when(this.mockAttribute.id()).thenReturn("fooId");
 
     List<AttributeRequest> returned =
         this.requestBuilder
-            .buildForAttributeQueryableSelectionSet(this.mockContext, SPAN, this.mockSelectionSet)
+            .buildForAttributeQueryableSelectionSet(this.mockContext, "SPAN", this.mockSelectionSet)
             .toList()
             .blockingGet();
 
