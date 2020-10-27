@@ -19,7 +19,7 @@ dependencies {
     api("org.projectlombok:lombok:1.18.12")
     api("com.google.code.findbugs:jsr305:3.0.2")
     api("com.typesafe:config:1.4.0")
-    api("com.google.guava:guava:29.0-jre")
+    api("com.google.guava:guava:30.0-jre")
     api("com.graphql-java-kickstart:graphql-java-servlet:9.1.0")
     api("io.grpc:grpc-api:1.33.0")
     api("io.grpc:grpc-core:1.33.0")
