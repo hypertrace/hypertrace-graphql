@@ -8,9 +8,15 @@ executors:
   java:
     docker:
       - image: cimg/openjdk:11.0
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
   helm:
     docker:
       - image: hypertrace/helm-gcs-packager:0.1.1
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
 commands:
   gradle:
     description: 'Run the provided gradle command'
@@ -55,6 +61,9 @@ jobs:
       - setup_build_environment
       - setup_remote_docker
       - populate_and_save_cache
+      - run:
+          name: Dockerhub login
+          command: echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
       - gradle:
           args: build dockerBuildImages
       - gradle:
@@ -82,6 +91,9 @@ jobs:
     steps:
       - setup_build_environment
       - setup_remote_docker
+      - run:
+          name: Dockerhub login
+          command: echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
       - gradle:
           args: :tag -Prelease
       - add_ssh_keys:
@@ -119,12 +131,20 @@ workflows:
   version: 2
   build-and-publish:
     jobs:
-      - build
-      - validate-charts
+      - build:
+          context:
+            - dockerhub-read
+      - validate-charts:
+          context:
+            - dockerhub-read
       - snyk-scan:
-          context: hypertrace-vulnerability-scanning
+          context:
+            - hypertrace-vulnerability-scanning
+            - dockerhub-read
       - publish:
-          context: hypertrace-publishing
+          context:
+            - hypertrace-publishing
+            - dockerhub-read
           requires:
             - build
             - snyk-scan
@@ -134,7 +154,9 @@ workflows:
               only:
                 - main
       - package-charts:
-          context: hypertrace-publishing
+          context:
+            - hypertrace-publishing
+            - dockerhub-read
           requires:
             - publish
           filters:
