@@ -48,8 +48,7 @@ class CachingAttributeStore implements AttributeStore {
   @Override
   public Single<AttributeModel> get(GraphQlRequestContext context, String scope, String key) {
     return this.getOrInvalidate(context)
-        .map(table -> Optional.ofNullable(table.get(scope, key)))
-        .flatMapMaybe(Maybe::fromOptional)
+        .mapOptional(table -> Optional.ofNullable(table.get(scope, key)))
         .switchIfEmpty(Single.error(this.buildErrorForMissingAttribute(scope, key)));
   }
 
@@ -62,13 +61,14 @@ class CachingAttributeStore implements AttributeStore {
 
   @Override
   public Single<AttributeModel> getIdAttribute(GraphQlRequestContext context, String scope) {
-    return this.getIdKey(scope).flatMap(key -> this.get(context, scope, key));
+    return this.getIdKey(context, scope).flatMap(key -> this.get(context, scope, key));
   }
 
   @Override
   public Single<AttributeModel> getForeignIdAttribute(
       GraphQlRequestContext context, String scope, String foreignScope) {
-    return this.getForeignIdKey(scope, foreignScope).flatMap(key -> this.get(context, scope, key));
+    return this.getForeignIdKey(context, scope, foreignScope)
+        .flatMap(key -> this.get(context, scope, key));
   }
 
   private Single<Table<String, String, AttributeModel>> loadTable(ContextualCachingKey cachingKey) {
@@ -93,14 +93,17 @@ class CachingAttributeStore implements AttributeStore {
         .doOnError(x -> this.cache.invalidate(context.getCachingKey()));
   }
 
-  private Single<String> getForeignIdKey(String scope, String foreignScope) {
-    return Maybe.fromOptional(this.idLookup.foreignIdKey(scope, foreignScope))
+  private Single<String> getForeignIdKey(
+      GraphQlRequestContext context, String scope, String foreignScope) {
+    return this.idLookup
+        .foreignIdKey(context, scope, foreignScope)
         .switchIfEmpty(
             Single.error(this.buildErrorForMissingForeignScopeMapping(scope, foreignScope)));
   }
 
-  private Single<String> getIdKey(String scope) {
-    return Maybe.fromOptional(this.idLookup.idKey(scope))
+  private Single<String> getIdKey(GraphQlRequestContext context, String scope) {
+    return this.idLookup
+        .idKey(context, scope)
         .switchIfEmpty(Single.error(this.buildErrorForMissingIdMapping(scope)));
   }
 

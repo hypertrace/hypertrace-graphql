@@ -11,10 +11,11 @@ dependencies {
 
   implementation("org.slf4j:slf4j-api")
   implementation("io.reactivex.rxjava3:rxjava")
-  implementation("com.google.guava:guava:29.0-jre")
+  implementation("com.google.guava:guava")
 
   implementation("org.hypertrace.core.attribute.service:attribute-service-api")
   implementation(project(":hypertrace-core-graphql-grpc-utils"))
+  implementation(project(":hypertrace-core-graphql-rx-utils"))
 
   annotationProcessor("org.projectlombok:lombok")
   compileOnly("org.projectlombok:lombok")

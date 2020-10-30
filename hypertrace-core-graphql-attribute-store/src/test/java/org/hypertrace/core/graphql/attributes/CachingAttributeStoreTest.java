@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import org.hypertrace.core.graphql.context.ContextualCachingKey;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -174,7 +174,7 @@ class CachingAttributeStoreTest {
 
     when(this.mockAttributeClient.queryAll(eq(context)))
         .thenReturn(Observable.just(spanIdAttribute));
-    when(this.mockIdLookup.idKey(eq("SPAN"))).thenReturn(Optional.of("id"));
+    when(this.mockIdLookup.idKey(context, "SPAN")).thenReturn(Maybe.just("id"));
 
     assertEquals(
         spanIdAttribute,
@@ -189,8 +189,10 @@ class CachingAttributeStoreTest {
 
   @Test
   void returnsErrorForMissingIdMapping() {
+    when(this.mockIdLookup.idKey(any(), any())).thenReturn(Maybe.empty());
     assertThrows(
-        NoSuchElementException.class, this.attributeStore.getIdAttribute(null, "SPAN")::blockingGet);
+        NoSuchElementException.class,
+        this.attributeStore.getIdAttribute(null, "SPAN")::blockingGet);
   }
 
   @Test
@@ -199,7 +201,8 @@ class CachingAttributeStoreTest {
     DefaultAttributeModel spanTraceIdAttribute =
         DefaultAttributeModel.builder().scope("SPAN").key("traceId").build();
 
-    when(this.mockIdLookup.foreignIdKey(eq("SPAN"), eq("TRACE"))).thenReturn(Optional.of("traceId"));
+    when(this.mockIdLookup.foreignIdKey(context, "SPAN", "TRACE"))
+        .thenReturn(Maybe.just("traceId"));
     when(this.mockAttributeClient.queryAll(eq(context)))
         .thenReturn(Observable.just(spanTraceIdAttribute));
 
