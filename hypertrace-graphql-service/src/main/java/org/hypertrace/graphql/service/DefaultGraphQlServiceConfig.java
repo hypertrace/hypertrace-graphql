@@ -3,9 +3,9 @@ package org.hypertrace.graphql.service;
 import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.function.Supplier;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 
-class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
+class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String SERVICE_NAME_CONFIG = "service.name";
   private static final String SERVICE_PORT_CONFIG = "service.port";
@@ -24,6 +24,9 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
 
+  private static final String ENTITY_SERVICE_HOST_PROPERTY = "entity.service.host";
+  private static final String ENTITY_SERVICE_PORT_PROPERTY = "entity.service.port";
+
   private final String serviceName;
   private final int servicePort;
   private final String graphqlUrlPath;
@@ -35,6 +38,8 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   private final int attributeServicePort;
   private final String gatewayServiceHost;
   private final int gatewayServicePort;
+  private final String entityServiceHost;
+  private final int entityServicePort;
 
   DefaultGraphQlServiceConfig(Config untypedConfig) {
     this.serviceName = untypedConfig.getString(SERVICE_NAME_CONFIG);
@@ -49,6 +54,8 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
     this.attributeServicePort = untypedConfig.getInt(ATTRIBUTE_SERVICE_PORT_PROPERTY);
     this.gatewayServiceHost = untypedConfig.getString(GATEWAY_SERVICE_HOST_PROPERTY);
     this.gatewayServicePort = untypedConfig.getInt(GATEWAY_SERVICE_PORT_PROPERTY);
+    this.entityServiceHost = untypedConfig.getString(ENTITY_SERVICE_HOST_PROPERTY);
+    this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
   }
 
   @Override
@@ -104,6 +111,16 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   @Override
   public int getGatewayServicePort() {
     return this.gatewayServicePort;
+  }
+
+  @Override
+  public String getEntityServiceHost() {
+    return this.entityServiceHost;
+  }
+
+  @Override
+  public int getEntityServicePort() {
+    return this.entityServicePort;
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {

@@ -7,10 +7,11 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.impl.GraphQlFactory;
 
 public class GraphQlServiceImpl {
-  private GraphQlServiceConfig graphQlServiceConfig;
+  private HypertraceGraphQlServiceConfig graphQlServiceConfig;
   private DefaultGraphQlServiceLifecycle serviceLifecycle;
   private ServletContextHandler contextHandler;
 

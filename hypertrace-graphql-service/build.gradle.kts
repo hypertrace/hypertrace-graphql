@@ -16,13 +16,13 @@ dependencies {
 
   implementation("com.graphql-java-kickstart:graphql-java-servlet")
   implementation(project(":hypertrace-graphql-impl"))
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
+  implementation(project(":hypertrace-graphql-service-config"))
 
   runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
 }
 
 application {
-  mainClassName = "org.hypertrace.core.serviceframework.PlatformServiceLauncher"
+  mainClass.set("org.hypertrace.core.serviceframework.PlatformServiceLauncher")
 }
 tasks.run<JavaExec> {
   jvmArgs = listOf("-Dservice.name=${project.name}")
