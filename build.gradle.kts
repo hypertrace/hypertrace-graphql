@@ -18,10 +18,10 @@ subprojects {
 
   pluginManager.withPlugin("java-library") {
     dependencies {
-      "api"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-platform"))
-      "annotationProcessor"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-platform"))
+      "api"(platform(project(":hypertrace-graphql-platform")))
+      "annotationProcessor"(platform(project(":hypertrace-graphql-platform")))
       "testImplementation"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-test-platform"))
-      "compileOnly"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-platform"))
+      "compileOnly"(platform(project(":hypertrace-graphql-platform")))
     }
   }
 }

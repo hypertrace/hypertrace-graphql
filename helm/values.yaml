@@ -51,6 +51,9 @@ serviceConfig:
   gatewayService:
     host: gateway-service
     port: 50071
+  entityService:
+    host: entity-service
+    port: 50061
 logConfig:
   name: hypertrace-graphql-log-config
   rootLogger:

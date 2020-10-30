@@ -7,6 +7,7 @@ plugins {
 dependencies {
   api("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
   api("com.graphql-java-kickstart:graphql-java-servlet")
+  api(project(":hypertrace-graphql-service-config"))
 
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-registry")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-context")
