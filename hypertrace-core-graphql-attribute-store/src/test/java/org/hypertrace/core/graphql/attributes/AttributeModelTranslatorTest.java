@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.hypertrace.core.attribute.service.v1.AggregateFunction;
 import org.hypertrace.core.attribute.service.v1.AttributeKind;
 import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
+import org.hypertrace.core.attribute.service.v1.AttributeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,7 @@ class AttributeModelTranslatorTest {
 
   private AttributeModelTranslator translator;
   private AttributeMetadata metadata;
-  private AttributeModel expectedModel;
+  private DefaultAttributeModel expectedModel;
 
   @BeforeEach
   void beforeEach() {
@@ -26,6 +27,7 @@ class AttributeModelTranslatorTest {
             .setKey("key")
             .setDisplayName("display name")
             .setValueKind(AttributeKind.TYPE_STRING)
+            .setType(AttributeType.ATTRIBUTE)
             .setUnit("unit")
             .setOnlyAggregationsAllowed(true)
             .addAllSupportedAggregations(List.of(AggregateFunction.SUM, AggregateFunction.AVG))
@@ -40,7 +42,8 @@ class AttributeModelTranslatorTest {
             .displayName("display name")
             .type(AttributeModelType.STRING)
             .units("unit")
-            .requiresAggregation(true)
+            .onlySupportsGrouping(true)
+            .onlySupportsAggregation(false)
             .supportedMetricAggregationTypes(
                 List.of(
                     AttributeModelMetricAggregationType.SUM,
@@ -52,6 +55,15 @@ class AttributeModelTranslatorTest {
   @Test
   void canTranslateAttributeModel() {
     assertEquals(Optional.of(this.expectedModel), this.translator.translate(this.metadata));
+  }
+
+  @Test
+  void translatesMetricstoOnlySupportAggregation() {
+    AttributeMetadata metricMetadata =
+        this.metadata.toBuilder().setType(AttributeType.METRIC).build();
+    DefaultAttributeModel expectedMetricModel =
+        this.expectedModel.toBuilder().onlySupportsAggregation(true).build();
+    assertEquals(Optional.of(expectedMetricModel), this.translator.translate(metricMetadata));
   }
 
   @Test
@@ -88,7 +100,7 @@ class AttributeModelTranslatorTest {
             .displayName("display name")
             .type(AttributeModelType.STRING_ARRAY)
             .units("unit")
-            .requiresAggregation(false)
+            .onlySupportsGrouping(false)
             .supportedMetricAggregationTypes(
                 List.of(
                     AttributeModelMetricAggregationType.DISTINCT_COUNT,

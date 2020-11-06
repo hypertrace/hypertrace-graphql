@@ -16,7 +16,9 @@ public interface AttributeModel {
 
   String units();
 
-  boolean requiresAggregation();
+  boolean onlySupportsGrouping();
+
+  boolean onlySupportsAggregation();
 
   List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes();
 

@@ -18,7 +18,13 @@ class DefaultAttributeMetadata implements AttributeMetadata {
   String displayName;
   AttributeType type;
   String units;
-  boolean onlyAggregationsAllowed;
+  boolean onlySupportsGrouping;
+  boolean onlySupportsAggregation;
   List<MetricAggregationType> supportedAggregations;
   boolean groupable;
+
+  // TODO remove once removed from the api
+  public boolean onlyAggregationsAllowed() {
+    return this.onlySupportsGrouping();
+  }
 }

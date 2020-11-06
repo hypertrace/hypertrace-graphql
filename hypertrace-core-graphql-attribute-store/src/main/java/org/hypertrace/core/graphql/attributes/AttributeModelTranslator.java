@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.hypertrace.core.attribute.service.v1.AggregateFunction;
 import org.hypertrace.core.attribute.service.v1.AttributeKind;
 import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
+import org.hypertrace.core.attribute.service.v1.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,7 @@ class AttributeModelTranslator {
               this.convertType(attributeMetadata.getValueKind()),
               attributeMetadata.getUnit(),
               attributeMetadata.getOnlyAggregationsAllowed(),
+              attributeMetadata.getType().equals(AttributeType.METRIC),
               this.convertMetricAggregationTypes(attributeMetadata.getSupportedAggregationsList()),
               attributeMetadata.getGroupable()));
     } catch (Exception e) {

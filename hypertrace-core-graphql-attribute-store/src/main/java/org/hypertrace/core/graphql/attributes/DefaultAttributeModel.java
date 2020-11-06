@@ -6,7 +6,7 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 @Accessors(fluent = true)
 class DefaultAttributeModel implements AttributeModel {
   String id;
@@ -15,7 +15,8 @@ class DefaultAttributeModel implements AttributeModel {
   String displayName;
   AttributeModelType type;
   String units;
-  boolean requiresAggregation;
+  boolean onlySupportsGrouping;
+  boolean onlySupportsAggregation;
   List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes;
   boolean groupable;
 }

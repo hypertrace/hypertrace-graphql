@@ -52,7 +52,8 @@ public class MetadataResponseBuilder {
                     model.displayName(),
                     type,
                     model.units(),
-                    model.requiresAggregation(),
+                    model.onlySupportsGrouping(),
+                    model.onlySupportsAggregation(),
                     aggregations,
                     model.groupable()))
         .cast(AttributeMetadata.class)
