@@ -73,7 +73,7 @@ commands:
 
 jobs:
   build:
-    executor: java
+    executor: gradle_docker
     steps:
       - setup_build_environment
       - setup_remote_docker: &latest_remote_docker
@@ -180,7 +180,6 @@ workflows:
             - dockerhub-read
           requires:
             - build
-            - integration-test
             - validate-charts
             - snyk-scan
           filters:
