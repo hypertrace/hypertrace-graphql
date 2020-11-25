@@ -128,7 +128,7 @@ jobs:
             helm dependency update ./helm/
             helm lint --strict ./helm/
             helm template ./helm/
-   release-charts:
+  release-charts:
     executor: helm
     steps:
       - checkout
