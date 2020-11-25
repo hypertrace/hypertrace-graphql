@@ -128,15 +128,6 @@ jobs:
             helm dependency update ./helm/
             helm lint --strict ./helm/
             helm template ./helm/
-  validate-charts:
-    executor: helm
-    steps:
-      - checkout
-      - run:
-          name: Helm Charts Lint and Template Render
-          command: |
-            helm lint --strict ./helm/
-            helm template ./helm/
    release-charts:
     executor: helm
     steps:
