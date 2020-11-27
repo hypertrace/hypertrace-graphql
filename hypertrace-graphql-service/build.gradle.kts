@@ -27,3 +27,11 @@ application {
 tasks.run<JavaExec> {
   jvmArgs = listOf("-Dservice.name=${project.name}")
 }
+
+hypertraceDocker {
+  defaultImage {
+    javaApplication {
+      port.set(23431)
+    }
+  }
+}
