@@ -16,6 +16,7 @@ dependencies {
   implementation("org.hypertrace.core.grpcutils:grpc-client-utils")
   implementation("io.grpc:grpc-context")
   implementation("io.reactivex.rxjava3:rxjava")
+  implementation("org.slf4j:slf4j-api")
   implementation(project(":hypertrace-core-graphql-spi"))
 
   testImplementation("org.junit.jupiter:junit-jupiter")
