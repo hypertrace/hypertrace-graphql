@@ -3,6 +3,7 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 import static io.reactivex.rxjava3.core.Single.zip;
 import static org.hypertrace.core.graphql.common.utils.CollectorUtils.immutableMapEntryCollector;
 
+import graphql.annotations.annotationTypes.GraphQLNonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observables.GroupedObservable;
@@ -21,9 +22,7 @@ import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.MetricAggregation;
-import org.hypertrace.graphql.metric.schema.MetricContainer;
-import org.hypertrace.graphql.metric.schema.MetricInterval;
+import org.hypertrace.graphql.metric.schema.*;
 
 class MetricContainerMapConverter
     implements BiConverter<Collection<MetricRequest>, Entity, Map<String, MetricContainer>> {
@@ -71,13 +70,13 @@ class MetricContainerMapConverter
         ConvertedMetricContainer::new);
   }
 
-  private static class ConvertedMetricContainer extends ConvertedAggregationContainer
+  private static class ConvertedMetricContainer extends BaselineConvertedAggregationContainer
       implements MetricContainer {
 
     private final Map<Duration, List<MetricInterval>> metricSeriesMap;
 
     ConvertedMetricContainer(
-        Map<MetricLookupMapKey, MetricAggregation> metricAggregationMap,
+        Map<MetricLookupMapKey, BaselineMetricAggregation> metricAggregationMap,
         Map<Duration, List<MetricInterval>> metricSeriesMap) {
       super(metricAggregationMap);
       this.metricSeriesMap = metricSeriesMap;
@@ -86,6 +85,11 @@ class MetricContainerMapConverter
     @Override
     public List<MetricInterval> series(int size, TimeUnit units) {
       return this.metricSeriesMap.get(Duration.of(size, units.getChronoUnit()));
+    }
+
+    @Override
+    public List<BaselineMetricInterval> baselineSeries(int size, TimeUnit units) {
+      return null;
     }
   }
 }

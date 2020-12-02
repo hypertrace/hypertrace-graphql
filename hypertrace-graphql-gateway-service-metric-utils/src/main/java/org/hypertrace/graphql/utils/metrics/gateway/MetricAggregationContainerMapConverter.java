@@ -13,13 +13,13 @@ import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
-import org.hypertrace.graphql.metric.schema.MetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
 
 class MetricAggregationContainerMapConverter
     implements BiConverter<
         Collection<MetricAggregationRequest>,
         Map<String, AggregatedMetricValue>,
-        Map<String, MetricAggregationContainer>> {
+        Map<String, BaselineMetricAggregationContainer>> {
 
   private final MetricAggregationMapConverter aggregationMapConverter;
 
@@ -29,7 +29,7 @@ class MetricAggregationContainerMapConverter
   }
 
   @Override
-  public Single<Map<String, MetricAggregationContainer>> convert(
+  public Single<Map<String, BaselineMetricAggregationContainer>> convert(
       Collection<MetricAggregationRequest> metricRequests,
       Map<String, AggregatedMetricValue> metricResponses) {
     return Observable.fromIterable(metricRequests)
@@ -39,7 +39,7 @@ class MetricAggregationContainerMapConverter
         .collect(immutableMapEntryCollector());
   }
 
-  private Single<Entry<String, MetricAggregationContainer>> buildMetricContainerEntry(
+  private Single<Entry<String, BaselineMetricAggregationContainer>> buildMetricContainerEntry(
       GroupedObservable<AttributeModel, MetricAggregationRequest> requestsForAttribute,
       Map<String, AggregatedMetricValue> metricResponses) {
 
@@ -47,7 +47,7 @@ class MetricAggregationContainerMapConverter
         .toList()
         .flatMap(
             metricRequests -> this.aggregationMapConverter.convert(metricRequests, metricResponses))
-        .map(ConvertedAggregationContainer::new)
+        .map(BaselineConvertedAggregationContainer::new)
         .map(container -> Map.entry(requestsForAttribute.getKey().key(), container));
   }
 }

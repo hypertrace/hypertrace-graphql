@@ -24,7 +24,7 @@ import org.hypertrace.graphql.entity.schema.Edge;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
-import org.hypertrace.graphql.metric.schema.MetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +39,8 @@ class GatewayServiceEntityEdgeFetcher {
   private final BiConverter<
           Collection<MetricAggregationRequest>,
           Map<String, AggregatedMetricValue>,
-          Map<String, MetricAggregationContainer>>
-      metricAggregationContainerMapConverter;
+          Map<String, BaselineMetricAggregationContainer>>
+          baselineMetricAggregationContainerMapConverter;
 
   @Inject
   GatewayServiceEntityEdgeFetcher(
@@ -50,11 +50,11 @@ class GatewayServiceEntityEdgeFetcher {
       BiConverter<
               Collection<MetricAggregationRequest>,
               Map<String, AggregatedMetricValue>,
-              Map<String, MetricAggregationContainer>>
-          metricAggregationContainerMapConverter) {
+              Map<String, BaselineMetricAggregationContainer>>
+              baselineMetricAggregationContainerMapConverter) {
     this.neighborMapFetcher = neighborMapFetcher;
     this.attributeMapConverter = attributeMapConverter;
-    this.metricAggregationContainerMapConverter = metricAggregationContainerMapConverter;
+    this.baselineMetricAggregationContainerMapConverter = baselineMetricAggregationContainerMapConverter;
   }
 
   Single<Map<org.hypertrace.gateway.service.v1.entity.Entity, EdgeResultSet>> fetchForEntityType(
@@ -116,7 +116,7 @@ class GatewayServiceEntityEdgeFetcher {
     return zip(
             this.attributeMapConverter.convert(
                 edgeSetGroupRequest.attributeRequests(), response.getAttributeMap()),
-            this.metricAggregationContainerMapConverter.convert(
+            this.baselineMetricAggregationContainerMapConverter.convert(
                 edgeSetGroupRequest.metricAggregationRequests(), response.getMetricsMap()),
             (attributes, metrics) -> (Edge) new ConvertedEdge(neighbor, attributes, metrics))
         .toMaybe();
@@ -127,7 +127,7 @@ class GatewayServiceEntityEdgeFetcher {
   private static class ConvertedEdge implements Edge {
     Entity neighbor;
     Map<String, Object> attributeValues;
-    Map<String, MetricAggregationContainer> metricContainers;
+    Map<String, BaselineMetricAggregationContainer> metricContainers;
 
     @Override
     public Object attribute(String key) {
@@ -135,7 +135,7 @@ class GatewayServiceEntityEdgeFetcher {
     }
 
     @Override
-    public MetricAggregationContainer metric(String key) {
+    public BaselineMetricAggregationContainer metric(String key) {
       return this.metricContainers.get(key);
     }
   }

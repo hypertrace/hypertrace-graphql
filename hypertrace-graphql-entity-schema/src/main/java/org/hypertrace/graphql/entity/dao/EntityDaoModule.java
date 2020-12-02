@@ -26,11 +26,10 @@ import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.Entity;
-import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.MetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
@@ -87,6 +86,6 @@ public class EntityDaoModule extends AbstractModule {
                 BiConverter<
                     Collection<MetricAggregationRequest>,
                     Map<String, AggregatedMetricValue>,
-                    Map<String, MetricAggregationContainer>>>() {}));
+                    Map<String, BaselineMetricAggregationContainer>>>() {}));
   }
 }
