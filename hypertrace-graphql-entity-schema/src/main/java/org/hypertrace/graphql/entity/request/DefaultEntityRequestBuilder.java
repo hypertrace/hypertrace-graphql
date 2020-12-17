@@ -24,6 +24,7 @@ import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
+import org.hypertrace.graphql.entity.schema.argument.IncludeNonLiveEntitiesArgument;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -73,6 +74,11 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       Map<String, Object> arguments,
       String scope,
       DataFetchingFieldSelectionSet selectionSet) {
+    boolean includeNonLiveEntities =
+        this.argumentDeserializer
+            .deserializePrimitive(arguments, IncludeNonLiveEntitiesArgument.class)
+            .orElse(false);
+
     return zip(
         this.resultSetRequestBuilder.build(
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
@@ -83,7 +89,12 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             context, this.timeRange(arguments), this.getOutgoingEdges(selectionSet)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new DefaultEntityRequest(
-                scope, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
+                scope,
+                resultSetRequest,
+                metricRequestList,
+                incomingEdges,
+                outgoingEdges,
+                includeNonLiveEntities));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -121,5 +132,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;
     EdgeSetGroupRequest outgoingEdgeRequests;
+    boolean includeNonLiveEntities;
   }
 }

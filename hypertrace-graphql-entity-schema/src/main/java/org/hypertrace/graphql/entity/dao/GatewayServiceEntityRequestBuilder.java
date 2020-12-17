@@ -87,6 +87,7 @@ class GatewayServiceEntityRequestBuilder {
                 .setLimit(resultSetRequest.limit())
                 .setOffset(resultSetRequest.offset())
                 .setFilter(filter)
+                .setIncludeNonLiveEntities(entityRequest.includeNonLiveEntities())
                 .build());
   }
 }

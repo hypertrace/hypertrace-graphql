@@ -13,6 +13,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetAr
 import org.hypertrace.graphql.entity.fetcher.EntityFetcher;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
+import org.hypertrace.graphql.entity.schema.argument.IncludeNonLiveEntitiesArgument;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 public interface EntitySchema {
@@ -29,5 +30,6 @@ public interface EntitySchema {
       @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy,
       @GraphQLName(OrderArgument.ARGUMENT_NAME) List<AggregatableOrderArgument> orderBy,
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
-      @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset);
+      @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset,
+      @GraphQLName(IncludeNonLiveEntitiesArgument.ARGUMENT_NAME) boolean includeNonLiveEntities);
 }
