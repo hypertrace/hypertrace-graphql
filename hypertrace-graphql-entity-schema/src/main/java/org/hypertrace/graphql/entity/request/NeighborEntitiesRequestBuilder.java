@@ -85,7 +85,12 @@ class NeighborEntitiesRequestBuilder {
             context, timeRange, this.getOutgoingEdges(neighborFields)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new NeighborEntityRequest(
-                entityScope, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
+                entityScope,
+                resultSetRequest,
+                metricRequestList,
+                incomingEdges,
+                outgoingEdges,
+                false));
   }
 
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
@@ -160,5 +165,6 @@ class NeighborEntitiesRequestBuilder {
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;
     EdgeSetGroupRequest outgoingEdgeRequests;
+    boolean includeNonLiveEntities;
   }
 }
