@@ -19,7 +19,7 @@ import org.hypertrace.graphql.entity.schema.EntityResultSet;
 
 @Singleton
 class GatewayServiceEntityDao implements EntityDao {
-  private static final int DEFAULT_DEADLINE_SEC = 100000;
+  private static final int DEFAULT_DEADLINE_SEC = 10000;
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceEntityRequestBuilder requestBuilder;
