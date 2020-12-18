@@ -24,7 +24,7 @@ import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
-import org.hypertrace.graphql.entity.schema.argument.IncludeNonLiveEntitiesArgument;
+import org.hypertrace.graphql.entity.schema.argument.IncludeInactiveArgument;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -74,9 +74,9 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       Map<String, Object> arguments,
       String scope,
       DataFetchingFieldSelectionSet selectionSet) {
-    boolean includeNonLiveEntities =
+    boolean includeInactive =
         this.argumentDeserializer
-            .deserializePrimitive(arguments, IncludeNonLiveEntitiesArgument.class)
+            .deserializePrimitive(arguments, IncludeInactiveArgument.class)
             .orElse(false);
 
     return zip(
@@ -94,7 +94,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 metricRequestList,
                 incomingEdges,
                 outgoingEdges,
-                includeNonLiveEntities));
+                includeInactive));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -132,6 +132,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;
     EdgeSetGroupRequest outgoingEdgeRequests;
-    boolean includeNonLiveEntities;
+    boolean includeInactive;
   }
 }

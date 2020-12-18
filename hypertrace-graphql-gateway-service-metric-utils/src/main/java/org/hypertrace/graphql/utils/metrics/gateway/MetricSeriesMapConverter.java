@@ -42,11 +42,7 @@ class MetricSeriesMapConverter
       Observable<MetricSeriesRequest> seriesRequestsForDuration,
       Map<String, MetricSeries> resultMap) {
     return seriesRequestsForDuration
-        .map(
-            request ->
-                Map.entry(
-                    request,
-                    resultMap.getOrDefault(request.alias(), MetricSeries.getDefaultInstance())))
+        .map(request -> Map.entry(request, resultMap.get(request.alias())))
         .collect(CollectorUtils.immutableMapEntryCollector())
         .flatMap(this.intervalListConverter::convert)
         .map(intervalList -> Map.entry(period, intervalList));

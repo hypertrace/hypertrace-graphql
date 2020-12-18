@@ -167,6 +167,6 @@ class NeighborEntitiesRequestBuilder {
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;
     EdgeSetGroupRequest outgoingEdgeRequests;
-    boolean includeNonLiveEntities;
+    boolean includeInactive;
   }
 }

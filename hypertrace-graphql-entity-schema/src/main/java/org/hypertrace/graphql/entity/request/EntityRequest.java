@@ -17,5 +17,5 @@ public interface EntityRequest {
 
   EdgeSetGroupRequest outgoingEdgeRequests();
 
-  boolean includeNonLiveEntities();
+  boolean includeInactive();
 }
