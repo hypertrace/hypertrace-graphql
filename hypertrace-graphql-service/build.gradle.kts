@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
   implementation("com.typesafe:config")
-  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.16")
+  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.18")
   implementation("org.slf4j:slf4j-api")
 
   implementation("org.eclipse.jetty:jetty-server:9.4.35.v20201120")
@@ -26,4 +26,12 @@ application {
 }
 tasks.run<JavaExec> {
   jvmArgs = listOf("-Dservice.name=${project.name}")
+}
+
+hypertraceDocker {
+  defaultImage {
+    javaApplication {
+      port.set(23431)
+    }
+  }
 }
