@@ -1,13 +1,12 @@
 package org.hypertrace.graphql.utils.metrics.gateway;
 
 import io.reactivex.rxjava3.core.Single;
-import java.util.Optional;
-import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Value;
-import org.hypertrace.gateway.service.v1.common.ValueType;
 import org.hypertrace.graphql.metric.schema.MetricAggregation;
+
+import javax.inject.Inject;
 
 class MetricAggregationConverter implements Converter<Value, MetricAggregation> {
 
