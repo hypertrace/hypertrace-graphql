@@ -8,50 +8,57 @@ import org.hypertrace.graphql.metric.schema.argument.MetricAggregationAvgRateSiz
 import org.hypertrace.graphql.metric.schema.argument.MetricAggregationAvgRateUnitsArgument;
 import org.hypertrace.graphql.metric.schema.argument.MetricAggregationPercentileSizeArgument;
 
-import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.*;
+public interface BaselineMetricAggregationContainer extends MetricAggregationContainer {
 
-public interface BaselineMetricAggregationContainer {
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_SUM_KEY)
-    BaselineMetricAggregation sum();
+    BaselinedMetricAggregation sum();
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_MIN_KEY)
-    BaselineMetricAggregation min();
+    BaselinedMetricAggregation min();
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_MAX_KEY)
-    BaselineMetricAggregation max();
+    BaselinedMetricAggregation max();
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_AVG_KEY)
-    BaselineMetricAggregation avg();
+    BaselinedMetricAggregation avg();
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_COUNT_KEY)
-    BaselineMetricAggregation count();
+    BaselinedMetricAggregation count();
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_DISTINCTCOUNT_KEY)
-    BaselineMetricAggregation distinctcount();
+    BaselinedMetricAggregation distinctcount();
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_AVGRATE_KEY)
-    BaselineMetricAggregation avgrate(
+    BaselinedMetricAggregation avgrate(
             @GraphQLNonNull @GraphQLName(MetricAggregationAvgRateSizeArgument.ARGUMENT_NAME) int size,
             @GraphQLNonNull @GraphQLName(MetricAggregationAvgRateUnitsArgument.ARGUMENT_NAME)
                     TimeUnit units);
 
+    @Override
     @GraphQLField
     @GraphQLNonNull
     @GraphQLName(METRIC_AGGREGATION_CONTAINER_PERCENTILE_KEY)
-    BaselineMetricAggregation percentile(
+    BaselinedMetricAggregation percentile(
             @GraphQLNonNull @GraphQLName(MetricAggregationPercentileSizeArgument.ARGUMENT_NAME) int size);
 }

@@ -5,11 +5,10 @@ import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Value;
-import org.hypertrace.graphql.metric.schema.BaselineAggregation;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregation;
-import org.hypertrace.graphql.metric.schema.MetricAggregation;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
+import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
-class MetricAggregationConverter implements Converter<Value, BaselineMetricAggregation> {
+class MetricAggregationConverter implements Converter<Value, BaselinedMetricAggregation> {
 
   private final Converter<Value, Object> valueConverter;
 
@@ -19,21 +18,22 @@ class MetricAggregationConverter implements Converter<Value, BaselineMetricAggre
   }
 
   @Override
-  public Single<BaselineMetricAggregation> convert(Value value) {
+  public Single<BaselinedMetricAggregation> convert(Value value) {
     return this.valueConverter
         .convert(value)
         .cast(Number.class)
         .map(Number::doubleValue)
-        .map(ConvertedMetricAggregation::new);
+        .map(BaselinedMetricAggregationImpl::new);
   }
 
   @lombok.Value
   @Accessors(fluent = true)
-  private static class ConvertedMetricAggregation implements BaselineMetricAggregation {
+  private static class BaselinedMetricAggregationImpl implements BaselinedMetricAggregation {
     Double value;
 
     @Override
-    public BaselineAggregation baseline() {
+    public MetricBaselineAggregation baseline() {
+      // TODO Implement this
       return null;
     }
   }

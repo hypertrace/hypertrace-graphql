@@ -18,13 +18,14 @@ import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
+import org.hypertrace.gateway.service.v1.health.BaselineEntityRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
-class GatewayServiceEntityRequestBuilder {
+public class GatewayServiceEntityRequestBuilder {
 
   private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
   private final Converter<
@@ -53,7 +54,7 @@ class GatewayServiceEntityRequestBuilder {
     this.interactionRequestBuilder = interactionRequestBuilder;
   }
 
-  Single<EntitiesRequest> buildRequest(EntityRequest entityRequest) {
+  public Single<EntitiesRequest> buildRequest(EntityRequest entityRequest) {
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest = entityRequest.resultSetRequest();
     return zip(
         this.selectionConverter.convert(resultSetRequest.attributes()),

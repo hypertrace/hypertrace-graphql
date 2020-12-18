@@ -4,6 +4,7 @@ import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EntityRequestBuilder;

@@ -19,7 +19,7 @@ public interface BaselineMetricInterval extends BaselineMetricAggregationContain
 
     @GraphQLName(BASELINE_AGGREGATION_VALUE)
     @GraphQLField
-    BaselineAggregation baseline();
+    MetricBaselineAggregation baseline();
 
 
 }

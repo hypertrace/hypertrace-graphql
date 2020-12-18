@@ -11,13 +11,13 @@ import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregation;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
 
 class MetricAggregationMapConverter
     implements BiConverter<
         List<MetricAggregationRequest>,
         Map<String, AggregatedMetricValue>,
-        Map<MetricLookupMapKey, BaselineMetricAggregation>> {
+        Map<MetricLookupMapKey, BaselinedMetricAggregation>> {
 
   private final MetricAggregationConverter aggregationConverter;
 
@@ -27,16 +27,16 @@ class MetricAggregationMapConverter
   }
 
   @Override
-  public Single<Map<MetricLookupMapKey, BaselineMetricAggregation>> convert(
-          List<MetricAggregationRequest> aggregationRequests,
-          Map<String, AggregatedMetricValue> resultMap) {
+  public Single<Map<MetricLookupMapKey, BaselinedMetricAggregation>> convert(
+      List<MetricAggregationRequest> aggregationRequests,
+      Map<String, AggregatedMetricValue> resultMap) {
     return Observable.fromIterable(aggregationRequests)
-            .flatMapSingle(
-                    aggregationRequest -> this.buildMetricAggregationEntry(aggregationRequest, resultMap))
-            .collect(immutableMapEntryCollector());
+        .flatMapSingle(
+            aggregationRequest -> this.buildMetricAggregationEntry(aggregationRequest, resultMap))
+        .collect(immutableMapEntryCollector());
   }
 
-  private Single<Entry<MetricLookupMapKey, BaselineMetricAggregation>> buildMetricAggregationEntry(
+  private Single<Entry<MetricLookupMapKey, BaselinedMetricAggregation>> buildMetricAggregationEntry(
       MetricAggregationRequest aggregationRequest, Map<String, AggregatedMetricValue> resultMap) {
     return this.aggregationConverter
         .convert(resultMap.get(aggregationRequest.alias()).getValue())
