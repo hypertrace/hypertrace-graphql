@@ -21,7 +21,7 @@ class MetricAggregationConverter implements Converter<Value, MetricAggregation> 
   @Override
   public Single<MetricAggregation> convert(Value value) {
     if (Value.getDefaultInstance().equals(value)) {
-      return Single.just(new ConvertedMetricAggregation(null));
+      return Single.just(ConvertedMetricAggregation.EMPTY);
     }
 
     return this.valueConverter
@@ -34,6 +34,8 @@ class MetricAggregationConverter implements Converter<Value, MetricAggregation> 
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedMetricAggregation implements MetricAggregation {
+    static final ConvertedMetricAggregation EMPTY = new ConvertedMetricAggregation(null);
+
     Double value;
   }
 }

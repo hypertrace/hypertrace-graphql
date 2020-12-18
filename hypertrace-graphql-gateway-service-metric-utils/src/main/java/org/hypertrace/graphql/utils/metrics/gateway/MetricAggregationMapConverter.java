@@ -39,11 +39,7 @@ class MetricAggregationMapConverter
   private Single<Entry<MetricLookupMapKey, MetricAggregation>> buildMetricAggregationEntry(
       MetricAggregationRequest aggregationRequest, Map<String, AggregatedMetricValue> resultMap) {
     return this.aggregationConverter
-        .convert(
-            resultMap
-                .getOrDefault(
-                    aggregationRequest.alias(), AggregatedMetricValue.getDefaultInstance())
-                .getValue())
+        .convert(resultMap.get(aggregationRequest.alias()).getValue())
         .map(agg -> Map.entry(MetricLookupMapKey.fromAggregationRequest(aggregationRequest), agg));
   }
 }
