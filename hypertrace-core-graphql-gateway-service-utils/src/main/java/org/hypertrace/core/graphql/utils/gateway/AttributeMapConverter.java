@@ -27,6 +27,7 @@ class AttributeMapConverter
   public Single<Map<String, Object>> convert(
       Collection<AttributeRequest> attributes, Map<String, Value> response) {
     return Observable.fromIterable(attributes)
+        .filter(attribute -> !Value.getDefaultInstance().equals(response.get(attribute.alias())))
         .flatMapSingle(attribute -> this.buildAttributeMapEntry(attribute, response))
         .distinct()
         .collect(CollectorUtils.immutableMapEntryCollector());
