@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,26 +64,29 @@ class NeighborEntitiesRequestBuilder {
       GraphQlRequestContext context,
       String entityScope,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Collection<String> neighborIds,
       Collection<SelectedField> edgeFields) {
 
     return this.build(
-        context, entityScope, timeRange, neighborIds, this.getNeighborFields(edgeFields));
+        context, entityScope, timeRange, space, neighborIds, this.getNeighborFields(edgeFields));
   }
 
   private Single<EntityRequest> build(
       GraphQlRequestContext context,
       String entityScope,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Collection<String> neighborIds,
       Collection<SelectedField> neighborFields) {
     return zip(
-        this.buildResultSetRequest(context, timeRange, entityScope, neighborIds, neighborFields),
+        this.buildResultSetRequest(
+            context, timeRange, space, entityScope, neighborIds, neighborFields),
         this.metricRequestBuilder.build(context, entityScope, neighborFields.stream()),
         this.edgeRequestBuilder.buildIncomingEdgeRequest(
-            context, timeRange, this.getIncomingEdges(neighborFields)),
+            context, timeRange, space, this.getIncomingEdges(neighborFields)),
         this.edgeRequestBuilder.buildOutgoingEdgeRequest(
-            context, timeRange, this.getOutgoingEdges(neighborFields)),
+            context, timeRange, space, this.getOutgoingEdges(neighborFields)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new NeighborEntityRequest(
                 entityScope,
@@ -98,6 +102,7 @@ class NeighborEntitiesRequestBuilder {
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       String entityScope,
       Collection<String> neighborIds,
       Collection<SelectedField> neighborFields) {
@@ -112,7 +117,8 @@ class NeighborEntitiesRequestBuilder {
                     timeRange,
                     Collections.emptyList(),
                     filters,
-                    neighborFields.stream()));
+                    neighborFields.stream(),
+                    space));
   }
 
   private Single<List<AttributeAssociation<FilterArgument>>> getIdFilter(

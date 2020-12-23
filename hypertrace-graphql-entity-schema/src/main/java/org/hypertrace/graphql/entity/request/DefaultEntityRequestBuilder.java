@@ -9,6 +9,7 @@ import graphql.schema.SelectedField;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
@@ -17,6 +18,7 @@ import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -84,9 +86,15 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
         this.metricRequestBuilder.build(context, scope, this.getResultSets(selectionSet)),
         this.edgeRequestBuilder.buildIncomingEdgeRequest(
-            context, this.timeRange(arguments), this.getIncomingEdges(selectionSet)),
+            context,
+            this.timeRange(arguments),
+            this.space(arguments),
+            this.getIncomingEdges(selectionSet)),
         this.edgeRequestBuilder.buildOutgoingEdgeRequest(
-            context, this.timeRange(arguments), this.getOutgoingEdges(selectionSet)),
+            context,
+            this.timeRange(arguments),
+            this.space(arguments),
+            this.getOutgoingEdges(selectionSet)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new DefaultEntityRequest(
                 scope,
@@ -122,6 +130,10 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     return this.argumentDeserializer
         .deserializeObject(arguments, TimeRangeArgument.class)
         .orElseThrow();
+  }
+
+  private Optional<String> space(Map<String, Object> arguments) {
+    return this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
   }
 
   @Value
