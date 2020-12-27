@@ -20,6 +20,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -44,6 +45,7 @@ class DefaultResultSetRequestBuilderTest {
   @Mock AttributeModel mockFooAttribute;
   int mockLimit = 3;
   int mockOffset = 4;
+  String mockSpace = "mock-space";
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock Stream<SelectedField> mockAttributeQueryableStream;
   @Mock AttributeRequest mockFooAttributeRequest;
@@ -91,6 +93,8 @@ class DefaultResultSetRequestBuilderTest {
         .thenReturn(Optional.of(List.of(this.mockOrderArgument)));
     when(this.mockArgumentDeserializer.deserializeObjectList(any(), eq(FilterArgument.class)))
         .thenReturn(Optional.of(List.of(this.mockFilterArgument)));
+    when(this.mockArgumentDeserializer.deserializePrimitive(any(), eq(SpaceArgument.class)))
+        .thenReturn(Optional.of(this.mockSpace));
 
     ResultSetRequest<OrderArgument> request =
         this.requestBuilder
@@ -112,5 +116,6 @@ class DefaultResultSetRequestBuilderTest {
     assertEquals(
         List.of(AttributeAssociation.of(this.mockFooAttribute, this.mockFilterArgument)),
         request.filterArguments());
+    assertEquals(Optional.of(mockSpace), request.spaceId());
   }
 }

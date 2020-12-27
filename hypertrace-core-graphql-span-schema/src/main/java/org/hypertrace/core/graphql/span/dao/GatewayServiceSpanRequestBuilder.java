@@ -49,6 +49,7 @@ class GatewayServiceSpanRequestBuilder {
                 .setLimit(gqlRequest.limit())
                 .setOffset(gqlRequest.offset())
                 .setFilter(filters)
+                .setSpaceId(gqlRequest.spaceId().orElse("")) // String proto default value
                 .build());
   }
 }

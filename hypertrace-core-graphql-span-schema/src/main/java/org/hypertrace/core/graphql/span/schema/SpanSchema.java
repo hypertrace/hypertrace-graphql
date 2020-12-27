@@ -10,6 +10,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.span.fetcher.SpanFetcher;
 
 public interface SpanSchema {
@@ -24,5 +25,6 @@ public interface SpanSchema {
       @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy,
       @GraphQLName(OrderArgument.ARGUMENT_NAME) List<OrderArgument> orderBy,
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
-      @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset);
+      @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset,
+      @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space);
 }

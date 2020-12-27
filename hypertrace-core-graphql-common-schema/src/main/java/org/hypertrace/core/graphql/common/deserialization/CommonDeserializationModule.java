@@ -9,6 +9,7 @@ import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeK
 import org.hypertrace.core.graphql.common.schema.id.IdArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 
 public class CommonDeserializationModule extends AbstractModule {
@@ -41,6 +42,12 @@ public class CommonDeserializationModule extends AbstractModule {
         .toInstance(
             ArgumentDeserializationConfig.forPrimitive(
                 AttributeKeyArgument.ARGUMENT_NAME, AttributeKeyArgument.class));
+
+    deserializationConfigMultibinder
+        .addBinding()
+        .toInstance(
+            ArgumentDeserializationConfig.forPrimitive(
+                SpaceArgument.ARGUMENT_NAME, SpaceArgument.class));
 
     requireBinding(Key.get(new TypeLiteral<Class<? extends AttributeScope>>() {}));
   }

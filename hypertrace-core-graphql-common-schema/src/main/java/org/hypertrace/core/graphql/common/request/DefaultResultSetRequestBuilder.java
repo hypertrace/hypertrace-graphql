@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -90,6 +92,10 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
             .deserializeObjectList(arguments, FilterArgument.class)
             .orElse(Collections.emptyList());
 
+    Optional<String> spaceId =
+        this.argumentDeserializer
+            .deserializePrimitive(arguments, SpaceArgument.class);
+
     return zip(
             this.attributeAssociator
                 .associateAttributes(context, requestScope, requestedOrders, OrderArgument::key)
@@ -104,7 +110,8 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
                     timeRange,
                     orders,
                     filters,
-                    this.getAttributeQueryableFields(selectionSet)))
+                    this.getAttributeQueryableFields(selectionSet),
+                    spaceId))
         .flatMap(single -> single);
   }
 
@@ -117,7 +124,8 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
       TimeRangeArgument timeRange,
       List<AttributeAssociation<O>> orderArguments,
       Collection<AttributeAssociation<FilterArgument>> filterArguments,
-      Stream<SelectedField> attributeQueryableFields) {
+      Stream<SelectedField> attributeQueryableFields,
+      Optional<String> spaceId) {
     return zip(
         this.attributeRequestBuilder
             .buildForAttributeQueryableFieldsAndId(context, requestScope, attributeQueryableFields)
@@ -132,7 +140,8 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
                 limit,
                 offset,
                 orderArguments,
-                filterArguments));
+                filterArguments,
+                spaceId));
   }
 
   private Stream<SelectedField> getAttributeQueryableFields(
@@ -153,5 +162,6 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
     int offset;
     List<AttributeAssociation<O>> orderArguments;
     Collection<AttributeAssociation<FilterArgument>> filterArguments;
+    Optional<String> spaceId;
   }
 }

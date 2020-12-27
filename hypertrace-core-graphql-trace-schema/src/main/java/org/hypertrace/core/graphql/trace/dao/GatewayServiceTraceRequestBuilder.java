@@ -52,6 +52,8 @@ class GatewayServiceTraceRequestBuilder {
                 .setLimit(request.resultSetRequest().limit())
                 .setOffset(request.resultSetRequest().offset())
                 .setFilter(filters)
+                .setSpaceId(
+                    request.resultSetRequest().spaceId().orElse("")) // String proto default value
                 .build());
   }
 }

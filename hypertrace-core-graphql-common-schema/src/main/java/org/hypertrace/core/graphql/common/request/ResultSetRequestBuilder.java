@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
@@ -34,5 +35,6 @@ public interface ResultSetRequestBuilder {
       TimeRangeArgument timeRange,
       List<AttributeAssociation<O>> orderArguments,
       Collection<AttributeAssociation<FilterArgument>> filterArguments,
-      Stream<SelectedField> attributeQueryableFields);
+      Stream<SelectedField> attributeQueryableFields,
+      Optional<String> spaceId);
 }
