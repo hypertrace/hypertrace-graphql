@@ -10,6 +10,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.graphql.entity.fetcher.EntityFetcher;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
@@ -27,6 +28,7 @@ public interface EntitySchema {
       @GraphQLName(EntityTypeArgument.ARGUMENT_NAME) EntityType entityType,
       @GraphQLName(EntityScopeArgument.ARGUMENT_NAME) String entityScope,
       @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument timeRange,
+      @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space,
       @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy,
       @GraphQLName(OrderArgument.ARGUMENT_NAME) List<AggregatableOrderArgument> orderBy,
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
