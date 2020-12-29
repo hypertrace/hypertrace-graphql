@@ -75,7 +75,7 @@ jobs:
     executor: java
     steps:
       - setup_build_environment
-      - setup_remote_docker:
+      - setup_remote_docker
       - docker_login
       - populate_and_save_cache
       - gradle:
@@ -100,20 +100,18 @@ jobs:
       - setup_build_environment
       - snyk/scan:
           additional-arguments: --all-sub-projects --policy-path=.snyk
-  merge-publish:
+  publish:
     executor: java
     steps:
       - setup_build_environment
-      - setup_remote_docker: *latest_remote_docker
+      - setup_remote_docker
       - docker_login
       - gradle:
-          args: dockerPushImages
-  release-publish:
-    executor: java
-    steps:
-      - setup_build_environment
-      - setup_remote_docker: *latest_remote_docker
-      - docker_login
+          args: :tag -Prelease
+      - add_ssh_keys:
+          fingerprints:
+            - 'a1:99:97:65:ec:ff:20:cf:4e:7d:92:00:c0:be:63:c4'
+      - run: git push origin $(./gradlew -q :printVersion)
       - gradle:
           args: dockerPushImages
   validate-charts:
@@ -175,3 +173,5 @@ workflows:
             - publish
           filters:
             branches:
+              only:
+                - main
