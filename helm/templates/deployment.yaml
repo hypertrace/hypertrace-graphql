@@ -27,7 +27,7 @@ spec:
     {{- end }}
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ include "graphqlservice.image" . }}"
+        image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
           - name: http
