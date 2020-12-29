@@ -121,7 +121,6 @@ jobs:
       - run:
           name: Helm Charts Lint and Template Render
           command: |
-            helm dependency update ./helm/
             helm lint --strict ./helm/
             helm template ./helm/
   package-charts:
@@ -160,13 +159,12 @@ workflows:
           requires:
             - build
             - validate-charts
-            - snyk-scan
           filters:
             branches:
               only:
                 - main
       - package-charts:
-           context:
+          context:
             - hypertrace-publishing
             - dockerhub-read
           requires:
