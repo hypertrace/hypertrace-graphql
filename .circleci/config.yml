@@ -158,6 +158,7 @@ workflows:
             - dockerhub-read
           requires:
             - build
+            - synk-scan
             - validate-charts
           filters:
             branches:
