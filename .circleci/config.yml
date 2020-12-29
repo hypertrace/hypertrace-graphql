@@ -13,7 +13,7 @@ executors:
           password: $DOCKERHUB_PASSWORD
   helm:
     docker:
-      - image: hypertrace/helm-gcs-packager:0.3.0
+      - image: hypertrace/helm-gcs-packager:0.1.1
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -48,8 +48,7 @@ commands:
       - update_submodules
       - run:
           name: Generate cache key
-          # Find all gradle related files, hash each and order them consistently, then save to file for later use
-          command: find . -type f -name "*.gradle*" -o -name "gradle-wrapper*" | xargs shasum | sort > /tmp/checksum.txt && cat /tmp/checksum.txt
+          command: find . -type f -name "*.gradle*" -exec shasum {} + | sort > /tmp/checksum.txt && cat /tmp/checksum.txt
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "/tmp/checksum.txt" }}
@@ -76,8 +75,7 @@ jobs:
     executor: java
     steps:
       - setup_build_environment
-      - setup_remote_docker: &latest_remote_docker
-          version: 19.03.12
+      - setup_remote_docker:
       - docker_login
       - populate_and_save_cache
       - gradle:
@@ -128,22 +126,12 @@ jobs:
             helm dependency update ./helm/
             helm lint --strict ./helm/
             helm template ./helm/
-  release-charts:
+  package-charts:
     executor: helm
     steps:
       - checkout
       - run:
-          name: Add release tag
-          command: |
-            git config --global user.email "${CIRCLE_USERNAME}@hypertrace.org"
-            git config --global user.name "$CIRCLE_USERNAME"
-            git tag -am "Released by $CIRCLE_USERNAME" $(git describe --abbrev=0 --tags | sed 's/^release-//')
-      - run:
-          name: Remove trigger tag
-          command: git tag -d release-$(git describe --abbrev=0)
-      - run:
           name: Package and Publish Helm Charts
-          # Read the "name:" from Chart.yaml. The chart version is <chart-name>-<semver git tag>
           command: |
             CHART_VERSION=$(git describe --abbrev=0)
             CHART_NAME=$(awk '/^name:/ {print $2}' ./helm/Chart.yaml)
@@ -153,13 +141,6 @@ jobs:
             helm repo add helm-gcs ${HELM_GCS_REPOSITORY}
             helm package --version ${CHART_VERSION} --app-version ${CHART_VERSION} ./helm/
             helm gcs push ${CHART_NAME}-${CHART_VERSION}.tgz helm-gcs --public --retry
-      - add_ssh_keys:
-          fingerprints:
-            # This ssh key gives write permission needed for the following step.
-            - 'a1:99:97:65:ec:ff:20:cf:4e:7d:92:00:c0:be:63:c4'
-      - run:
-          name: Update remote tags
-          command: git push origin refs/tags/$(git describe --abbrev=0) :refs/tags/release-$(git describe --abbrev=0)
 workflows:
   version: 2
   build-and-publish:
@@ -174,7 +155,7 @@ workflows:
           context:
             - hypertrace-vulnerability-scanning
             - dockerhub-read
-      - merge-publish:
+      - publish:
           context:
             - hypertrace-publishing
             - dockerhub-read
@@ -186,23 +167,11 @@ workflows:
             branches:
               only:
                 - main
-      - release-publish:
-          context:
-            - hypertrace-publishing
-            - dockerhub-read
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^release-.*/
-      - release-charts:
-          context:
+      - package-charts:
+           context:
             - hypertrace-publishing
             - dockerhub-read
           requires:
-            - release-publish
+            - publish
           filters:
             branches:
-              ignore: /.*/
-            tags:
-              only: /^release-.*/
