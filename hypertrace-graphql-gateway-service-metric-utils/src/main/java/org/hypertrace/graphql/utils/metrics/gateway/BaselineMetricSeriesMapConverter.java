@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.hypertrace.core.graphql.common.utils.CollectorUtils.immutableMapEntryCollector;
 
-public class BaselineMetricSeriesMapConverter
+class BaselineMetricSeriesMapConverter
     implements BiConverter<
         List<MetricSeriesRequest>,
         Map<String, BaselineMetricSeries>,
@@ -51,8 +51,8 @@ public class BaselineMetricSeriesMapConverter
         .map(intervalList -> Map.entry(period, intervalList));
   }
 
-  private BaselineMetricSeries getBaselineSeries(Map<String, BaselineMetricSeries> baselineSeriesMap,
-                                                 MetricSeriesRequest request) {
+  private BaselineMetricSeries getBaselineSeries(
+      Map<String, BaselineMetricSeries> baselineSeriesMap, MetricSeriesRequest request) {
     if (baselineSeriesMap.containsKey(request.alias())) {
       return baselineSeriesMap.get(request.alias());
     }
