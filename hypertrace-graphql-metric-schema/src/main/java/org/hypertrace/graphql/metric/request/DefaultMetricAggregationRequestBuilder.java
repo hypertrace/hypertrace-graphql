@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.metric.request;
 
+import static org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation.BASELINE_AGGREGATION_VALUE;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_AVGRATE_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_AVG_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_COUNT_KEY;
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
@@ -70,12 +72,18 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
         context, requestScope, metricQueryableFieldStream, this::build);
   }
 
-  @Override
   public MetricAggregationRequest build(
-      AttributeModel attribute,
-      AttributeModelMetricAggregationType aggregationType,
-      List<Object> arguments) {
-    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments);
+          AttributeModel attribute,
+          AttributeModelMetricAggregationType aggregationType,
+          List<Object> arguments) {
+    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, Collections.EMPTY_LIST);
+  }
+
+  public MetricAggregationRequest build(
+          AttributeModel attribute,
+          AttributeModelMetricAggregationType aggregationType,
+          List<Object> arguments, List<SelectedField> selections) {
+    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, selections);
   }
 
   private MetricAggregationRequest requestForAggregationField(
@@ -85,7 +93,9 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     return this.build(
         attribute,
         aggregationType,
-        this.getArgumentsForAggregation(aggregationType, field.getArguments()));
+        this.getArgumentsForAggregation(aggregationType, field.getArguments()),
+            this.selectionFinder.findSelections(field.getSelectionSet(),
+                    SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE)).collect(Collectors.toList()));
   }
 
   private Optional<AttributeModelMetricAggregationType> getAggregationTypeForField(
@@ -157,11 +167,20 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     AttributeModel attribute;
     AttributeModelMetricAggregationType aggregation;
     List<Object> arguments;
+    List<SelectedField> selectedFields;
 
     @Override
     public String alias() {
       return String.format(
           "%s_%s_%s", this.aggregation.name(), this.attribute.id(), this.arguments);
+    }
+
+    @Override
+    public Baseline baseline() {
+      if (selectedFields.size() > 0) {
+        return new Baseline();
+      }
+      return null;
     }
   }
 }

@@ -13,4 +13,6 @@ public interface MetricAggregationRequest {
   String alias();
 
   List<Object> arguments();
+
+  Baseline baseline();
 }

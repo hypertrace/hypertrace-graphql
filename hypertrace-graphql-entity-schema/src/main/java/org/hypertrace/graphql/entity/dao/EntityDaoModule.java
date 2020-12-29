@@ -15,10 +15,12 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.common.utils.TriConverter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContextBuilder;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.gateway.service.v1.baseline.BaselineEntity;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
@@ -75,8 +77,8 @@ public class EntityDaoModule extends AbstractModule {
     requireBinding(
         Key.get(
             new TypeLiteral<
-                BiConverter<
-                    Collection<MetricRequest>, Entity, Map<String, MetricContainer>>>() {}));
+                TriConverter<
+                    Collection<MetricRequest>, Entity, Optional<BaselineEntity>, Map<String, MetricContainer>>>() {}));
 
     requireBinding(
         Key.get(

@@ -6,6 +6,7 @@ import com.google.inject.TypeLiteral;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
@@ -14,6 +15,8 @@ import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationTyp
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.common.utils.TriConverter;
+import org.hypertrace.gateway.service.v1.baseline.BaselineEntity;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
@@ -41,8 +44,8 @@ public class GatewayMetricUtilsModule extends AbstractModule {
         .to(MetricSeriesExpressionConverter.class);
 
     bind(Key.get(
-            new TypeLiteral<
-                BiConverter<Collection<MetricRequest>, Entity, Map<String, MetricContainer>>>() {}))
+            new TypeLiteral<TriConverter<Collection<MetricRequest>, Entity, Optional<BaselineEntity>,
+                    Map<String, MetricContainer>>>() {}))
         .to(MetricContainerMapConverter.class);
     bind(Key.get(
             new TypeLiteral<

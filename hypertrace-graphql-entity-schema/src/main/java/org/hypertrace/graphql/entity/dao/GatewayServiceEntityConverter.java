@@ -9,11 +9,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
+import org.hypertrace.core.graphql.common.utils.TriConverter;
+import org.hypertrace.gateway.service.v1.baseline.BaselineEntitiesResponse;
+import org.hypertrace.gateway.service.v1.baseline.BaselineEntity;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
 import org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeLookupConverter.EdgeLookup;
@@ -29,10 +33,11 @@ class GatewayServiceEntityConverter {
   private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
       attributeMapConverter;
 
-  private final BiConverter<
-          Collection<MetricRequest>,
-          org.hypertrace.gateway.service.v1.entity.Entity,
-          Map<String, MetricContainer>>
+  private final TriConverter<
+            Collection<MetricRequest>,
+            org.hypertrace.gateway.service.v1.entity.Entity,
+            Optional<BaselineEntity>,
+            Map<String, MetricContainer>>
       metricContainerConverter;
   private final GatewayServiceEntityEdgeLookupConverter edgeLookupConverter;
 
@@ -40,9 +45,10 @@ class GatewayServiceEntityConverter {
   GatewayServiceEntityConverter(
       BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
           attributeMapConverter,
-      BiConverter<
+      TriConverter<
               Collection<MetricRequest>,
               org.hypertrace.gateway.service.v1.entity.Entity,
+              Optional<BaselineEntity>,
               Map<String, MetricContainer>>
           metricContainerConverter,
       GatewayServiceEntityEdgeLookupConverter edgeLookupConverter) {
@@ -51,21 +57,22 @@ class GatewayServiceEntityConverter {
     this.edgeLookupConverter = edgeLookupConverter;
   }
 
-  Single<EntityResultSet> convert(EntityRequest request, EntitiesResponse response) {
+  Single<EntityResultSet> convert(
+      EntityRequest request, EntitiesResponse response, BaselineEntitiesResponse baselineResponse) {
     return this.edgeLookupConverter
         .convert(request, response)
-        .flatMap(edgeLookup -> this.convert(request, response, edgeLookup));
+        .flatMap(edgeLookup -> this.convert(request, response, baselineResponse, edgeLookup));
   }
 
   private Single<EntityResultSet> convert(
-      EntityRequest request, EntitiesResponse response, EdgeLookup edgeLookup) {
-
+          EntityRequest request, EntitiesResponse response, BaselineEntitiesResponse baselineResponse, EdgeLookup edgeLookup) {
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
             entity ->
                 this.convertEntity(
                     request,
                     entity,
+                    getBaselineEntity(getEntityMap(baselineResponse), entity),
                     edgeLookup.getIncoming().row(entity),
                     edgeLookup.getOutgoing().row(entity)))
         .toList()
@@ -74,15 +81,30 @@ class GatewayServiceEntityConverter {
                 new ConvertedEntityResultSet(entities, response.getTotal(), entities.size()));
   }
 
+  private Optional<BaselineEntity> getBaselineEntity(Map<String, BaselineEntity> baselineEntityMap,
+                                           org.hypertrace.gateway.service.v1.entity.Entity entity) {
+    if (!baselineEntityMap.isEmpty() && baselineEntityMap.containsKey(entity.getId())) {
+      return Optional.of(baselineEntityMap.get(entity.getId()));
+    }
+    return Optional.empty();
+  }
+
+  private Map<String, BaselineEntity> getEntityMap(BaselineEntitiesResponse baselineResponse) {
+    List<BaselineEntity> entityList = baselineResponse.getBaselineEntityList();
+    return entityList.stream().collect(Collectors.toMap(x -> x.getId(), y -> y));
+  }
+
   private Single<Entity> convertEntity(
       EntityRequest entityRequest,
       org.hypertrace.gateway.service.v1.entity.Entity platformEntity,
+      Optional<BaselineEntity> baselineEntity,
       Map<String, EdgeResultSet> incomingEdges,
       Map<String, EdgeResultSet> outgoingEdges) {
     return zip(
         this.attributeMapConverter.convert(
             entityRequest.resultSetRequest().attributes(), platformEntity.getAttributeMap()),
-        this.metricContainerConverter.convert(entityRequest.metricRequests(), platformEntity),
+        this.metricContainerConverter.convert(
+            entityRequest.metricRequests(), platformEntity, baselineEntity),
         (attrMap, containerMap) ->
             new ConvertedEntity(
                 attrMap

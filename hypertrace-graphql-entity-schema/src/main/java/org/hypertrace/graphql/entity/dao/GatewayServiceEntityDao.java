@@ -14,6 +14,7 @@ import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
+import org.hypertrace.graphql.entity.health.BaselineProvider;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 
@@ -24,6 +25,7 @@ class GatewayServiceEntityDao implements EntityDao {
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceEntityRequestBuilder requestBuilder;
   private final GatewayServiceEntityConverter entityConverter;
+  private final BaselineProvider baselineProvider;
 
   @Inject
   GatewayServiceEntityDao(
@@ -32,10 +34,12 @@ class GatewayServiceEntityDao implements EntityDao {
       GraphQlGrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry grpcChannelRegistry,
       GatewayServiceEntityRequestBuilder requestBuilder,
-      GatewayServiceEntityConverter entityConverter) {
+      GatewayServiceEntityConverter entityConverter,
+      BaselineProvider baselineProvider) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.entityConverter = entityConverter;
+    this.baselineProvider = baselineProvider;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -48,9 +52,10 @@ class GatewayServiceEntityDao implements EntityDao {
   public Single<EntityResultSet> getEntities(EntityRequest request) {
     return this.requestBuilder
         .buildRequest(request)
-        .flatMap(
-            serverRequest -> this.makeRequest(request.resultSetRequest().context(), serverRequest))
-        .flatMap(serverResponse -> this.entityConverter.convert(request, serverResponse));
+        .flatMap(serverRequest ->  this.makeRequest(request.resultSetRequest().context(), serverRequest)
+        .flatMap(serverResponse -> baselineProvider.buildRequest(serverRequest, serverResponse, request)
+        .flatMap(baselineRequest -> baselineProvider.makeRequest(request.resultSetRequest().context(), baselineRequest))
+        .flatMap(baselineResponse -> this.entityConverter.convert(request, serverResponse, baselineResponse))));
   }
 
   private Single<EntitiesResponse> makeRequest(
