@@ -3,7 +3,6 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 import io.reactivex.rxjava3.core.Single;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.baseline.Baseline;
-import org.hypertrace.graphql.metric.schema.Health;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
 import java.util.Optional;
@@ -32,11 +31,6 @@ class MetricBaselineAggregationConverter
           return baseline.get().getUpperBound().getDouble();
         }
         return Double.valueOf(0);
-      }
-
-      @Override
-      public Health health() {
-        return null;
       }
 
       @Override

@@ -15,7 +15,6 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.BaselineMetricInterval;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
-import org.hypertrace.graphql.metric.schema.Health;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
 import javax.inject.Inject;
@@ -28,14 +27,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class BaselineIntervalListContainer
+class BaselineMetricIntervalListContainer
     implements Converter<
         Map<MetricSeriesRequest, BaselineMetricSeries>, List<BaselineMetricInterval>> {
 
   private final MetricBaselineAggregationConverter baselineAggregationConverter;
 
   @Inject
-  BaselineIntervalListContainer(MetricBaselineAggregationConverter baselineAggregationConverter) {
+  BaselineMetricIntervalListContainer(MetricBaselineAggregationConverter baselineAggregationConverter) {
     this.baselineAggregationConverter = baselineAggregationConverter;
   }
 
@@ -43,7 +42,7 @@ class BaselineIntervalListContainer
   public Single<List<BaselineMetricInterval>> convert(
       Map<MetricSeriesRequest, BaselineMetricSeries> metricSeriesMap) {
     return this.collectPartialsFromEachSeries(metricSeriesMap)
-        .groupBy(BaselineIntervalListContainer.MergeableIntervalPartial::getIntervalTimeRange)
+        .groupBy(BaselineMetricIntervalListContainer.MergeableIntervalPartial::getIntervalTimeRange)
         .flatMapSingle(this::buildMetricIntervalFromPartials)
         .sorted(Comparator.comparing(BaselineMetricInterval::startTime))
         .collect(Collectors.toUnmodifiableList());
@@ -58,15 +57,15 @@ class BaselineIntervalListContainer
                 partial ->
                     MetricLookupMapKey.fromAggregationRequest(partial.getAggregationRequest()),
                 Collectors.mapping(
-                    BaselineIntervalListContainer.MergeableIntervalPartial::getAggregation,
+                    BaselineMetricIntervalListContainer.MergeableIntervalPartial::getAggregation,
                     CollectorUtils.firstOrDefault(null))))
         .map(
             aggregationMap ->
-                new BaselineIntervalListContainer.ConvertedMetricInterval(
+                new BaselineMetricIntervalListContainer.ConvertedMetricInterval(
                     aggregationMap, partialsForTimeRange.getKey()));
   }
 
-  private Observable<BaselineIntervalListContainer.MergeableIntervalPartial>
+  private Observable<BaselineMetricIntervalListContainer.MergeableIntervalPartial>
       collectPartialsFromEachSeries(
           Map<MetricSeriesRequest, BaselineMetricSeries> metricSeriesMap) {
     return Observable.fromIterable(metricSeriesMap.entrySet())
@@ -80,19 +79,19 @@ class BaselineIntervalListContainer
         .map(interval -> Map.entry(entry.getKey().aggregationRequest(), interval));
   }
 
-  private Single<BaselineIntervalListContainer.MergeableIntervalPartial> buildMergeablePartial(
+  private Single<BaselineMetricIntervalListContainer.MergeableIntervalPartial> buildMergeablePartial(
       BaselineInterval interval, MetricAggregationRequest aggregationRequest) {
     return this.baselineAggregationConverter
         .convert(Optional.ofNullable(interval.getBaseline()))
         .map(
             aggregation ->
-                new BaselineIntervalListContainer.MergeableIntervalPartial(
+                new BaselineMetricIntervalListContainer.MergeableIntervalPartial(
                     this.extractIntervalTimeRange(interval), aggregationRequest, aggregation));
   }
 
-  private BaselineIntervalListContainer.IntervalTimeRange extractIntervalTimeRange(
+  private BaselineMetricIntervalListContainer.IntervalTimeRange extractIntervalTimeRange(
       BaselineInterval interval) {
-    return new BaselineIntervalListContainer.IntervalTimeRange(
+    return new BaselineMetricIntervalListContainer.IntervalTimeRange(
         Instant.ofEpochMilli(interval.getStartTimeMillis()),
         Instant.ofEpochMilli(interval.getEndTimeMillis()),
         getMetricbaselineAggregation(interval.getBaseline()));
@@ -116,11 +115,6 @@ class BaselineIntervalListContainer
         return baseline.getValue().getDouble();
       }
 
-      @Override
-      public Health health() {
-        // TODO modify this
-        return null;
-      }
     };
   }
 
@@ -133,7 +127,7 @@ class BaselineIntervalListContainer
 
   @Value
   private static class MergeableIntervalPartial {
-    BaselineIntervalListContainer.IntervalTimeRange intervalTimeRange;
+    BaselineMetricIntervalListContainer.IntervalTimeRange intervalTimeRange;
     MetricAggregationRequest aggregationRequest;
     MetricBaselineAggregation aggregation;
   }

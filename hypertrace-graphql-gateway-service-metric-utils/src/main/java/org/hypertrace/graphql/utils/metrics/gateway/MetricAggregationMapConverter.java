@@ -16,7 +16,7 @@ import org.hypertrace.gateway.service.v1.baseline.Baseline;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
-import org.hypertrace.graphql.metric.schema.Health;
+import org.hypertrace.graphql.metric.schema.MetricAggregation;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
 class MetricAggregationMapConverter
@@ -57,39 +57,51 @@ class MetricAggregationMapConverter
             this.aggregationConverter.convert(resultMap.get(aggregationRequest.alias()).getValue()),
             this.baselineAggregationConverter.convert(
                 Optional.ofNullable(baselineMap.get(aggregationRequest.alias()))),
-            (metricAggregation, baselinedMetricAggregation) ->
-                new BaselinedMetricAggregation() {
-                  @Override
-                  public Double value() {
-                    return metricAggregation.value();
-                  }
-
-                  @Override
-                  public MetricBaselineAggregation baseline() {
-                    return new MetricBaselineAggregation() {
-
-                      @Override
-                      public Double value() {
-                        return baselinedMetricAggregation.value();
-                      }
-
-                      @Override
-                      public Double lowerBound() {
-                        return baselinedMetricAggregation.lowerBound();
-                      }
-
-                      @Override
-                      public Double upperBound() {
-                        return baselinedMetricAggregation.upperBound();
-                      }
-
-                      @Override
-                      public Health health() {
-                        return baselinedMetricAggregation.health();
-                      }
-                    };
-                  }
-                })
+            BaselinedMetricAggregationImpl::new)
         .map(agg -> Map.entry(MetricLookupMapKey.fromAggregationRequest(aggregationRequest), agg));
+  }
+
+  private static class MetricBaselineAggregationImpl implements MetricBaselineAggregation {
+
+    private final MetricBaselineAggregation metricBaselineAggregation;
+
+    public MetricBaselineAggregationImpl(MetricBaselineAggregation metricBaselineAggregation) {
+      this.metricBaselineAggregation = metricBaselineAggregation;
+    }
+
+    @Override
+    public Double value() {
+      return metricBaselineAggregation.value();
+    }
+
+    @Override
+    public Double lowerBound() {
+      return metricBaselineAggregation.lowerBound();
+    }
+
+    @Override
+    public Double upperBound() {
+      return metricBaselineAggregation.upperBound();
+    }
+  }
+
+  private static class BaselinedMetricAggregationImpl implements BaselinedMetricAggregation {
+    private final MetricAggregation metricAggregation;
+    private final MetricBaselineAggregation metricBaselineAggregation;
+
+    public BaselinedMetricAggregationImpl(MetricAggregation metricAggregation, MetricBaselineAggregation metricBaselineAggregation) {
+      this.metricAggregation = metricAggregation;
+      this.metricBaselineAggregation = metricBaselineAggregation;
+    }
+
+    @Override
+    public Double value() {
+      return metricAggregation.value();
+    }
+
+    @Override
+    public MetricBaselineAggregation baseline() {
+      return new MetricBaselineAggregationImpl(metricBaselineAggregation);
+    }
   }
 }

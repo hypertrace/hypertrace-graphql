@@ -27,5 +27,5 @@ public interface MetricAggregationRequestBuilder {
           AttributeModel attribute,
           AttributeModelMetricAggregationType aggregationType,
           List<Object> arguments,
-          List<SelectedField> selections);
+          boolean baseline);
 }

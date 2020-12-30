@@ -14,5 +14,5 @@ public interface MetricAggregationRequest {
 
   List<Object> arguments();
 
-  Baseline baseline();
+  boolean baseline();
 }

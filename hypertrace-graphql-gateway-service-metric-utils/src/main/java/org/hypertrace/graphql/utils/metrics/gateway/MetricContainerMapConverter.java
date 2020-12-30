@@ -38,11 +38,11 @@ class MetricContainerMapConverter
   private final MetricSeriesMapConverter seriesMapConverter;
   private final BaselineMetricSeriesMapConverter baselineSeriesConverter;
 
-
   @Inject
   MetricContainerMapConverter(
-          MetricAggregationMapConverter aggregationMapConverter,
-          MetricSeriesMapConverter seriesMapConverter, BaselineMetricSeriesMapConverter baselineSeriesConverter) {
+      MetricAggregationMapConverter aggregationMapConverter,
+      MetricSeriesMapConverter seriesMapConverter,
+      BaselineMetricSeriesMapConverter baselineSeriesConverter) {
     this.aggregationMapConverter = aggregationMapConverter;
     this.seriesMapConverter = seriesMapConverter;
     this.baselineSeriesConverter = baselineSeriesConverter;
@@ -50,7 +50,9 @@ class MetricContainerMapConverter
 
   @Override
   public Single<Map<String, MetricContainer>> convert(
-          Collection<MetricRequest> metricRequests, Entity entity, Optional<BaselineEntity> baselineEntity) {
+      Collection<MetricRequest> metricRequests,
+      Entity entity,
+      Optional<BaselineEntity> baselineEntity) {
     return Observable.fromIterable(metricRequests)
         .distinct()
         .groupBy(MetricRequest::attribute)
@@ -59,26 +61,32 @@ class MetricContainerMapConverter
   }
 
   private Single<Entry<String, MetricContainer>> buildMetricContainerEntry(
-          GroupedObservable<AttributeModel, MetricRequest> requestsForAttribute, Entity entity,
-          Optional<BaselineEntity> baselineEntity) {
+      GroupedObservable<AttributeModel, MetricRequest> requestsForAttribute,
+      Entity entity,
+      Optional<BaselineEntity> baselineEntity) {
     return requestsForAttribute
         .collect(Collectors.toUnmodifiableList())
-        .flatMap(metricRequests -> this.buildMetricContainerForAttribute(metricRequests, entity, baselineEntity))
+        .flatMap(
+            metricRequests ->
+                this.buildMetricContainerForAttribute(metricRequests, entity, baselineEntity))
         .map(container -> Map.entry(requestsForAttribute.getKey().key(), container));
   }
 
   private Single<MetricContainer> buildMetricContainerForAttribute(
-          List<MetricRequest> metricRequests, Entity entity, Optional<BaselineEntity> baselineEntity) {
+      List<MetricRequest> metricRequests, Entity entity, Optional<BaselineEntity> baselineEntity) {
     List<MetricAggregationRequest> aggregationRequests =
         metricRequests.stream().collect(CollectorUtils.flatten(MetricRequest::aggregationRequests));
 
     List<MetricSeriesRequest> seriesRequests =
         metricRequests.stream().collect(CollectorUtils.flatten(MetricRequest::seriesRequests));
     return zip(
-        this.aggregationMapConverter.convert(aggregationRequests, entity.getMetricMap(),
-                getBaselineAggregateMetricMap(baselineEntity)),
+        this.aggregationMapConverter.convert(
+            aggregationRequests,
+            entity.getMetricMap(),
+            getBaselineAggregateMetricMap(baselineEntity)),
         this.seriesMapConverter.convert(seriesRequests, entity.getMetricSeriesMap()),
-        this.baselineSeriesConverter.convert(seriesRequests, getBaselineMetricSeriesMap(baselineEntity)),
+        this.baselineSeriesConverter.convert(
+            seriesRequests, getBaselineMetricSeriesMap(baselineEntity)),
         BaselineConvertedAggregationContainerImpl::new);
   }
 
@@ -95,8 +103,6 @@ class MetricContainerMapConverter
     }
     return Collections.emptyMap();
   }
-
-
 
   private static class BaselineConvertedAggregationContainerImpl extends BaselineConvertedAggregationContainer
       implements MetricContainer {

@@ -15,7 +15,6 @@ import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
-import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
 
 class MetricAggregationContainerMapConverter
     implements BiConverter<
@@ -48,8 +47,8 @@ class MetricAggregationContainerMapConverter
     return requestsForAttribute
         .toList()
         .flatMap(
-            metricRequests -> this.aggregationMapConverter.convert(metricRequests, metricResponses, Collections.EMPTY_MAP))
-        .map(aggMap -> new BaselineConvertedAggregationContainer((Map<MetricLookupMapKey, BaselinedMetricAggregation>) aggMap))
+            metricRequests -> this.aggregationMapConverter.convert(metricRequests, metricResponses, Collections.emptyMap()))
+        .map(BaselineConvertedAggregationContainer::new)
         .map(container -> Map.entry(requestsForAttribute.getKey().key(), container));
   }
 }

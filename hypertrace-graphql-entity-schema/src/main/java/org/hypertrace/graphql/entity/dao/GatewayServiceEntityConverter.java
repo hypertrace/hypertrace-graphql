@@ -83,15 +83,12 @@ class GatewayServiceEntityConverter {
 
   private Optional<BaselineEntity> getBaselineEntity(Map<String, BaselineEntity> baselineEntityMap,
                                            org.hypertrace.gateway.service.v1.entity.Entity entity) {
-    if (!baselineEntityMap.isEmpty() && baselineEntityMap.containsKey(entity.getId())) {
-      return Optional.of(baselineEntityMap.get(entity.getId()));
-    }
-    return Optional.empty();
+    return Optional.ofNullable(baselineEntityMap.get(entity.getId()));
   }
 
   private Map<String, BaselineEntity> getEntityMap(BaselineEntitiesResponse baselineResponse) {
-    List<BaselineEntity> entityList = baselineResponse.getBaselineEntityList();
-    return entityList.stream().collect(Collectors.toMap(x -> x.getId(), y -> y));
+    return baselineResponse.getBaselineEntityList().stream().collect(Collectors.toMap(entity -> entity.getId(),
+            entity -> entity));
   }
 
   private Single<Entity> convertEntity(

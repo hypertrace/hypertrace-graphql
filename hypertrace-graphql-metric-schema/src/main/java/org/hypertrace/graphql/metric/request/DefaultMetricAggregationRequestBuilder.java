@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
@@ -73,17 +72,18 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
   }
 
   public MetricAggregationRequest build(
-          AttributeModel attribute,
-          AttributeModelMetricAggregationType aggregationType,
-          List<Object> arguments) {
-    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, Collections.EMPTY_LIST);
+      AttributeModel attribute,
+      AttributeModelMetricAggregationType aggregationType,
+      List<Object> arguments) {
+    return this.build(attribute, aggregationType, arguments, false);
   }
 
   public MetricAggregationRequest build(
-          AttributeModel attribute,
-          AttributeModelMetricAggregationType aggregationType,
-          List<Object> arguments, List<SelectedField> selections) {
-    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, selections);
+      AttributeModel attribute,
+      AttributeModelMetricAggregationType aggregationType,
+      List<Object> arguments,
+      boolean baseline) {
+    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, baseline);
   }
 
   private MetricAggregationRequest requestForAggregationField(
@@ -95,7 +95,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
         aggregationType,
         this.getArgumentsForAggregation(aggregationType, field.getArguments()),
             this.selectionFinder.findSelections(field.getSelectionSet(),
-                    SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE)).collect(Collectors.toList()));
+                    SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE)).findAny().isPresent());
   }
 
   private Optional<AttributeModelMetricAggregationType> getAggregationTypeForField(
@@ -167,7 +167,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     AttributeModel attribute;
     AttributeModelMetricAggregationType aggregation;
     List<Object> arguments;
-    List<SelectedField> selectedFields;
+    boolean baseline;
 
     @Override
     public String alias() {
@@ -176,11 +176,8 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     }
 
     @Override
-    public Baseline baseline() {
-      if (selectedFields.size() > 0) {
-        return new Baseline();
-      }
-      return null;
+    public boolean baseline() {
+      return baseline;
     }
   }
 }

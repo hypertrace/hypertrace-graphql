@@ -24,7 +24,7 @@ import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
-public class GatewayServiceEntityRequestBuilder {
+class GatewayServiceEntityRequestBuilder {
 
   private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
   private final Converter<

@@ -20,10 +20,10 @@ class BaselineMetricSeriesMapConverter
         List<MetricSeriesRequest>,
         Map<String, BaselineMetricSeries>,
         Map<Duration, List<BaselineMetricInterval>>> {
-  private final BaselineIntervalListContainer intervalListConverter;
+  private final BaselineMetricIntervalListContainer intervalListConverter;
 
   @Inject
-  BaselineMetricSeriesMapConverter(BaselineIntervalListContainer intervalListConverter) {
+  BaselineMetricSeriesMapConverter(BaselineMetricIntervalListContainer intervalListConverter) {
     this.intervalListConverter = intervalListConverter;
   }
 

@@ -2,7 +2,6 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 
 import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
-
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Value;

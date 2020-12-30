@@ -7,7 +7,6 @@ public interface MetricBaselineAggregation extends MetricAggregation {
 
     String BASELINE_AGGREGATION_LOWER_VALUE = "lowerBound";
     String BASELINE_AGGREGATION_UPPER_VALUE = "upperBound";
-    String HEALTH_VALUE = "health";
 
     @GraphQLName(BASELINE_AGGREGATION_LOWER_VALUE)
     @GraphQLField
@@ -16,9 +15,5 @@ public interface MetricBaselineAggregation extends MetricAggregation {
     @GraphQLName(BASELINE_AGGREGATION_UPPER_VALUE)
     @GraphQLField
     Double upperBound();
-
-    @GraphQLName(HEALTH_VALUE)
-    @GraphQLField
-    Health health();
 
 }

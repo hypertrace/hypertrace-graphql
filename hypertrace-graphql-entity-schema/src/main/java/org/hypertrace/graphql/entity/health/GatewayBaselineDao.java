@@ -16,10 +16,11 @@ import org.hypertrace.gateway.service.v1.common.Period;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
-import org.hypertrace.graphql.entity.dao.GatewayServiceEntityRequestBuilder;
+import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.entity.request.EntityRequest;
-import org.hypertrace.graphql.metric.request.Baseline;
+import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
+import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,20 +33,17 @@ import java.util.stream.Collectors;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Singleton
-public class GatewayBaselineProviderImpl implements BaselineProvider {
+public class GatewayBaselineDao implements BaselineDao {
   private static final int DEFAULT_DEADLINE_SEC = 10;
-  private final GatewayServiceEntityRequestBuilder gatewayServiceEntityRequestBuilder;
-  private GatewayServiceGrpc.GatewayServiceFutureStub gatewayServiceStub;
+  private final GatewayServiceGrpc.GatewayServiceFutureStub gatewayServiceStub;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
 
   @Inject
-  GatewayBaselineProviderImpl(
-      GatewayServiceEntityRequestBuilder gatewayServiceEntityRequestBuilder,
+  GatewayBaselineDao(
       GrpcChannelRegistry grpcChannelRegistry,
       GraphQlServiceConfig serviceConfig,
       CallCredentials credentials,
       GraphQlGrpcContextBuilder grpcContextBuilder) {
-    this.gatewayServiceEntityRequestBuilder = gatewayServiceEntityRequestBuilder;
     this.grpcContextBuilder = grpcContextBuilder;
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -57,47 +55,53 @@ public class GatewayBaselineProviderImpl implements BaselineProvider {
   @Override
   public Single<BaselineEntitiesRequest> buildRequest(
       EntitiesRequest entitiesRequest, EntitiesResponse entitiesResponse, EntityRequest request) {
-    Map<String, Baseline> baselineRequestMap = getBaselineRequestMap(request);
+    Map<String, Boolean> baselineRequestMap = getBaselineRequestMap(request);
     BaselineEntitiesRequest baselineEntitiesRequest =
         BaselineEntitiesRequest.newBuilder()
             .setStartTimeMillis(entitiesRequest.getStartTimeMillis())
             .setEndTimeMillis(entitiesRequest.getEndTimeMillis())
             .addAllEntityIds(
                 entitiesResponse.getEntityList().stream()
-                    .map(x -> x.getId())
+                    .map(Entity::getId)
                     .collect(Collectors.toList()))
             .setEntityType(entitiesRequest.getEntityType())
             .addAllBaselineAggregateRequest(
-                getFunctionExpression(entitiesRequest, baselineRequestMap))
+                getFunctionExpressionList(entitiesRequest, baselineRequestMap))
             .addAllBaselineMetricSeriesRequest(
                 getBaselineTimeSeriesRequest(entitiesRequest, baselineRequestMap))
             .build();
     return Single.just(baselineEntitiesRequest);
   }
 
-  private Map<String, Baseline> getBaselineRequestMap(EntityRequest request) {
-    Map<String, Baseline> baselineMap = new HashMap<>();
-    List<MetricRequest> metricRequests = request.metricRequests();
-    if (metricRequests.size() > 0) {
-      for (MetricRequest metricRequest : metricRequests) {
-        baselineMap.putAll(
-            metricRequest.aggregationRequests().stream()
-                .filter(x -> x.baseline() != null)
-                .collect(Collectors.toMap(x -> x.alias(), y -> y.baseline())));
-        baselineMap.putAll(
-            metricRequest.seriesRequests().stream()
-                .filter(x -> x.aggregationRequest().baseline() != null)
-                .collect(Collectors.toMap(x -> x.alias(), y -> y.aggregationRequest().baseline())));
-      }
-    }
+  private Map<String, Boolean> getBaselineRequestMap(EntityRequest request) {
+    Map<String, Boolean> baselineMap =
+        request.metricRequests().stream()
+            .flatMap(
+                metricRequest ->
+                    metricRequest.aggregationRequests().stream()
+                        .filter(MetricAggregationRequest::baseline))
+            .collect(
+                Collectors.toMap(
+                    MetricAggregationRequest::alias, MetricAggregationRequest::baseline));
+    baselineMap.putAll(
+        request.metricRequests().stream()
+            .flatMap(
+                metricRequest ->
+                    metricRequest.seriesRequests().stream()
+                        .filter(
+                            timeSeriesRequest -> timeSeriesRequest.aggregationRequest().baseline()))
+            .collect(
+                Collectors.toMap(
+                    MetricSeriesRequest::alias,
+                    seriesRequest -> seriesRequest.aggregationRequest().baseline())));
     return baselineMap;
   }
 
-  private List<FunctionExpression> getFunctionExpression(
-      EntitiesRequest entitiesRequest, Map<String, Baseline> requestMap) {
-    List<Expression> selectionlist = entitiesRequest.getSelectionList();
+  private List<FunctionExpression> getFunctionExpressionList(
+      EntitiesRequest entitiesRequest, Map<String, Boolean> requestMap) {
+    List<Expression> selectionList = entitiesRequest.getSelectionList();
     List<FunctionExpression> functionExpressions = new ArrayList<>();
-    for (Expression expression : selectionlist) {
+    for (Expression expression : selectionList) {
       if (expression.hasFunction() && requestMap.containsKey(expression.getFunction().getAlias())) {
         functionExpressions.add(expression.getFunction());
       }
@@ -106,7 +110,7 @@ public class GatewayBaselineProviderImpl implements BaselineProvider {
   }
 
   private List<BaselineTimeAggregation> getBaselineTimeSeriesRequest(
-      EntitiesRequest entitiesRequest, Map<String, Baseline> requestMap) {
+      EntitiesRequest entitiesRequest, Map<String, Boolean> requestMap) {
     List<TimeAggregation> timeSeriesList = entitiesRequest.getTimeAggregationList();
     List<BaselineTimeAggregation> baselineTimeAggregationList = new ArrayList<>();
     timeSeriesList.forEach(

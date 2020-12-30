@@ -27,4 +27,3 @@ application {
 tasks.run<JavaExec> {
   jvmArgs = listOf("-Dservice.name=${project.name}")
 }
-

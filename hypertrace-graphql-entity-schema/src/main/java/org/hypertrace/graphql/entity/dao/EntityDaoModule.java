@@ -28,8 +28,8 @@ import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.Entity;
-import org.hypertrace.graphql.entity.health.BaselineProvider;
-import org.hypertrace.graphql.entity.health.GatewayBaselineProviderImpl;
+import org.hypertrace.graphql.entity.health.BaselineDao;
+import org.hypertrace.graphql.entity.health.GatewayBaselineDao;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
@@ -42,7 +42,7 @@ public class EntityDaoModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(EntityDao.class).to(GatewayServiceEntityDao.class);
-    bind(BaselineProvider.class).to(GatewayBaselineProviderImpl.class);
+    bind(BaselineDao.class).to(GatewayBaselineDao.class);
     requireBinding(CallCredentials.class);
     requireBinding(GraphQlServiceConfig.class);
     requireBinding(GraphQlRequestContextBuilder.class);
