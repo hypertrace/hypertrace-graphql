@@ -4,6 +4,7 @@ maxUnavailable: 0
 image:
   repository: hypertrace/hypertrace-graphql-service
   pullPolicy: IfNotPresent
+  tagOverride: ""
 
 imagePullSecrets: []
 

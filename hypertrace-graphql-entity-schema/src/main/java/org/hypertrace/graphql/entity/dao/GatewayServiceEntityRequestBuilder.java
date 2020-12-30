@@ -87,6 +87,8 @@ class GatewayServiceEntityRequestBuilder {
                 .setLimit(resultSetRequest.limit())
                 .setOffset(resultSetRequest.offset())
                 .setFilter(filter)
+                .setIncludeNonLiveEntities(entityRequest.includeInactive())
+                .setSpaceId(resultSetRequest.spaceId().orElse("")) // String proto default value\
                 .build());
   }
 }
