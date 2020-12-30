@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -23,7 +24,7 @@ class DefaultArgumentDeserializer implements ArgumentDeserializer {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultArgumentDeserializer.class);
 
   private final ObjectMapper objectMapper;
-  private final Map<Class<?>, String> argKeyBySchema;
+  private final Map<Class<?>, ArgumentDeserializationConfig> configBySchema;
 
   @Inject
   DefaultArgumentDeserializer(Set<ArgumentDeserializationConfig> argumentDeserializationConfigs) {
@@ -35,39 +36,38 @@ class DefaultArgumentDeserializer implements ArgumentDeserializer {
                     .flatMap(Collection::stream))
             .collect(Collectors.toUnmodifiableSet());
 
-    this.argKeyBySchema =
+    this.configBySchema =
         argumentDeserializationConfigs.stream()
             .collect(
                 Collectors.toUnmodifiableMap(
-                    ArgumentDeserializationConfig::getArgumentSchema,
-                    ArgumentDeserializationConfig::getArgumentKey));
+                    ArgumentDeserializationConfig::getArgumentSchema, Function.identity()));
 
     this.objectMapper = JsonMapper.builder().addModules(jacksonModules).build();
   }
 
   @Override
   public <T> Optional<T> deserializeObject(Map<String, Object> arguments, Class<T> argSchema) {
-    return this.argumentKeyForSchema(argSchema)
+    return this.argumentKey(argSchema)
         .flatMap(key -> this.deserializeValue(arguments.get(key), argSchema));
   }
 
   @Override
   public <T> Optional<List<T>> deserializeObjectList(
       Map<String, Object> arguments, Class<T> argSchema) {
-    return this.argumentKeyForSchema(argSchema)
+    return this.listArgumentKey(argSchema)
         .flatMap(key -> this.deserializeValueList(arguments.get(key), argSchema));
   }
 
   @Override
   public <T> Optional<T> deserializePrimitive(
       Map<String, Object> arguments, Class<? extends PrimitiveArgument<T>> argSchema) {
-    return this.argumentKeyForSchema(argSchema).map(key -> this.uncheckedCast(arguments.get(key)));
+    return this.argumentKey(argSchema).map(key -> this.uncheckedCast(arguments.get(key)));
   }
 
   @Override
   public <T> Optional<List<T>> deserializePrimitiveList(
       Map<String, Object> arguments, Class<? extends PrimitiveArgument<T>> argSchema) {
-    return this.argumentKeyForSchema(argSchema)
+    return this.listArgumentKey(argSchema)
         .flatMap(key -> this.logIfNotList(arguments.get(key)));
   }
 
@@ -81,8 +81,16 @@ class DefaultArgumentDeserializer implements ArgumentDeserializer {
     }
   }
 
-  private Optional<String> argumentKeyForSchema(Class<?> argSchema) {
-    return Optional.ofNullable(this.argKeyBySchema.get(argSchema))
+  private Optional<String> argumentKey(Class<?> argSchema) {
+    return configForSchema(argSchema).map(ArgumentDeserializationConfig::getArgumentKey);
+  }
+
+  private Optional<String> listArgumentKey(Class<?> argSchema) {
+    return configForSchema(argSchema).map(ArgumentDeserializationConfig::getListArgumentKey);
+  }
+
+  private Optional<ArgumentDeserializationConfig> configForSchema(Class<?> argSchema) {
+    return Optional.ofNullable(this.configBySchema.get(argSchema))
         .or(
             () -> {
               LOG.warn(

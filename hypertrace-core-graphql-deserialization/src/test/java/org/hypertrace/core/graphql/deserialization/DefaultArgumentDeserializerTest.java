@@ -12,16 +12,14 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 class DefaultArgumentDeserializerTest {
 
   private DefaultArgumentDeserializer argumentDeserializer;
 
   private interface TestPrimitiveArgument extends PrimitiveArgument<String> {
     String ARG_NAME = "primitiveArg";
+    String LIST_ARG_NAME = "primitiveArgs";
   }
 
   private interface TestObjectArgument {
@@ -46,17 +44,10 @@ class DefaultArgumentDeserializerTest {
     this.argumentDeserializer =
         new DefaultArgumentDeserializer(
             Set.of(
-                new ArgumentDeserializationConfig() {
-                  @Override
-                  public String getArgumentKey() {
-                    return TestPrimitiveArgument.ARG_NAME;
-                  }
-
-                  @Override
-                  public Class<?> getArgumentSchema() {
-                    return TestPrimitiveArgument.class;
-                  }
-                },
+                ArgumentDeserializationConfig.forPrimitive(
+                    TestPrimitiveArgument.ARG_NAME,
+                    TestPrimitiveArgument.LIST_ARG_NAME,
+                    TestPrimitiveArgument.class),
                 new ArgumentDeserializationConfig() {
                   @Override
                   public String getArgumentKey() {
@@ -166,22 +157,29 @@ class DefaultArgumentDeserializerTest {
   void emptyIfNoPrimitivePresent() {
     assertEquals(
         Optional.empty(),
-        this.argumentDeserializer.deserializeObject(
+        this.argumentDeserializer.deserializePrimitive(
             Collections.emptyMap(), TestPrimitiveArgument.class));
   }
 
   @Test
   void deserializePrimitiveList() {
     Map<String, Object> argMap =
-        Map.of(TestPrimitiveArgument.ARG_NAME, List.of("foo", "bar", "baz"));
+        Map.of(TestPrimitiveArgument.LIST_ARG_NAME, List.of("foo", "bar", "baz"));
     assertEquals(
         Optional.of(List.of("foo", "bar", "baz")),
+        this.argumentDeserializer.deserializePrimitiveList(argMap, TestPrimitiveArgument.class));
+
+    // Make sure only the list arg name works
+    argMap =
+        Map.of(TestPrimitiveArgument.ARG_NAME, List.of("foo", "bar", "baz"));
+    assertEquals(
+        Optional.empty(),
         this.argumentDeserializer.deserializePrimitiveList(argMap, TestPrimitiveArgument.class));
   }
 
   @Test
   void emptyListForEmptyPrimitiveList() {
-    Map<String, Object> argMap = Map.of(TestPrimitiveArgument.ARG_NAME, List.of());
+    Map<String, Object> argMap = Map.of(TestPrimitiveArgument.LIST_ARG_NAME, List.of());
     assertEquals(
         Optional.of(List.of()),
         this.argumentDeserializer.deserializePrimitiveList(argMap, TestPrimitiveArgument.class));

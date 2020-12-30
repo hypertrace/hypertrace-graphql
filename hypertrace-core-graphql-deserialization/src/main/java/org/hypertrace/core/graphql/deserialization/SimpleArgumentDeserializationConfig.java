@@ -5,5 +5,6 @@ import lombok.Value;
 @Value
 class SimpleArgumentDeserializationConfig implements ArgumentDeserializationConfig {
   String argumentKey;
+  String listArgumentKey;
   Class<?> argumentSchema;
 }
