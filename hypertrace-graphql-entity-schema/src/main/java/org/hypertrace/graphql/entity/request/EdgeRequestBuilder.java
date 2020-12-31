@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -59,22 +60,25 @@ class EdgeRequestBuilder {
   Single<EdgeSetGroupRequest> buildIncomingEdgeRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Stream<SelectedField> edgeSetFields) {
     return this.buildEdgeRequest(
-        context, timeRange, this.getEdgesByType(edgeSetFields), EdgeType.INCOMING);
+        context, timeRange, space, this.getEdgesByType(edgeSetFields), EdgeType.INCOMING);
   }
 
   Single<EdgeSetGroupRequest> buildOutgoingEdgeRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Stream<SelectedField> edgeSetFields) {
     return this.buildEdgeRequest(
-        context, timeRange, this.getEdgesByType(edgeSetFields), EdgeType.OUTGOING);
+        context, timeRange, space, this.getEdgesByType(edgeSetFields), EdgeType.OUTGOING);
   }
 
   private Single<EdgeSetGroupRequest> buildEdgeRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Map<String, Set<SelectedField>> edgesByType,
       EdgeType edgeType) {
 
@@ -103,6 +107,7 @@ class EdgeRequestBuilder {
                             context,
                             entityType,
                             timeRange,
+                            space,
                             neighborIds,
                             edgesByType.get(entityType))));
   }

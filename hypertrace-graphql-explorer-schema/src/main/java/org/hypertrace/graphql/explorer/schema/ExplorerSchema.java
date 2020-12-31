@@ -10,6 +10,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.graphql.explorer.fetcher.ExplorerFetcher;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContextArgument;
@@ -30,6 +31,7 @@ public interface ExplorerSchema {
       @GraphQLName(ExplorerContextArgument.ARGUMENT_NAME) ExplorerContext context,
       @GraphQLName(ExplorerScopeArgument.ARGUMENT_NAME) String scope,
       @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument timeRange,
+      @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space,
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
       @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset,
       @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy,

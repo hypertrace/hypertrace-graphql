@@ -64,34 +64,45 @@ class NeighborEntitiesRequestBuilder {
       GraphQlRequestContext context,
       String entityScope,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Collection<String> neighborIds,
       Collection<SelectedField> edgeFields) {
 
     return this.build(
-        context, entityScope, timeRange, neighborIds, this.getNeighborFields(edgeFields));
+        context, entityScope, timeRange, space, neighborIds, this.getNeighborFields(edgeFields));
   }
 
   private Single<EntityRequest> build(
       GraphQlRequestContext context,
       String entityScope,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       Collection<String> neighborIds,
       Collection<SelectedField> neighborFields) {
     return zip(
-        this.buildResultSetRequest(context, timeRange, entityScope, neighborIds, neighborFields),
+        this.buildResultSetRequest(
+            context, timeRange, space, entityScope, neighborIds, neighborFields),
         this.metricRequestBuilder.build(context, entityScope, neighborFields.stream()),
         this.edgeRequestBuilder.buildIncomingEdgeRequest(
-            context, timeRange, this.getIncomingEdges(neighborFields)),
+            context, timeRange, space, this.getIncomingEdges(neighborFields)),
         this.edgeRequestBuilder.buildOutgoingEdgeRequest(
-            context, timeRange, this.getOutgoingEdges(neighborFields)),
+            context, timeRange, space, this.getOutgoingEdges(neighborFields)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new NeighborEntityRequest(
-                entityScope, resultSetRequest, metricRequestList, incomingEdges, outgoingEdges));
+                entityScope,
+                resultSetRequest,
+                metricRequestList,
+                incomingEdges,
+                outgoingEdges,
+                false)); // entity interactions doesn't support time agnostic nature, and would mean
+    // that the neighbors would have to be live in the requested time range. Supporting time
+    // agnostic interations would mean a change in the way interactions are implemented
   }
 
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
       GraphQlRequestContext context,
       TimeRangeArgument timeRange,
+      Optional<String> space,
       String entityScope,
       Collection<String> neighborIds,
       Collection<SelectedField> neighborFields) {
@@ -107,7 +118,7 @@ class NeighborEntitiesRequestBuilder {
                     Collections.emptyList(),
                     filters,
                     neighborFields.stream(),
-                    Optional.empty()));
+                    space));
   }
 
   private Single<List<AttributeAssociation<FilterArgument>>> getIdFilter(
@@ -162,5 +173,6 @@ class NeighborEntitiesRequestBuilder {
     List<MetricRequest> metricRequests;
     EdgeSetGroupRequest incomingEdgeRequests;
     EdgeSetGroupRequest outgoingEdgeRequests;
+    boolean includeInactive;
   }
 }

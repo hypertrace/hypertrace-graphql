@@ -25,6 +25,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
@@ -118,6 +119,9 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Optional<GroupByArgument> groupBy =
         this.argumentDeserializer.deserializeObject(arguments, GroupByArgument.class);
 
+    Optional<String> spaceId =
+        this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
+
     Set<String> groupByKeys = groupBy.map(this::collectGroupByKeys).orElse(emptySet());
 
     Optional<IntervalArgument> intervalArgument =
@@ -158,7 +162,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
                 filters,
                 groupByAttribute,
                 intervalArgument,
-                groupBy.map(GroupByArgument::includeRest).orElse(false)));
+                groupBy.map(GroupByArgument::includeRest).orElse(false),
+                spaceId));
   }
 
   private Single<Set<AttributeRequest>> buildGroupByAttributes(
@@ -191,5 +196,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Set<AttributeRequest> groupByAttributeRequests;
     Optional<IntervalArgument> timeInterval;
     boolean includeRest;
+    Optional<String> spaceId;
   }
 }

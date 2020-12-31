@@ -36,4 +36,6 @@ public interface ExploreRequest {
   Set<AttributeRequest> groupByAttributeRequests();
 
   boolean includeRest();
+
+  Optional<String> spaceId();
 }
