@@ -1,5 +1,6 @@
-package org.hypertrace.graphql.entity.health;
+package org.hypertrace.graphql.entity.dao;
 
+import com.google.common.collect.Streams;
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
@@ -17,6 +18,7 @@ import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
 import org.hypertrace.gateway.service.v1.entity.Entity;
+import org.hypertrace.graphql.entity.health.BaselineDao;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
@@ -25,15 +27,16 @@ import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Singleton
-public class GatewayBaselineDao implements BaselineDao {
+class GatewayBaselineDao implements BaselineDao {
   private static final int DEFAULT_DEADLINE_SEC = 10;
   private final GatewayServiceGrpc.GatewayServiceFutureStub gatewayServiceStub;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
@@ -53,9 +56,18 @@ public class GatewayBaselineDao implements BaselineDao {
   }
 
   @Override
-  public Single<BaselineEntitiesRequest> buildRequest(
+  public Single<BaselineEntitiesResponse> buildAndSubmitRequest(
+      GraphQlRequestContext context,
+      EntitiesRequest entitiesRequest,
+      EntitiesResponse entitiesResponse,
+      EntityRequest request) {
+    return this.buildRequest(entitiesRequest, entitiesResponse, request)
+        .flatMap(baselineEntitiesRequest -> makeRequest(context, baselineEntitiesRequest));
+  }
+
+  private Single<BaselineEntitiesRequest> buildRequest(
       EntitiesRequest entitiesRequest, EntitiesResponse entitiesResponse, EntityRequest request) {
-    Map<String, Boolean> baselineRequestMap = getBaselineRequestMap(request);
+    Set<String> baselineReqSet = getBaselineRequestSet(request);
     BaselineEntitiesRequest baselineEntitiesRequest =
         BaselineEntitiesRequest.newBuilder()
             .setStartTimeMillis(entitiesRequest.getStartTimeMillis())
@@ -66,43 +78,36 @@ public class GatewayBaselineDao implements BaselineDao {
                     .collect(Collectors.toList()))
             .setEntityType(entitiesRequest.getEntityType())
             .addAllBaselineAggregateRequest(
-                getFunctionExpressionList(entitiesRequest, baselineRequestMap))
+                getFunctionExpressionList(entitiesRequest, baselineReqSet))
             .addAllBaselineMetricSeriesRequest(
-                getBaselineTimeSeriesRequest(entitiesRequest, baselineRequestMap))
+                getBaselineTimeSeriesRequest(entitiesRequest, baselineReqSet))
             .build();
     return Single.just(baselineEntitiesRequest);
   }
 
-  private Map<String, Boolean> getBaselineRequestMap(EntityRequest request) {
-    Map<String, Boolean> baselineMap =
-        request.metricRequests().stream()
-            .flatMap(
-                metricRequest ->
-                    metricRequest.aggregationRequests().stream()
-                        .filter(MetricAggregationRequest::baseline))
-            .collect(
-                Collectors.toMap(
-                    MetricAggregationRequest::alias, MetricAggregationRequest::baseline));
-    baselineMap.putAll(
-        request.metricRequests().stream()
-            .flatMap(
-                metricRequest ->
-                    metricRequest.seriesRequests().stream()
-                        .filter(
-                            timeSeriesRequest -> timeSeriesRequest.aggregationRequest().baseline()))
-            .collect(
-                Collectors.toMap(
-                    MetricSeriesRequest::alias,
-                    seriesRequest -> seriesRequest.aggregationRequest().baseline())));
-    return baselineMap;
+  private Set<String> getBaselineRequestSet(EntityRequest request) {
+    Stream<String> aggregationAliases = request.metricRequests().stream()
+            .map(MetricRequest::aggregationRequests)
+            .flatMap(Collection::stream)
+            .filter(MetricAggregationRequest::baseline)
+            .map(MetricAggregationRequest::alias);
+
+    Stream<String> seriesAliases = request.metricRequests().stream()
+            .map(MetricRequest::seriesRequests)
+            .flatMap(Collection::stream)
+            .filter(seriesRequests -> seriesRequests.aggregationRequest().baseline())
+            .map(MetricSeriesRequest::alias);
+
+    return Streams.concat(aggregationAliases, seriesAliases)
+            .collect(Collectors.toUnmodifiableSet());
   }
 
   private List<FunctionExpression> getFunctionExpressionList(
-      EntitiesRequest entitiesRequest, Map<String, Boolean> requestMap) {
+      EntitiesRequest entitiesRequest, Set<String> baselineSet) {
     List<Expression> selectionList = entitiesRequest.getSelectionList();
     List<FunctionExpression> functionExpressions = new ArrayList<>();
     for (Expression expression : selectionList) {
-      if (expression.hasFunction() && requestMap.containsKey(expression.getFunction().getAlias())) {
+      if (expression.hasFunction() && baselineSet.contains(expression.getFunction().getAlias())) {
         functionExpressions.add(expression.getFunction());
       }
     }
@@ -110,14 +115,13 @@ public class GatewayBaselineDao implements BaselineDao {
   }
 
   private List<BaselineTimeAggregation> getBaselineTimeSeriesRequest(
-      EntitiesRequest entitiesRequest, Map<String, Boolean> requestMap) {
+      EntitiesRequest entitiesRequest, Set<String> requestMap) {
     List<TimeAggregation> timeSeriesList = entitiesRequest.getTimeAggregationList();
     List<BaselineTimeAggregation> baselineTimeAggregationList = new ArrayList<>();
     timeSeriesList.forEach(
         timeAggregation -> {
           if (timeAggregation.getAggregation().hasFunction()
-              && requestMap.containsKey(
-                  timeAggregation.getAggregation().getFunction().getAlias())) {
+              && requestMap.contains(timeAggregation.getAggregation().getFunction().getAlias())) {
             Period period = timeAggregation.getPeriod();
             FunctionExpression functionExpression = timeAggregation.getAggregation().getFunction();
             BaselineTimeAggregation baselineAgg =
@@ -131,8 +135,7 @@ public class GatewayBaselineDao implements BaselineDao {
     return baselineTimeAggregationList;
   }
 
-  @Override
-  public Single<BaselineEntitiesResponse> makeRequest(
+  private Single<BaselineEntitiesResponse> makeRequest(
       GraphQlRequestContext context, BaselineEntitiesRequest request) {
     if (request.getBaselineAggregateRequestCount() == 0
         && request.getBaselineMetricSeriesRequestCount() == 0) {

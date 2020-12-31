@@ -58,11 +58,11 @@ class GatewayServiceEntityDao implements EntityDao {
                     .flatMap(
                         serverResponse ->
                             baselineDao
-                                .buildRequest(serverRequest, serverResponse, request)
-                                .flatMap(
-                                    baselineRequest ->
-                                        baselineDao.makeRequest(
-                                            request.resultSetRequest().context(), baselineRequest))
+                                .buildAndSubmitRequest(
+                                    request.resultSetRequest().context(),
+                                    serverRequest,
+                                    serverResponse,
+                                    request)
                                 .flatMap(
                                     baselineResponse ->
                                         this.entityConverter.convert(

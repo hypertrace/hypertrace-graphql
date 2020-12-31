@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -105,7 +106,8 @@ class NeighborEntitiesRequestBuilder {
                     timeRange,
                     Collections.emptyList(),
                     filters,
-                    neighborFields.stream()));
+                    neighborFields.stream(),
+                    Optional.empty()));
   }
 
   private Single<List<AttributeAssociation<FilterArgument>>> getIdFilter(

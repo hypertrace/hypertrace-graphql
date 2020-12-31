@@ -9,9 +9,10 @@ import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 
 public interface BaselineDao {
-  Single<BaselineEntitiesRequest> buildRequest(
-      EntitiesRequest entitiesRequest, EntitiesResponse entitiesResponse, EntityRequest request);
 
-  Single<BaselineEntitiesResponse> makeRequest(
-      GraphQlRequestContext context, BaselineEntitiesRequest request);
+  Single<BaselineEntitiesResponse> buildAndSubmitRequest(
+      GraphQlRequestContext context,
+      EntitiesRequest entitiesRequest,
+      EntitiesResponse entitiesResponse,
+      EntityRequest request);
 }
