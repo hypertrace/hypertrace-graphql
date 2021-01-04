@@ -93,9 +93,8 @@ class GatewayBaselineDao implements BaselineDao {
             .map(MetricAggregationRequest::alias);
 
     Stream<String> seriesAliases = request.metricRequests().stream()
-            .map(MetricRequest::seriesRequests)
+            .map(MetricRequest::baselineSeriesRequests)
             .flatMap(Collection::stream)
-            .filter(seriesRequests -> seriesRequests.aggregationRequest().baseline())
             .map(MetricSeriesRequest::alias);
 
     return Streams.concat(aggregationAliases, seriesAliases)

@@ -9,4 +9,6 @@ public interface MetricRequest {
   List<MetricAggregationRequest> aggregationRequests();
 
   List<MetricSeriesRequest> seriesRequests();
+
+  List<MetricSeriesRequest> baselineSeriesRequests();
 }
