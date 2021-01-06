@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: create checksum file
         uses: hypertrace/github-actions/checksum@main
@@ -53,6 +54,7 @@ jobs:
         uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
+          submodules: recursive
    
       - name: package and release charts
         uses: hypertrace/github-actions/helm-gcs-publish@main
