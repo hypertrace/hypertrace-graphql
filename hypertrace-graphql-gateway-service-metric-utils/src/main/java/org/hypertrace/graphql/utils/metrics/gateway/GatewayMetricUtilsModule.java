@@ -6,7 +6,6 @@ import com.google.inject.TypeLiteral;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
@@ -44,7 +43,11 @@ public class GatewayMetricUtilsModule extends AbstractModule {
         .to(MetricSeriesExpressionConverter.class);
 
     bind(Key.get(
-            new TypeLiteral<TriConverter<Collection<MetricRequest>, Entity, BaselineEntity,
+            new TypeLiteral<
+                TriConverter<
+                    Collection<MetricRequest>,
+                    Entity,
+                    BaselineEntity,
                     Map<String, MetricContainer>>>() {}))
         .to(MetricContainerMapConverter.class);
     bind(Key.get(

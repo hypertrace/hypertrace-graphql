@@ -53,7 +53,7 @@ class GatewayServiceEntityRequestBuilder {
     this.interactionRequestBuilder = interactionRequestBuilder;
   }
 
-  public Single<EntitiesRequest> buildRequest(EntityRequest entityRequest) {
+  Single<EntitiesRequest> buildRequest(EntityRequest entityRequest) {
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest = entityRequest.resultSetRequest();
     return zip(
         this.selectionConverter.convert(resultSetRequest.attributes()),
