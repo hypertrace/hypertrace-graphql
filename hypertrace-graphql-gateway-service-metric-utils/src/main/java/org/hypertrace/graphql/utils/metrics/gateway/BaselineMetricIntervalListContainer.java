@@ -99,25 +99,9 @@ class BaselineMetricIntervalListContainer
 
   private MetricBaselineAggregation getMetricBaselineAggregation(Baseline baseline) {
     if (baseline == null) {
-      // Return default instance
+      return new MetricBaselineAggregationConverter.MetricBaselineAggregationDefaultInstance();
     }
-    return new MetricBaselineAggregation() {
-      @Override
-      public Double value() {
-        return baseline.getValue().getDouble();
-      }
-
-      @Override
-      public Double lowerBound() {
-        return baseline.getValue().getDouble();
-      }
-
-      @Override
-      public Double upperBound() {
-        return baseline.getValue().getDouble();
-      }
-
-    };
+    return new MetricBaselineAggregationConverter.MetricBaselineAggregationImpl(baseline);
   }
 
   @Value
@@ -149,7 +133,6 @@ class BaselineMetricIntervalListContainer
       this.endTime = intervalTimeRange.getEndTime();
     }
 
-    // TODO Fix this
     private static Map<MetricLookupMapKey, BaselinedMetricAggregation> getBaselineAggMap(
         Map<MetricLookupMapKey, MetricBaselineAggregation> metricAggregationMap) {
       Map<MetricLookupMapKey, BaselinedMetricAggregation> baselineMap = new HashMap<>();
@@ -157,7 +140,6 @@ class BaselineMetricIntervalListContainer
           (key, value) -> {
             BaselinedMetricAggregation baselineAgg =
                 new BaselinedMetricAggregation() {
-
                   @Override
                   public Double value() {
                     return null;

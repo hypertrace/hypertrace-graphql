@@ -9,7 +9,6 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
 import org.hypertrace.gateway.service.v1.baseline.Baseline;
@@ -60,30 +59,6 @@ class MetricAggregationMapConverter
         .map(agg -> Map.entry(MetricLookupMapKey.fromAggregationRequest(aggregationRequest), agg));
   }
 
-  private static class MetricBaselineAggregationImpl implements MetricBaselineAggregation {
-
-    private final MetricBaselineAggregation metricBaselineAggregation;
-
-    public MetricBaselineAggregationImpl(MetricBaselineAggregation metricBaselineAggregation) {
-      this.metricBaselineAggregation = metricBaselineAggregation;
-    }
-
-    @Override
-    public Double value() {
-      return metricBaselineAggregation.value();
-    }
-
-    @Override
-    public Double lowerBound() {
-      return metricBaselineAggregation.lowerBound();
-    }
-
-    @Override
-    public Double upperBound() {
-      return metricBaselineAggregation.upperBound();
-    }
-  }
-
   private static class BaselinedMetricAggregationImpl implements BaselinedMetricAggregation {
     private final MetricAggregation metricAggregation;
     private final MetricBaselineAggregation metricBaselineAggregation;
@@ -100,7 +75,7 @@ class MetricAggregationMapConverter
 
     @Override
     public MetricBaselineAggregation baseline() {
-      return new MetricBaselineAggregationImpl(metricBaselineAggregation);
+      return metricBaselineAggregation;
     }
   }
 }
