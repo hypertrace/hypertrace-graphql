@@ -4,14 +4,14 @@ on:
     branches:
       - main
   pull_request_target:
-    branches: 
+    branches:
       - main
 
 jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-       # Set fetch-depth: 0 to fetch commit history and tags for use in version calculation
+      # Set fetch-depth: 0 to fetch commit history and tags for use in version calculation
       - name: Check out code
         uses: actions/checkout@v2.3.4
         with:
@@ -19,7 +19,7 @@ jobs:
           repository: ${{github.event.pull_request.head.repo.full_name}}
           fetch-depth: 0
           submodules: recursive
-      
+
       - name: create checksum file
         uses: hypertrace/github-actions/checksum@main
 
@@ -37,10 +37,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_READ_USER }}
           password: ${{ secrets.DOCKERHUB_READ_TOKEN }}
-      
+
       - name: Build with Gradle
         uses: hypertrace/github-actions/gradle@main
-        with: 
+        with:
           args: build dockerBuildImages
 
   validate-helm-charts:
@@ -60,7 +60,7 @@ jobs:
   snyk-scan:
     runs-on: ubuntu-20.04
     steps:
-    # Set fetch-depth: 0 to fetch commit history and tags for use in version calculation
+      # Set fetch-depth: 0 to fetch commit history and tags for use in version calculation
       - name: Check out code
         uses: actions/checkout@v2.3.4
         with:
@@ -68,11 +68,11 @@ jobs:
           repository: ${{github.event.pull_request.head.repo.full_name}}
           fetch-depth: 0
           submodules: recursive
-          
+
       - name: Setup snyk
         uses: snyk/actions/setup@0.3.0
       - name: Snyk test
-        run: snyk test --all-sub-projects --org=hypertrace --severity-threshold=low --policy-path=.snyk --configuration-matching='^runtimeClasspath$'
+        run: snyk test --all-sub-projects --org=hypertrace --severity-threshold=low --policy-path=.snyk
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           GRADLE_OPTS: -Dorg.gradle.workers.max=1 # Snyk doesn't handle parallelism
