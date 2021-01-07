@@ -44,7 +44,7 @@ public class GatewayMetricUtilsModule extends AbstractModule {
         .to(MetricSeriesExpressionConverter.class);
 
     bind(Key.get(
-            new TypeLiteral<TriConverter<Collection<MetricRequest>, Entity, Optional<BaselineEntity>,
+            new TypeLiteral<TriConverter<Collection<MetricRequest>, Entity, BaselineEntity,
                     Map<String, MetricContainer>>>() {}))
         .to(MetricContainerMapConverter.class);
     bind(Key.get(

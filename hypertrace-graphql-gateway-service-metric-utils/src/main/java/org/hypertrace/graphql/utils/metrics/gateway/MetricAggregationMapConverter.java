@@ -55,8 +55,7 @@ class MetricAggregationMapConverter
       Map<String, Baseline> baselineMap) {
     return zip(
             this.aggregationConverter.convert(resultMap.get(aggregationRequest.alias()).getValue()),
-            this.baselineAggregationConverter.convert(
-                Optional.ofNullable(baselineMap.get(aggregationRequest.alias()))),
+            this.baselineAggregationConverter.convert(baselineMap.get(aggregationRequest.alias())),
             BaselinedMetricAggregationImpl::new)
         .map(agg -> Map.entry(MetricLookupMapKey.fromAggregationRequest(aggregationRequest), agg));
   }

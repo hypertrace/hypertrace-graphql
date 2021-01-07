@@ -5,40 +5,32 @@ import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.baseline.Baseline;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
-import java.util.Optional;
-
 class MetricBaselineAggregationConverter
-    implements Converter<Optional<Baseline>, MetricBaselineAggregation> {
+    implements Converter<Baseline, MetricBaselineAggregation> {
 
   @Override
-  public Single<MetricBaselineAggregation> convert(Optional<Baseline> baseline) {
+  public Single<MetricBaselineAggregation> convert(Baseline baseline) {
     return Single.just(getBaselinedMetricAggregation(baseline));
   }
 
-  private MetricBaselineAggregation getBaselinedMetricAggregation(Optional<Baseline> baseline) {
+  private MetricBaselineAggregation getBaselinedMetricAggregation(Baseline baseline) {
+    if (baseline == null) {
+      // Return default instance
+    }
     return new MetricBaselineAggregation() {
       @Override
       public Double lowerBound() {
-        if (baseline.isPresent()) {
-          return baseline.get().getLowerBound().getDouble();
-        }
-        return Double.valueOf(0);
+        return baseline.getLowerBound().getDouble();
       }
 
       @Override
       public Double upperBound() {
-        if (baseline.isPresent()) {
-          return baseline.get().getUpperBound().getDouble();
-        }
-        return Double.valueOf(0);
+        return baseline.getUpperBound().getDouble();
       }
 
       @Override
       public Double value() {
-        if (baseline.isPresent()) {
-          return baseline.get().getValue().getDouble();
-        }
-        return Double.valueOf(0);
+        return baseline.getValue().getDouble();
       }
     };
   }

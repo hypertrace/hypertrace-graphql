@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,10 +78,11 @@ class BaselineMetricIntervalListContainer
         .map(interval -> Map.entry(entry.getKey().aggregationRequest(), interval));
   }
 
-  private Single<BaselineMetricIntervalListContainer.MergeableIntervalPartial> buildMergeablePartial(
-      BaselineInterval interval, MetricAggregationRequest aggregationRequest) {
+  private Single<BaselineMetricIntervalListContainer.MergeableIntervalPartial>
+      buildMergeablePartial(
+          BaselineInterval interval, MetricAggregationRequest aggregationRequest) {
     return this.baselineAggregationConverter
-        .convert(Optional.ofNullable(interval.getBaseline()))
+        .convert(interval.getBaseline())
         .map(
             aggregation ->
                 new BaselineMetricIntervalListContainer.MergeableIntervalPartial(
@@ -94,12 +94,14 @@ class BaselineMetricIntervalListContainer
     return new BaselineMetricIntervalListContainer.IntervalTimeRange(
         Instant.ofEpochMilli(interval.getStartTimeMillis()),
         Instant.ofEpochMilli(interval.getEndTimeMillis()),
-        getMetricbaselineAggregation(interval.getBaseline()));
+        getMetricBaselineAggregation(interval.getBaseline()));
   }
 
-  private MetricBaselineAggregation getMetricbaselineAggregation(Baseline baseline) {
+  private MetricBaselineAggregation getMetricBaselineAggregation(Baseline baseline) {
+    if (baseline == null) {
+      // Return default instance
+    }
     return new MetricBaselineAggregation() {
-
       @Override
       public Double value() {
         return baseline.getValue().getDouble();

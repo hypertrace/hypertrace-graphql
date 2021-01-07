@@ -32,7 +32,7 @@ import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.MetricInterval;
 
 class MetricContainerMapConverter
-    implements TriConverter<Collection<MetricRequest>, Entity, Optional<BaselineEntity>,  Map<String, MetricContainer>> {
+    implements TriConverter<Collection<MetricRequest>, Entity, BaselineEntity,  Map<String, MetricContainer>> {
 
   private final MetricAggregationMapConverter aggregationMapConverter;
   private final MetricSeriesMapConverter seriesMapConverter;
@@ -52,7 +52,7 @@ class MetricContainerMapConverter
   public Single<Map<String, MetricContainer>> convert(
       Collection<MetricRequest> metricRequests,
       Entity entity,
-      Optional<BaselineEntity> baselineEntity) {
+      BaselineEntity baselineEntity) {
     return Observable.fromIterable(metricRequests)
         .distinct()
         .groupBy(MetricRequest::attribute)
@@ -63,7 +63,7 @@ class MetricContainerMapConverter
   private Single<Entry<String, MetricContainer>> buildMetricContainerEntry(
       GroupedObservable<AttributeModel, MetricRequest> requestsForAttribute,
       Entity entity,
-      Optional<BaselineEntity> baselineEntity) {
+      BaselineEntity baselineEntity) {
     return requestsForAttribute
         .collect(Collectors.toUnmodifiableList())
         .flatMap(
@@ -73,7 +73,7 @@ class MetricContainerMapConverter
   }
 
   private Single<MetricContainer> buildMetricContainerForAttribute(
-      List<MetricRequest> metricRequests, Entity entity, Optional<BaselineEntity> baselineEntity) {
+      List<MetricRequest> metricRequests, Entity entity, BaselineEntity baselineEntity) {
     List<MetricAggregationRequest> aggregationRequests =
         metricRequests.stream().collect(CollectorUtils.flatten(MetricRequest::aggregationRequests));
 
@@ -90,18 +90,19 @@ class MetricContainerMapConverter
         BaselineConvertedAggregationContainerImpl::new);
   }
 
-  private Map<String, BaselineMetricSeries> getBaselineMetricSeriesMap(Optional<BaselineEntity> baselineEntity) {
-    if (baselineEntity.isPresent()) {
-      return baselineEntity.get().getBaselineMetricSeriesMap();
+  private Map<String, BaselineMetricSeries> getBaselineMetricSeriesMap(
+      BaselineEntity baselineEntity) {
+    if (baselineEntity == null) {
+      return Collections.emptyMap();
     }
-     return Collections.emptyMap();
+    return baselineEntity.getBaselineMetricSeriesMap();
   }
 
-  private Map<String, Baseline> getBaselineAggregateMetricMap(Optional<BaselineEntity> baselineEntity) {
-    if (baselineEntity.isPresent()) {
-      return baselineEntity.get().getBaselineAggregateMetricMap();
+  private Map<String, Baseline> getBaselineAggregateMetricMap(BaselineEntity baselineEntity) {
+    if (baselineEntity == null) {
+      return Collections.emptyMap();
     }
-    return Collections.emptyMap();
+    return baselineEntity.getBaselineAggregateMetricMap();
   }
 
   private static class BaselineConvertedAggregationContainerImpl extends BaselineConvertedAggregationContainer

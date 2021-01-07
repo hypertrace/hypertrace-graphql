@@ -36,7 +36,7 @@ class GatewayServiceEntityConverter {
   private final TriConverter<
             Collection<MetricRequest>,
             org.hypertrace.gateway.service.v1.entity.Entity,
-            Optional<BaselineEntity>,
+            BaselineEntity,
             Map<String, MetricContainer>>
       metricContainerConverter;
   private final GatewayServiceEntityEdgeLookupConverter edgeLookupConverter;
@@ -48,7 +48,7 @@ class GatewayServiceEntityConverter {
       TriConverter<
               Collection<MetricRequest>,
               org.hypertrace.gateway.service.v1.entity.Entity,
-              Optional<BaselineEntity>,
+              BaselineEntity,
               Map<String, MetricContainer>>
           metricContainerConverter,
       GatewayServiceEntityEdgeLookupConverter edgeLookupConverter) {
@@ -81,20 +81,20 @@ class GatewayServiceEntityConverter {
                 new ConvertedEntityResultSet(entities, response.getTotal(), entities.size()));
   }
 
-  private Optional<BaselineEntity> getBaselineEntity(Map<String, BaselineEntity> baselineEntityMap,
+  private BaselineEntity getBaselineEntity(Map<String, BaselineEntity> baselineEntityMap,
                                            org.hypertrace.gateway.service.v1.entity.Entity entity) {
-    return Optional.ofNullable(baselineEntityMap.get(entity.getId()));
+    return baselineEntityMap.get(entity.getId());
   }
 
   private Map<String, BaselineEntity> getEntityMap(BaselineEntitiesResponse baselineResponse) {
-    return baselineResponse.getBaselineEntityList().stream().collect(Collectors.toMap(entity -> entity.getId(),
+    return baselineResponse.getBaselineEntityList().stream().collect(Collectors.toMap(BaselineEntity::getId,
             entity -> entity));
   }
 
   private Single<Entity> convertEntity(
       EntityRequest entityRequest,
       org.hypertrace.gateway.service.v1.entity.Entity platformEntity,
-      Optional<BaselineEntity> baselineEntity,
+      BaselineEntity baselineEntity,
       Map<String, EdgeResultSet> incomingEdges,
       Map<String, EdgeResultSet> outgoingEdges) {
     return zip(
