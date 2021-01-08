@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.metric.request;
 
+import static org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation.BASELINE_AGGREGATION_VALUE;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_AVGRATE_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_AVG_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_COUNT_KEY;
@@ -70,12 +71,19 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
         context, requestScope, metricQueryableFieldStream, this::build);
   }
 
-  @Override
   public MetricAggregationRequest build(
       AttributeModel attribute,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
-    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments);
+    return this.build(attribute, aggregationType, arguments, false);
+  }
+
+  public MetricAggregationRequest build(
+      AttributeModel attribute,
+      AttributeModelMetricAggregationType aggregationType,
+      List<Object> arguments,
+      boolean baseline) {
+    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, baseline);
   }
 
   private MetricAggregationRequest requestForAggregationField(
@@ -85,7 +93,9 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     return this.build(
         attribute,
         aggregationType,
-        this.getArgumentsForAggregation(aggregationType, field.getArguments()));
+        this.getArgumentsForAggregation(aggregationType, field.getArguments()),
+            this.selectionFinder.findSelections(field.getSelectionSet(),
+                    SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE)).findAny().isPresent());
   }
 
   private Optional<AttributeModelMetricAggregationType> getAggregationTypeForField(
@@ -157,11 +167,17 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     AttributeModel attribute;
     AttributeModelMetricAggregationType aggregation;
     List<Object> arguments;
+    boolean baseline;
 
     @Override
     public String alias() {
       return String.format(
           "%s_%s_%s", this.aggregation.name(), this.attribute.id(), this.arguments);
+    }
+
+    @Override
+    public boolean baseline() {
+      return baseline;
     }
   }
 }

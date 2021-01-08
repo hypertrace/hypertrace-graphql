@@ -14,6 +14,8 @@ import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationTyp
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.common.utils.TriConverter;
+import org.hypertrace.gateway.service.v1.baseline.BaselineEntity;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
@@ -24,7 +26,7 @@ import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.MetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
@@ -42,14 +44,18 @@ public class GatewayMetricUtilsModule extends AbstractModule {
 
     bind(Key.get(
             new TypeLiteral<
-                BiConverter<Collection<MetricRequest>, Entity, Map<String, MetricContainer>>>() {}))
+                TriConverter<
+                    Collection<MetricRequest>,
+                    Entity,
+                    BaselineEntity,
+                    Map<String, MetricContainer>>>() {}))
         .to(MetricContainerMapConverter.class);
     bind(Key.get(
             new TypeLiteral<
                 BiConverter<
                     Collection<MetricAggregationRequest>,
                     Map<String, AggregatedMetricValue>,
-                    Map<String, MetricAggregationContainer>>>() {}))
+                    Map<String, BaselinedMetricAggregationContainer>>>() {}))
         .to(MetricAggregationContainerMapConverter.class);
 
     bind(Key.get(

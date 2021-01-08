@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.metric.request;
 
+import static org.hypertrace.graphql.metric.schema.MetricIntervalContainer.BASELINE_INTERVAL_CONTAINER_SERIES_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricIntervalContainer.METRIC_INTERVAL_CONTAINER_SERIES_KEY;
 
 import graphql.schema.SelectedField;
@@ -41,6 +42,16 @@ class MetricSeriesRequestBuilder {
                 SelectionQuery.namedChild(METRIC_INTERVAL_CONTAINER_SERIES_KEY)))
         .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
   }
+
+  Observable<MetricSeriesRequest> buildBaselineSeriesRequests(
+          AttributeModel attribute, SelectedField metricContainerField) {
+    return Observable.fromStream(
+            this.selectionFinder.findSelections(
+                    metricContainerField.getSelectionSet(),
+                    SelectionQuery.namedChild(BASELINE_INTERVAL_CONTAINER_SERIES_KEY)))
+            .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
+  }
+
 
   private Observable<MetricSeriesRequest> flattenAggregationsForSeries(
       AttributeModel attribute, SelectedField seriesField) {

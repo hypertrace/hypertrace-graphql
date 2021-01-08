@@ -22,4 +22,10 @@ public interface MetricAggregationRequestBuilder {
       AttributeModel attribute,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments);
+
+  MetricAggregationRequest build(
+          AttributeModel attribute,
+          AttributeModelMetricAggregationType aggregationType,
+          List<Object> arguments,
+          boolean baseline);
 }

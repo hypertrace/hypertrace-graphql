@@ -1,7 +1,6 @@
 package org.hypertrace.graphql.entity.request;
 
 import com.google.inject.AbstractModule;
-import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -15,7 +14,6 @@ public class EntityRequestModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(EntityRequestBuilder.class).to(DefaultEntityRequestBuilder.class);
-
     requireBinding(ResultSetRequestBuilder.class);
     requireBinding(ArgumentDeserializer.class);
     requireBinding(MetricRequestBuilder.class);

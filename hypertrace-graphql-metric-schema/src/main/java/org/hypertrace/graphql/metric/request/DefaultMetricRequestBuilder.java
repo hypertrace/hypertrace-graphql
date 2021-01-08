@@ -46,7 +46,10 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
             this.seriesRequestBuilder
                 .build(attribute, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
-            (aggList, seriesList) -> new DefaultMetricRequest(attribute, aggList, seriesList))
+            this.seriesRequestBuilder
+                 .buildBaselineSeriesRequests(attribute, metricContainerField)
+                 .collect(Collectors.toUnmodifiableList()),
+            (aggList, seriesList, baselineSeriesList) -> new DefaultMetricRequest(attribute, aggList, seriesList, baselineSeriesList))
         .cast(MetricRequest.class)
         .toObservable();
   }
@@ -57,5 +60,6 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
     AttributeModel attribute;
     List<MetricAggregationRequest> aggregationRequests;
     List<MetricSeriesRequest> seriesRequests;
+    List<MetricSeriesRequest> baselineSeriesRequests;
   }
 }

@@ -13,5 +13,4 @@ public interface MetricAggregation {
   @GraphQLField
   Double value();
 
-  // TODO metric health
 }
