@@ -26,7 +26,7 @@ import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
@@ -55,7 +55,7 @@ public class GatewayMetricUtilsModule extends AbstractModule {
                 BiConverter<
                     Collection<MetricAggregationRequest>,
                     Map<String, AggregatedMetricValue>,
-                    Map<String, BaselineMetricAggregationContainer>>>() {}))
+                    Map<String, BaselinedMetricAggregationContainer>>>() {}))
         .to(MetricAggregationContainerMapConverter.class);
 
     bind(Key.get(

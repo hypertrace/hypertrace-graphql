@@ -8,39 +8,35 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observables.GroupedObservable;
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
-import org.hypertrace.gateway.service.v1.baseline.Baseline;
 import org.hypertrace.gateway.service.v1.baseline.BaselineEntity;
-import org.hypertrace.gateway.service.v1.baseline.BaselineMetricSeries;
 import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricInterval;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricInterval;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.MetricInterval;
 
 class MetricContainerMapConverter
     implements TriConverter<Collection<MetricRequest>, Entity, BaselineEntity,  Map<String, MetricContainer>> {
 
-  private final MetricAggregationMapConverter aggregationMapConverter;
+  private final BaselinedMetricAggregationMapConverter aggregationMapConverter;
   private final MetricSeriesMapConverter seriesMapConverter;
   private final BaselineMetricSeriesMapConverter baselineSeriesConverter;
 
   @Inject
   MetricContainerMapConverter(
-      MetricAggregationMapConverter aggregationMapConverter,
+      BaselinedMetricAggregationMapConverter aggregationMapConverter,
       MetricSeriesMapConverter seriesMapConverter,
       BaselineMetricSeriesMapConverter baselineSeriesConverter) {
     this.aggregationMapConverter = aggregationMapConverter;
@@ -83,38 +79,23 @@ class MetricContainerMapConverter
         this.aggregationMapConverter.convert(
             aggregationRequests,
             entity.getMetricMap(),
-            getBaselineAggregateMetricMap(baselineEntity)),
+            baselineEntity.getBaselineAggregateMetricMap()),
         this.seriesMapConverter.convert(seriesRequests, entity.getMetricSeriesMap()),
         this.baselineSeriesConverter.convert(
-            seriesRequests, getBaselineMetricSeriesMap(baselineEntity)),
-        BaselineConvertedAggregationContainerImpl::new);
+            seriesRequests, baselineEntity.getBaselineMetricSeriesMap()),
+        BaselinedConvertedAggregationContainerImpl::new);
   }
 
-  private Map<String, BaselineMetricSeries> getBaselineMetricSeriesMap(
-      BaselineEntity baselineEntity) {
-    if (baselineEntity == null) {
-      return Collections.emptyMap();
-    }
-    return baselineEntity.getBaselineMetricSeriesMap();
-  }
-
-  private Map<String, Baseline> getBaselineAggregateMetricMap(BaselineEntity baselineEntity) {
-    if (baselineEntity == null) {
-      return Collections.emptyMap();
-    }
-    return baselineEntity.getBaselineAggregateMetricMap();
-  }
-
-  private static class BaselineConvertedAggregationContainerImpl extends BaselineConvertedAggregationContainer
+  private static class BaselinedConvertedAggregationContainerImpl extends BaselinedConvertedAggregationContainer
       implements MetricContainer {
 
     private final Map<Duration, List<MetricInterval>> metricSeriesMap;
-    private final Map<Duration, List<BaselineMetricInterval>> baselineSeriesMap;
+    private final Map<Duration, List<BaselinedMetricInterval>> baselineSeriesMap;
 
-    BaselineConvertedAggregationContainerImpl(
+    BaselinedConvertedAggregationContainerImpl(
         Map<MetricLookupMapKey, BaselinedMetricAggregation> metricAggregationMap,
         Map<Duration, List<MetricInterval>> metricSeriesMap,
-        Map<Duration, List<BaselineMetricInterval>> baselineSeriesMap) {
+        Map<Duration, List<BaselinedMetricInterval>> baselineSeriesMap) {
       super(metricAggregationMap);
       this.metricSeriesMap = metricSeriesMap;
       this.baselineSeriesMap = baselineSeriesMap;
@@ -126,7 +107,7 @@ class MetricContainerMapConverter
     }
 
     @Override
-    public List<BaselineMetricInterval> baselineSeries(int size, TimeUnit units) {
+    public List<BaselinedMetricInterval> baselineSeries(int size, TimeUnit units) {
       return this.baselineSeriesMap.get(Duration.of(size, units.getChronoUnit()));
     }
   }

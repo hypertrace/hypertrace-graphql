@@ -56,7 +56,7 @@ class GatewayBaselineDao implements BaselineDao {
   }
 
   @Override
-  public Single<BaselineEntitiesResponse> buildAndSubmitRequest(
+  public Single<BaselineEntitiesResponse> getBaselines(
       GraphQlRequestContext context,
       EntitiesRequest entitiesRequest,
       EntitiesResponse entitiesResponse,

@@ -24,7 +24,7 @@ import org.hypertrace.graphql.entity.schema.Edge;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ class GatewayServiceEntityEdgeFetcher {
   private final BiConverter<
           Collection<MetricAggregationRequest>,
           Map<String, AggregatedMetricValue>,
-          Map<String, BaselineMetricAggregationContainer>>
+          Map<String, BaselinedMetricAggregationContainer>>
           baselineMetricAggregationContainerMapConverter;
 
   @Inject
@@ -50,7 +50,7 @@ class GatewayServiceEntityEdgeFetcher {
       BiConverter<
               Collection<MetricAggregationRequest>,
               Map<String, AggregatedMetricValue>,
-              Map<String, BaselineMetricAggregationContainer>>
+              Map<String, BaselinedMetricAggregationContainer>>
               baselineMetricAggregationContainerMapConverter) {
     this.neighborMapFetcher = neighborMapFetcher;
     this.attributeMapConverter = attributeMapConverter;
@@ -127,7 +127,7 @@ class GatewayServiceEntityEdgeFetcher {
   private static class ConvertedEdge implements Edge {
     Entity neighbor;
     Map<String, Object> attributeValues;
-    Map<String, BaselineMetricAggregationContainer> metricContainers;
+    Map<String, BaselinedMetricAggregationContainer> metricContainers;
 
     @Override
     public Object attribute(String key) {
@@ -135,7 +135,7 @@ class GatewayServiceEntityEdgeFetcher {
     }
 
     @Override
-    public BaselineMetricAggregationContainer metric(String key) {
+    public BaselinedMetricAggregationContainer metric(String key) {
       return this.metricContainers.get(key);
     }
   }

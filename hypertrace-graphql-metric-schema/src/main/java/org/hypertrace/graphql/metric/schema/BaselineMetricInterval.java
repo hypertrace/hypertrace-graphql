@@ -6,8 +6,8 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 
 import java.time.Instant;
 
-@GraphQLName(BaselineMetricInterval.BASELINE_METRIC_INTERVAL)
-public interface BaselineMetricInterval extends BaselineMetricAggregationContainer {
+@GraphQLName(BaselinedMetricInterval.BASELINE_METRIC_INTERVAL)
+public interface BaselinedMetricInterval extends MetricBaselineAggregationContainer {
     String BASELINE_METRIC_INTERVAL = "baselineInterval";
 
     @GraphQLField

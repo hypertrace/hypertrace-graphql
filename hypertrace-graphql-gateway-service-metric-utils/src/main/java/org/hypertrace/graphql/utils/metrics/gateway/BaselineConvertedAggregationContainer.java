@@ -3,7 +3,7 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
 
 import java.time.Duration;
 import java.util.Map;
@@ -11,10 +11,10 @@ import java.util.Map;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.*;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.DISTINCT_COUNT;
 
-class BaselineConvertedAggregationContainer implements BaselineMetricAggregationContainer {
+class BaselinedConvertedAggregationContainer implements BaselinedMetricAggregationContainer {
   Map<MetricLookupMapKey, BaselinedMetricAggregation> metricAggregationMap;
 
-  public BaselineConvertedAggregationContainer(Map<MetricLookupMapKey, BaselinedMetricAggregation> metricAggregationMap) {
+  public BaselinedConvertedAggregationContainer(Map<MetricLookupMapKey, BaselinedMetricAggregation> metricAggregationMap) {
     this.metricAggregationMap = metricAggregationMap;
   }
 

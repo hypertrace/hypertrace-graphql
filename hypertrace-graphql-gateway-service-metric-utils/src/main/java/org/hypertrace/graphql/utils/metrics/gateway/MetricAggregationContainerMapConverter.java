@@ -14,23 +14,23 @@ import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
 
 class MetricAggregationContainerMapConverter
     implements BiConverter<
         Collection<MetricAggregationRequest>,
         Map<String, AggregatedMetricValue>,
-        Map<String, BaselineMetricAggregationContainer>> {
+        Map<String, BaselinedMetricAggregationContainer>> {
 
-  private final MetricAggregationMapConverter aggregationMapConverter;
+  private final BaselinedMetricAggregationMapConverter aggregationMapConverter;
 
   @Inject
-  MetricAggregationContainerMapConverter(MetricAggregationMapConverter aggregationMapConverter) {
+  MetricAggregationContainerMapConverter(BaselinedMetricAggregationMapConverter aggregationMapConverter) {
     this.aggregationMapConverter = aggregationMapConverter;
   }
 
   @Override
-  public Single<Map<String, BaselineMetricAggregationContainer>> convert(
+  public Single<Map<String, BaselinedMetricAggregationContainer>> convert(
       Collection<MetricAggregationRequest> metricRequests,
       Map<String, AggregatedMetricValue> metricResponses) {
     return Observable.fromIterable(metricRequests)
@@ -40,7 +40,7 @@ class MetricAggregationContainerMapConverter
         .collect(immutableMapEntryCollector());
   }
 
-  private Single<Entry<String, BaselineMetricAggregationContainer>> buildMetricContainerEntry(
+  private Single<Entry<String, BaselinedMetricAggregationContainer>> buildMetricContainerEntry(
       GroupedObservable<AttributeModel, MetricAggregationRequest> requestsForAttribute,
       Map<String, AggregatedMetricValue> metricResponses) {
 
@@ -48,7 +48,7 @@ class MetricAggregationContainerMapConverter
         .toList()
         .flatMap(
             metricRequests -> this.aggregationMapConverter.convert(metricRequests, metricResponses, Collections.emptyMap()))
-        .map(BaselineConvertedAggregationContainer::new)
+        .map(BaselinedConvertedAggregationContainer::new)
         .map(container -> Map.entry(requestsForAttribute.getKey().key(), container));
   }
 }

@@ -22,7 +22,7 @@ public interface MetricIntervalContainer {
 
   @GraphQLField
   @GraphQLName(BASELINE_INTERVAL_CONTAINER_SERIES_KEY)
-  List<BaselineMetricInterval> baselineSeries(
+  List<BaselinedMetricInterval> baselineSeries(
       @GraphQLName(MetricIntervalSizeArgument.ARGUMENT_NAME) @GraphQLNonNull int size,
       @GraphQLName(MetricIntervalUnitsArgument.ARGUMENT_NAME) @GraphQLNonNull TimeUnit units);
 }

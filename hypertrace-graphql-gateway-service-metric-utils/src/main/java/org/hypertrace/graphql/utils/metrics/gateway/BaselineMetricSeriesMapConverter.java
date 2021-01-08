@@ -6,8 +6,7 @@ import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.gateway.service.v1.baseline.BaselineMetricSeries;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricInterval;
-
+import org.hypertrace.graphql.metric.schema.BaselinedMetricInterval;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
@@ -19,7 +18,7 @@ class BaselineMetricSeriesMapConverter
     implements BiConverter<
         List<MetricSeriesRequest>,
         Map<String, BaselineMetricSeries>,
-        Map<Duration, List<BaselineMetricInterval>>> {
+        Map<Duration, List<BaselinedMetricInterval>>> {
   private final BaselineMetricIntervalListContainer intervalListConverter;
 
   @Inject
@@ -28,7 +27,7 @@ class BaselineMetricSeriesMapConverter
   }
 
   @Override
-  public Single<Map<Duration, List<BaselineMetricInterval>>> convert(
+  public Single<Map<Duration, List<BaselinedMetricInterval>>> convert(
       List<MetricSeriesRequest> metricSeriesRequests,
       Map<String, BaselineMetricSeries> baselineMetricSeriesMap) {
     return Observable.fromIterable(metricSeriesRequests)
@@ -40,7 +39,7 @@ class BaselineMetricSeriesMapConverter
         .collect(immutableMapEntryCollector());
   }
 
-  private Single<Map.Entry<Duration, List<BaselineMetricInterval>>> buildMetricSeriesEntry(
+  private Single<Map.Entry<Duration, List<BaselinedMetricInterval>>> buildMetricSeriesEntry(
       Duration period,
       Observable<MetricSeriesRequest> seriesRequestsForDuration,
       Map<String, BaselineMetricSeries> baselineSeriesMap) {

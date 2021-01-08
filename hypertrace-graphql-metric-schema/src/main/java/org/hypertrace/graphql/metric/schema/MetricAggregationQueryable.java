@@ -11,6 +11,6 @@ public interface MetricAggregationQueryable {
   @GraphQLField
   @GraphQLName(METRIC_FIELD_NAME)
   @GraphQLNonNull
-  BaselineMetricAggregationContainer metric(
+  BaselinedMetricAggregationContainer metric(
       @GraphQLName(MetricKeyArgument.ARGUMENT_NAME) @GraphQLNonNull String key);
 }

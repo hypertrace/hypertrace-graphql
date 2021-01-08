@@ -13,14 +13,11 @@ import org.hypertrace.gateway.service.v1.baseline.BaselineInterval;
 import org.hypertrace.gateway.service.v1.baseline.BaselineMetricSeries;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricInterval;
-import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricInterval;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
-
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,26 +25,27 @@ import java.util.stream.Stream;
 
 class BaselineMetricIntervalListContainer
     implements Converter<
-        Map<MetricSeriesRequest, BaselineMetricSeries>, List<BaselineMetricInterval>> {
+        Map<MetricSeriesRequest, BaselineMetricSeries>, List<BaselinedMetricInterval>> {
 
   private final MetricBaselineAggregationConverter baselineAggregationConverter;
 
   @Inject
-  BaselineMetricIntervalListContainer(MetricBaselineAggregationConverter baselineAggregationConverter) {
+  BaselineMetricIntervalListContainer(
+          MetricBaselineAggregationConverter baselineAggregationConverter) {
     this.baselineAggregationConverter = baselineAggregationConverter;
   }
 
   @Override
-  public Single<List<BaselineMetricInterval>> convert(
+  public Single<List<BaselinedMetricInterval>> convert(
       Map<MetricSeriesRequest, BaselineMetricSeries> metricSeriesMap) {
     return this.collectPartialsFromEachSeries(metricSeriesMap)
         .groupBy(BaselineMetricIntervalListContainer.MergeableIntervalPartial::getIntervalTimeRange)
         .flatMapSingle(this::buildMetricIntervalFromPartials)
-        .sorted(Comparator.comparing(BaselineMetricInterval::startTime))
+        .sorted(Comparator.comparing(BaselinedMetricInterval::startTime))
         .collect(Collectors.toUnmodifiableList());
   }
 
-  private Single<BaselineMetricInterval> buildMetricIntervalFromPartials(
+  private Single<BaselinedMetricInterval> buildMetricIntervalFromPartials(
       GroupedObservable<IntervalTimeRange, MergeableIntervalPartial> partialsForTimeRange) {
     return partialsForTimeRange
         .distinct()
@@ -98,10 +96,13 @@ class BaselineMetricIntervalListContainer
   }
 
   private MetricBaselineAggregation getMetricBaselineAggregation(Baseline baseline) {
-    if (baseline == null) {
-      return new MetricBaselineAggregationConverter.MetricBaselineAggregationDefaultInstance();
+    if (Baseline.getDefaultInstance().equals(baseline)) {
+      return MetricBaselineAggregationConverter.MetricBaselineAggregationImpl.EMPTY;
     }
-    return new MetricBaselineAggregationConverter.MetricBaselineAggregationImpl(baseline);
+    return new MetricBaselineAggregationConverter.MetricBaselineAggregationImpl(
+        baseline.getValue().getDouble(),
+        baseline.getLowerBound().getDouble(),
+        baseline.getUpperBound().getDouble());
   }
 
   @Value
@@ -120,39 +121,17 @@ class BaselineMetricIntervalListContainer
 
   @Getter
   @Accessors(fluent = true)
-  private static class ConvertedMetricInterval extends BaselineConvertedAggregationContainer
-      implements BaselineMetricInterval {
+  private static class ConvertedMetricInterval extends MetricBaselineConvertedAggregationContainer
+      implements BaselinedMetricInterval {
     final Instant startTime;
     final Instant endTime;
 
     ConvertedMetricInterval(
         Map<MetricLookupMapKey, MetricBaselineAggregation> metricAggregationMap,
         IntervalTimeRange intervalTimeRange) {
-      super(getBaselineAggMap(metricAggregationMap));
+      super(metricAggregationMap);
       this.startTime = intervalTimeRange.getStartTime();
       this.endTime = intervalTimeRange.getEndTime();
-    }
-
-    private static Map<MetricLookupMapKey, BaselinedMetricAggregation> getBaselineAggMap(
-        Map<MetricLookupMapKey, MetricBaselineAggregation> metricAggregationMap) {
-      Map<MetricLookupMapKey, BaselinedMetricAggregation> baselineMap = new HashMap<>();
-      metricAggregationMap.forEach(
-          (key, value) -> {
-            BaselinedMetricAggregation baselineAgg =
-                new BaselinedMetricAggregation() {
-                  @Override
-                  public Double value() {
-                    return null;
-                  }
-
-                  @Override
-                  public MetricBaselineAggregation baseline() {
-                    return value;
-                  }
-                };
-            baselineMap.put(key, baselineAgg);
-          });
-      return baselineMap;
     }
   }
 }

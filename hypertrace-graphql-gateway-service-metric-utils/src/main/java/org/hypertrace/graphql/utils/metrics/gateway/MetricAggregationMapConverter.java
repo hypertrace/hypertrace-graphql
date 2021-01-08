@@ -10,15 +10,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.inject.Inject;
+
+import lombok.Value;
+import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
 import org.hypertrace.gateway.service.v1.baseline.Baseline;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
-import org.hypertrace.graphql.metric.schema.MetricAggregation;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
-class MetricAggregationMapConverter
+class BaselinedMetricAggregationMapConverter
     implements TriConverter<
         List<MetricAggregationRequest>,
         Map<String, AggregatedMetricValue>,
@@ -29,7 +31,7 @@ class MetricAggregationMapConverter
   private final MetricBaselineAggregationConverter baselineAggregationConverter;
 
   @Inject
-  MetricAggregationMapConverter(
+  BaselinedMetricAggregationMapConverter(
       MetricAggregationConverter aggregationConverter,
       MetricBaselineAggregationConverter baselineAggregationConverter) {
     this.aggregationConverter = aggregationConverter;
@@ -54,28 +56,34 @@ class MetricAggregationMapConverter
       Map<String, Baseline> baselineMap) {
     return zip(
             this.aggregationConverter.convert(resultMap.get(aggregationRequest.alias()).getValue()),
-            this.baselineAggregationConverter.convert(baselineMap.get(aggregationRequest.alias())),
-            BaselinedMetricAggregationImpl::new)
+            this.baselineAggregationConverter.convert(getBaseline(aggregationRequest, baselineMap)),
+            (metricAggregation, metricBaselineAggregation) ->
+                new BaselinedMetricAggregationImpl(
+                    metricAggregation.value(), metricBaselineAggregation))
         .map(agg -> Map.entry(MetricLookupMapKey.fromAggregationRequest(aggregationRequest), agg));
   }
 
+  private Baseline getBaseline(
+      MetricAggregationRequest aggregationRequest, Map<String, Baseline> baselineMap) {
+    return baselineMap.containsKey(aggregationRequest.alias())
+        ? baselineMap.get(aggregationRequest.alias())
+        : Baseline.getDefaultInstance();
+  }
+
+  @Value
+  @Accessors(fluent = true)
   private static class BaselinedMetricAggregationImpl implements BaselinedMetricAggregation {
-    private final MetricAggregation metricAggregation;
-    private final MetricBaselineAggregation metricBaselineAggregation;
-
-    public BaselinedMetricAggregationImpl(MetricAggregation metricAggregation, MetricBaselineAggregation metricBaselineAggregation) {
-      this.metricAggregation = metricAggregation;
-      this.metricBaselineAggregation = metricBaselineAggregation;
-    }
-
-    @Override
-    public Double value() {
-      return metricAggregation.value();
-    }
+    Double metricAggregationValue;
+    MetricBaselineAggregation metricBaselineAggregation;
 
     @Override
     public MetricBaselineAggregation baseline() {
       return metricBaselineAggregation;
+    }
+
+    @Override
+    public Double value() {
+      return metricAggregationValue;
     }
   }
 }

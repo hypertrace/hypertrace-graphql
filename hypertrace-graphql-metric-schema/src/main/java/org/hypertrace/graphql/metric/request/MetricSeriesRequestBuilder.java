@@ -43,7 +43,7 @@ class MetricSeriesRequestBuilder {
         .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
   }
 
-  Observable<MetricSeriesRequest> buildBaselineSeries(
+  Observable<MetricSeriesRequest> buildBaselineSeriesRequests(
           AttributeModel attribute, SelectedField metricContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(

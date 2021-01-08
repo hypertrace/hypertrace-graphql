@@ -6,6 +6,7 @@ import static org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeFetcher.
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,13 +67,14 @@ class GatewayServiceEntityConverter {
 
   private Single<EntityResultSet> convert(
           EntityRequest request, EntitiesResponse response, BaselineEntitiesResponse baselineResponse, EdgeLookup edgeLookup) {
+    Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
             entity ->
                 this.convertEntity(
                     request,
                     entity,
-                    getBaselineEntity(getEntityMap(baselineResponse), entity),
+                    getBaselineEntity(baselineEntityMap, entity.getId()),
                     edgeLookup.getIncoming().row(entity),
                     edgeLookup.getOutgoing().row(entity)))
         .toList()
@@ -81,12 +83,14 @@ class GatewayServiceEntityConverter {
                 new ConvertedEntityResultSet(entities, response.getTotal(), entities.size()));
   }
 
-  private BaselineEntity getBaselineEntity(Map<String, BaselineEntity> baselineEntityMap,
-                                           org.hypertrace.gateway.service.v1.entity.Entity entity) {
-    return baselineEntityMap.get(entity.getId());
+  private BaselineEntity getBaselineEntity(
+      Map<String, BaselineEntity> baselineEntityMap, String entityId) {
+    return baselineEntityMap.containsKey(entityId)
+        ? baselineEntityMap.get(entityId)
+        : BaselineEntity.getDefaultInstance();
   }
 
-  private Map<String, BaselineEntity> getEntityMap(BaselineEntitiesResponse baselineResponse) {
+  private Map<String, BaselineEntity> getBaselineEntityMap(BaselineEntitiesResponse baselineResponse) {
     return baselineResponse.getBaselineEntityList().stream().collect(Collectors.toMap(BaselineEntity::getId,
             entity -> entity));
   }

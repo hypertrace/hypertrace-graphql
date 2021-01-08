@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.core.Scheduler;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
@@ -32,7 +31,7 @@ import org.hypertrace.graphql.entity.health.BaselineDao;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.BaselineMetricAggregationContainer;
+import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
@@ -90,6 +89,6 @@ public class EntityDaoModule extends AbstractModule {
                 BiConverter<
                     Collection<MetricAggregationRequest>,
                     Map<String, AggregatedMetricValue>,
-                    Map<String, BaselineMetricAggregationContainer>>>() {}));
+                    Map<String, BaselinedMetricAggregationContainer>>>() {}));
   }
 }
