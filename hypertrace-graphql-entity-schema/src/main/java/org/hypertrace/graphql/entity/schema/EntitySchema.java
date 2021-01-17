@@ -25,7 +25,7 @@ public interface EntitySchema {
   @GraphQLName(ENTITIES_QUERY_NAME)
   @GraphQLDataFetcher(EntityFetcher.class)
   EntityResultSet entities(
-      @GraphQLName(EntityTypeArgument.ARGUMENT_NAME) EntityType entityType,
+      @Deprecated @GraphQLName(EntityTypeArgument.ARGUMENT_NAME) EntityType entityType,
       @GraphQLName(EntityScopeArgument.ARGUMENT_NAME) String entityScope,
       @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument timeRange,
       @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space,

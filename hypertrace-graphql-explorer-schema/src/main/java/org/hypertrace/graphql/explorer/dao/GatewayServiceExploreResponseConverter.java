@@ -9,8 +9,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
-import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.gateway.service.v1.common.Row;
 import org.hypertrace.gateway.service.v1.explore.ExploreResponse;
 import org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey;
@@ -39,21 +37,10 @@ class GatewayServiceExploreResponseConverter {
   private Single<ExploreResult> convertRow(ExploreRequest request, Row row) {
     return this.selectionMapConverter
         .convert(request, row)
-        .map(selectionMap -> this.buildResult(request, selectionMap));
+        .map(this::buildResult);
   }
 
-  private ExploreResult buildResult(
-      ExploreRequest request, Map<ExploreResultMapKey, Selection> selectionMap) {
-    // TODO remove once first class group name removed, til then just give the first group name
-    Optional<String> groupName =
-        request.groupByAttributeRequests().stream()
-            .findFirst()
-            .map(AttributeRequest::attribute)
-            .map(AttributeModel::key)
-            .map(ExploreResultMapKey::basicAttribute)
-            .map(selectionMap::get)
-            .map(Selection::value)
-            .map(String.class::cast);
+  private ExploreResult buildResult(Map<ExploreResultMapKey, Selection> selectionMap) {
 
     Optional<Instant> intervalStart =
         Optional.ofNullable(selectionMap.get(ExploreResultMapKey.intervalStart()))
@@ -61,14 +48,13 @@ class GatewayServiceExploreResponseConverter {
             .map(Instant.class::cast);
 
     return new ConvertedExploreResult(
-        selectionMap, groupName.orElse(null), intervalStart.orElse(null));
+        selectionMap, intervalStart.orElse(null));
   }
 
   @Value
   @Accessors(fluent = true)
   private static class ConvertedExploreResult implements ExploreResult {
     Map<ExploreResultMapKey, Selection> selectionMap;
-    String groupName;
     Instant intervalStart;
   }
 

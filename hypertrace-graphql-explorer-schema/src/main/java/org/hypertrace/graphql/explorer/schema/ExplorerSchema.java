@@ -1,6 +1,7 @@
 package org.hypertrace.graphql.explorer.schema;
 
 import graphql.annotations.annotationTypes.GraphQLDataFetcher;
+import graphql.annotations.annotationTypes.GraphQLDeprecate;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -28,7 +29,7 @@ public interface ExplorerSchema {
   @GraphQLName(EXPLORE_QUERY_NAME)
   @GraphQLDataFetcher(ExplorerFetcher.class)
   ExploreResultSet explore(
-      @GraphQLName(ExplorerContextArgument.ARGUMENT_NAME) ExplorerContext context,
+      @Deprecated @GraphQLName(ExplorerContextArgument.ARGUMENT_NAME) ExplorerContext context,
       @GraphQLName(ExplorerScopeArgument.ARGUMENT_NAME) String scope,
       @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument timeRange,
       @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space,
