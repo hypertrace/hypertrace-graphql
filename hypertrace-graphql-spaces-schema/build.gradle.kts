@@ -1,5 +1,7 @@
 plugins {
   `java-library`
+  jacoco
+  id("org.hypertrace.jacoco-report-plugin")
 }
 
 dependencies {
@@ -17,4 +19,11 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
 
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.mockito:mockito-junit-jupiter")
+}
+
+tasks.test {
+  useJUnitPlatform()
 }
