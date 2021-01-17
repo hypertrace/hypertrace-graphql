@@ -4,10 +4,6 @@ import graphql.annotations.annotationTypes.GraphQLName;
 
 @GraphQLName(FilterType.TYPE_NAME)
 public enum FilterType {
-  @Deprecated
-  STRING,
-  @Deprecated
-  NUMERIC,
   ATTRIBUTE,
   ID;
 

@@ -22,9 +22,4 @@ class DefaultAttributeMetadata implements AttributeMetadata {
   boolean onlySupportsAggregation;
   List<MetricAggregationType> supportedAggregations;
   boolean groupable;
-
-  // TODO remove once removed from the api
-  public boolean onlyAggregationsAllowed() {
-    return this.onlySupportsGrouping();
-  }
 }

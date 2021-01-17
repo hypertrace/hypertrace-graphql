@@ -49,8 +49,6 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
   private Single<AttributeAssociation<FilterArgument>> normalize(
       GraphQlRequestContext requestContext, String scope, FilterArgument filterArgument) {
     switch (filterArgument.type()) {
-      case STRING:
-      case NUMERIC:
       case ATTRIBUTE:
         return this.attributeAssociator.associateAttribute(
             requestContext,

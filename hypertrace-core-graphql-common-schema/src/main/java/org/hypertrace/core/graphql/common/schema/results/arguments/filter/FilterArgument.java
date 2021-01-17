@@ -7,16 +7,15 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import javax.annotation.Nullable;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 
-// TODO revisit union types
 @GraphQLName(FilterArgument.TYPE_NAME)
 public interface FilterArgument {
   String TYPE_NAME = "Filter";
-  String ARGUMENT_NAME = "filterBy"; // TODO rename to filter
+  String ARGUMENT_NAME = "filterBy";
   String FILTER_ARGUMENT_TYPE = "type";
   String FILTER_ARGUMENT_KEY = "key";
   String FILTER_ARGUMENT_OPERATOR = "operator";
   String FILTER_ARGUMENT_VALUE = "value";
-  String FILTER_ARGUMENT_ID_TYPE = "idType"; // TODO rename
+  @Deprecated String FILTER_ARGUMENT_ID_TYPE = "idType";
   String FILTER_ARGUMENT_ID_SCOPE = "idScope";
 
   @GraphQLField

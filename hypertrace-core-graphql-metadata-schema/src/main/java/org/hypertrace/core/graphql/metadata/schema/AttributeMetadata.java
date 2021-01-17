@@ -1,12 +1,10 @@
 package org.hypertrace.core.graphql.metadata.schema;
 
-import graphql.annotations.annotationTypes.GraphQLDeprecate;
 import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import java.util.List;
-import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeType;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 
@@ -18,7 +16,6 @@ public interface AttributeMetadata {
   String ATTRIBUTE_METADATA_DISPLAY_NAME = "displayName";
   String ATTRIBUTE_METADATA_TYPE_NAME = "type";
   String ATTRIBUTE_METADATA_UNITS_NAME = "units";
-  String ATTRIBUTE_METADATA_ONLY_AGGREGATIONS_ALLOWED_NAME = "onlyAggregationsAllowed";
   String ATTRIBUTE_METADATA_ONLY_SUPPORTS_AGGREGATION_NAME = "onlySupportsAggregation";
   String ATTRIBUTE_METADATA_ONLY_SUPPORTS_GROUPING_NAME = "onlySupportsGrouping";
   String ATTRIBUTE_METADATA_SUPPORTED_AGGREGATIONS_NAME = "supportedAggregations";
@@ -48,14 +45,6 @@ public interface AttributeMetadata {
   @GraphQLNonNull
   @GraphQLName(ATTRIBUTE_METADATA_UNITS_NAME)
   String units();
-
-  @GraphQLDeprecate
-  @Deprecated
-  @GraphQLField
-  @GraphQLNonNull
-  @GraphQLDescription("Deprecated. This has been renamed to " + ATTRIBUTE_METADATA_ONLY_SUPPORTS_GROUPING_NAME)
-  @GraphQLName(ATTRIBUTE_METADATA_ONLY_AGGREGATIONS_ALLOWED_NAME)
-  boolean onlyAggregationsAllowed();
 
   @GraphQLField
   @GraphQLNonNull
