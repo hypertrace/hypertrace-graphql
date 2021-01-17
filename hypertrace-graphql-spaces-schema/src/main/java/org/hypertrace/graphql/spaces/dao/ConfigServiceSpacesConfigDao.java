@@ -10,6 +10,8 @@ import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.spaces.request.SpaceConfigRuleCreationRequest;
+import org.hypertrace.graphql.spaces.request.SpaceConfigRuleDeleteRequest;
+import org.hypertrace.graphql.spaces.request.SpaceConfigRuleUpdateRequest;
 import org.hypertrace.graphql.spaces.schema.query.SpaceConfigRuleResultSet;
 import org.hypertrace.graphql.spaces.schema.shared.SpaceConfigRule;
 import org.hypertrace.spaces.config.service.v1.SpacesConfigServiceGrpc;
@@ -66,5 +68,32 @@ class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
                             .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
                             .createRule(this.requestConverter.convertCreationRequest(request))))
         .flatMap(this.responseConverter::convertRule);
+  }
+
+  @Override
+  public Single<SpaceConfigRule> updateRule(SpaceConfigRuleUpdateRequest request) {
+    return Single.fromFuture(
+        this.grpcContextBuilder
+            .build(request.context())
+            .callInContext(
+                () ->
+                    this.spaceConfigServiceStub
+                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .updateRule(this.requestConverter.convertUpdateRequest(request))))
+                 .flatMap(this.responseConverter::convertRule);
+  }
+
+
+  @Override
+  public Single<Boolean> deleteRule(SpaceConfigRuleDeleteRequest request) {
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .callInContext(
+                    () ->
+                        this.spaceConfigServiceStub
+                            .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                            .deleteRule(this.requestConverter.convertDeleteRequest(request))))
+        .flatMap(unusedResponse -> this.responseConverter.buildDeleteResponse());
   }
 }

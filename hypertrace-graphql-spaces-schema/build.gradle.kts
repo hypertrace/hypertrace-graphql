@@ -18,6 +18,7 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
+  implementation(project(":hypertrace-graphql-explorer-schema"))
 
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")

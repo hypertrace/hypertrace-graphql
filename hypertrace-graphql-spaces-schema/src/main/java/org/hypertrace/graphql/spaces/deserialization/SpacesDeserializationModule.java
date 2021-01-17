@@ -13,5 +13,13 @@ public class SpacesDeserializationModule extends AbstractModule {
     deserializationConfigBinder
         .addBinding()
         .to(SpaceConfigRuleDefinitionDeserializationConfig.class);
+
+    deserializationConfigBinder.addBinding().to(SpaceConfigRuleDeserializationConfig.class);
+
+    deserializationConfigBinder
+        .addBinding()
+        .toInstance(
+            ArgumentDeserializationConfig.forPrimitive(
+                SpaceRuleIdArgument.ARGUMENT_NAME, SpaceRuleIdArgument.class));
   }
 }
