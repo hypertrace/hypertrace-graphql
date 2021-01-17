@@ -6,4 +6,8 @@ public interface HypertraceGraphQlServiceConfig extends GraphQlServiceConfig {
   String getEntityServiceHost();
 
   int getEntityServicePort();
+
+  String getConfigServiceHost();
+
+  int getConfigServicePort();
 }

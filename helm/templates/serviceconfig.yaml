@@ -31,3 +31,8 @@ data:
       host = {{ .Values.serviceConfig.entityService.host }}
       port = {{ .Values.serviceConfig.entityService.port }}
     }
+
+    config.service = {
+      host = {{ .Values.serviceConfig.configService.host }}
+      port = {{ .Values.serviceConfig.configService.port }}
+    }

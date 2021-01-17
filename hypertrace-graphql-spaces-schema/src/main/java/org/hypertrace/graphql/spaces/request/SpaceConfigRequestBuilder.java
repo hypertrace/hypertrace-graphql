@@ -1,0 +1,9 @@
+package org.hypertrace.graphql.spaces.request;
+
+import java.util.Map;
+import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+
+public interface SpaceConfigRequestBuilder {
+  SpaceConfigRuleCreationRequest buildCreationRequest(
+      GraphQlRequestContext requestContext, Map<String, Object> arguments);
+}
