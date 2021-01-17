@@ -33,9 +33,6 @@ public class GroupByArgumentDeserializationConfig implements ArgumentDeserializa
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
   private static class DefaultGroupByArgument implements GroupByArgument {
-    @JsonProperty(GROUP_BY_KEY_KEY)
-    String key;
-
     @JsonProperty(GROUP_BY_KEYS_KEY)
     List<String> keys;
 

@@ -1,7 +1,6 @@
 package org.hypertrace.graphql.explorer.schema;
 
 import graphql.annotations.annotationTypes.GraphQLDataFetcher;
-import graphql.annotations.annotationTypes.GraphQLDeprecate;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -19,7 +18,6 @@ import org.hypertrace.graphql.explorer.schema.argument.SelectionUnitArgument;
 public interface ExploreResult {
 
   String EXPLORE_RESULT_SELECTION_KEY = "selection";
-  String EXPLORE_RESULT_GROUP_NAME_KEY = "groupName";
   String EXPLORE_RESULT_INTERVAL_START_KEY = "intervalStart";
 
   @GraphQLField
@@ -34,12 +32,6 @@ public interface ExploreResult {
       @GraphQLName(SelectionUnitArgument.ARGUMENT_NAME) TimeUnit units) {
     return null;
   }
-
-  @GraphQLField
-  @GraphQLDeprecate
-  @Deprecated
-  @GraphQLName(EXPLORE_RESULT_GROUP_NAME_KEY)
-  String groupName();
 
   @GraphQLField
   @GraphQLName(EXPLORE_RESULT_INTERVAL_START_KEY)

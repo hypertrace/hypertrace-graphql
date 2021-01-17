@@ -1,6 +1,5 @@
 package org.hypertrace.graphql.entity.schema;
 
-import graphql.annotations.annotationTypes.GraphQLDeprecate;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -12,8 +11,7 @@ import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
 import org.hypertrace.graphql.metric.schema.MetricQueryable;
 
 @GraphQLName(Entity.TYPE_NAME)
-public interface Entity
-    extends AttributeQueryable, MetricQueryable, Identifiable, Typed<String> {
+public interface Entity extends AttributeQueryable, MetricQueryable, Identifiable, Typed<String> {
   String TYPE_NAME = "Entity";
   String ENTITY_INCOMING_EDGES_KEY = "incomingEdges";
   String ENTITY_OUTGOING_EDGES_KEY = "outgoingEdges";

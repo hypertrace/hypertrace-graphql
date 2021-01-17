@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
@@ -122,7 +121,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Optional<String> spaceId =
         this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
 
-    Set<String> groupByKeys = groupBy.map(this::collectGroupByKeys).orElse(emptySet());
+    Set<String> groupByKeys =
+        groupBy.map(GroupByArgument::keys).map(Set::copyOf).orElse(emptySet());
 
     Optional<IntervalArgument> intervalArgument =
         this.argumentDeserializer.deserializeObject(arguments, IntervalArgument.class);
@@ -170,14 +170,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
       GraphQlRequestContext context, String explorerScope, Set<String> groupByKeys) {
     return Observable.fromIterable(groupByKeys)
         .flatMapSingle(key -> this.attributeRequestBuilder.buildForKey(context, explorerScope, key))
-        .collect(Collectors.toUnmodifiableSet());
-  }
-
-  // Temporary
-  private Set<String> collectGroupByKeys(GroupByArgument groupBy) {
-    return Stream.concat(
-            Optional.ofNullable(groupBy.keys()).orElse(emptyList()).stream(),
-            Optional.ofNullable(groupBy.key()).stream())
         .collect(Collectors.toUnmodifiableSet());
   }
 
