@@ -18,7 +18,13 @@ dependencies {
   implementation(project(":hypertrace-graphql-impl"))
   implementation(project(":hypertrace-graphql-service-config"))
 
+  annotationProcessor("org.projectlombok:lombok")
+  compileOnly("org.projectlombok:lombok")
+
   runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
+
+  annotationProcessor(platform(project(":hypertrace-graphql-platform")))
+  compileOnly(platform(project(":hypertrace-graphql-platform")))
 }
 
 application {
