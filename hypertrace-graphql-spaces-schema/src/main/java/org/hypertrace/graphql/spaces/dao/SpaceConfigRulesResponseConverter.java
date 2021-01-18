@@ -16,6 +16,7 @@ import org.hypertrace.graphql.spaces.schema.shared.SpaceConfigRuleType;
 import org.hypertrace.spaces.config.service.v1.AttributeValueRuleData;
 import org.hypertrace.spaces.config.service.v1.CreateRuleResponse;
 import org.hypertrace.spaces.config.service.v1.GetRulesResponse;
+import org.hypertrace.spaces.config.service.v1.UpdateRuleResponse;
 
 @Slf4j
 class SpaceConfigRulesResponseConverter {
@@ -38,6 +39,16 @@ class SpaceConfigRulesResponseConverter {
     return this.convertRule(createRuleResponse.getRule())
         .switchIfEmpty(
             Single.error(new IllegalArgumentException("Unable to convert rule creation response")));
+  }
+
+  Single<Boolean> buildDeleteResponse() {
+    return Single.just(true);
+  }
+
+  Single<SpaceConfigRule> convertRule(UpdateRuleResponse updateRuleResponse) {
+    return this.convertRule(updateRuleResponse.getRule())
+        .switchIfEmpty(
+            Single.error(new IllegalArgumentException("Unable to convert rule update response")));
   }
 
   private Maybe<SpaceConfigRule> convertRule(
