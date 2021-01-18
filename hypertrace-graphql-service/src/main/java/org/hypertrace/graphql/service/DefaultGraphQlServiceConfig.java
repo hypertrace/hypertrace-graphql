@@ -29,6 +29,9 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   private static final String ENTITY_SERVICE_HOST_PROPERTY = "entity.service.host";
   private static final String ENTITY_SERVICE_PORT_PROPERTY = "entity.service.port";
 
+  private static final String CONFIG_SERVICE_HOST_PROPERTY = "config.service.host";
+  private static final String CONFIG_SERVICE_PORT_PROPERTY = "config.service.port";
+
   String serviceName;
   int servicePort;
   String graphqlUrlPath;
@@ -42,6 +45,8 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   int gatewayServicePort;
   String entityServiceHost;
   int entityServicePort;
+  String configServiceHost;
+  int configServicePort;
 
   DefaultGraphQlServiceConfig(Config untypedConfig) {
     this.serviceName = untypedConfig.getString(SERVICE_NAME_CONFIG);
@@ -58,6 +63,8 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.gatewayServicePort = untypedConfig.getInt(GATEWAY_SERVICE_PORT_PROPERTY);
     this.entityServiceHost = untypedConfig.getString(ENTITY_SERVICE_HOST_PROPERTY);
     this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
+    this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
+    this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {
