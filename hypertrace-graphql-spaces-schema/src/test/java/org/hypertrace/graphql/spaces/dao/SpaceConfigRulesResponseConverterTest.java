@@ -10,6 +10,7 @@ import org.hypertrace.spaces.config.service.v1.AttributeValueRuleData;
 import org.hypertrace.spaces.config.service.v1.CreateRuleResponse;
 import org.hypertrace.spaces.config.service.v1.GetRulesResponse;
 import org.hypertrace.spaces.config.service.v1.SpaceConfigRule;
+import org.hypertrace.spaces.config.service.v1.UpdateRuleResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,6 +77,28 @@ class SpaceConfigRulesResponseConverterTest {
   void testConvertingCreateResponse() {
     CreateRuleResponse response =
         CreateRuleResponse.newBuilder()
+            .setRule(
+                SpaceConfigRule.newBuilder()
+                    .setId("id-1")
+                    .setAttributeValueRuleData(
+                        AttributeValueRuleData.newBuilder()
+                            .setAttributeScope(INTERNAL_SCOPE)
+                            .setAttributeKey("key-1")))
+            .build();
+
+    org.hypertrace.graphql.spaces.schema.shared.SpaceConfigRule rule =
+        this.converter.convertRule(response).blockingGet();
+
+    assertEquals("id-1", rule.id());
+    assertEquals(SpaceConfigRuleType.ATTRIBUTE_VALUE, rule.type());
+    assertEquals("key-1", rule.attributeValueRule().attributeKey());
+    assertEquals(EXTERNAL_SCOPE, rule.attributeValueRule().attributeScope());
+  }
+
+  @Test
+  void convertsUpdateResponse() {
+    UpdateRuleResponse response =
+        UpdateRuleResponse.newBuilder()
             .setRule(
                 SpaceConfigRule.newBuilder()
                     .setId("id-1")

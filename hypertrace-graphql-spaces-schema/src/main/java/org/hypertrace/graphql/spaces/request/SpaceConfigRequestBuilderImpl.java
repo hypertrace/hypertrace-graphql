@@ -44,6 +44,7 @@ class SpaceConfigRequestBuilderImpl implements SpaceConfigRequestBuilder {
         requestContext,
         this.argumentDeserializer
             .deserializeObject(arguments, SpaceConfigRule.class)
+            .map(this::normalizeRule)
             .orElseThrow());
   }
 
@@ -67,6 +68,11 @@ class SpaceConfigRequestBuilderImpl implements SpaceConfigRequestBuilder {
         definition.type(), this.normalizeAttributeValueRule(definition.attributeValueRule()));
   }
 
+  private SpaceConfigRule normalizeRule(SpaceConfigRule rule) {
+    return new NormalizedSpaceConfigRule(
+        rule.id(), rule.type(), this.normalizeAttributeValueRule(rule.attributeValueRule()));
+  }
+
   private SpaceConfigRuleAttributeValueRule normalizeAttributeValueRule(
       SpaceConfigRuleAttributeValueRule attributeValueRule) {
     return new NormalizedSpaceConfigRuleAttributeValueRule(
@@ -80,6 +86,14 @@ class SpaceConfigRequestBuilderImpl implements SpaceConfigRequestBuilder {
       implements SpaceConfigRuleCreationRequest {
     GraphQlRequestContext context;
     SpaceConfigRuleDefinition ruleDefinition;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class NormalizedSpaceConfigRule implements SpaceConfigRule {
+    String id;
+    SpaceConfigRuleType type;
+    SpaceConfigRuleAttributeValueRule attributeValueRule;
   }
 
   @Value
