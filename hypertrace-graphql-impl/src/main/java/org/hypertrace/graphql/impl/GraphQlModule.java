@@ -1,6 +1,7 @@
 package org.hypertrace.graphql.impl;
 
 import com.google.inject.AbstractModule;
+import java.time.Clock;
 import org.hypertrace.core.graphql.attributes.AttributeStoreModule;
 import org.hypertrace.core.graphql.common.schema.CommonSchemaModule;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeUtilsModule;
@@ -43,6 +44,7 @@ class GraphQlModule extends AbstractModule {
     bind(GraphQlServiceConfig.class).toInstance(this.config);
     bind(HypertraceGraphQlServiceConfig.class).toInstance(this.config);
     bind(GraphQlServiceLifecycle.class).toInstance(this.serviceLifecycle);
+    bind(Clock.class).toInstance(Clock.systemUTC());
     install(new GraphQlRequestContextModule());
     install(new GraphQlGrpcModule());
     install(new GraphQlSchemaRegistryModule());
