@@ -72,9 +72,11 @@ class MetricContainerMapConverter
       List<MetricRequest> metricRequests, Entity entity, BaselineEntity baselineEntity) {
     List<MetricAggregationRequest> aggregationRequests =
         metricRequests.stream().collect(CollectorUtils.flatten(MetricRequest::aggregationRequests));
-
     List<MetricSeriesRequest> seriesRequests =
         metricRequests.stream().collect(CollectorUtils.flatten(MetricRequest::seriesRequests));
+    List<MetricSeriesRequest> baselineSeriesRequests =
+        metricRequests.stream()
+            .collect(CollectorUtils.flatten(MetricRequest::baselineSeriesRequests));
     return zip(
         this.aggregationMapConverter.convert(
             aggregationRequests,
@@ -82,7 +84,7 @@ class MetricContainerMapConverter
             baselineEntity.getBaselineAggregateMetricMap()),
         this.seriesMapConverter.convert(seriesRequests, entity.getMetricSeriesMap()),
         this.baselineSeriesConverter.convert(
-            seriesRequests, baselineEntity.getBaselineMetricSeriesMap()),
+            baselineSeriesRequests, baselineEntity.getBaselineMetricSeriesMap()),
         BaselinedConvertedAggregationContainerImpl::new);
   }
 
