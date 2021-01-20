@@ -177,7 +177,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
   @Value
   @Accessors(fluent = true)
   private static class SpaceOrderArgument implements AggregatableOrderArgument {
-    OrderDirection direction = OrderDirection.DESC;
+    OrderDirection direction = OrderDirection.ASC;
     String key = ActiveSpaceExploreRequest.SPACE_IDS_KEY;
     MetricAggregationType aggregation = null;
     Integer size = null;

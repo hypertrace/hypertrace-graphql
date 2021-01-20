@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spaces.dao;
 
+import static org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection.ASC;
 import static org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection.DESC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -93,7 +94,7 @@ class ExplorerBackedSpacesDaoTest {
                         && request.orderArguments().size() == 1
                         && request.orderArguments().get(0).attribute().equals(this.mockAttribute)
                         && request.orderArguments().get(0).value().key().equals("spaceIds")
-                        && request.orderArguments().get(0).value().direction().equals(DESC)
+                        && request.orderArguments().get(0).value().direction().equals(ASC)
                         && request.filterArguments().isEmpty()
                         && request
                             .groupByAttributeRequests()
