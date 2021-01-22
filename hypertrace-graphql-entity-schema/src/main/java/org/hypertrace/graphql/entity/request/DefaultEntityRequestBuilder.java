@@ -81,6 +81,13 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             .deserializePrimitive(arguments, IncludeInactiveArgument.class)
             .orElse(false);
 
+    boolean fetchTotal =
+        this.selectionFinder
+                .findSelections(
+                    selectionSet, SelectionQuery.namedChild(ResultSet.RESULT_SET_TOTAL_NAME))
+                .count()
+            > 0;
+
     return zip(
         this.resultSetRequestBuilder.build(
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
@@ -102,7 +109,8 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 metricRequestList,
                 incomingEdges,
                 outgoingEdges,
-                includeInactive));
+                includeInactive,
+                fetchTotal));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -145,5 +153,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     EdgeSetGroupRequest incomingEdgeRequests;
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
+    boolean fetchTotal;
   }
 }
