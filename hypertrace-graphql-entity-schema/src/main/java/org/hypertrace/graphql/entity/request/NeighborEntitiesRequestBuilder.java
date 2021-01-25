@@ -94,11 +94,11 @@ class NeighborEntitiesRequestBuilder {
                 metricRequestList,
                 incomingEdges,
                 outgoingEdges,
-                false,
                 // entity interactions doesn't support time agnostic nature, and would mean
                 // that the neighbors would have to be live in the requested time range.
                 // Supporting time agnostic interations would mean a change in the way interactions
                 // are implemented
+                false,
                 false));
   }
 
