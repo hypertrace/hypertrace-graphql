@@ -18,4 +18,6 @@ public interface EntityRequest {
   EdgeSetGroupRequest outgoingEdgeRequests();
 
   boolean includeInactive();
+
+  boolean fetchTotal();
 }

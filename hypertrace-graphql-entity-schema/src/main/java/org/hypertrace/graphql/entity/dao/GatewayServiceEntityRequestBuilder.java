@@ -89,6 +89,7 @@ class GatewayServiceEntityRequestBuilder {
                 .setFilter(filter)
                 .setIncludeNonLiveEntities(entityRequest.includeInactive())
                 .setSpaceId(resultSetRequest.spaceId().orElse("")) // String proto default value\
+                .setFetchTotal(entityRequest.fetchTotal())
                 .build());
   }
 }
