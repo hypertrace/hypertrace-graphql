@@ -9,12 +9,12 @@ dependencies {
   implementation(platform(project(":hypertrace-core-graphql-platform")))
 
   implementation("com.typesafe:config")
-  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.18")
+  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.20")
   implementation("org.slf4j:slf4j-api")
 
-  implementation("org.eclipse.jetty:jetty-server:9.4.35.v20201120")
-  implementation("org.eclipse.jetty:jetty-servlet:9.4.35.v20201120")
-  implementation("org.eclipse.jetty:jetty-servlets:9.4.35.v20201120")
+  implementation("org.eclipse.jetty:jetty-server:9.4.36.v20210114")
+  implementation("org.eclipse.jetty:jetty-servlet:9.4.36.v20210114")
+  implementation("org.eclipse.jetty:jetty-servlets:9.4.36.v20210114")
 
   implementation("com.graphql-java-kickstart:graphql-java-servlet")
   implementation(project(":hypertrace-core-graphql-impl"))

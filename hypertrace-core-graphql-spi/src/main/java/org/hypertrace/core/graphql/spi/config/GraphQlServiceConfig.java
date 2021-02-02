@@ -10,8 +10,6 @@ public interface GraphQlServiceConfig {
 
   String getGraphqlUrlPath();
 
-  boolean isAsyncServlet();
-
   boolean isCorsEnabled();
 
   Optional<String> getDefaultTenantId();
