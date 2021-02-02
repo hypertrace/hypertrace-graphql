@@ -14,9 +14,6 @@ public class GraphQlFactory {
     final Injector injector = Guice.createInjector(new GraphQlModule(config, serviceLifecycle));
 
     return GraphQLConfiguration.with(injector.getInstance(GraphQLSchema.class))
-        .with(config.isAsyncServlet())
-        .asyncTimeout(
-            30000) // https://github.com/graphql-java-kickstart/graphql-java-servlet/issues/282
         .with(injector.getInstance(GraphQlRequestContextBuilder.class))
         .build();
   }
