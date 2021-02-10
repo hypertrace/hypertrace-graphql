@@ -1,19 +1,20 @@
 # Hypertrace GraphQL
 Hypertrace GraphQL service serves the GraphQL API which will be used by Hypertrace UI.
 
-## Testing
+## Description
 
-`./gradlew test`
+| ![space-1.jpg](https://hypertrace-docs.s3.amazonaws.com/arch/ht-query.png) | 
+|:--:| 
+| *Hypertrace Query Architecture* |
 
-## Running
+[Hypertrace-UI](https://github.com/hypertrace/hypertrace-ui) talks to hypertrace-GraphQL service which serves the GraphQL API which queries data from downstream services. GraphQL services talks to different grpc services to form the response including [attribute-service](https://github.com/hypertrace/attribute-service), [entity-service](https://github.com/hypertrace/entity-service), [gateway-service](https://github.com/hypertrace/gateway-service) and [config-service](https://github.com/hypertrace/config-service). 
 
-`./gradlew run`
 
-## Queries
+### Queries
 Here are some of the important GraphQL queries:
 
 
-### 1. Verify trace exists
+#### 1. Verify trace exists
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -39,7 +40,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 ```
 
 
-### 2. Get all service names
+#### 2. Get all service names
 
 ```graphql
 curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
@@ -59,7 +60,7 @@ curl -s localhost:2020/graphql  -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 3. Get all backend names
+#### 3. Get all backend names
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -79,7 +80,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 4. Get all API names
+#### 4. Get all API names
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -99,7 +100,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 }'
 ```
 
-### 5. Get service and backend dependency graph
+#### 5. Get service and backend dependency graph
 
 ```graphql
 curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
@@ -139,3 +140,40 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
   }
 }'
 ```
+
+## Testing
+
+### Running unit tests
+Run `./gradlew test` to execute unit tests. 
+
+### Testing image
+
+To test your image using the docker-compose setup follow the steps:
+
+- Commit you changes to a branch say `graphql-service-test`.
+- Go to [hypertrace-service](https://github.com/hypertrace/hypertrace-service) and checkout the above branch in the submodule.
+```
+cd hypertrace-graphql && git checkout graphql-service-test && cd ..
+```
+- Change tag for `hypertrace-service` from `:main` to `:test` in [docker-compose file](https://github.com/hypertrace/hypertrace/blob/main/docker/docker-compose.yml) like this.
+
+```yaml
+  hypertrace-service:
+    image: hypertrace/hypertrace-service:test
+    container_name: hypertrace-service
+    ...
+```
+- and then run `docker-compose up` to test the setup.
+
+### Helm setup
+Add image repository and tag in values.yaml file [here](https://github.com/hypertrace/hypertrace/blob/main/kubernetes/platform-services/values.yaml) like below and then run `./hypertrace.sh install` again and you can test your image!
+
+```yaml
+hypertrace-graphql-service:
+  image:
+    repository: "hypertrace/hypertrace-graphql-service"
+    tagOverride: "test"
+ ```
+
+## Docker Image Source:
+- [DockerHub > Hypertrace GraphQL](https://hub.docker.com/r/hypertrace/hypertrace-graphql-service/)
