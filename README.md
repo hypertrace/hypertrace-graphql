@@ -143,7 +143,7 @@ curl -s localhost:2020/graphql -H 'Content-Type: application/graphql' -d \
 
 
 ## Building locally
-The Hypertrace GraphQl service uses gradlew to compile/install/distribute. Gradle wrapper is already part of the source code. To build Hypertrace GraphQL image, run:
+The Hypertrace GraphQl service uses gradle to compile/install/distribute. Gradle wrapper is already part of the source code. To build Hypertrace GraphQL image, run:
 
 ```
 ./gradlew dockerBuildImages
