@@ -30,11 +30,11 @@ dependencies {
 
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
     runtime("io.grpc:grpc-netty:1.35.0")
-    runtime("io.netty:netty-codec-http2:4.1.53.Final") {
-      because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1020439")
+    runtime("io.netty:netty-codec-http2:4.1.59.Final") {
+      because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1070799")
     }
-    runtime("io.netty:netty-handler-proxy:4.1.53.Final") {
-      because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1020439s")
+    runtime("io.netty:netty-handler-proxy:4.1.59.Final") {
+      because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1070799")
     }
   }
 }

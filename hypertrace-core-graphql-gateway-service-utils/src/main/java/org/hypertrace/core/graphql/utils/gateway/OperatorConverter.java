@@ -25,6 +25,8 @@ class OperatorConverter implements Converter<FilterOperatorType, Operator> {
         return Single.just(Operator.NEQ);
       case IN:
         return Single.just(Operator.IN);
+      case NOT_IN:
+        return Single.just(Operator.NOT_IN);
       case LIKE:
         return Single.just(Operator.LIKE);
       case CONTAINS_KEY:

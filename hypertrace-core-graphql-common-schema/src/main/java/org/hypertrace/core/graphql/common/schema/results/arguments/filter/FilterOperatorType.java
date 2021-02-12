@@ -12,6 +12,7 @@ public enum FilterOperatorType {
   GREATER_THAN_OR_EQUAL_TO,
   LIKE,
   IN,
+  NOT_IN,
   CONTAINS_KEY,
   CONTAINS_KEY_VALUE;
 
