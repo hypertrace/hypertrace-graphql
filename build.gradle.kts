@@ -20,8 +20,10 @@ subprojects {
     dependencies {
       "api"(platform(project(":hypertrace-graphql-platform")))
       "annotationProcessor"(platform(project(":hypertrace-graphql-platform")))
+      "testAnnotationProcessor"(platform(project(":hypertrace-graphql-platform")))
       "testImplementation"(platform("org.hypertrace.core.graphql:hypertrace-core-graphql-test-platform"))
       "compileOnly"(platform(project(":hypertrace-graphql-platform")))
+      "testCompileOnly"(platform(project(":hypertrace-graphql-platform")))
     }
   }
 }

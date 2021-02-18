@@ -7,7 +7,7 @@ import com.google.inject.multibindings.Multibinder;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 import org.hypertrace.graphql.entity.dao.EntityDaoModule;
 import org.hypertrace.graphql.entity.deserialization.EntityDeserializationModule;
-import org.hypertrace.graphql.entity.join.EntityJoinerModule;
+import org.hypertrace.graphql.entity.joiner.EntityJoinerModule;
 import org.hypertrace.graphql.entity.request.EntityRequestModule;
 import org.hypertrace.graphql.entity.schema.EntityType;
 

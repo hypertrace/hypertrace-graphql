@@ -1,4 +1,4 @@
-package org.hypertrace.graphql.entity.join;
+package org.hypertrace.graphql.entity.joiner;
 
 import graphql.schema.DataFetchingFieldSelectionSet;
 import io.reactivex.rxjava3.core.Single;

@@ -1,12 +1,10 @@
-package org.hypertrace.graphql.entity.join;
+package org.hypertrace.graphql.entity.joiner;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Tables.immutableCell;
 import static java.util.Objects.requireNonNull;
 
-import org.hypertrace.graphql.entity.schema.EntityJoinable;
-import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Multimap;
@@ -53,7 +51,9 @@ import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.Entity;
+import org.hypertrace.graphql.entity.schema.EntityJoinable;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
+import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;

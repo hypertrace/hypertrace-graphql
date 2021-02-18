@@ -1,4 +1,4 @@
-package org.hypertrace.graphql.entity.join;
+package org.hypertrace.graphql.entity.joiner;
 
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
