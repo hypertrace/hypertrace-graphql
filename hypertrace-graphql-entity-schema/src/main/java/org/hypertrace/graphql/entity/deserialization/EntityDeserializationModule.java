@@ -5,6 +5,7 @@ import com.google.inject.multibindings.Multibinder;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
+import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
 import org.hypertrace.graphql.entity.schema.argument.IncludeInactiveArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
@@ -40,7 +41,11 @@ public class EntityDeserializationModule extends AbstractModule {
         .addBinding()
         .toInstance(
             ArgumentDeserializationConfig.forPrimitive(
-                IncludeInactiveArgument.ARGUMENT_NAME,
-                IncludeInactiveArgument.class));
+                IncludeInactiveArgument.ARGUMENT_NAME, IncludeInactiveArgument.class));
+    deserializationConfig
+        .addBinding()
+        .toInstance(
+            ArgumentDeserializationConfig.forPrimitive(
+                EntityTypeStringArgument.ARGUMENT_NAME, EntityTypeStringArgument.class));
   }
 }
