@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
@@ -27,6 +28,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDi
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.explorer.dao.ExplorerDao;
 import org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey;
+import org.hypertrace.graphql.explorer.request.ExploreOrderArgument;
 import org.hypertrace.graphql.explorer.request.ExploreRequest;
 import org.hypertrace.graphql.explorer.schema.ExploreResultSet;
 import org.hypertrace.graphql.explorer.schema.Selection;
@@ -144,7 +146,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
     int offset;
     Set<AttributeRequest> attributeRequests;
     Set<MetricAggregationRequest> aggregationRequests;
-    List<AttributeAssociation<AggregatableOrderArgument>> orderArguments;
+    List<ExploreOrderArgument> orderArguments;
     List<AttributeAssociation<FilterArgument>> filterArguments;
     Set<AttributeRequest> groupByAttributeRequests;
     Optional<IntervalArgument> timeInterval;
@@ -165,7 +167,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
       // Aggregation needed to pass explorer validation - a no agg request is not valid
       this.aggregationRequests = Set.of(spaceIdCountRequest);
       this.orderArguments =
-          List.of(AttributeAssociation.of(spaceIdRequest.attribute(), new SpaceOrderArgument()));
+          List.of(new SpaceExploreOrderArgument(Optional.of(spaceIdRequest.attribute())));
       this.filterArguments = emptyList();
       this.groupByAttributeRequests = Set.of(spaceIdRequest);
       this.timeInterval = Optional.empty();
@@ -176,10 +178,18 @@ class ExplorerBackedSpacesDao implements SpacesDao {
 
   @Value
   @Accessors(fluent = true)
-  private static class SpaceOrderArgument implements AggregatableOrderArgument {
-    OrderDirection direction = OrderDirection.ASC;
-    String key = ActiveSpaceExploreRequest.SPACE_IDS_KEY;
-    MetricAggregationType aggregation = null;
-    Integer size = null;
+  private static class SpaceExploreOrderArgument implements ExploreOrderArgument {
+    ExploreOrderArgumentType type = ExploreOrderArgumentType.ATTRIBUTE;
+    AggregatableOrderArgument argument = new SpaceOrderArgument();
+    Optional<AttributeModel> attribute;
+
+    @Value
+    @Accessors(fluent = true)
+    private static class SpaceOrderArgument implements AggregatableOrderArgument {
+      OrderDirection direction = OrderDirection.ASC;
+      String key = ActiveSpaceExploreRequest.SPACE_IDS_KEY;
+      MetricAggregationType aggregation = null;
+      Integer size = null;
+    }
   }
 }

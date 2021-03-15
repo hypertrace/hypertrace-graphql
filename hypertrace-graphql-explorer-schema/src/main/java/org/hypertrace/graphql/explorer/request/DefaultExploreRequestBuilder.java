@@ -21,7 +21,6 @@ import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
-import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
@@ -47,6 +46,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   private final ExploreSelectionRequestBuilder selectionRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
   private final AttributeScopeStringTranslator scopeStringTranslator;
+  private final ExploreOrderArgumentBuilder exploreOrderArgumentBuilder;
 
   @Inject
   DefaultExploreRequestBuilder(
@@ -55,13 +55,15 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
       AttributeAssociator attributeAssociator,
       ExploreSelectionRequestBuilder selectionRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
-      AttributeScopeStringTranslator scopeStringTranslator) {
+      AttributeScopeStringTranslator scopeStringTranslator,
+      ExploreOrderArgumentBuilder exploreOrderArgumentBuilder) {
     this.attributeRequestBuilder = attributeRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.attributeAssociator = attributeAssociator;
     this.selectionRequestBuilder = selectionRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
     this.scopeStringTranslator = scopeStringTranslator;
+    this.exploreOrderArgumentBuilder = exploreOrderArgumentBuilder;
   }
 
   @Override
@@ -135,10 +137,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
         this.selectionRequestBuilder.getAggregationSelections(
             requestContext, explorerScope, selectionSet);
 
-    Single<List<AttributeAssociation<AggregatableOrderArgument>>> orderSingle =
-        this.attributeAssociator
-            .associateAttributes(requestContext, explorerScope, requestedOrders, OrderArgument::key)
-            .collect(Collectors.toUnmodifiableList());
+    Single<List<ExploreOrderArgument>> orderArguments =
+        this.exploreOrderArgumentBuilder.buildList(requestContext, explorerScope, requestedOrders);
 
     Single<List<AttributeAssociation<FilterArgument>>> filterSingle =
         this.filterRequestBuilder.build(requestContext, explorerScope, requestedFilters);
@@ -146,7 +146,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     return zip(
         attributeSelections,
         aggregationSelections,
-        orderSingle,
+        orderArguments,
         filterSingle,
         this.buildGroupByAttributes(requestContext, explorerScope, groupByKeys),
         (attributes, aggregations, orders, filters, groupByAttribute) ->
@@ -183,7 +183,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     int offset;
     Set<AttributeRequest> attributeRequests;
     Set<MetricAggregationRequest> aggregationRequests;
-    List<AttributeAssociation<AggregatableOrderArgument>> orderArguments;
+    List<ExploreOrderArgument> orderArguments;
     List<AttributeAssociation<FilterArgument>> filterArguments;
     Set<AttributeRequest> groupByAttributeRequests;
     Optional<IntervalArgument> timeInterval;
