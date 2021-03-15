@@ -23,7 +23,6 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
 
-
   private final String serviceName;
   private final int servicePort;
   private final String graphqlUrlPath;

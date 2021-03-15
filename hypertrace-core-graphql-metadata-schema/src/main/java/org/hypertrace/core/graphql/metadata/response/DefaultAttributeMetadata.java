@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeType;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.metadata.schema.AttributeMetadata;

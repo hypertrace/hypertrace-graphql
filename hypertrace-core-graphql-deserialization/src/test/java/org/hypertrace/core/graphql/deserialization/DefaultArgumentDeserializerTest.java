@@ -170,8 +170,7 @@ class DefaultArgumentDeserializerTest {
         this.argumentDeserializer.deserializePrimitiveList(argMap, TestPrimitiveArgument.class));
 
     // Make sure only the list arg name works
-    argMap =
-        Map.of(TestPrimitiveArgument.ARG_NAME, List.of("foo", "bar", "baz"));
+    argMap = Map.of(TestPrimitiveArgument.ARG_NAME, List.of("foo", "bar", "baz"));
     assertEquals(
         Optional.empty(),
         this.argumentDeserializer.deserializePrimitiveList(argMap, TestPrimitiveArgument.class));

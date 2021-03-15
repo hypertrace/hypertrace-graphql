@@ -93,8 +93,7 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
             .orElse(Collections.emptyList());
 
     Optional<String> spaceId =
-        this.argumentDeserializer
-            .deserializePrimitive(arguments, SpaceArgument.class);
+        this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
 
     return zip(
             this.attributeAssociator

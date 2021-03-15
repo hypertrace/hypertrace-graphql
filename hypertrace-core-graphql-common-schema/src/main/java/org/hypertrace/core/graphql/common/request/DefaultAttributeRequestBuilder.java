@@ -34,8 +34,7 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
   }
 
   @Override
-  public Single<AttributeRequest> buildForId(
-      GraphQlRequestContext context, String attributeScope) {
+  public Single<AttributeRequest> buildForId(GraphQlRequestContext context, String attributeScope) {
     return this.attributeStore.getIdAttribute(context, attributeScope).map(this::buildForAttribute);
   }
 
@@ -96,7 +95,8 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
 
   private Stream<String> getArgument(SelectedField attributeField) {
     return this.argumentDeserializer
-        .deserializePrimitive(attributeField.getArguments(), AttributeKeyArgument.class).stream();
+        .deserializePrimitive(attributeField.getArguments(), AttributeKeyArgument.class)
+        .stream();
   }
 
   @Value

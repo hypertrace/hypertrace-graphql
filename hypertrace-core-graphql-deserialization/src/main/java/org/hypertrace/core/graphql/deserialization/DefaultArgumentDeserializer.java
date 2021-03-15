@@ -67,8 +67,7 @@ class DefaultArgumentDeserializer implements ArgumentDeserializer {
   @Override
   public <T> Optional<List<T>> deserializePrimitiveList(
       Map<String, Object> arguments, Class<? extends PrimitiveArgument<T>> argSchema) {
-    return this.listArgumentKey(argSchema)
-        .flatMap(key -> this.logIfNotList(arguments.get(key)));
+    return this.listArgumentKey(argSchema).flatMap(key -> this.logIfNotList(arguments.get(key)));
   }
 
   private <T> Optional<T> deserializeValue(@Nullable Object rawValue, Class<T> argSchema) {

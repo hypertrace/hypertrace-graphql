@@ -20,9 +20,7 @@ public interface IdMapping {
   }
 
   static IdMapping forForeignId(
-      @Nonnull String scope,
-      @Nonnull String foreignScope,
-      @Nonnull String idAttribute) {
+      @Nonnull String scope, @Nonnull String foreignScope, @Nonnull String idAttribute) {
     Objects.requireNonNull(scope);
     Objects.requireNonNull(foreignScope);
     Objects.requireNonNull(idAttribute);

@@ -57,8 +57,7 @@ class DefaultGraphQlSelectionFinder implements GraphQlSelectionFinder {
   }
 
   private SelectionQuery buildQueryForChildSelection(SelectionQuery selectionQuery) {
-    return selectionQuery
-        .toBuilder()
+    return selectionQuery.toBuilder()
         .selectionPath(
             selectionQuery.getSelectionPath().subList(1, selectionQuery.getSelectionPath().size()))
         .build();

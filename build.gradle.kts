@@ -4,12 +4,13 @@ plugins {
   id("org.hypertrace.jacoco-report-plugin") version "0.1.3" apply false
   id("org.hypertrace.docker-java-application-plugin") version "0.8.1" apply false
   id("org.hypertrace.docker-publish-plugin") version "0.8.1" apply false
+  id("org.hypertrace.code-style-plugin") version "1.0.2" apply false
 }
 
 subprojects {
   group = "org.hypertrace.core.graphql"
-
   pluginManager.withPlugin("java") {
+    apply(plugin = "org.hypertrace.code-style-plugin")
     configure<JavaPluginExtension> {
       sourceCompatibility = JavaVersion.VERSION_11
       targetCompatibility = JavaVersion.VERSION_11
@@ -17,7 +18,6 @@ subprojects {
   }
 
   pluginManager.withPlugin("java-library") {
-
     dependencies {
       "api"(platform(project(":hypertrace-core-graphql-platform")))
       "annotationProcessor"(platform(project(":hypertrace-core-graphql-platform")))

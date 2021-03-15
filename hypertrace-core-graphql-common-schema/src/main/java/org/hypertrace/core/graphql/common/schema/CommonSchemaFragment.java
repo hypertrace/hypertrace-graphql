@@ -37,6 +37,10 @@ class CommonSchemaFragment implements GraphQlSchemaFragment {
   @Nonnull
   @Override
   public List<TypeFunction> typeFunctions() {
-    return List.of(this.unknownScalar, this.dateTimeScalar, this.attributeScopeDynamicEnum, this.durationScalar);
+    return List.of(
+        this.unknownScalar,
+        this.dateTimeScalar,
+        this.attributeScopeDynamicEnum,
+        this.durationScalar);
   }
 }

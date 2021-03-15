@@ -10,8 +10,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface AttributeRequestBuilder {
 
-  Single<AttributeRequest> buildForId(
-      GraphQlRequestContext context, String attributeModelScope);
+  Single<AttributeRequest> buildForId(GraphQlRequestContext context, String attributeModelScope);
 
   Observable<AttributeRequest> buildForAttributeQueryableSelectionSet(
       GraphQlRequestContext context,

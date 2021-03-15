@@ -71,8 +71,7 @@ class DefaultResultSetRequestBuilderTest {
         .thenReturn(
             Observable.just(
                 AttributeAssociation.of(this.mockFooAttribute, this.mockOrderArgument)));
-    when(this.mockFilterBuilder.build(
-            any(), eq("SPAN"), eq(List.of(this.mockFilterArgument))))
+    when(this.mockFilterBuilder.build(any(), eq("SPAN"), eq(List.of(this.mockFilterArgument))))
         .thenReturn(
             Single.just(
                 List.of(AttributeAssociation.of(this.mockFooAttribute, this.mockFilterArgument))));
