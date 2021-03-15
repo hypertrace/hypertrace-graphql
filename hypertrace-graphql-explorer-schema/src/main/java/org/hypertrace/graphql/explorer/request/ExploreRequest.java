@@ -10,7 +10,6 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
-import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 public interface ExploreRequest {
   GraphQlRequestContext requestContext();

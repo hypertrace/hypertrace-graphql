@@ -35,9 +35,7 @@ class GatewayServiceExploreResponseConverter {
   }
 
   private Single<ExploreResult> convertRow(ExploreRequest request, Row row) {
-    return this.selectionMapConverter
-        .convert(request, row)
-        .map(this::buildResult);
+    return this.selectionMapConverter.convert(request, row).map(this::buildResult);
   }
 
   private ExploreResult buildResult(Map<ExploreResultMapKey, Selection> selectionMap) {
@@ -47,8 +45,7 @@ class GatewayServiceExploreResponseConverter {
             .map(Selection::value)
             .map(Instant.class::cast);
 
-    return new ConvertedExploreResult(
-        selectionMap, intervalStart.orElse(null));
+    return new ConvertedExploreResult(selectionMap, intervalStart.orElse(null));
   }
 
   @Value

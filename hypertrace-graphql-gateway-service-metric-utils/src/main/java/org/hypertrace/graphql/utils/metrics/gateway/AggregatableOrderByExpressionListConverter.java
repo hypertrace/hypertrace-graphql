@@ -66,12 +66,14 @@ class AggregatableOrderByExpressionListConverter
     return Maybe.fromOptional(Optional.ofNullable(orderArgument.value().aggregation()))
         .flatMapSingle(this.aggregationTypeConverter::convert)
         .flatMapSingle(
-            aggregationType -> orderArgument.value().size() == null ?
-                this.metricAggregationExpressionConverter.convertForNoArgsOrAlias(
-                    orderArgument.attribute(), aggregationType) :
-                this.metricAggregationExpressionConverter.convertForArgsButNoAlias(
-                    orderArgument.attribute(), aggregationType, List.of(Objects.requireNonNull(orderArgument.value().size())))
-            )
+            aggregationType ->
+                orderArgument.value().size() == null
+                    ? this.metricAggregationExpressionConverter.convertForNoArgsOrAlias(
+                        orderArgument.attribute(), aggregationType)
+                    : this.metricAggregationExpressionConverter.convertForArgsButNoAlias(
+                        orderArgument.attribute(),
+                        aggregationType,
+                        List.of(Objects.requireNonNull(orderArgument.value().size()))))
         .switchIfEmpty(this.columnExpressionConverter.convert(orderArgument.attribute()));
   }
 }

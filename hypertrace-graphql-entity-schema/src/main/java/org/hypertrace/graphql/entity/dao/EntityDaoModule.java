@@ -76,7 +76,10 @@ public class EntityDaoModule extends AbstractModule {
         Key.get(
             new TypeLiteral<
                 TriConverter<
-                    Collection<MetricRequest>, Entity, BaselineEntity, Map<String, MetricContainer>>>() {}));
+                    Collection<MetricRequest>,
+                    Entity,
+                    BaselineEntity,
+                    Map<String, MetricContainer>>>() {}));
 
     requireBinding(
         Key.get(

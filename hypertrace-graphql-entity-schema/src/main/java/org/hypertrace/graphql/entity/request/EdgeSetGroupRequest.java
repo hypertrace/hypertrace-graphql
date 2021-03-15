@@ -4,7 +4,6 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.Set;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
-import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
 public interface EdgeSetGroupRequest {

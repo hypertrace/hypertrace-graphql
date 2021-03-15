@@ -25,7 +25,8 @@ class MetricAggregationContainerMapConverter
   private final BaselinedMetricAggregationMapConverter aggregationMapConverter;
 
   @Inject
-  MetricAggregationContainerMapConverter(BaselinedMetricAggregationMapConverter aggregationMapConverter) {
+  MetricAggregationContainerMapConverter(
+      BaselinedMetricAggregationMapConverter aggregationMapConverter) {
     this.aggregationMapConverter = aggregationMapConverter;
   }
 
@@ -47,7 +48,9 @@ class MetricAggregationContainerMapConverter
     return requestsForAttribute
         .toList()
         .flatMap(
-            metricRequests -> this.aggregationMapConverter.convert(metricRequests, metricResponses, Collections.emptyMap()))
+            metricRequests ->
+                this.aggregationMapConverter.convert(
+                    metricRequests, metricResponses, Collections.emptyMap()))
         .map(BaselinedConvertedAggregationContainer::new)
         .map(container -> Map.entry(requestsForAttribute.getKey().key(), container));
   }

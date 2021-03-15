@@ -28,7 +28,8 @@ import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.hypertrace.graphql.metric.schema.MetricInterval;
 
 class MetricContainerMapConverter
-    implements TriConverter<Collection<MetricRequest>, Entity, BaselineEntity,  Map<String, MetricContainer>> {
+    implements TriConverter<
+        Collection<MetricRequest>, Entity, BaselineEntity, Map<String, MetricContainer>> {
 
   private final BaselinedMetricAggregationMapConverter aggregationMapConverter;
   private final MetricSeriesMapConverter seriesMapConverter;
@@ -46,9 +47,7 @@ class MetricContainerMapConverter
 
   @Override
   public Single<Map<String, MetricContainer>> convert(
-      Collection<MetricRequest> metricRequests,
-      Entity entity,
-      BaselineEntity baselineEntity) {
+      Collection<MetricRequest> metricRequests, Entity entity, BaselineEntity baselineEntity) {
     return Observable.fromIterable(metricRequests)
         .distinct()
         .groupBy(MetricRequest::attribute)
@@ -88,8 +87,8 @@ class MetricContainerMapConverter
         BaselinedConvertedAggregationContainerImpl::new);
   }
 
-  private static class BaselinedConvertedAggregationContainerImpl extends BaselinedConvertedAggregationContainer
-      implements MetricContainer {
+  private static class BaselinedConvertedAggregationContainerImpl
+      extends BaselinedConvertedAggregationContainer implements MetricContainer {
 
     private final Map<Duration, List<MetricInterval>> metricSeriesMap;
     private final Map<Duration, List<BaselinedMetricInterval>> baselineSeriesMap;

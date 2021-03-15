@@ -92,7 +92,11 @@ class ExplorerBackedSpacesDaoTest {
                         && request.attributeRequests().isEmpty()
                         && request.aggregationRequests().equals(Set.of(this.mockSpaceCountRequest))
                         && request.orderArguments().size() == 1
-                        && request.orderArguments().get(0).attribute().equals(Optional.of(this.mockAttribute))
+                        && request
+                            .orderArguments()
+                            .get(0)
+                            .attribute()
+                            .equals(Optional.of(this.mockAttribute))
                         && request.orderArguments().get(0).argument().key().equals("spaceIds")
                         && request.orderArguments().get(0).argument().direction().equals(ASC)
                         && request.filterArguments().isEmpty()

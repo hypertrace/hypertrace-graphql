@@ -1,18 +1,18 @@
 package org.hypertrace.graphql.utils.metrics.gateway;
 
+import static org.hypertrace.core.graphql.common.utils.CollectorUtils.immutableMapEntryCollector;
+
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.gateway.service.v1.baseline.BaselineMetricSeries;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricInterval;
-import javax.inject.Inject;
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-
-import static org.hypertrace.core.graphql.common.utils.CollectorUtils.immutableMapEntryCollector;
 
 class BaselineMetricSeriesMapConverter
     implements BiConverter<
