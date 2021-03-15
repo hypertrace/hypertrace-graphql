@@ -29,7 +29,7 @@ public interface ExploreRequest {
 
   Optional<IntervalArgument> timeInterval();
 
-  List<AttributeAssociation<AggregatableOrderArgument>> orderArguments();
+  List<ExploreOrderArgument> orderArguments();
 
   List<AttributeAssociation<FilterArgument>> filterArguments();
 

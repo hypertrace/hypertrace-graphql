@@ -8,7 +8,6 @@ import io.reactivex.rxjava3.core.Single;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -21,19 +20,15 @@ import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
-import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.graphql.explorer.request.ExploreRequest;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 public class GatewayServiceExploreRequestBuilder {
   private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
-  private final Converter<
-          List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>>
-      orderConverter;
+  private final GatewayServiceExploreOrderArgumentConverter orderConverter;
   private final Converter<Collection<AttributeRequest>, Set<Expression>> attributeConverter;
   private final Converter<Collection<MetricAggregationRequest>, Set<Expression>>
       aggregationConverter;
@@ -42,8 +37,7 @@ public class GatewayServiceExploreRequestBuilder {
   @Inject
   GatewayServiceExploreRequestBuilder(
       Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter,
-      Converter<List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>>
-          orderConverter,
+      GatewayServiceExploreOrderArgumentConverter orderConverter,
       Converter<Collection<AttributeRequest>, Set<Expression>> attributeConverter,
       Converter<Collection<MetricAggregationRequest>, Set<Expression>> aggregationConverter,
       Converter<Collection<MetricSeriesRequest>, Set<TimeAggregation>> seriesConverter) {
