@@ -94,8 +94,11 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
         attribute,
         aggregationType,
         this.getArgumentsForAggregation(aggregationType, field.getArguments()),
-            this.selectionFinder.findSelections(field.getSelectionSet(),
-                    SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE)).findAny().isPresent());
+        this.selectionFinder
+            .findSelections(
+                field.getSelectionSet(), SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE))
+            .findAny()
+            .isPresent());
   }
 
   private Optional<AttributeModelMetricAggregationType> getAggregationTypeForField(

@@ -1,19 +1,18 @@
 package org.hypertrace.graphql.utils.metrics.gateway;
 
-import graphql.annotations.annotationTypes.GraphQLNonNull;
-import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
-import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
-import org.hypertrace.graphql.metric.schema.MetricBaselineAggregationContainer;
-
-import java.time.Duration;
-import java.util.Map;
-
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.AVG;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.COUNT;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.DISTINCT_COUNT;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.MAX;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.MIN;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.SUM;
+
+import graphql.annotations.annotationTypes.GraphQLNonNull;
+import java.time.Duration;
+import java.util.Map;
+import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
+import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
+import org.hypertrace.graphql.metric.schema.MetricBaselineAggregationContainer;
 
 public class MetricBaselineConvertedAggregationContainer
     implements MetricBaselineAggregationContainer {

@@ -22,17 +22,16 @@ public class GraphQlServiceImpl {
     contextHandler = new ServletContextHandler();
     if (this.graphQlServiceConfig.isCorsEnabled()) {
       contextHandler.addFilter(
-              CrossOriginFilter.class,
-              this.graphQlServiceConfig.getGraphqlUrlPath(),
-              EnumSet.of(DispatcherType.REQUEST));
+          CrossOriginFilter.class,
+          this.graphQlServiceConfig.getGraphqlUrlPath(),
+          EnumSet.of(DispatcherType.REQUEST));
     }
 
     contextHandler.addServlet(
-            new ServletHolder(
-                    new GraphQlServiceHttpServlet(
-                            GraphQlFactory.build(this.graphQlServiceConfig, this.serviceLifecycle))),
-            this.graphQlServiceConfig.getGraphqlUrlPath());
-
+        new ServletHolder(
+            new GraphQlServiceHttpServlet(
+                GraphQlFactory.build(this.graphQlServiceConfig, this.serviceLifecycle))),
+        this.graphQlServiceConfig.getGraphqlUrlPath());
   }
 
   public GraphQlServiceConfig getGraphQlServiceConfig() {

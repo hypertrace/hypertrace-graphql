@@ -5,12 +5,10 @@ import static org.hypertrace.core.graphql.common.utils.CollectorUtils.immutableM
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.inject.Inject;
-
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.utils.TriConverter;

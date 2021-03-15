@@ -17,4 +17,3 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
 }
-
