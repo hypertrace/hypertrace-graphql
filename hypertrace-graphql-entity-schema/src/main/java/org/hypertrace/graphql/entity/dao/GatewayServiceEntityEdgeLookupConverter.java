@@ -18,7 +18,6 @@ import org.hypertrace.gateway.service.v1.entity.EntityInteraction;
 import org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeLookupConverter.EdgeLookup;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
-import org.hypertrace.graphql.entity.schema.EntityType;
 
 class GatewayServiceEntityEdgeLookupConverter
     implements BiConverter<EntityRequest, EntitiesResponse, EdgeLookup> {

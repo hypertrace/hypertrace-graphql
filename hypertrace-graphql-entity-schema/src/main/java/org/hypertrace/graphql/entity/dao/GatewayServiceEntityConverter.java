@@ -6,7 +6,6 @@ import static org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeFetcher.
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,10 +34,10 @@ class GatewayServiceEntityConverter {
       attributeMapConverter;
 
   private final TriConverter<
-            Collection<MetricRequest>,
-            org.hypertrace.gateway.service.v1.entity.Entity,
-            BaselineEntity,
-            Map<String, MetricContainer>>
+          Collection<MetricRequest>,
+          org.hypertrace.gateway.service.v1.entity.Entity,
+          BaselineEntity,
+          Map<String, MetricContainer>>
       metricContainerConverter;
   private final GatewayServiceEntityEdgeLookupConverter edgeLookupConverter;
 
@@ -66,7 +65,10 @@ class GatewayServiceEntityConverter {
   }
 
   private Single<EntityResultSet> convert(
-          EntityRequest request, EntitiesResponse response, BaselineEntitiesResponse baselineResponse, EdgeLookup edgeLookup) {
+      EntityRequest request,
+      EntitiesResponse response,
+      BaselineEntitiesResponse baselineResponse,
+      EdgeLookup edgeLookup) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
@@ -90,9 +92,10 @@ class GatewayServiceEntityConverter {
         : BaselineEntity.getDefaultInstance();
   }
 
-  private Map<String, BaselineEntity> getBaselineEntityMap(BaselineEntitiesResponse baselineResponse) {
-    return baselineResponse.getBaselineEntityList().stream().collect(Collectors.toMap(BaselineEntity::getId,
-            entity -> entity));
+  private Map<String, BaselineEntity> getBaselineEntityMap(
+      BaselineEntitiesResponse baselineResponse) {
+    return baselineResponse.getBaselineEntityList().stream()
+        .collect(Collectors.toMap(BaselineEntity::getId, entity -> entity));
   }
 
   private Single<Entity> convertEntity(

@@ -40,7 +40,7 @@ class GatewayServiceEntityEdgeFetcher {
           Collection<MetricAggregationRequest>,
           Map<String, AggregatedMetricValue>,
           Map<String, BaselinedMetricAggregationContainer>>
-          baselineMetricAggregationContainerMapConverter;
+      baselineMetricAggregationContainerMapConverter;
 
   @Inject
   GatewayServiceEntityEdgeFetcher(
@@ -51,10 +51,11 @@ class GatewayServiceEntityEdgeFetcher {
               Collection<MetricAggregationRequest>,
               Map<String, AggregatedMetricValue>,
               Map<String, BaselinedMetricAggregationContainer>>
-              baselineMetricAggregationContainerMapConverter) {
+          baselineMetricAggregationContainerMapConverter) {
     this.neighborMapFetcher = neighborMapFetcher;
     this.attributeMapConverter = attributeMapConverter;
-    this.baselineMetricAggregationContainerMapConverter = baselineMetricAggregationContainerMapConverter;
+    this.baselineMetricAggregationContainerMapConverter =
+        baselineMetricAggregationContainerMapConverter;
   }
 
   Single<Map<org.hypertrace.gateway.service.v1.entity.Entity, EdgeResultSet>> fetchForEntityType(

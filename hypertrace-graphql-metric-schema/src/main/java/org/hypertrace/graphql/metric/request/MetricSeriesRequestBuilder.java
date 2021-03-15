@@ -44,14 +44,13 @@ class MetricSeriesRequestBuilder {
   }
 
   Observable<MetricSeriesRequest> buildBaselineSeriesRequests(
-          AttributeModel attribute, SelectedField metricContainerField) {
+      AttributeModel attribute, SelectedField metricContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
-                    metricContainerField.getSelectionSet(),
-                    SelectionQuery.namedChild(BASELINE_INTERVAL_CONTAINER_SERIES_KEY)))
-            .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
+                metricContainerField.getSelectionSet(),
+                SelectionQuery.namedChild(BASELINE_INTERVAL_CONTAINER_SERIES_KEY)))
+        .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
   }
-
 
   private Observable<MetricSeriesRequest> flattenAggregationsForSeries(
       AttributeModel attribute, SelectedField seriesField) {

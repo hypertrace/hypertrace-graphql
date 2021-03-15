@@ -1,7 +1,16 @@
 package org.hypertrace.graphql.entity.dao;
 
+import static io.reactivex.rxjava3.core.Single.zip;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hypertrace.core.graphql.common.utils.CollectorUtils.flatten;
+
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -22,14 +31,6 @@ import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
-import static io.reactivex.rxjava3.core.Single.zip;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hypertrace.core.graphql.common.utils.CollectorUtils.flatten;
 
 @Singleton
 class GatewayBaselineDao implements BaselineDao {

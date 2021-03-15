@@ -12,5 +12,4 @@ public interface MetricAggregation {
   @GraphQLName(METRIC_AGGREGATION_VALUE_KEY)
   @GraphQLField
   Double value();
-
 }

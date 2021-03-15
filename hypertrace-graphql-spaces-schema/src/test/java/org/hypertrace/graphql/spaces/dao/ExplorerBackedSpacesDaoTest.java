@@ -1,7 +1,6 @@
 package org.hypertrace.graphql.spaces.dao;
 
 import static org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection.ASC;
-import static org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection.DESC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;

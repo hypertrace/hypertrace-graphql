@@ -3,6 +3,13 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.observables.GroupedObservable;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.inject.Inject;
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Accessors;
@@ -15,13 +22,6 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricInterval;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class BaselineMetricIntervalListContainer
     implements Converter<
@@ -31,7 +31,7 @@ class BaselineMetricIntervalListContainer
 
   @Inject
   BaselineMetricIntervalListContainer(
-          MetricBaselineAggregationConverter baselineAggregationConverter) {
+      MetricBaselineAggregationConverter baselineAggregationConverter) {
     this.baselineAggregationConverter = baselineAggregationConverter;
   }
 

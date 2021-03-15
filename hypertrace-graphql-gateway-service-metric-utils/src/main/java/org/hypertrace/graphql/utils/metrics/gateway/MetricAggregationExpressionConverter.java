@@ -60,10 +60,7 @@ class MetricAggregationExpressionConverter
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
     return this.buildAggregationFunctionExpression(
-        attribute,
-        aggregationType,
-        arguments,
-        StringValue.getDefaultInstance().getValue())
+            attribute, aggregationType, arguments, StringValue.getDefaultInstance().getValue())
         .map(functionExpression -> Expression.newBuilder().setFunction(functionExpression).build());
   }
 
