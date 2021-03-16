@@ -12,6 +12,7 @@ public interface GroupByArgument {
 
   String GROUP_BY_KEYS_KEY = "keys";
   String GROUP_BY_INCLUDE_REST_KEY = "includeRest";
+  String GROUP_BY_LIMIT_KEY = "groupLimit";
 
   @GraphQLField
   @GraphQLNonNull
@@ -21,4 +22,8 @@ public interface GroupByArgument {
   @GraphQLField
   @GraphQLName(GROUP_BY_INCLUDE_REST_KEY)
   boolean includeRest();
+
+  @GraphQLField
+  @GraphQLName(GROUP_BY_LIMIT_KEY)
+  int groupLimit();
 }

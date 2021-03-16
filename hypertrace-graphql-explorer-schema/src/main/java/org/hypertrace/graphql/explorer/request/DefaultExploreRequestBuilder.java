@@ -163,7 +163,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
                 groupByAttribute,
                 intervalArgument,
                 groupBy.map(GroupByArgument::includeRest).orElse(false),
-                spaceId));
+                spaceId,
+                groupBy.map(GroupByArgument::groupLimit)));
   }
 
   private Single<Set<AttributeRequest>> buildGroupByAttributes(
@@ -189,5 +190,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Optional<IntervalArgument> timeInterval;
     boolean includeRest;
     Optional<String> spaceId;
+    Optional<Integer> groupLimit;
   }
 }

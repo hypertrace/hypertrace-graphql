@@ -37,4 +37,6 @@ public interface ExploreRequest {
   boolean includeRest();
 
   Optional<String> spaceId();
+
+  Optional<Integer> groupLimit();
 }

@@ -73,6 +73,7 @@ public class GatewayServiceExploreRequestBuilder {
                 .setOffset(request.offset())
                 .setFilter(filter)
                 .setSpaceId(request.spaceId().orElse("")) // String proto default value
+                .setGroupLimit(request.groupLimit().orElse(0)) // Int proto default value
                 .build());
   }
 
