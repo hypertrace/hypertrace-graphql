@@ -138,20 +138,23 @@ class ExplorerBackedSpacesDao implements SpacesDao {
   private static class ActiveSpaceExploreRequest implements ExploreRequest {
     private static final String SPACE_IDS_KEY = "spaceIds";
     private static final String SPACE_IDS_SCOPE = "EVENT";
+    private static final int MAX_SPACES = 100;
 
     GraphQlRequestContext requestContext;
-    String scope;
+    String scope = SPACE_IDS_SCOPE;
+    int limit = MAX_SPACES;
+    int offset = 0;
+    Set<AttributeRequest> attributeRequests = emptySet();
+    List<AttributeAssociation<FilterArgument>> filterArguments = emptyList();
+    Optional<IntervalArgument> timeInterval = Optional.empty();
+    boolean includeRest = false;
+    Optional<String> spaceId = Optional.empty();
+    Optional<Integer> groupLimit = Optional.of(MAX_SPACES);
+
     TimeRangeArgument timeRange;
-    int limit;
-    int offset;
-    Set<AttributeRequest> attributeRequests;
     Set<MetricAggregationRequest> aggregationRequests;
     List<ExploreOrderArgument> orderArguments;
-    List<AttributeAssociation<FilterArgument>> filterArguments;
     Set<AttributeRequest> groupByAttributeRequests;
-    Optional<IntervalArgument> timeInterval;
-    boolean includeRest;
-    Optional<String> spaceId;
 
     ActiveSpaceExploreRequest(
         GraphQlRequestContext context,
@@ -159,20 +162,12 @@ class ExplorerBackedSpacesDao implements SpacesDao {
         AttributeRequest spaceIdRequest,
         MetricAggregationRequest spaceIdCountRequest) {
       this.requestContext = context;
-      this.scope = SPACE_IDS_SCOPE;
-      this.limit = 100;
-      this.offset = 0;
       this.timeRange = timeRange;
-      this.attributeRequests = emptySet();
       // Aggregation needed to pass explorer validation - a no agg request is not valid
       this.aggregationRequests = Set.of(spaceIdCountRequest);
       this.orderArguments =
           List.of(new SpaceExploreOrderArgument(Optional.of(spaceIdRequest.attribute())));
-      this.filterArguments = emptyList();
       this.groupByAttributeRequests = Set.of(spaceIdRequest);
-      this.timeInterval = Optional.empty();
-      this.includeRest = false;
-      this.spaceId = Optional.empty();
     }
   }
 

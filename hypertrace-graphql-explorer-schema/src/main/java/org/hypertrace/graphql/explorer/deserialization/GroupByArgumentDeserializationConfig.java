@@ -38,5 +38,8 @@ public class GroupByArgumentDeserializationConfig implements ArgumentDeserializa
 
     @JsonProperty(GROUP_BY_INCLUDE_REST_KEY)
     boolean includeRest;
+
+    @JsonProperty(GROUP_BY_LIMIT_KEY)
+    int groupLimit;
   }
 }
