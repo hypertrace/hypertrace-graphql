@@ -2,8 +2,8 @@ package org.hypertrace.core.graphql.utils.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.spi.lifecycle.GraphQlServiceLifecycle;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 class DefaultGrpcChannelRegistry implements GrpcChannelRegistry {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultGrpcChannelRegistry.class);
-  private final Map<String, ManagedChannel> channelMap = new HashMap<>();
+  private final Map<String, ManagedChannel> channelMap = new ConcurrentHashMap<>();
   private volatile boolean isShutdown = false;
 
   @Inject
@@ -25,10 +25,7 @@ class DefaultGrpcChannelRegistry implements GrpcChannelRegistry {
   public ManagedChannel forAddress(String host, int port) {
     assert !this.isShutdown;
     String channelId = this.getChannelId(host, port);
-    if (!this.channelMap.containsKey(channelId)) {
-      this.channelMap.put(channelId, this.buildNewChannel(host, port));
-    }
-    return this.channelMap.get(channelId);
+    return this.channelMap.computeIfAbsent(channelId, unused -> this.buildNewChannel(host, port));
   }
 
   private ManagedChannel buildNewChannel(String host, int port) {
