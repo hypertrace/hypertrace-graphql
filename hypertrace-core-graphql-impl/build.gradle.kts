@@ -21,6 +21,7 @@ dependencies {
   implementation(project(":hypertrace-core-graphql-trace-schema"))
   implementation(project(":hypertrace-core-graphql-attribute-scope"))
   implementation(project(":hypertrace-core-graphql-rx-utils"))
+  implementation(project(":hypertrace-core-graphql-log-event-schema"))
 
   implementation("org.slf4j:slf4j-api")
   implementation("com.google.inject:guice")
