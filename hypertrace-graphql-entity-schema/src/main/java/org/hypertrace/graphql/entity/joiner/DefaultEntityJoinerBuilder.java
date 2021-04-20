@@ -281,8 +281,8 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   @Value
   @Accessors(fluent = true)
   private static class InstantTimeRange implements TimeRangeArgument {
-    // Modify start time just because gateway requires it to be before endtime
-    Instant startTime = Instant.now().minus(1, ChronoUnit.MINUTES);
+    // Bug in gateway requires this time range be larger, even though we don't care about it
+    Instant startTime = Instant.now().minus(15, ChronoUnit.MINUTES);
     Instant endTime = Instant.now();
   }
 
