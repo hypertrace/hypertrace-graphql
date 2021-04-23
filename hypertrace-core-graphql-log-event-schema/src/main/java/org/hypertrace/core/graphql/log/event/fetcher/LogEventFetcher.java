@@ -29,7 +29,8 @@ public class LogEventFetcher extends InjectableDataFetcher<LogEventResultSet> {
     @Override
     public CompletableFuture<LogEventResultSet> get(DataFetchingEnvironment environment) {
       return this.requestBuilder
-          .build(environment.getContext(), environment.getArguments())
+          .build(
+              environment.getContext(), environment.getArguments(), environment.getSelectionSet())
           .flatMap(this.logEventDao::getLogEvents)
           .toCompletionStage()
           .toCompletableFuture();

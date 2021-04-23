@@ -46,6 +46,7 @@ class LiteralConstantConverter implements Converter<Object, LiteralConstant> {
     if (this.assignableToAnyOfClasses(object.getClass(), Boolean.class)) {
       return Value.newBuilder().setValueType(ValueType.BOOL).setBoolean((Boolean) object).build();
     }
+    // todo handle Instant type object
     if (this.assignableToAnyOfClasses(object.getClass(), TemporalAccessor.class)) {
       return Value.newBuilder()
           .setValueType(ValueType.TIMESTAMP)

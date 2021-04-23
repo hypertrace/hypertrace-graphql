@@ -7,19 +7,19 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.inject.Inject;
+import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
-import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Value;
 
 class AttributeMapConverter
     implements BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>> {
 
-  private final Converter<Value, Object> valueConverter;
+  private final BiConverter<Value, AttributeModel, Object> valueConverter;
 
   @Inject
-  AttributeMapConverter(Converter<Value, Object> valueConverter) {
+  AttributeMapConverter(BiConverter<Value, AttributeModel, Object> valueConverter) {
     this.valueConverter = valueConverter;
   }
 
@@ -37,7 +37,7 @@ class AttributeMapConverter
       AttributeRequest attributeRequest, Map<String, Value> response) {
     // Uses SimpleImmutableEntry to support null values
     return this.valueConverter
-        .convert(response.get(attributeRequest.alias()))
+        .convert(response.get(attributeRequest.alias()), attributeRequest.attribute())
         .map(value -> new SimpleImmutableEntry<>(attributeRequest.attribute().key(), value));
   }
 }

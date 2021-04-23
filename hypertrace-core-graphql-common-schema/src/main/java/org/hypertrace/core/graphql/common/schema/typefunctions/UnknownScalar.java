@@ -15,6 +15,7 @@ import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import graphql.schema.GraphQLScalarType;
 import java.lang.reflect.AnnotatedType;
+import java.time.Instant;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,10 @@ public class UnknownScalar implements TypeFunction {
               new Coercing<>() {
                 @Override
                 public Object serialize(Object fetcherResult) throws CoercingSerializeException {
+                  if (fetcherResult instanceof Instant) {
+                    // todo handle for other direction as well
+                    return fetcherResult.toString();
+                  }
                   // Use default serializer
                   return fetcherResult;
                 }

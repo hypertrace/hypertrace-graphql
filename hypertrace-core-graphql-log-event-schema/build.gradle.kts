@@ -23,4 +23,15 @@ dependencies {
     implementation(project(":hypertrace-core-graphql-common-schema"))
     implementation(project(":hypertrace-core-graphql-attribute-store"))
     implementation(project(":hypertrace-core-graphql-deserialization"))
+    implementation(project(":hypertrace-core-graphql-schema-utils"))
+
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind")
+    testImplementation(project(":hypertrace-core-graphql-gateway-service-utils"))
+    testAnnotationProcessor("org.projectlombok:lombok")
+    testCompileOnly("org.projectlombok:lombok")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

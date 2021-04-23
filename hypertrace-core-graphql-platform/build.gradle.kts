@@ -7,7 +7,7 @@ dependencies {
 
     api("org.hypertrace.core.grpcutils:grpc-context-utils:0.3.4")
     api("org.hypertrace.core.grpcutils:grpc-client-utils:0.3.4")
-    api("org.hypertrace.gateway.service:gateway-service-api:0.1.57")
+    api("org.hypertrace.gateway.service:gateway-service-api:0.1.59")
     api("org.hypertrace.core.attribute.service:attribute-service-api:0.9.3")
 
     api("com.google.inject:guice:4.2.3")
