@@ -2,18 +2,13 @@ package org.hypertrace.core.graphql.span.dao;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.hypertrace.core.graphql.common.request.ResultSetRequest;
-import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.span.schema.SpanResultSet;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
-import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
-import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.span.SpansRequest;
 import org.hypertrace.gateway.service.v1.span.SpansResponse;
@@ -25,32 +20,31 @@ class GatewayServiceSpanDao implements SpanDao {
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceSpanRequestBuilder requestBuilder;
   private final GatewayServiceSpanConverter spanConverter;
+  private final SpanLogEventDao spanLogEventDao;
 
   @Inject
   GatewayServiceSpanDao(
-      GraphQlServiceConfig serviceConfig,
-      CallCredentials credentials,
+      GatewayServiceFutureStub gatewayServiceFutureStub,
       GraphQlGrpcContextBuilder grpcContextBuilder,
-      GrpcChannelRegistry channelRegistry,
       GatewayServiceSpanRequestBuilder requestBuilder,
-      GatewayServiceSpanConverter spanConverter) {
+      GatewayServiceSpanConverter spanConverter,
+      SpanLogEventDao spanLogEventDao) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.spanConverter = spanConverter;
-
-    this.gatewayServiceStub =
-        GatewayServiceGrpc.newFutureStub(
-                channelRegistry.forAddress(
-                    serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
-            .withCallCredentials(credentials);
+    this.spanLogEventDao = spanLogEventDao;
+    this.gatewayServiceStub = gatewayServiceFutureStub;
   }
 
   @Override
-  public Single<SpanResultSet> getSpans(ResultSetRequest<OrderArgument> request) {
+  public Single<SpanResultSet> getSpans(SpanRequest request) {
     return this.requestBuilder
         .buildRequest(request)
-        .flatMap(serverRequest -> this.makeRequest(request.context(), serverRequest))
-        .flatMap(serverResponse -> this.spanConverter.convert(request, serverResponse));
+        .flatMap(
+            serverRequest -> this.makeRequest(request.spanEventsRequest().context(), serverRequest))
+        .flatMap(serverResponse -> spanLogEventDao.fetchLogEvents(request, serverResponse))
+        .flatMap(
+            spanLogEventsResponse -> this.spanConverter.convert(request, spanLogEventsResponse));
   }
 
   private Single<SpansResponse> makeRequest(GraphQlRequestContext context, SpansRequest request) {

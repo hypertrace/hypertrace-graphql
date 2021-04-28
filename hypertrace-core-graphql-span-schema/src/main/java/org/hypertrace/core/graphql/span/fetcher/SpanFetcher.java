@@ -6,8 +6,8 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
-import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.span.dao.SpanDao;
+import org.hypertrace.core.graphql.span.request.SpanRequestBuilder;
 import org.hypertrace.core.graphql.span.schema.SpanResultSet;
 
 public class SpanFetcher extends InjectableDataFetcher<SpanResultSet> {
@@ -17,11 +17,11 @@ public class SpanFetcher extends InjectableDataFetcher<SpanResultSet> {
   }
 
   static final class SpanFetcherImpl implements DataFetcher<CompletableFuture<SpanResultSet>> {
-    private final ResultSetRequestBuilder requestBuilder;
+    private final SpanRequestBuilder requestBuilder;
     private final SpanDao spanDao;
 
     @Inject
-    SpanFetcherImpl(ResultSetRequestBuilder requestBuilder, SpanDao spanDao) {
+    SpanFetcherImpl(SpanRequestBuilder requestBuilder, SpanDao spanDao) {
       this.requestBuilder = requestBuilder;
       this.spanDao = spanDao;
     }

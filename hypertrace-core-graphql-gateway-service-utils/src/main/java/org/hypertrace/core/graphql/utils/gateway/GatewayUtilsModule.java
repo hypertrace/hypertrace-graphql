@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.utils.gateway;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import java.util.Collection;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderAr
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.common.ColumnIdentifier;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
@@ -62,5 +64,9 @@ public class GatewayUtilsModule extends AbstractModule {
 
     bind(Key.get(new TypeLiteral<Converter<OrderDirection, SortOrder>>() {}))
         .to(SortOrderConverter.class);
+
+    bind(GatewayServiceFutureStub.class)
+        .toProvider(GatewayServiceFutureStubProvider.class)
+        .in(Singleton.class);
   }
 }

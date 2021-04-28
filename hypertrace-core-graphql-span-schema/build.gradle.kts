@@ -22,4 +22,21 @@ dependencies {
   implementation(project(":hypertrace-core-graphql-grpc-utils"))
   implementation(project(":hypertrace-core-graphql-common-schema"))
   implementation(project(":hypertrace-core-graphql-attribute-store"))
+  implementation(project(":hypertrace-core-graphql-log-event-schema"))
+  implementation(project(":hypertrace-core-graphql-deserialization"))
+  implementation(project(":hypertrace-core-graphql-schema-utils"))
+  implementation(project(":hypertrace-core-graphql-attribute-scope-constants"))
+
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("com.fasterxml.jackson.core:jackson-databind")
+  testImplementation(project(":hypertrace-core-graphql-gateway-service-utils"))
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.mockito:mockito-junit-jupiter")
+
+  testAnnotationProcessor("org.projectlombok:lombok")
+  testCompileOnly("org.projectlombok:lombok")
+}
+
+tasks.test {
+  useJUnitPlatform()
 }

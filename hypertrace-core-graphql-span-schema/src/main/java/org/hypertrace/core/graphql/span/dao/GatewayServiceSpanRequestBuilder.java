@@ -9,10 +9,10 @@ import java.util.Set;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
-import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
@@ -35,21 +35,27 @@ class GatewayServiceSpanRequestBuilder {
     this.attributeConverter = attributeConverter;
   }
 
-  Single<SpansRequest> buildRequest(ResultSetRequest<OrderArgument> gqlRequest) {
+  Single<SpansRequest> buildRequest(SpanRequest gqlRequest) {
     return zip(
-        this.attributeConverter.convert(gqlRequest.attributes()),
-        this.orderConverter.convert(gqlRequest.orderArguments()),
-        this.filterConverter.convert(gqlRequest.filterArguments()),
+        this.attributeConverter.convert(gqlRequest.spanEventsRequest().attributes()),
+        this.orderConverter.convert(gqlRequest.spanEventsRequest().orderArguments()),
+        this.filterConverter.convert(gqlRequest.spanEventsRequest().filterArguments()),
         (selections, orderBys, filters) ->
             SpansRequest.newBuilder()
-                .setStartTimeMillis(gqlRequest.timeRange().startTime().toEpochMilli())
-                .setEndTimeMillis(gqlRequest.timeRange().endTime().toEpochMilli())
+                .setStartTimeMillis(
+                    gqlRequest.spanEventsRequest().timeRange().startTime().toEpochMilli())
+                .setEndTimeMillis(
+                    gqlRequest.spanEventsRequest().timeRange().endTime().toEpochMilli())
                 .addAllSelection(selections)
                 .addAllOrderBy(orderBys)
-                .setLimit(gqlRequest.limit())
-                .setOffset(gqlRequest.offset())
+                .setLimit(gqlRequest.spanEventsRequest().limit())
+                .setOffset(gqlRequest.spanEventsRequest().offset())
                 .setFilter(filters)
-                .setSpaceId(gqlRequest.spaceId().orElse("")) // String proto default value
+                .setSpaceId(
+                    gqlRequest
+                        .spanEventsRequest()
+                        .spaceId()
+                        .orElse("")) // String proto default value
                 .build());
   }
 }

@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.atttributes.scopes;
 
 import static org.hypertrace.core.graphql.attributes.IdMapping.forForeignId;
 import static org.hypertrace.core.graphql.attributes.IdMapping.forId;
+import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.LOG_EVENT;
 import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.SPAN;
 import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.TRACE;
 
@@ -21,7 +22,7 @@ public class HypertraceCoreAttributeScopeModule extends AbstractModule {
     Multibinder<IdMapping> idBinder = Multibinder.newSetBinder(binder(), IdMapping.class);
     idBinder.addBinding().toInstance(forId(SPAN, "id"));
     idBinder.addBinding().toInstance(forForeignId(SPAN, TRACE, "traceId"));
-
+    idBinder.addBinding().toInstance(forForeignId(LOG_EVENT, SPAN, "spanId"));
     idBinder.addBinding().toInstance(forId(TRACE, "id"));
   }
 }

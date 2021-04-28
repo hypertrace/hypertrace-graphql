@@ -6,6 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeKeyArgument;
 
 public interface AttributeQueryable {
+
   String ATTRIBUTE_FIELD_NAME = "attribute";
 
   @GraphQLField

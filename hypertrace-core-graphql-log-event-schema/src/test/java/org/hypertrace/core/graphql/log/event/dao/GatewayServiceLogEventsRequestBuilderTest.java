@@ -1,11 +1,14 @@
 package org.hypertrace.core.graphql.log.event.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import io.grpc.CallCredentials;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -18,7 +21,9 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.gateway.GatewayUtilsModule;
+import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
@@ -32,7 +37,17 @@ class GatewayServiceLogEventsRequestBuilderTest extends BaseDaoTest {
 
   @BeforeEach
   void setup() {
-    Injector injector = Guice.createInjector(new GatewayUtilsModule());
+    Injector injector =
+        Guice.createInjector(
+            new GatewayUtilsModule(),
+            new AbstractModule() {
+              @Override
+              protected void configure() {
+                bind(CallCredentials.class).toInstance(mock(CallCredentials.class));
+                bind(GraphQlServiceConfig.class).toInstance(mock(GraphQlServiceConfig.class));
+                bind(GrpcChannelRegistry.class).toInstance(mock(GrpcChannelRegistry.class));
+              }
+            });
 
     Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter =
         injector.getInstance(
