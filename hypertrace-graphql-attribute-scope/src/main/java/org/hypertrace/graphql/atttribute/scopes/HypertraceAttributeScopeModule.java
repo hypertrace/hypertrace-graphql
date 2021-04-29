@@ -2,6 +2,7 @@ package org.hypertrace.graphql.atttribute.scopes;
 
 import static org.hypertrace.core.graphql.attributes.IdMapping.forForeignId;
 import static org.hypertrace.core.graphql.attributes.IdMapping.forId;
+import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.LOG_EVENT;
 import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.SPAN;
 import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.TRACE;
 import static org.hypertrace.graphql.atttribute.scopes.HypertraceAttributeScopeString.API;
@@ -48,5 +49,7 @@ public class HypertraceAttributeScopeModule extends AbstractModule {
     idBinder.addBinding().toInstance(forForeignId(BACKEND_TRACE, API, "callerApiId"));
     idBinder.addBinding().toInstance(forForeignId(BACKEND_TRACE, TRACE, "traceId"));
     idBinder.addBinding().toInstance(forForeignId(BACKEND_TRACE, BACKEND, "backendId"));
+
+    idBinder.addBinding().toInstance(forForeignId(LOG_EVENT, SPAN, "spanId"));
   }
 }
