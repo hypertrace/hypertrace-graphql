@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
@@ -43,29 +44,44 @@ class SpanLogEventResponseConverter {
             HypertraceCoreAttributeScopeString.LOG_EVENT,
             HypertraceCoreAttributeScopeString.SPAN)
         .flatMap(
-            spanId ->
-                buildResponse(spanId.key(), attributeRequests, spansResponse, logEventsResponse));
+            spanId -> buildResponse(spanId, attributeRequests, spansResponse, logEventsResponse));
   }
 
   private Single<SpanLogEventsResponse> buildResponse(
-      String foreignIdAttribute,
+      AttributeModel foreignIdAttribute,
       Collection<AttributeRequest> attributeRequests,
       SpansResponse spansResponse,
       LogEventsResponse logEventsResponse) {
     return Observable.fromIterable(logEventsResponse.getLogEventsList())
         .concatMapSingle(
-            logEventsResponseVar -> this.convert(attributeRequests, logEventsResponseVar))
-        .collect(Collectors.groupingBy(logEvent -> (String) logEvent.attribute(foreignIdAttribute)))
+            logEventsResponseVar ->
+                this.convert(foreignIdAttribute, attributeRequests, logEventsResponseVar))
+        .collect(
+            Collectors.groupingBy(
+                SpanLogEventPair::spanId,
+                Collectors.mapping(SpanLogEventPair::logEvent, Collectors.toList())))
         .map(
             spanIdVsLogEventsMap -> new SpanLogEventsResponse(spansResponse, spanIdVsLogEventsMap));
   }
 
-  private Single<LogEvent> convert(
+  private Single<SpanLogEventPair> convert(
+      AttributeModel foreignIdAttribute,
       Collection<AttributeRequest> request,
       org.hypertrace.gateway.service.v1.log.events.LogEvent logEvent) {
     return this.attributeMapConverter
         .convert(request, logEvent.getAttributesMap())
-        .map(ConvertedLogEvent::new);
+        .map(
+            attributeMap ->
+                new SpanLogEventPair(
+                    logEvent.getAttributesMap().get(foreignIdAttribute.id()).getString(),
+                    new ConvertedLogEvent(attributeMap)));
+  }
+
+  @lombok.Value
+  @Accessors(fluent = true)
+  private static class SpanLogEventPair {
+    String spanId;
+    LogEvent logEvent;
   }
 
   @lombok.Value

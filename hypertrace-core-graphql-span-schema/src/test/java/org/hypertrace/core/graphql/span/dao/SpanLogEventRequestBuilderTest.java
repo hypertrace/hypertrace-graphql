@@ -7,8 +7,10 @@ import static org.hypertrace.core.graphql.span.dao.DaoTestUtil.traceIdAttribute;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -25,12 +27,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.hypertrace.core.graphql.attributes.AttributeModel;
+import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.span.dao.DaoTestUtil.DefaultAttributeRequest;
 import org.hypertrace.core.graphql.span.dao.DaoTestUtil.DefaultResultSetRequest;
 import org.hypertrace.core.graphql.span.dao.DaoTestUtil.DefaultSpanRequest;
 import org.hypertrace.core.graphql.span.dao.DaoTestUtil.DefaultTimeRange;
@@ -53,6 +59,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SpanLogEventRequestBuilderTest {
 
   @Mock private FilterRequestBuilder filterRequestBuilder;
+
+  @Mock private AttributeStore attributeStore;
+
+  @Mock private AttributeRequestBuilder attributeRequestBuilder;
 
   private SpanLogEventRequestBuilder spanLogEventRequestBuilder;
 
@@ -82,11 +92,13 @@ class SpanLogEventRequestBuilderTest {
                 new TypeLiteral<Converter<Collection<AttributeRequest>, Set<Expression>>>() {}));
 
     spanLogEventRequestBuilder =
-        new SpanLogEventRequestBuilder(attributeConverter, filterConverter, filterRequestBuilder);
-  }
+        new SpanLogEventRequestBuilder(
+            attributeConverter,
+            filterConverter,
+            filterRequestBuilder,
+            attributeStore,
+            attributeRequestBuilder);
 
-  @Test
-  void testBuildRequest() {
     doAnswer(
             invocation -> {
               Set<FilterArgument> filterArguments = invocation.getArgument(2, Set.class);
@@ -102,6 +114,21 @@ class SpanLogEventRequestBuilderTest {
             })
         .when(filterRequestBuilder)
         .build(any(), any(), anyCollection());
+
+    when(attributeStore.getForeignIdAttribute(any(), anyString(), anyString()))
+        .thenReturn(Single.just(spanIdAttribute.attribute()));
+
+    doAnswer(
+            invocation -> {
+              AttributeModel attributeModel = invocation.getArgument(0, AttributeModel.class);
+              return new DefaultAttributeRequest(attributeModel);
+            })
+        .when(attributeRequestBuilder)
+        .buildForAttribute(any());
+  }
+
+  @Test
+  void testBuildRequest() {
 
     long startTime = System.currentTimeMillis();
     long endTime = System.currentTimeMillis() + Duration.ofHours(1).toMillis();
@@ -149,7 +176,58 @@ class SpanLogEventRequestBuilderTest {
     assertEquals(
         Set.of("attributes", "traceId", "spanId"),
         logEventsRequest.getSelectionList().stream()
-            .map(v -> v.getColumnIdentifier().getColumnName())
+            .map(expression -> expression.getColumnIdentifier().getColumnName())
+            .collect(Collectors.toSet()));
+  }
+
+  @Test
+  void testBuildRequest_addSpanId() {
+    long startTime = System.currentTimeMillis();
+    long endTime = System.currentTimeMillis() + Duration.ofHours(1).toMillis();
+
+    Collection<AttributeRequest> logAttributeRequests = List.of(traceIdAttribute);
+    ResultSetRequest resultSetRequest =
+        new DefaultResultSetRequest(
+            null,
+            List.of(DaoTestUtil.eventIdAttribute),
+            new DefaultTimeRange(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime)),
+            DaoTestUtil.eventIdAttribute,
+            0,
+            0,
+            List.of(),
+            Collections.emptyList(),
+            Optional.empty());
+    SpanRequest spanRequest = new DefaultSpanRequest(resultSetRequest, logAttributeRequests);
+
+    LogEventsRequest logEventsRequest =
+        spanLogEventRequestBuilder.buildLogEventsRequest(spanRequest, spansResponse).blockingGet();
+
+    assertEquals(Operator.IN, logEventsRequest.getFilter().getChildFilter(0).getOperator());
+    assertEquals(
+        spanIdAttribute.attribute().id(),
+        logEventsRequest
+            .getFilter()
+            .getChildFilter(0)
+            .getLhs()
+            .getColumnIdentifier()
+            .getColumnName());
+    assertEquals(
+        List.of("span1", "span2", "span3"),
+        logEventsRequest
+            .getFilter()
+            .getChildFilter(0)
+            .getRhs()
+            .getLiteral()
+            .getValue()
+            .getStringArrayList()
+            .stream()
+            .collect(Collectors.toList()));
+    assertEquals(startTime, logEventsRequest.getStartTimeMillis());
+    assertEquals(endTime, logEventsRequest.getEndTimeMillis());
+    assertEquals(
+        Set.of("traceId", "spanId"),
+        logEventsRequest.getSelectionList().stream()
+            .map(expression -> expression.getColumnIdentifier().getColumnName())
             .collect(Collectors.toSet()));
   }
 }

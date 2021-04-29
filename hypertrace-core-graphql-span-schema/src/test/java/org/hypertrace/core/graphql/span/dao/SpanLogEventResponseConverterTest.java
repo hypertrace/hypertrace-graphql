@@ -62,7 +62,37 @@ class SpanLogEventResponseConverterTest {
               Map<String, Value> map = invocation.getArgument(1, Map.class);
               return Single.just(
                   map.entrySet().stream()
-                      .collect(Collectors.toMap(Entry::getKey, v -> v.getValue().getString())));
+                      .collect(
+                          Collectors.toMap(
+                              Entry::getKey, valueEntry -> valueEntry.getValue().getString())));
+            })
+        .when(attributeMapConverter)
+        .convert(anyCollection(), anyMap());
+
+    SpanLogEventsResponse response =
+        spanLogEventResponseConverter
+            .buildResponse(requestContext, attributeRequests, spansResponse, logEventsResponse)
+            .blockingGet();
+
+    assertEquals(spansResponse, response.spansResponse());
+    assertEquals(Set.of("span1", "span2"), response.spanIdToLogEvents().keySet());
+  }
+
+  @Test
+  void testBuildResponse_spanIdNotRequested() {
+    Collection<AttributeRequest> attributeRequests = List.of(traceIdAttribute, attributesAttribute);
+
+    when(attributeStore.getForeignIdAttribute(any(), anyString(), anyString()))
+        .thenReturn(Single.just(spanIdAttribute.attribute()));
+
+    doAnswer(
+            invocation -> {
+              Map<String, Value> map = invocation.getArgument(1, Map.class);
+              return Single.just(
+                  map.entrySet().stream()
+                      .collect(
+                          Collectors.toMap(
+                              Entry::getKey, valueEntry -> valueEntry.getValue().getString())));
             })
         .when(attributeMapConverter)
         .convert(anyCollection(), anyMap());
