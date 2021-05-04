@@ -54,6 +54,7 @@ class UnknownScalarTest {
     assertFalse(this.unknownScalarFunction.canBuildType(Double.class, this.mockAnnotatedType));
     assertFalse(this.unknownScalarFunction.canBuildType(Boolean.class, this.mockAnnotatedType));
     assertFalse(this.unknownScalarFunction.canBuildType(List.class, this.mockAnnotatedType));
+    assertFalse(this.unknownScalarFunction.canBuildType(Enum.class, this.mockAnnotatedType));
   }
 
   @Test

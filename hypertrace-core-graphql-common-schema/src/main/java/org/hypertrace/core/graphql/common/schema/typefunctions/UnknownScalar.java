@@ -4,6 +4,7 @@ import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.annotations.processor.typeFunctions.TypeFunction;
 import graphql.language.ArrayValue;
 import graphql.language.BooleanValue;
+import graphql.language.EnumValue;
 import graphql.language.FloatValue;
 import graphql.language.IntValue;
 import graphql.language.ObjectField;
@@ -24,7 +25,8 @@ public class UnknownScalar implements TypeFunction {
   private static final GraphQLScalarType ATTRIBUTE_VALUE_SCALAR =
       GraphQLScalarType.newScalar()
           .name("Unknown")
-          .description("A value of unknown type: A string, int, float, boolean, array or object")
+          .description(
+              "A value of unknown type: A string, int, float, boolean, array, enum or object")
           .coercing(
               new Coercing<>() {
                 @Override
@@ -66,6 +68,9 @@ public class UnknownScalar implements TypeFunction {
                   if (input instanceof ArrayValue) {
                     return ((ArrayValue) input)
                         .getValues().stream().map(recurse).collect(Collectors.toUnmodifiableList());
+                  }
+                  if (input instanceof EnumValue) {
+                    return ((EnumValue) input).getName();
                   }
                   if (input instanceof ObjectValue) {
                     return ((ObjectValue) input)
