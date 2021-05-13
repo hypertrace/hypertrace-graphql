@@ -5,6 +5,7 @@ import static org.hypertrace.core.graphql.span.schema.Span.LOG_EVENT_KEY;
 
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.SelectedField;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,17 @@ class LogEventAttributeRequestBuilder {
             context,
             HypertraceCoreAttributeScopeString.LOG_EVENT,
             getLogEventSelectionFields(selectionSet))
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  Single<Set<AttributeRequest>> buildAttributeRequest(
+      GraphQlRequestContext context, List<String> attributes) {
+    return Observable.fromIterable(attributes)
+        .distinct()
+        .flatMapSingle(
+            attributeKey ->
+                this.attributeRequestBuilder.buildForKey(
+                    context, HypertraceCoreAttributeScopeString.LOG_EVENT, attributeKey))
         .collect(Collectors.toUnmodifiableSet());
   }
 

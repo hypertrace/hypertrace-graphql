@@ -16,6 +16,7 @@ dependencies {
     api("org.slf4j:slf4j-api:1.7.30")
     api("io.reactivex.rxjava3:rxjava:3.0.9")
     api("com.google.protobuf:protobuf-java-util:3.14.0")
+
     api("org.projectlombok:lombok:1.18.18")
     api("com.google.code.findbugs:jsr305:3.0.2")
     api("com.typesafe:config:1.4.1")
@@ -27,6 +28,8 @@ dependencies {
     api("io.grpc:grpc-context:1.36.0")
     api("com.fasterxml.jackson.core:jackson-databind:2.12.1")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.1")
+    api("org.apache.commons:commons-text:1.9")
+    api("io.opentelemetry:opentelemetry-proto:1.1.0-alpha")
 
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
     runtime("io.grpc:grpc-netty:1.37.0")

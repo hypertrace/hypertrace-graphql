@@ -5,10 +5,12 @@ import static io.reactivex.rxjava3.core.Single.zip;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -31,16 +33,32 @@ class DefaultSpanRequestBuilder implements SpanRequestBuilder {
   @Override
   public Single<SpanRequest> build(
       GraphQlRequestContext context,
-      String requestScope,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet) {
     return zip(
-            resultSetRequestBuilder.build(
-                context, requestScope, arguments, selectionSet, OrderArgument.class),
-            logEventAttributeRequestBuilder.buildAttributeRequest(context, selectionSet),
-            (resultSetRequest, logEventAttributeRequest) ->
-                Single.just(new DefaultSpanRequest(resultSetRequest, logEventAttributeRequest)))
-        .flatMap(single -> single);
+        resultSetRequestBuilder.build(
+            context,
+            HypertraceCoreAttributeScopeString.SPAN,
+            arguments,
+            selectionSet,
+            OrderArgument.class),
+        logEventAttributeRequestBuilder.buildAttributeRequest(context, selectionSet),
+        (resultSetRequest, logEventAttributeRequest) ->
+            new DefaultSpanRequest(resultSetRequest, logEventAttributeRequest));
+  }
+
+  @Override
+  public Single<SpanRequest> build(
+      GraphQlRequestContext context,
+      Map<String, Object> arguments,
+      List<String> spanAttributes,
+      List<String> logAttributes) {
+    return zip(
+        resultSetRequestBuilder.build(
+            context, HypertraceCoreAttributeScopeString.SPAN, arguments, spanAttributes),
+        logEventAttributeRequestBuilder.buildAttributeRequest(context, logAttributes),
+        (resultSetRequest, logEventAttributeRequest) ->
+            new DefaultSpanRequest(resultSetRequest, logEventAttributeRequest));
   }
 
   @Value

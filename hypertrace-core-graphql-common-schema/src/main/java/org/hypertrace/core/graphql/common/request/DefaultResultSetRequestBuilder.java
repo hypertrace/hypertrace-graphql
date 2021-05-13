@@ -4,6 +4,7 @@ import static io.reactivex.rxjava3.core.Single.zip;
 
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.SelectedField;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.Collections;
@@ -141,6 +142,53 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
                 orderArguments,
                 filterArguments,
                 spaceId));
+  }
+
+  @Override
+  public Single<ResultSetRequest<OrderArgument>> build(
+      GraphQlRequestContext context,
+      String requestScope,
+      Map<String, Object> arguments,
+      List<String> attributes) {
+    int limit =
+        this.argumentDeserializer
+            .deserializePrimitive(arguments, LimitArgument.class)
+            .orElse(DEFAULT_LIMIT);
+
+    TimeRangeArgument timeRange =
+        this.argumentDeserializer
+            .deserializeObject(arguments, TimeRangeArgument.class)
+            .orElseThrow();
+
+    List<FilterArgument> requestedFilters =
+        this.argumentDeserializer
+            .deserializeObjectList(arguments, FilterArgument.class)
+            .orElse(Collections.emptyList());
+
+    return zip(
+        this.getAttributeRequests(context, requestScope, attributes).collect(Collectors.toList()),
+        this.attributeRequestBuilder.buildForId(context, requestScope),
+        this.filterRequestBuilder.build(context, requestScope, requestedFilters),
+        (attributeRequests, idAttribute, filters) ->
+            new DefaultResultSetRequest<>(
+                context,
+                attributeRequests,
+                idAttribute,
+                timeRange,
+                limit,
+                0,
+                List.of(),
+                filters,
+                Optional.empty()));
+  }
+
+  private Observable<AttributeRequest> getAttributeRequests(
+      GraphQlRequestContext context, String requestScope, List<String> attributes) {
+    return Observable.fromIterable(attributes)
+        .distinct()
+        .flatMapSingle(
+            attributeKey ->
+                this.attributeRequestBuilder.buildForKey(context, requestScope, attributeKey));
   }
 
   private Stream<SelectedField> getAttributeQueryableFields(

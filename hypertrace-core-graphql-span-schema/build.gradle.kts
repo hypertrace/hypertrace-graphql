@@ -17,6 +17,8 @@ dependencies {
   implementation("io.reactivex.rxjava3:rxjava")
   implementation("org.hypertrace.gateway.service:gateway-service-api")
   implementation("com.google.protobuf:protobuf-java-util")
+  implementation("io.opentelemetry:opentelemetry-proto")
+  implementation("org.apache.commons:commons-text")
 
   implementation(project(":hypertrace-core-graphql-context"))
   implementation(project(":hypertrace-core-graphql-grpc-utils"))

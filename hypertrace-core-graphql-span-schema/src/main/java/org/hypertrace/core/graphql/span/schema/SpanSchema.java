@@ -11,10 +11,12 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderAr
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
+import org.hypertrace.core.graphql.span.fetcher.ExportSpanFetcher;
 import org.hypertrace.core.graphql.span.fetcher.SpanFetcher;
 
 public interface SpanSchema {
   String SPANS_QUERY_NAME = "spans";
+  String EXPORT_SPANS_QUERY_NAME = "exportSpans";
 
   @GraphQLField
   @GraphQLNonNull
@@ -27,4 +29,13 @@ public interface SpanSchema {
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
       @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset,
       @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space);
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(EXPORT_SPANS_QUERY_NAME)
+  @GraphQLDataFetcher(ExportSpanFetcher.class)
+  ExportSpanResult exportSpans(
+      @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument between,
+      @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy,
+      @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit);
 }

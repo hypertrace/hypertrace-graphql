@@ -37,4 +37,10 @@ public interface ResultSetRequestBuilder {
       Collection<AttributeAssociation<FilterArgument>> filterArguments,
       Stream<SelectedField> attributeQueryableFields,
       Optional<String> spaceId);
+
+  Single<ResultSetRequest<OrderArgument>> build(
+      GraphQlRequestContext context,
+      String requestScope,
+      Map<String, Object> arguments,
+      List<String> attributes);
 }
