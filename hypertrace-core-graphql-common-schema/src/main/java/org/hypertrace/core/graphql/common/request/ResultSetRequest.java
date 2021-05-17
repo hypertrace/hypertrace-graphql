@@ -6,10 +6,8 @@ import java.util.Optional;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
-import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
-public interface ResultSetRequest<O extends OrderArgument> {
-  GraphQlRequestContext context();
+public interface ResultSetRequest<O extends OrderArgument> extends ContextualRequest {
 
   // All attributes to fetch, including ID
   Collection<AttributeRequest> attributes();

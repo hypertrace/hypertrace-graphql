@@ -14,6 +14,7 @@ public class CommonRequestModule extends AbstractModule {
     bind(ResultSetRequestBuilder.class).to(DefaultResultSetRequestBuilder.class);
     bind(AttributeRequestBuilder.class).to(DefaultAttributeRequestBuilder.class);
     bind(FilterRequestBuilder.class).to(DefaultFilterRequestBuilder.class);
+    bind(ContextualRequestBuilder.class).to(SimpleContextualRequestBuilder.class);
     requireBinding(AttributeStore.class);
     requireBinding(ArgumentDeserializer.class);
     requireBinding(AttributeAssociator.class);
