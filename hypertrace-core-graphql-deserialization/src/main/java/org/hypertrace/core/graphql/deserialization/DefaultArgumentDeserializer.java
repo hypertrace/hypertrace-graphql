@@ -3,6 +3,7 @@ package org.hypertrace.core.graphql.deserialization;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 class DefaultArgumentDeserializer implements ArgumentDeserializer {
 
-  private static final List<Module> defaultModules = List.of(new JavaTimeModule());
+  private static final List<Module> defaultModules =
+      List.of(new JavaTimeModule(), new Jdk8Module());
   private static final Logger LOG = LoggerFactory.getLogger(DefaultArgumentDeserializer.class);
 
   private final ObjectMapper objectMapper;

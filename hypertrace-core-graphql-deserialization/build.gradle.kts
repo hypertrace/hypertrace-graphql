@@ -13,6 +13,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok")
 
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
   implementation("org.slf4j:slf4j-api")
 
   testImplementation("org.junit.jupiter:junit-jupiter")
