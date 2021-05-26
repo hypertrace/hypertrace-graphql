@@ -11,9 +11,12 @@ import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.InstrumentationLibrarySpans;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.Span.Event;
 import io.opentelemetry.proto.trace.v1.Span.SpanKind;
 import io.opentelemetry.proto.trace.v1.Status;
 import io.opentelemetry.proto.trace.v1.Status.StatusCode;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.log.event.schema.LogEvent;
+import org.hypertrace.core.graphql.span.export.ExportSpanConstants.LogEventAttributes;
 import org.hypertrace.core.graphql.span.export.ExportSpanConstants.SpanAttributes;
 import org.hypertrace.core.graphql.span.export.ExportSpanConstants.SpanTagsKey;
 
@@ -85,7 +90,7 @@ public class ExportSpan {
     private static void setAttributes(Span.Builder spanBuilder, Map<String, String> tags) {
       List<KeyValue> attributes =
           tags.entrySet().stream()
-              .filter(e -> !SpanTagsKey.getExcludeKeys().contains(e.getKey()))
+              .filter(e -> !SpanTagsKey.EXCLUDE_KEYS.contains(e.getKey()))
               .map(
                   e ->
                       KeyValue.newBuilder()
@@ -98,7 +103,7 @@ public class ExportSpan {
 
     private static void setStatusCode(Span.Builder spanBuilder, Map<String, String> tags) {
       int statusCode =
-          SpanTagsKey.getStatusCodeKeys().stream()
+          SpanTagsKey.STATUS_CODE_KEYS.stream()
               .filter(e -> tags.containsKey(e))
               .map(e -> Integer.parseInt(tags.get(e)))
               .findFirst()
@@ -114,6 +119,38 @@ public class ExportSpan {
       } else {
         spanBuilder.setKind(SpanKind.SPAN_KIND_UNSPECIFIED);
       }
+    }
+
+    private static void setLogEvent(Span.Builder spanBuilder, List<LogEvent> logEvents) {
+      logEvents.stream()
+          .forEach(
+              logEvent -> {
+                Span.Event.Builder eventBuilder = Event.newBuilder();
+                long timeNanos =
+                    Duration.between(
+                            Instant.EPOCH,
+                            Instant.parse(
+                                logEvent.attribute(LogEventAttributes.TIMESTAMP).toString()))
+                        .toNanos();
+                eventBuilder.setTimeUnixNano(timeNanos);
+
+                Map<String, String> logEventAttributes =
+                    logEvent.attribute(LogEventAttributes.ATTRIBUTES) != null
+                        ? (Map<String, String>) logEvent.attribute(LogEventAttributes.ATTRIBUTES)
+                        : Map.of();
+                List<KeyValue> attributes =
+                    logEventAttributes.entrySet().stream()
+                        .map(
+                            e ->
+                                KeyValue.newBuilder()
+                                    .setKey(e.getKey())
+                                    .setValue(
+                                        AnyValue.newBuilder().setStringValue(e.getValue()).build())
+                                    .build())
+                        .collect(Collectors.toList());
+                eventBuilder.addAllAttributes(attributes);
+                spanBuilder.addEvents(eventBuilder.build());
+              });
     }
 
     public ExportSpan build() {
@@ -136,6 +173,8 @@ public class ExportSpan {
       setStatusCode(spanBuilder, tags);
       setSpanKind(spanBuilder, tags);
       setAttributes(spanBuilder, tags);
+
+      setLogEvent(spanBuilder, span.logEvents().results());
 
       resourceSpansBuilder.setResource(resourceBuilder.build());
       instrumentationLibrarySpansBuilder.addSpans(spanBuilder.build());

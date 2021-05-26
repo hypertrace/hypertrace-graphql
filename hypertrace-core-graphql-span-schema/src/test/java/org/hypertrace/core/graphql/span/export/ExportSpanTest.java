@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.log.event.schema.LogEvent;
 import org.hypertrace.core.graphql.log.event.schema.LogEventResultSet;
 import org.hypertrace.core.graphql.span.export.ExportSpan.Builder;
+import org.hypertrace.core.graphql.span.export.ExportSpanConstants.LogEventAttributes;
 import org.hypertrace.core.graphql.span.export.ExportSpanConstants.SpanAttributes;
 import org.hypertrace.core.graphql.span.schema.Span;
 import org.junit.jupiter.api.Assertions;
@@ -42,6 +43,18 @@ public class ExportSpanTest {
     List<LogEvent> results;
     long total;
     long count;
+  }
+
+  @lombok.Value
+  @Accessors(fluent = true)
+  static class ConvertedLogEvent implements org.hypertrace.core.graphql.log.event.schema.LogEvent {
+
+    Map<String, Object> attributeValues;
+
+    @Override
+    public Object attribute(String key) {
+      return this.attributeValues.get(key);
+    }
   }
 
   @Test
@@ -194,5 +207,82 @@ public class ExportSpanTest {
     Assertions.assertEquals(
         ByteString.copyFrom(BaseEncoding.base64().decode("00000000000000004dfeb104f6ed73bf")),
         exportSpan.resourceSpans().getInstrumentationLibrarySpans(0).getSpans(0).getTraceId());
+  }
+
+  @Test
+  public void testForLogEventsFields() {
+    List<LogEvent> logEventsUnderTestSpanId =
+        List.of(
+            new ConvertedLogEvent(
+                Map.of(
+                    LogEventAttributes.TIMESTAMP,
+                    "2021-05-25T16:26:00.310958Z",
+                    LogEventAttributes.ATTRIBUTES,
+                    Map.of("level", "warn", "message", "redis timeout"))));
+
+    List<LogEvent> logEvents =
+        List.of(
+            new ConvertedLogEvent(
+                Map.of(
+                    LogEventAttributes.TIMESTAMP,
+                    "2021-05-25T14:57:57.187Z",
+                    LogEventAttributes.ATTRIBUTES,
+                    Map.of("level", "info", "message", "request successful"))));
+
+    Span span =
+        new ConvertedSpan(
+            "40c4edcea5a17fea",
+            Map.of(
+                SpanAttributes.ID,
+                "40c4edcea5a17fea",
+                SpanAttributes.PARENT_SPAN_ID,
+                "4dfeb104f6ed73bf",
+                SpanAttributes.TRACE_ID,
+                "00000000000000004dfeb104f6ed73bf",
+                SpanAttributes.START_TIME,
+                1620743557759L,
+                SpanAttributes.END_TIME,
+                1620743558040L),
+            Map.of(
+                "40c4edcea5a17fea", logEventsUnderTestSpanId,
+                "40c4edcea5a17feb", logEvents));
+
+    ExportSpan exportSpan = new Builder(span).build();
+
+    // check for logs
+    Assertions.assertEquals(
+        1,
+        exportSpan.resourceSpans().getInstrumentationLibrarySpans(0).getSpans(0).getEventsCount());
+
+    Assertions.assertEquals(
+        1621959960310958000L,
+        exportSpan
+            .resourceSpans()
+            .getInstrumentationLibrarySpans(0)
+            .getSpans(0)
+            .getEvents(0)
+            .getTimeUnixNano());
+
+    Assertions.assertEquals(
+        2,
+        exportSpan
+            .resourceSpans()
+            .getInstrumentationLibrarySpans(0)
+            .getSpans(0)
+            .getEvents(0)
+            .getAttributesCount());
+
+    Assertions.assertTrue(
+        exportSpan
+            .resourceSpans()
+            .getInstrumentationLibrarySpans(0)
+            .getSpans(0)
+            .getEvents(0)
+            .getAttributesList()
+            .stream()
+            .anyMatch(
+                attribute ->
+                    attribute.getKey().equals("level")
+                        && attribute.getValue().getStringValue().equals("warn")));
   }
 }

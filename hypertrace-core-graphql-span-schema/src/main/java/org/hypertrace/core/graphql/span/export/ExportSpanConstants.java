@@ -13,17 +13,16 @@ public interface ExportSpanConstants {
     String NAME = "displaySpanName";
     String TAGS = "spanTags";
 
-    static List<String> getSpanAttributes() {
-      return List.of(
-          SpanAttributes.ID,
-          SpanAttributes.SERVICE_NAME,
-          SpanAttributes.TRACE_ID,
-          SpanAttributes.PARENT_SPAN_ID,
-          SpanAttributes.START_TIME,
-          SpanAttributes.END_TIME,
-          SpanAttributes.NAME,
-          SpanAttributes.TAGS);
-    }
+    List<String> SPAN_ATTRIBUTES =
+        List.of(
+            SpanAttributes.ID,
+            SpanAttributes.SERVICE_NAME,
+            SpanAttributes.TRACE_ID,
+            SpanAttributes.PARENT_SPAN_ID,
+            SpanAttributes.START_TIME,
+            SpanAttributes.END_TIME,
+            SpanAttributes.NAME,
+            SpanAttributes.TAGS);
   }
 
   interface SpanTagsKey {
@@ -32,12 +31,15 @@ public interface ExportSpanConstants {
     String STATUS_CODE = "status.code";
     String ERROR = "error";
 
-    static List<String> getExcludeKeys() {
-      return List.of(SPAN_KIND, STATUS_CODE, ERROR);
-    }
+    List<String> EXCLUDE_KEYS = List.of(SPAN_KIND, STATUS_CODE, ERROR);
+    List<String> STATUS_CODE_KEYS = List.of(STATUS_CODE, ERROR);
+  }
 
-    static List<String> getStatusCodeKeys() {
-      return List.of(STATUS_CODE, ERROR);
-    }
+  interface LogEventAttributes {
+    String TIMESTAMP = "timestamp";
+    String ATTRIBUTES = "attributes";
+
+    List<String> LOG_EVENT_ATTRIBUTES =
+        List.of(LogEventAttributes.TIMESTAMP, LogEventAttributes.ATTRIBUTES);
   }
 }

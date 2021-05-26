@@ -3,11 +3,11 @@ package org.hypertrace.core.graphql.span.fetcher;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import io.reactivex.rxjava3.core.Single;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.core.graphql.span.dao.ExportSpanDao;
+import org.hypertrace.core.graphql.span.export.ExportSpanConstants.LogEventAttributes;
 import org.hypertrace.core.graphql.span.export.ExportSpanConstants.SpanAttributes;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.span.request.SpanRequestBuilder;
@@ -34,8 +34,10 @@ public class ExportSpanFetcher extends InjectableDataFetcher<ExportSpanResult> {
     public CompletableFuture<ExportSpanResult> get(DataFetchingEnvironment environment) {
       Single<SpanRequest> spanRequest =
           this.requestBuilder.build(
-              environment.getContext(), environment.getArguments(),
-              SpanAttributes.getSpanAttributes(), List.of());
+              environment.getContext(),
+              environment.getArguments(),
+              SpanAttributes.SPAN_ATTRIBUTES,
+              LogEventAttributes.LOG_EVENT_ATTRIBUTES);
 
       return spanRequest
           .flatMap(this.exportSpanDao::getSpans)
