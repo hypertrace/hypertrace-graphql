@@ -1,10 +1,10 @@
 package org.hypertrace.core.graphql.utils.gateway;
 
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.utils.Converter;
@@ -25,7 +25,8 @@ class SelectionExpressionSetConverter
   public Single<Set<Expression>> convert(Collection<AttributeRequest> attributeRequests) {
     return Observable.fromIterable(attributeRequests)
         .flatMapSingle(this::buildAliasedSelectionExpression)
-        .collect(Collectors.toUnmodifiableSet());
+        .collectInto(ImmutableSet.<Expression>builder(), ImmutableSet.Builder::add)
+        .map(ImmutableSet.Builder::build);
   }
 
   private Single<Expression> buildAliasedSelectionExpression(AttributeRequest attributeRequest) {

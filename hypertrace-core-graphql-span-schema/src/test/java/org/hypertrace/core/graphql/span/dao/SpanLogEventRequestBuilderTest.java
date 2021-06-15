@@ -4,6 +4,8 @@ import static org.hypertrace.core.graphql.span.dao.DaoTestUtil.attributesAttribu
 import static org.hypertrace.core.graphql.span.dao.DaoTestUtil.spanIdAttribute;
 import static org.hypertrace.core.graphql.span.dao.DaoTestUtil.spansResponse;
 import static org.hypertrace.core.graphql.span.dao.DaoTestUtil.traceIdAttribute;
+import static org.hypertrace.gateway.service.v1.common.Operator.AND;
+import static org.hypertrace.gateway.service.v1.common.Operator.IN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -26,14 +28,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
-import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.span.dao.DaoTestUtil.DefaultAttributeRequest;
@@ -45,9 +45,12 @@ import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.gateway.GatewayUtilsModule;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.gateway.service.v1.common.ColumnIdentifier;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
-import org.hypertrace.gateway.service.v1.common.Operator;
+import org.hypertrace.gateway.service.v1.common.LiteralConstant;
+import org.hypertrace.gateway.service.v1.common.Value;
+import org.hypertrace.gateway.service.v1.common.ValueType;
 import org.hypertrace.gateway.service.v1.log.events.LogEventsRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,7 +138,7 @@ class SpanLogEventRequestBuilderTest {
 
     Collection<AttributeRequest> logAttributeRequests =
         List.of(spanIdAttribute, traceIdAttribute, attributesAttribute);
-    ResultSetRequest resultSetRequest =
+    DefaultResultSetRequest resultSetRequest =
         new DefaultResultSetRequest(
             null,
             List.of(DaoTestUtil.eventIdAttribute),
@@ -148,36 +151,26 @@ class SpanLogEventRequestBuilderTest {
             Optional.empty());
     SpanRequest spanRequest = new DefaultSpanRequest(resultSetRequest, logAttributeRequests);
 
-    LogEventsRequest logEventsRequest =
-        spanLogEventRequestBuilder.buildLogEventsRequest(spanRequest, spansResponse).blockingGet();
-
-    assertEquals(Operator.IN, logEventsRequest.getFilter().getChildFilter(0).getOperator());
+    LogEventsRequest expectedLogEventsRequest =
+        LogEventsRequest.newBuilder()
+            .setStartTimeMillis(startTime)
+            .setEndTimeMillis(endTime)
+            .setLimit(1000)
+            .addSelection(buildAliasedSelection("spanId"))
+            .addSelection(buildAliasedSelection("traceId"))
+            .addSelection(buildAliasedSelection("attributes"))
+            .setFilter(
+                Filter.newBuilder()
+                    .setOperator(AND)
+                    .addChildFilter(
+                        Filter.newBuilder()
+                            .setLhs(buildUnaliasedSelection("spanId"))
+                            .setOperator(IN)
+                            .setRhs(buildStringList("span1", "span2", "span3"))))
+            .build();
     assertEquals(
-        spanIdAttribute.attribute().id(),
-        logEventsRequest
-            .getFilter()
-            .getChildFilter(0)
-            .getLhs()
-            .getColumnIdentifier()
-            .getColumnName());
-    assertEquals(
-        List.of("span1", "span2", "span3"),
-        logEventsRequest
-            .getFilter()
-            .getChildFilter(0)
-            .getRhs()
-            .getLiteral()
-            .getValue()
-            .getStringArrayList()
-            .stream()
-            .collect(Collectors.toList()));
-    assertEquals(startTime, logEventsRequest.getStartTimeMillis());
-    assertEquals(endTime, logEventsRequest.getEndTimeMillis());
-    assertEquals(
-        Set.of("attributes", "traceId", "spanId"),
-        logEventsRequest.getSelectionList().stream()
-            .map(expression -> expression.getColumnIdentifier().getColumnName())
-            .collect(Collectors.toSet()));
+        expectedLogEventsRequest,
+        spanLogEventRequestBuilder.buildLogEventsRequest(spanRequest, spansResponse).blockingGet());
   }
 
   @Test
@@ -186,7 +179,7 @@ class SpanLogEventRequestBuilderTest {
     long endTime = System.currentTimeMillis() + Duration.ofHours(1).toMillis();
 
     Collection<AttributeRequest> logAttributeRequests = List.of(traceIdAttribute);
-    ResultSetRequest resultSetRequest =
+    DefaultResultSetRequest resultSetRequest =
         new DefaultResultSetRequest(
             null,
             List.of(DaoTestUtil.eventIdAttribute),
@@ -199,35 +192,47 @@ class SpanLogEventRequestBuilderTest {
             Optional.empty());
     SpanRequest spanRequest = new DefaultSpanRequest(resultSetRequest, logAttributeRequests);
 
-    LogEventsRequest logEventsRequest =
-        spanLogEventRequestBuilder.buildLogEventsRequest(spanRequest, spansResponse).blockingGet();
+    LogEventsRequest expectedLogEventsRequest =
+        LogEventsRequest.newBuilder()
+            .setStartTimeMillis(startTime)
+            .setEndTimeMillis(endTime)
+            .setLimit(1000)
+            .addSelection(buildAliasedSelection("spanId"))
+            .addSelection(buildAliasedSelection("traceId"))
+            .setFilter(
+                Filter.newBuilder()
+                    .setOperator(AND)
+                    .addChildFilter(
+                        Filter.newBuilder()
+                            .setLhs(buildUnaliasedSelection("spanId"))
+                            .setOperator(IN)
+                            .setRhs(buildStringList("span1", "span2", "span3"))))
+            .build();
+    assertEquals(
+        expectedLogEventsRequest,
+        spanLogEventRequestBuilder.buildLogEventsRequest(spanRequest, spansResponse).blockingGet());
+  }
 
-    assertEquals(Operator.IN, logEventsRequest.getFilter().getChildFilter(0).getOperator());
-    assertEquals(
-        spanIdAttribute.attribute().id(),
-        logEventsRequest
-            .getFilter()
-            .getChildFilter(0)
-            .getLhs()
-            .getColumnIdentifier()
-            .getColumnName());
-    assertEquals(
-        List.of("span1", "span2", "span3"),
-        logEventsRequest
-            .getFilter()
-            .getChildFilter(0)
-            .getRhs()
-            .getLiteral()
-            .getValue()
-            .getStringArrayList()
-            .stream()
-            .collect(Collectors.toList()));
-    assertEquals(startTime, logEventsRequest.getStartTimeMillis());
-    assertEquals(endTime, logEventsRequest.getEndTimeMillis());
-    assertEquals(
-        Set.of("traceId", "spanId"),
-        logEventsRequest.getSelectionList().stream()
-            .map(expression -> expression.getColumnIdentifier().getColumnName())
-            .collect(Collectors.toSet()));
+  Expression buildAliasedSelection(String name) {
+    return Expression.newBuilder()
+        .setColumnIdentifier(ColumnIdentifier.newBuilder().setColumnName(name).setAlias(name))
+        .build();
+  }
+
+  Expression buildUnaliasedSelection(String name) {
+    return Expression.newBuilder()
+        .setColumnIdentifier(ColumnIdentifier.newBuilder().setColumnName(name))
+        .build();
+  }
+
+  Expression buildStringList(String... values) {
+    return Expression.newBuilder()
+        .setLiteral(
+            LiteralConstant.newBuilder()
+                .setValue(
+                    Value.newBuilder()
+                        .setValueType(ValueType.STRING_ARRAY)
+                        .addAllStringArray(List.of(values))))
+        .build();
   }
 }

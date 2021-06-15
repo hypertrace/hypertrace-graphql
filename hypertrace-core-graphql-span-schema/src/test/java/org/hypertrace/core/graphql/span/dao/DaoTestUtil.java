@@ -81,7 +81,7 @@ class DaoTestUtil {
 
   @Value
   @Accessors(fluent = true)
-  static class DefaultResultSetRequest implements ResultSetRequest {
+  static class DefaultResultSetRequest implements ResultSetRequest<OrderArgument> {
 
     GraphQlRequestContext context;
     Collection<AttributeRequest> attributes;
@@ -89,7 +89,7 @@ class DaoTestUtil {
     AttributeRequest idAttribute;
     int limit;
     int offset;
-    List<AttributeAssociation> orderArguments;
+    List<AttributeAssociation<OrderArgument>> orderArguments;
     Collection<AttributeAssociation<FilterArgument>> filterArguments;
     Optional<String> spaceId;
   }

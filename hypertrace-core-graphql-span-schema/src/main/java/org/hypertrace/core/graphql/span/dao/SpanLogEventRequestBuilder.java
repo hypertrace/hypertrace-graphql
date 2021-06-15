@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.span.dao;
 
 import static io.reactivex.rxjava3.core.Single.zip;
 
+import com.google.common.collect.ImmutableSet;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import org.hypertrace.gateway.service.v1.log.events.LogEventsRequest;
 import org.hypertrace.gateway.service.v1.span.SpansResponse;
 
 class SpanLogEventRequestBuilder {
+  private static final int LOG_EVENT_TOTAL_LIMIT = 1000;
 
   private final Converter<Collection<AttributeRequest>, Set<Expression>> attributeConverter;
   private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
@@ -63,6 +65,7 @@ class SpanLogEventRequestBuilder {
                 .setEndTimeMillis(
                     gqlRequest.spanEventsRequest().timeRange().endTime().toEpochMilli())
                 .addAllSelection(selections)
+                .setLimit(LOG_EVENT_TOTAL_LIMIT)
                 .setFilter(filter)
                 .build());
   }
@@ -76,8 +79,8 @@ class SpanLogEventRequestBuilder {
             HypertraceCoreAttributeScopeString.SPAN)
         .map(attributeRequestBuilder::buildForAttribute)
         .toObservable()
-        .mergeWith(Observable.fromIterable(logEventAttributes))
-        .collect(Collectors.toSet())
+        .concatWith(Observable.fromIterable(logEventAttributes))
+        .collect(ImmutableSet.toImmutableSet())
         .flatMap(attributeConverter::convert);
   }
 
