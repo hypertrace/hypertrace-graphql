@@ -5,6 +5,7 @@ import io.reactivex.rxjava3.core.Observable;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
+@Deprecated
 public interface GraphQlGrpcContext {
 
   <TResp> TResp callInContext(Callable<TResp> callable);

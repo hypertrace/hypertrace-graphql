@@ -10,8 +10,8 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.log.event.request.LogEventRequest;
 import org.hypertrace.core.graphql.log.event.schema.LogEventResultSet;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.log.events.LogEventsRequest;
@@ -21,7 +21,7 @@ import org.hypertrace.gateway.service.v1.log.events.LogEventsResponse;
 class GatewayServiceLogEventDao implements LogEventDao {
   private static final int DEFAULT_DEADLINE_SEC = 10;
   private final GatewayServiceFutureStub gatewayServiceStub;
-  private final GraphQlGrpcContextBuilder grpcContextBuilder;
+  private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceLogEventsRequestBuilder requestBuilder;
   private final GatewayServiceLogEventsResponseConverter logEventConverter;
 
@@ -29,7 +29,7 @@ class GatewayServiceLogEventDao implements LogEventDao {
   GatewayServiceLogEventDao(
       GraphQlServiceConfig serviceConfig,
       CallCredentials credentials,
-      GraphQlGrpcContextBuilder grpcContextBuilder,
+      GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry channelRegistry,
       GatewayServiceLogEventsRequestBuilder requestBuilder,
       GatewayServiceLogEventsResponseConverter logEventConverter) {
@@ -57,7 +57,7 @@ class GatewayServiceLogEventDao implements LogEventDao {
     return Single.fromFuture(
         this.grpcContextBuilder
             .build(context)
-            .callInContext(
+            .call(
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)

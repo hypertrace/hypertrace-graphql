@@ -10,8 +10,8 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.trace.request.TraceRequest;
 import org.hypertrace.core.graphql.trace.schema.TraceResultSet;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.trace.TracesRequest;
@@ -21,7 +21,7 @@ import org.hypertrace.gateway.service.v1.trace.TracesResponse;
 class GatewayServiceTraceDao implements TraceDao {
   private static final int DEFAULT_DEADLINE_SEC = 10;
   private final GatewayServiceFutureStub gatewayServiceStub;
-  private final GraphQlGrpcContextBuilder grpcContextBuilder;
+  private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceTraceRequestBuilder requestBuilder;
   private final GatewayServiceTraceConverter traceConverter;
 
@@ -29,7 +29,7 @@ class GatewayServiceTraceDao implements TraceDao {
   GatewayServiceTraceDao(
       GraphQlServiceConfig serviceConfig,
       CallCredentials credentials,
-      GraphQlGrpcContextBuilder grpcContextBuilder,
+      GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry channelRegistry,
       GatewayServiceTraceRequestBuilder requestBuilder,
       GatewayServiceTraceConverter traceConverter) {
@@ -58,7 +58,7 @@ class GatewayServiceTraceDao implements TraceDao {
     return Single.fromFuture(
         this.grpcContextBuilder
             .build(context)
-            .callInContext(
+            .call(
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)

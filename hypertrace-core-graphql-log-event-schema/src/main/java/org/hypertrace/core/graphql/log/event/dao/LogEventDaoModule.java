@@ -15,8 +15,8 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderAr
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
@@ -30,7 +30,7 @@ public class LogEventDaoModule extends AbstractModule {
 
     requireBinding(CallCredentials.class);
     requireBinding(GraphQlServiceConfig.class);
-    requireBinding(GraphQlGrpcContextBuilder.class);
+    requireBinding(GrpcContextBuilder.class);
     requireBinding(GrpcChannelRegistry.class);
 
     requireBinding(

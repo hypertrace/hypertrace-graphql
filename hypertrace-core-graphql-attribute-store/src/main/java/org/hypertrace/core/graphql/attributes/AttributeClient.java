@@ -12,20 +12,21 @@ import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
 import org.hypertrace.core.attribute.service.v1.Empty;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
+import org.hypertrace.core.grpcutils.client.rx.GrpcRxExecutionContext;
 
 @Singleton
 class AttributeClient {
   private static final int DEFAULT_DEADLINE_SEC = 10;
   private final AttributeServiceStub attributeServiceClient;
-  private final GraphQlGrpcContextBuilder grpcContextBuilder;
+  private final GrpcContextBuilder grpcContextBuilder;
   private final AttributeModelTranslator translator;
 
   @Inject
   AttributeClient(
       GraphQlServiceConfig serviceConfig,
-      GraphQlGrpcContextBuilder grpcContextBuilder,
+      GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry grpcChannelRegistry,
       CallCredentials credentials,
       AttributeModelTranslator translator) {
@@ -41,9 +42,8 @@ class AttributeClient {
   }
 
   public Observable<AttributeModel> queryAll(GraphQlRequestContext requestContext) {
-    return this.grpcContextBuilder
-        .build(requestContext)
-        .<AttributeMetadata>streamInContext(
+    return GrpcRxExecutionContext.forContext(this.grpcContextBuilder.build(requestContext))
+        .<AttributeMetadata>stream(
             streamObserver ->
                 this.attributeServiceClient
                     .withDeadlineAfter(DEFAULT_DEADLINE_SEC, TimeUnit.SECONDS)

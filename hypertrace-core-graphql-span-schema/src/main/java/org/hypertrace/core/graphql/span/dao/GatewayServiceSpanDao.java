@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.span.schema.SpanResultSet;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.span.SpansRequest;
 import org.hypertrace.gateway.service.v1.span.SpansResponse;
@@ -17,7 +17,7 @@ import org.hypertrace.gateway.service.v1.span.SpansResponse;
 class GatewayServiceSpanDao implements SpanDao {
   private static final int DEFAULT_DEADLINE_SEC = 10;
   private final GatewayServiceFutureStub gatewayServiceStub;
-  private final GraphQlGrpcContextBuilder grpcContextBuilder;
+  private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceSpanRequestBuilder requestBuilder;
   private final GatewayServiceSpanConverter spanConverter;
   private final SpanLogEventDao spanLogEventDao;
@@ -25,7 +25,7 @@ class GatewayServiceSpanDao implements SpanDao {
   @Inject
   GatewayServiceSpanDao(
       GatewayServiceFutureStub gatewayServiceFutureStub,
-      GraphQlGrpcContextBuilder grpcContextBuilder,
+      GrpcContextBuilder grpcContextBuilder,
       GatewayServiceSpanRequestBuilder requestBuilder,
       GatewayServiceSpanConverter spanConverter,
       SpanLogEventDao spanLogEventDao) {
@@ -51,7 +51,7 @@ class GatewayServiceSpanDao implements SpanDao {
     return Single.fromFuture(
         this.grpcContextBuilder
             .build(context)
-            .callInContext(
+            .call(
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)

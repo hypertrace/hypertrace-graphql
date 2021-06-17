@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.log.events.LogEventsRequest;
 import org.hypertrace.gateway.service.v1.log.events.LogEventsResponse;
@@ -18,14 +18,14 @@ class SpanLogEventDao {
   private static final int DEFAULT_DEADLINE_SEC = 10;
 
   private final GatewayServiceFutureStub gatewayServiceStub;
-  private final GraphQlGrpcContextBuilder grpcContextBuilder;
+  private final GrpcContextBuilder grpcContextBuilder;
   private final SpanLogEventRequestBuilder spanLogEventRequestBuilder;
   private final SpanLogEventResponseConverter spanLogEventResponseConverter;
 
   @Inject
   SpanLogEventDao(
       GatewayServiceFutureStub gatewayServiceFutureStub,
-      GraphQlGrpcContextBuilder grpcContextBuilder,
+      GrpcContextBuilder grpcContextBuilder,
       SpanLogEventRequestBuilder spanLogEventRequestBuilder,
       SpanLogEventResponseConverter spanLogEventResponseConverter) {
     this.gatewayServiceStub = gatewayServiceFutureStub;
@@ -70,7 +70,7 @@ class SpanLogEventDao {
     return Single.fromFuture(
         this.grpcContextBuilder
             .build(context)
-            .callInContext(
+            .call(
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)

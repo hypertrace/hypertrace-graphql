@@ -12,5 +12,6 @@ public class GraphQlGrpcModule extends AbstractModule {
     bind(CallCredentials.class).toInstance(getClientCallCredsProvider().get());
     bind(GraphQlGrpcContextBuilder.class).to(DefaultGraphQlGrpcContextBuilder.class);
     bind(GrpcChannelRegistry.class).to(DefaultGrpcChannelRegistry.class);
+    bind(GrpcContextBuilder.class).to(PlatformGrpcContextBuilder.class);
   }
 }
