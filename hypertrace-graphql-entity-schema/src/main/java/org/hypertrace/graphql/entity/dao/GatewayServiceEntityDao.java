@@ -44,8 +44,8 @@ class GatewayServiceEntityDao implements EntityDao {
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
-            grpcChannelRegistry.forAddress(
-                serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
+                grpcChannelRegistry.forAddress(
+                    serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
             .withCallCredentials(credentials);
   }
 
@@ -78,8 +78,8 @@ class GatewayServiceEntityDao implements EntityDao {
             .callInContext(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(serviceConfig.getGatewayServiceRPCClientDeadline(),
-                            SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceRPCClientDeadline(), SECONDS)
                         .getEntities(request)));
   }
 }

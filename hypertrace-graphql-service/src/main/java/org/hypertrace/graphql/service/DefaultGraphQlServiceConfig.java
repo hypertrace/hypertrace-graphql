@@ -64,7 +64,8 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
     this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
     this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
-    this.gatewayServiceRPCClientDeadline = untypedConfig.getInt(GATEWAY_SERVICE_RPC_CLIENT_DEADLINE);
+    this.gatewayServiceRPCClientDeadline =
+        untypedConfig.getInt(GATEWAY_SERVICE_RPC_CLIENT_DEADLINE);
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {

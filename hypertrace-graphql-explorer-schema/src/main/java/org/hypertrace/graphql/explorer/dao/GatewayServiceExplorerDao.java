@@ -39,8 +39,8 @@ class GatewayServiceExplorerDao implements ExplorerDao {
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
-            grpcChannelRegistry.forAddress(
-                serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
+                grpcChannelRegistry.forAddress(
+                    serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
             .withCallCredentials(credentials);
   }
 
@@ -61,8 +61,8 @@ class GatewayServiceExplorerDao implements ExplorerDao {
             .callInContext(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(serviceConfig.getGatewayServiceRPCClientDeadline(),
-                            SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceRPCClientDeadline(), SECONDS)
                         .explore(request)));
   }
 }

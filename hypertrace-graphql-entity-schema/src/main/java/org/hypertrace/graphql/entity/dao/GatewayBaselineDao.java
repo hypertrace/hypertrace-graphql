@@ -53,8 +53,8 @@ class GatewayBaselineDao implements BaselineDao {
     this.grpcContextBuilder = grpcContextBuilder;
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
-            grpcChannelRegistry.forAddress(
-                serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
+                grpcChannelRegistry.forAddress(
+                    serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
             .withCallCredentials(credentials);
     this.seriesConverter = seriesConverter;
     this.aggregationConverter = aggregationConverter;
@@ -129,8 +129,8 @@ class GatewayBaselineDao implements BaselineDao {
             .callInContext(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(serviceConfig.getGatewayServiceRPCClientDeadline(),
-                            SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceRPCClientDeadline(), SECONDS)
                         .getBaselineForEntities(request)));
   }
 }
