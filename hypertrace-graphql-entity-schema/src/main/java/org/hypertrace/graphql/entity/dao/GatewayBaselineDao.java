@@ -1,7 +1,7 @@
 package org.hypertrace.graphql.entity.dao;
 
 import static io.reactivex.rxjava3.core.Single.zip;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hypertrace.core.graphql.common.utils.CollectorUtils.flatten;
 
 import io.grpc.CallCredentials;
@@ -130,7 +130,7 @@ class GatewayBaselineDao implements BaselineDao {
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(
-                            serviceConfig.getGatewayServiceRPCClientDeadline(), SECONDS)
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .getBaselineForEntities(request)));
   }
 }

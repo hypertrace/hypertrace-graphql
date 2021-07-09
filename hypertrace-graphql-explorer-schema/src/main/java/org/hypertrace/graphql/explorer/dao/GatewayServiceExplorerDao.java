@@ -1,6 +1,6 @@
 package org.hypertrace.graphql.explorer.dao;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
@@ -62,7 +62,7 @@ class GatewayServiceExplorerDao implements ExplorerDao {
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(
-                            serviceConfig.getGatewayServiceRPCClientDeadline(), SECONDS)
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .explore(request)));
   }
 }
