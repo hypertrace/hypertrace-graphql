@@ -20,12 +20,12 @@ import org.hypertrace.graphql.entity.schema.EntityResultSet;
 
 @Singleton
 class GatewayServiceEntityDao implements EntityDao {
-  private static final int DEFAULT_DEADLINE_SEC = 10;
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceEntityRequestBuilder requestBuilder;
   private final GatewayServiceEntityConverter entityConverter;
   private final BaselineDao baselineDao;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   GatewayServiceEntityDao(
@@ -40,11 +40,12 @@ class GatewayServiceEntityDao implements EntityDao {
     this.requestBuilder = requestBuilder;
     this.entityConverter = entityConverter;
     this.baselineDao = baselineDao;
+    this.serviceConfig = serviceConfig;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
-                grpcChannelRegistry.forAddress(
-                    serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
+            grpcChannelRegistry.forAddress(
+                serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
             .withCallCredentials(credentials);
   }
 
@@ -77,7 +78,8 @@ class GatewayServiceEntityDao implements EntityDao {
             .callInContext(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .withDeadlineAfter(serviceConfig.getGatewayServiceRPCClientDeadline(),
+                            SECONDS)
                         .getEntities(request)));
   }
 }

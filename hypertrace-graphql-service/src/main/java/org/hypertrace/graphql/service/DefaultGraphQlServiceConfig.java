@@ -24,6 +24,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
+  private static final String GATEWAY_SERVICE_RPC_CLIENT_DEADLINE = "gateway.service.deadline";
 
   private static final String ENTITY_SERVICE_HOST_PROPERTY = "entity.service.host";
   private static final String ENTITY_SERVICE_PORT_PROPERTY = "entity.service.port";
@@ -41,6 +42,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   int attributeServicePort;
   String gatewayServiceHost;
   int gatewayServicePort;
+  int gatewayServiceRPCClientDeadline;
   String entityServiceHost;
   int entityServicePort;
   String configServiceHost;
@@ -62,6 +64,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
     this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
     this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
+    this.gatewayServiceRPCClientDeadline = untypedConfig.getInt(GATEWAY_SERVICE_RPC_CLIENT_DEADLINE);
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {
