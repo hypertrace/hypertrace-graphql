@@ -1,6 +1,6 @@
 package org.hypertrace.core.graphql.trace.dao;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
@@ -19,11 +19,12 @@ import org.hypertrace.gateway.service.v1.trace.TracesResponse;
 
 @Singleton
 class GatewayServiceTraceDao implements TraceDao {
-  private static final int DEFAULT_DEADLINE_SEC = 10;
+
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceTraceRequestBuilder requestBuilder;
   private final GatewayServiceTraceConverter traceConverter;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   GatewayServiceTraceDao(
@@ -36,6 +37,7 @@ class GatewayServiceTraceDao implements TraceDao {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.traceConverter = traceConverter;
+    this.serviceConfig = serviceConfig;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -61,7 +63,8 @@ class GatewayServiceTraceDao implements TraceDao {
             .call(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .getTraces(request)));
   }
 }

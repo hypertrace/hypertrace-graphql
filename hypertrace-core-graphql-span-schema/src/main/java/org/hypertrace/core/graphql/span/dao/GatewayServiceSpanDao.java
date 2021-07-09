@@ -1,6 +1,6 @@
 package org.hypertrace.core.graphql.span.dao;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.span.schema.SpanResultSet;
+import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.span.SpansRequest;
@@ -15,15 +16,17 @@ import org.hypertrace.gateway.service.v1.span.SpansResponse;
 
 @Singleton
 class GatewayServiceSpanDao implements SpanDao {
-  private static final int DEFAULT_DEADLINE_SEC = 10;
+
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceSpanRequestBuilder requestBuilder;
   private final GatewayServiceSpanConverter spanConverter;
   private final SpanLogEventDao spanLogEventDao;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   GatewayServiceSpanDao(
+      GraphQlServiceConfig serviceConfig,
       GatewayServiceFutureStub gatewayServiceFutureStub,
       GrpcContextBuilder grpcContextBuilder,
       GatewayServiceSpanRequestBuilder requestBuilder,
@@ -34,6 +37,7 @@ class GatewayServiceSpanDao implements SpanDao {
     this.spanConverter = spanConverter;
     this.spanLogEventDao = spanLogEventDao;
     this.gatewayServiceStub = gatewayServiceFutureStub;
+    this.serviceConfig = serviceConfig;
   }
 
   @Override
@@ -54,7 +58,8 @@ class GatewayServiceSpanDao implements SpanDao {
             .call(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .getSpans(request)));
   }
 }

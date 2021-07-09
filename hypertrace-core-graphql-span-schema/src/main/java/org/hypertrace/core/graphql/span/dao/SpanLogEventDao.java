@@ -1,12 +1,13 @@
 package org.hypertrace.core.graphql.span.dao;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.reactivex.rxjava3.core.Single;
 import java.util.Map;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
+import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.log.events.LogEventsRequest;
@@ -15,15 +16,15 @@ import org.hypertrace.gateway.service.v1.span.SpansResponse;
 
 class SpanLogEventDao {
 
-  private static final int DEFAULT_DEADLINE_SEC = 10;
-
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
   private final SpanLogEventRequestBuilder spanLogEventRequestBuilder;
   private final SpanLogEventResponseConverter spanLogEventResponseConverter;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   SpanLogEventDao(
+      GraphQlServiceConfig serviceConfig,
       GatewayServiceFutureStub gatewayServiceFutureStub,
       GrpcContextBuilder grpcContextBuilder,
       SpanLogEventRequestBuilder spanLogEventRequestBuilder,
@@ -32,6 +33,7 @@ class SpanLogEventDao {
     this.grpcContextBuilder = grpcContextBuilder;
     this.spanLogEventRequestBuilder = spanLogEventRequestBuilder;
     this.spanLogEventResponseConverter = spanLogEventResponseConverter;
+    this.serviceConfig = serviceConfig;
   }
 
   /**
@@ -73,7 +75,8 @@ class SpanLogEventDao {
             .call(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .getLogEvents(request)));
   }
 }

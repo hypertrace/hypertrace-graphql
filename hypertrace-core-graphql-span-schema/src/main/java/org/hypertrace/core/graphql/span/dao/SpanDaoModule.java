@@ -32,6 +32,7 @@ public class SpanDaoModule extends AbstractModule {
   protected void configure() {
     bind(SpanDao.class).to(GatewayServiceSpanDao.class);
     requireBinding(GatewayServiceFutureStub.class);
+    requireBinding(GraphQlServiceConfig.class);
     requireBinding(CallCredentials.class);
     requireBinding(GraphQlServiceConfig.class);
     requireBinding(GrpcContextBuilder.class);
