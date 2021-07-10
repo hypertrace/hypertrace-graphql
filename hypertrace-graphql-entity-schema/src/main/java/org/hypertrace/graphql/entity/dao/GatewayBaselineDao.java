@@ -1,7 +1,7 @@
 package org.hypertrace.graphql.entity.dao;
 
 import static io.reactivex.rxjava3.core.Single.zip;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.hypertrace.core.graphql.common.utils.CollectorUtils.flatten;
 
 import io.grpc.CallCredentials;
@@ -40,6 +40,7 @@ class GatewayBaselineDao implements BaselineDao {
   private final Converter<Collection<MetricAggregationRequest>, Set<Expression>>
       aggregationConverter;
   private final Converter<Collection<MetricSeriesRequest>, Set<TimeAggregation>> seriesConverter;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   GatewayBaselineDao(
@@ -57,6 +58,7 @@ class GatewayBaselineDao implements BaselineDao {
             .withCallCredentials(credentials);
     this.seriesConverter = seriesConverter;
     this.aggregationConverter = aggregationConverter;
+    this.serviceConfig = serviceConfig;
   }
 
   @Override
@@ -127,7 +129,8 @@ class GatewayBaselineDao implements BaselineDao {
             .callInContext(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .getBaselineForEntities(request)));
   }
 }

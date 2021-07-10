@@ -1,6 +1,6 @@
 package org.hypertrace.graphql.explorer.dao;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
@@ -18,11 +18,11 @@ import org.hypertrace.graphql.explorer.schema.ExploreResultSet;
 
 @Singleton
 class GatewayServiceExplorerDao implements ExplorerDao {
-  private static final int DEFAULT_DEADLINE_SEC = 10;
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceExploreRequestBuilder requestBuilder;
   private final GatewayServiceExploreResponseConverter responseConverter;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   GatewayServiceExplorerDao(
@@ -35,6 +35,7 @@ class GatewayServiceExplorerDao implements ExplorerDao {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.responseConverter = responseConverter;
+    this.serviceConfig = serviceConfig;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -60,7 +61,8 @@ class GatewayServiceExplorerDao implements ExplorerDao {
             .callInContext(
                 () ->
                     this.gatewayServiceStub
-                        .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                        .withDeadlineAfter(
+                            serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .explore(request)));
   }
 }

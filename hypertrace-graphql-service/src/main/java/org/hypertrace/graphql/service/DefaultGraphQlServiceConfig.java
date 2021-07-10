@@ -1,6 +1,7 @@
 package org.hypertrace.graphql.service;
 
 import com.typesafe.config.Config;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.Value;
@@ -24,6 +25,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
+  private static final String GATEWAY_SERVICE_CLIENT_TIMEOUT = "gateway.service.timeout";
 
   private static final String ENTITY_SERVICE_HOST_PROPERTY = "entity.service.host";
   private static final String ENTITY_SERVICE_PORT_PROPERTY = "entity.service.port";
@@ -41,6 +43,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   int attributeServicePort;
   String gatewayServiceHost;
   int gatewayServicePort;
+  Duration gatewayServiceTimeout;
   String entityServiceHost;
   int entityServicePort;
   String configServiceHost;
@@ -62,6 +65,11 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
     this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
     this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
+    // fallback timeout: 10s
+    this.gatewayServiceTimeout =
+        untypedConfig.hasPath(GATEWAY_SERVICE_CLIENT_TIMEOUT)
+            ? untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT)
+            : Duration.ofSeconds(10);
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {
