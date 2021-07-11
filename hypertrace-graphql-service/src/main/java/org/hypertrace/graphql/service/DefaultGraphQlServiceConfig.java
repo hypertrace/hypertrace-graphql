@@ -10,6 +10,8 @@ import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 @Value
 class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
+  private static final Long DEFAULT_CLIENT_TIMEOUT_SECONDS = 10L;
+
   private static final String SERVICE_NAME_CONFIG = "service.name";
   private static final String SERVICE_PORT_CONFIG = "service.port";
 
@@ -22,6 +24,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String ATTRIBUTE_SERVICE_HOST_PROPERTY = "attribute.service.host";
   private static final String ATTRIBUTE_SERVICE_PORT_PROPERTY = "attribute.service.port";
+  private static final String ATTRIBUTE_SERVICE_PORT_TIMEOUT = "attribute.service.timeout";
 
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
@@ -29,9 +32,11 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String ENTITY_SERVICE_HOST_PROPERTY = "entity.service.host";
   private static final String ENTITY_SERVICE_PORT_PROPERTY = "entity.service.port";
+  private static final String ENTITY_SERVICE_CLIENT_TIMEOUT = "entity.service.timeout";
 
   private static final String CONFIG_SERVICE_HOST_PROPERTY = "config.service.host";
   private static final String CONFIG_SERVICE_PORT_PROPERTY = "config.service.port";
+  private static final String CONFIG_SERVICE_CLIENT_TIMEOUT = "config.service.timeout";
 
   String serviceName;
   int servicePort;
@@ -41,13 +46,16 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   int maxIoThreads;
   String attributeServiceHost;
   int attributeServicePort;
+  Duration attributeServiceTimeout;
   String gatewayServiceHost;
   int gatewayServicePort;
   Duration gatewayServiceTimeout;
   String entityServiceHost;
   int entityServicePort;
+  Duration entityServiceTimeout;
   String configServiceHost;
   int configServicePort;
+  Duration configServiceTimeout;
 
   DefaultGraphQlServiceConfig(Config untypedConfig) {
     this.serviceName = untypedConfig.getString(SERVICE_NAME_CONFIG);
@@ -65,11 +73,27 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
     this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
     this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
-    // fallback timeout: 10s
+
     this.gatewayServiceTimeout =
-        untypedConfig.hasPath(GATEWAY_SERVICE_CLIENT_TIMEOUT)
-            ? untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT)
-            : Duration.ofSeconds(10);
+        getSuppliedDurationOrFallback(
+            () -> untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT));
+    this.attributeServiceTimeout =
+        getSuppliedDurationOrFallback(
+            () -> untypedConfig.getDuration(ATTRIBUTE_SERVICE_PORT_TIMEOUT));
+    this.configServiceTimeout =
+        getSuppliedDurationOrFallback(
+            () -> untypedConfig.getDuration(CONFIG_SERVICE_CLIENT_TIMEOUT));
+    this.entityServiceTimeout =
+        getSuppliedDurationOrFallback(
+            () -> untypedConfig.getDuration(ENTITY_SERVICE_CLIENT_TIMEOUT));
+  }
+
+  private Duration getSuppliedDurationOrFallback(Supplier<Duration> durationSupplier) {
+    try {
+      return durationSupplier.get();
+    } catch (Throwable unused) {
+      return Duration.ofSeconds(DEFAULT_CLIENT_TIMEOUT_SECONDS);
+    }
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {
