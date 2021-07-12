@@ -1,9 +1,8 @@
 package org.hypertrace.graphql.spaces.dao;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
@@ -19,11 +18,11 @@ import org.hypertrace.spaces.config.service.v1.SpacesConfigServiceGrpc.SpacesCon
 
 class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
 
-  private static final int DEFAULT_DEADLINE_SEC = 10;
   private final SpacesConfigServiceFutureStub spaceConfigServiceStub;
   private final GraphQlGrpcContextBuilder grpcContextBuilder;
   private final SpaceConfigRulesRequestConverter requestConverter;
   private final SpaceConfigRulesResponseConverter responseConverter;
+  private final HypertraceGraphQlServiceConfig serviceConfig;
 
   @Inject
   ConfigServiceSpacesConfigDao(
@@ -36,6 +35,7 @@ class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestConverter = requestConverter;
     this.responseConverter = responseConverter;
+    this.serviceConfig = serviceConfig;
 
     this.spaceConfigServiceStub =
         SpacesConfigServiceGrpc.newFutureStub(
@@ -52,7 +52,9 @@ class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
                 .callInContext(
                     () ->
                         this.spaceConfigServiceStub
-                            .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(),
+                                TimeUnit.MILLISECONDS)
                             .getRules(this.requestConverter.convertGetRequest())))
         .flatMap(this.responseConverter::convertGetResponse);
   }
@@ -65,7 +67,9 @@ class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
                 .callInContext(
                     () ->
                         this.spaceConfigServiceStub
-                            .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(),
+                                TimeUnit.MILLISECONDS)
                             .createRule(this.requestConverter.convertCreationRequest(request))))
         .flatMap(this.responseConverter::convertRule);
   }
@@ -78,7 +82,9 @@ class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
                 .callInContext(
                     () ->
                         this.spaceConfigServiceStub
-                            .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(),
+                                TimeUnit.MILLISECONDS)
                             .updateRule(this.requestConverter.convertUpdateRequest(request))))
         .flatMap(this.responseConverter::convertRule);
   }
@@ -91,7 +97,9 @@ class ConfigServiceSpacesConfigDao implements SpacesConfigDao {
                 .callInContext(
                     () ->
                         this.spaceConfigServiceStub
-                            .withDeadlineAfter(DEFAULT_DEADLINE_SEC, SECONDS)
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(),
+                                TimeUnit.MILLISECONDS)
                             .deleteRule(this.requestConverter.convertDeleteRequest(request))))
         .flatMap(unusedResponse -> this.responseConverter.buildDeleteResponse());
   }
