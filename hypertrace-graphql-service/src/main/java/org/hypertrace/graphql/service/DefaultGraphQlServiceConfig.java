@@ -89,11 +89,8 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   }
 
   private Duration getSuppliedDurationOrFallback(Supplier<Duration> durationSupplier) {
-    try {
-      return durationSupplier.get();
-    } catch (Throwable unused) {
-      return Duration.ofSeconds(DEFAULT_CLIENT_TIMEOUT_SECONDS);
-    }
+    return optionallyGet(durationSupplier)
+        .orElse(Duration.ofSeconds(DEFAULT_CLIENT_TIMEOUT_SECONDS));
   }
 
   private <T> Optional<T> optionallyGet(Supplier<T> valueSupplier) {
