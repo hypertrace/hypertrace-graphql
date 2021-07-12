@@ -15,10 +15,10 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
-import org.hypertrace.core.graphql.context.GraphQlRequestContextBuilder;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.v1.baseline.BaselineEntity;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.gateway.service.v1.common.Expression;
@@ -43,8 +43,8 @@ public class EntityDaoModule extends AbstractModule {
     bind(BaselineDao.class).to(GatewayBaselineDao.class);
     requireBinding(CallCredentials.class);
     requireBinding(GraphQlServiceConfig.class);
-    requireBinding(GraphQlRequestContextBuilder.class);
     requireBinding(GrpcChannelRegistry.class);
+    requireBinding(GrpcContextBuilder.class);
     requireBinding(Key.get(Scheduler.class, BoundedIoScheduler.class));
 
     requireBinding(
