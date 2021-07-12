@@ -24,7 +24,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String ATTRIBUTE_SERVICE_HOST_PROPERTY = "attribute.service.host";
   private static final String ATTRIBUTE_SERVICE_PORT_PROPERTY = "attribute.service.port";
-  private static final String ATTRIBUTE_SERVICE_PORT_TIMEOUT = "attribute.service.timeout";
+  private static final String ATTRIBUTE_SERVICE_CLIENT_TIMEOUT = "attribute.service.timeout";
 
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
@@ -79,7 +79,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
             () -> untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT));
     this.attributeServiceTimeout =
         getSuppliedDurationOrFallback(
-            () -> untypedConfig.getDuration(ATTRIBUTE_SERVICE_PORT_TIMEOUT));
+            () -> untypedConfig.getDuration(ATTRIBUTE_SERVICE_CLIENT_TIMEOUT));
     this.configServiceTimeout =
         getSuppliedDurationOrFallback(
             () -> untypedConfig.getDuration(CONFIG_SERVICE_CLIENT_TIMEOUT));
