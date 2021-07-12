@@ -18,10 +18,11 @@ import org.hypertrace.core.grpcutils.client.rx.GrpcRxExecutionContext;
 
 @Singleton
 class AttributeClient {
-  private static final int DEFAULT_DEADLINE_SEC = 10;
+
   private final AttributeServiceStub attributeServiceClient;
   private final GrpcContextBuilder grpcContextBuilder;
   private final AttributeModelTranslator translator;
+  private final GraphQlServiceConfig serviceConfig;
 
   @Inject
   AttributeClient(
@@ -32,6 +33,7 @@ class AttributeClient {
       AttributeModelTranslator translator) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.translator = translator;
+    this.serviceConfig = serviceConfig;
 
     this.attributeServiceClient =
         newStub(
@@ -46,7 +48,9 @@ class AttributeClient {
         .<AttributeMetadata>stream(
             streamObserver ->
                 this.attributeServiceClient
-                    .withDeadlineAfter(DEFAULT_DEADLINE_SEC, TimeUnit.SECONDS)
+                    .withDeadlineAfter(
+                        serviceConfig.getAttributeServiceTimeout().toMillis(),
+                        TimeUnit.MILLISECONDS)
                     .findAll(Empty.getDefaultInstance(), streamObserver))
         .mapOptional(this.translator::translate);
   }

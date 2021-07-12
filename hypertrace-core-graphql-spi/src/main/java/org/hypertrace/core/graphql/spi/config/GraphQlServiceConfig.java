@@ -21,6 +21,8 @@ public interface GraphQlServiceConfig {
 
   int getAttributeServicePort();
 
+  Duration getAttributeServiceTimeout();
+
   String getGatewayServiceHost();
 
   int getGatewayServicePort();
