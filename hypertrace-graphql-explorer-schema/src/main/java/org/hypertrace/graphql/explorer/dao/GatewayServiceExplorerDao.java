@@ -3,13 +3,15 @@ package org.hypertrace.graphql.explorer.dao;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.grpc.CallCredentials;
+import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
-import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcContextBuilder;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.explore.ExploreResponse;
@@ -19,23 +21,26 @@ import org.hypertrace.graphql.explorer.schema.ExploreResultSet;
 @Singleton
 class GatewayServiceExplorerDao implements ExplorerDao {
   private final GatewayServiceFutureStub gatewayServiceStub;
-  private final GraphQlGrpcContextBuilder grpcContextBuilder;
+  private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceExploreRequestBuilder requestBuilder;
   private final GatewayServiceExploreResponseConverter responseConverter;
   private final GraphQlServiceConfig serviceConfig;
+  private final Scheduler boundedIoScheduler;
 
   @Inject
   GatewayServiceExplorerDao(
       GraphQlServiceConfig serviceConfig,
       CallCredentials credentials,
-      GraphQlGrpcContextBuilder grpcContextBuilder,
+      GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry grpcChannelRegistry,
       GatewayServiceExploreRequestBuilder requestBuilder,
-      GatewayServiceExploreResponseConverter responseConverter) {
+      GatewayServiceExploreResponseConverter responseConverter,
+      @BoundedIoScheduler Scheduler boundedIoScheduler) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.responseConverter = responseConverter;
     this.serviceConfig = serviceConfig;
+    this.boundedIoScheduler = boundedIoScheduler;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -48,6 +53,7 @@ class GatewayServiceExplorerDao implements ExplorerDao {
   public Single<ExploreResultSet> explore(ExploreRequest request) {
     return this.requestBuilder
         .buildRequest(request)
+        .subscribeOn(this.boundedIoScheduler)
         .flatMap(serverRequest -> this.makeRequest(request.requestContext(), serverRequest))
         .flatMap(serverResponse -> this.responseConverter.convert(request, serverResponse));
   }
@@ -58,7 +64,7 @@ class GatewayServiceExplorerDao implements ExplorerDao {
     return Single.fromFuture(
         this.grpcContextBuilder
             .build(context)
-            .callInContext(
+            .call(
                 () ->
                     this.gatewayServiceStub
                         .withDeadlineAfter(
