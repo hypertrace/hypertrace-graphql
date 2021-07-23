@@ -80,7 +80,7 @@ class ExplorerBackedSpacesDaoTest {
         .explore(
             argThat(
                 request ->
-                    request.requestContext().equals(this.mockContext)
+                    request.context().equals(this.mockContext)
                         && request.scope().equals("EVENT")
                         && request.limit() == 100
                         && request.offset() == 0
