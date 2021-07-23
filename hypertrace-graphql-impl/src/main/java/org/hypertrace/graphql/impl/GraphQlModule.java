@@ -9,6 +9,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContextModule;
 import org.hypertrace.core.graphql.deserialization.GraphQlDeserializationRegistryModule;
 import org.hypertrace.core.graphql.log.event.LogEventSchemaModule;
 import org.hypertrace.core.graphql.metadata.MetadataSchemaModule;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformationModule;
 import org.hypertrace.core.graphql.rx.RxUtilModule;
 import org.hypertrace.core.graphql.schema.registry.GraphQlSchemaRegistryModule;
 import org.hypertrace.core.graphql.span.SpanSchemaModule;
@@ -69,5 +70,6 @@ class GraphQlModule extends AbstractModule {
     install(new RxUtilModule());
     install(new EntityIdModule());
     install(new SpacesSchemaModule());
+    install(new RequestTransformationModule());
   }
 }

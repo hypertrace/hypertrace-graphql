@@ -177,7 +177,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultExploreRequest implements ExploreRequest {
-    GraphQlRequestContext requestContext;
+    GraphQlRequestContext context;
     String scope;
     TimeRangeArgument timeRange;
     int limit;

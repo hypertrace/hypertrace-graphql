@@ -25,6 +25,7 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-span-schema")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-log-event-schema")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-trace-schema")
+  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-request-transformation")
   implementation(project(":hypertrace-graphql-entity-schema"))
   implementation(project(":hypertrace-graphql-explorer-schema"))
   implementation(project(":hypertrace-graphql-explorer-context"))

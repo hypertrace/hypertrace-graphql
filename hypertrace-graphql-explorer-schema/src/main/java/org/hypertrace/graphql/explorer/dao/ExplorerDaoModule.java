@@ -16,6 +16,7 @@ import org.hypertrace.core.graphql.common.schema.attributes.AttributeType;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformer;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
@@ -41,6 +42,7 @@ public class ExplorerDaoModule extends AbstractModule {
     requireBinding(Key.get(Scheduler.class, BoundedIoScheduler.class));
     requireBinding(Key.get(new TypeLiteral<Converter<Value, Object>>() {}));
     requireBinding(Key.get(new TypeLiteral<Converter<AttributeModelType, AttributeType>>() {}));
+    requireBinding(RequestTransformer.class);
     requireBinding(
         Key.get(
             new TypeLiteral<

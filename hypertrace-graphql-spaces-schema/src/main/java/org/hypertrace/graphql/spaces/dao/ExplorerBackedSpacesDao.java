@@ -140,7 +140,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
     private static final String SPACE_IDS_SCOPE = "EVENT";
     private static final int MAX_SPACES = 100;
 
-    GraphQlRequestContext requestContext;
+    GraphQlRequestContext context;
     String scope = SPACE_IDS_SCOPE;
     int limit = MAX_SPACES;
     int offset = 0;
@@ -161,7 +161,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
         TimeRangeArgument timeRange,
         AttributeRequest spaceIdRequest,
         MetricAggregationRequest spaceIdCountRequest) {
-      this.requestContext = context;
+      this.context = context;
       this.timeRange = timeRange;
       // Aggregation needed to pass explorer validation - a no agg request is not valid
       this.aggregationRequests = Set.of(spaceIdCountRequest);

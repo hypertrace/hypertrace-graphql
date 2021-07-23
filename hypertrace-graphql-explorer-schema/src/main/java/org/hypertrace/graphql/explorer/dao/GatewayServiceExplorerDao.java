@@ -8,6 +8,7 @@ import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformer;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
@@ -26,6 +27,7 @@ class GatewayServiceExplorerDao implements ExplorerDao {
   private final GatewayServiceExploreResponseConverter responseConverter;
   private final GraphQlServiceConfig serviceConfig;
   private final Scheduler boundedIoScheduler;
+  private final RequestTransformer requestTransformer;
 
   @Inject
   GatewayServiceExplorerDao(
@@ -35,12 +37,14 @@ class GatewayServiceExplorerDao implements ExplorerDao {
       GrpcChannelRegistry grpcChannelRegistry,
       GatewayServiceExploreRequestBuilder requestBuilder,
       GatewayServiceExploreResponseConverter responseConverter,
-      @BoundedIoScheduler Scheduler boundedIoScheduler) {
+      @BoundedIoScheduler Scheduler boundedIoScheduler,
+      RequestTransformer requestTransformer) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.responseConverter = responseConverter;
     this.serviceConfig = serviceConfig;
     this.boundedIoScheduler = boundedIoScheduler;
+    this.requestTransformer = requestTransformer;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -51,10 +55,11 @@ class GatewayServiceExplorerDao implements ExplorerDao {
 
   @Override
   public Single<ExploreResultSet> explore(ExploreRequest request) {
-    return this.requestBuilder
-        .buildRequest(request)
+    return this.requestTransformer
+        .transform(request)
+        .flatMap(this.requestBuilder::buildRequest)
         .subscribeOn(this.boundedIoScheduler)
-        .flatMap(serverRequest -> this.makeRequest(request.requestContext(), serverRequest))
+        .flatMap(serverRequest -> this.makeRequest(request.context(), serverRequest))
         .flatMap(serverResponse -> this.responseConverter.convert(request, serverResponse));
   }
 
