@@ -14,6 +14,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformer;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
@@ -31,6 +32,7 @@ public class TraceDaoModule extends AbstractModule {
     requireBinding(GraphQlServiceConfig.class);
     requireBinding(GrpcContextBuilder.class);
     requireBinding(GrpcChannelRegistry.class);
+    requireBinding(RequestTransformer.class);
 
     requireBinding(
         Key.get(new TypeLiteral<Converter<Collection<AttributeRequest>, Set<Expression>>>() {}));

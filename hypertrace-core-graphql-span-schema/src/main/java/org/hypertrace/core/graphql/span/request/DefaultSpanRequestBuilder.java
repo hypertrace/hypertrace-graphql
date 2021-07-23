@@ -44,7 +44,7 @@ class DefaultSpanRequestBuilder implements SpanRequestBuilder {
             OrderArgument.class),
         logEventAttributeRequestBuilder.buildAttributeRequest(context, selectionSet),
         (resultSetRequest, logEventAttributeRequest) ->
-            new DefaultSpanRequest(resultSetRequest, logEventAttributeRequest));
+            new DefaultSpanRequest(context, resultSetRequest, logEventAttributeRequest));
   }
 
   @Override
@@ -58,12 +58,13 @@ class DefaultSpanRequestBuilder implements SpanRequestBuilder {
             context, HypertraceCoreAttributeScopeString.SPAN, arguments, spanAttributes),
         logEventAttributeRequestBuilder.buildAttributeRequest(context, logAttributes),
         (resultSetRequest, logEventAttributeRequest) ->
-            new DefaultSpanRequest(resultSetRequest, logEventAttributeRequest));
+            new DefaultSpanRequest(context, resultSetRequest, logEventAttributeRequest));
   }
 
   @Value
   @Accessors(fluent = true)
   private static class DefaultSpanRequest implements SpanRequest {
+    GraphQlRequestContext context;
     ResultSetRequest<OrderArgument> spanEventsRequest;
     Collection<AttributeRequest> logEventAttributes;
   }

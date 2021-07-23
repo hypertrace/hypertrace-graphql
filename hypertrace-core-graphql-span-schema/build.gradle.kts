@@ -28,6 +28,7 @@ dependencies {
   implementation(project(":hypertrace-core-graphql-deserialization"))
   implementation(project(":hypertrace-core-graphql-schema-utils"))
   implementation(project(":hypertrace-core-graphql-attribute-scope-constants"))
+  implementation(project(":hypertrace-core-graphql-request-transformation"))
 
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("com.fasterxml.jackson.core:jackson-databind")

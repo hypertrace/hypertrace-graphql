@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformer;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.trace.request.TraceRequest;
 import org.hypertrace.core.graphql.trace.schema.TraceResultSet;
@@ -25,6 +26,7 @@ class GatewayServiceTraceDao implements TraceDao {
   private final GatewayServiceTraceRequestBuilder requestBuilder;
   private final GatewayServiceTraceConverter traceConverter;
   private final GraphQlServiceConfig serviceConfig;
+  private final RequestTransformer requestTransformer;
 
   @Inject
   GatewayServiceTraceDao(
@@ -33,11 +35,13 @@ class GatewayServiceTraceDao implements TraceDao {
       GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry channelRegistry,
       GatewayServiceTraceRequestBuilder requestBuilder,
-      GatewayServiceTraceConverter traceConverter) {
+      GatewayServiceTraceConverter traceConverter,
+      RequestTransformer requestTransformer) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.traceConverter = traceConverter;
     this.serviceConfig = serviceConfig;
+    this.requestTransformer = requestTransformer;
 
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
@@ -48,8 +52,9 @@ class GatewayServiceTraceDao implements TraceDao {
 
   @Override
   public Single<TraceResultSet> getTraces(TraceRequest request) {
-    return this.requestBuilder
-        .buildRequest(request)
+    return this.requestTransformer
+        .transform(request)
+        .flatMap(this.requestBuilder::buildRequest)
         .flatMap(serverRequest -> this.makeRequest(request.context(), serverRequest))
         .flatMap(
             serverResponse ->

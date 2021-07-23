@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformer;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.span.schema.SpanResultSet;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -23,6 +24,7 @@ class GatewayServiceSpanDao implements SpanDao {
   private final GatewayServiceSpanConverter spanConverter;
   private final SpanLogEventDao spanLogEventDao;
   private final GraphQlServiceConfig serviceConfig;
+  private final RequestTransformer requestTransformer;
 
   @Inject
   GatewayServiceSpanDao(
@@ -31,19 +33,22 @@ class GatewayServiceSpanDao implements SpanDao {
       GrpcContextBuilder grpcContextBuilder,
       GatewayServiceSpanRequestBuilder requestBuilder,
       GatewayServiceSpanConverter spanConverter,
-      SpanLogEventDao spanLogEventDao) {
+      SpanLogEventDao spanLogEventDao,
+      RequestTransformer requestTransformer) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.spanConverter = spanConverter;
     this.spanLogEventDao = spanLogEventDao;
     this.gatewayServiceStub = gatewayServiceFutureStub;
     this.serviceConfig = serviceConfig;
+    this.requestTransformer = requestTransformer;
   }
 
   @Override
   public Single<SpanResultSet> getSpans(SpanRequest request) {
-    return this.requestBuilder
-        .buildRequest(request)
+    return this.requestTransformer
+        .transform(request)
+        .flatMap(this.requestBuilder::buildRequest)
         .flatMap(
             serverRequest -> this.makeRequest(request.spanEventsRequest().context(), serverRequest))
         .flatMap(serverResponse -> spanLogEventDao.fetchLogEvents(request, serverResponse))

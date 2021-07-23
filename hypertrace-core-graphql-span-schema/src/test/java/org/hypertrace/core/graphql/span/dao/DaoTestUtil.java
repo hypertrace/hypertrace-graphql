@@ -74,7 +74,7 @@ class DaoTestUtil {
   @Value
   @Accessors(fluent = true)
   static class DefaultSpanRequest implements SpanRequest {
-
+    GraphQlRequestContext context;
     ResultSetRequest<OrderArgument> spanEventsRequest;
     Collection<AttributeRequest> logEventAttributes;
   }
