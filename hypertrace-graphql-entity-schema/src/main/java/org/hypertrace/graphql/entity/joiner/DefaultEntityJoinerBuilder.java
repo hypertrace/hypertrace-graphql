@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
@@ -58,6 +59,7 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
+@Slf4j
 class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
 
   private static final int ZERO_OFFSET = 0;
@@ -164,6 +166,18 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
         Map<String, String> requestedIdsByType,
         Table<String, String, Entity> entityResultTable) {
       return requestedIdsByType.entrySet().stream()
+          .filter(
+              typeIdPair -> {
+                if (!entityResultTable.contains(typeIdPair.getKey(), typeIdPair.getValue())) {
+                  log.error(
+                      "Requested Entity not present in response. Type: {}, ID: {}, Source {}",
+                      typeIdPair.getKey(),
+                      typeIdPair.getValue(),
+                      joinSource);
+                  return false;
+                }
+                return true;
+              })
           .map(
               typeIdPair ->
                   immutableCell(
