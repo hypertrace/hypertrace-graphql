@@ -11,5 +11,6 @@ dependencies {
   constraints {
     api("org.hypertrace.entity.service:entity-type-service-rx-client:0.5.6")
     api("org.hypertrace.config.service:spaces-config-service-api:0.1.1")
+    api("org.hypertrace.config.service:labels-config-service-api:0.1.8")
   }
 }
