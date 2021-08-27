@@ -1,4 +1,4 @@
-rootProject.name = "hypertrace-core-graphql"
+rootProject.name = "hypertrace-core-graphql-root"
 
 pluginManagement {
   repositories {
