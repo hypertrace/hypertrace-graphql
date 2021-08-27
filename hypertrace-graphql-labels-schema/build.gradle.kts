@@ -16,7 +16,7 @@ dependencies {
 
   implementation("org.slf4j:slf4j-api")
   implementation("io.reactivex.rxjava3:rxjava")
-  implementation("org.hypertrace.config.service:labels-config-service-api:0.1.7")
+  implementation("org.hypertrace.config.service:labels-config-service-api")
   implementation("com.google.protobuf:protobuf-java-util")
   implementation("com.google.guava:guava")
 
@@ -24,6 +24,8 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
+
+  implementation(project(":hypertrace-graphql-service-config"))
 }
 
 tasks.test {

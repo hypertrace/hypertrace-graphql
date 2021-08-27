@@ -9,9 +9,9 @@ import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.label.config.service.v1.GetLabelsResponse;
 
-public class LabelResponseConverter {
+class LabelResponseConverter {
 
-  public Single<LabelResultSet> convert(GetLabelsResponse response) {
+  Single<LabelResultSet> convert(GetLabelsResponse response) {
     List<Label> labelList =
         response.getLabelsList().stream()
             .map(label -> new DefaultLabel(label.getId(), label.getKey()))

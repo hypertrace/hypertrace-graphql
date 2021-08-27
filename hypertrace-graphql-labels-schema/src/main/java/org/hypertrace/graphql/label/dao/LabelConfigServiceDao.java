@@ -5,28 +5,26 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
+import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.label.config.service.v1.GetLabelsRequest;
 import org.hypertrace.label.config.service.v1.GetLabelsResponse;
-import org.hypertrace.label.config.service.v1.LabelConfigServiceGrpc;
-import org.hypertrace.label.config.service.v1.LabelConfigServiceGrpc.LabelConfigServiceFutureStub;
+import org.hypertrace.label.config.service.v1.LabelsConfigServiceGrpc;
+import org.hypertrace.label.config.service.v1.LabelsConfigServiceGrpc.LabelsConfigServiceFutureStub;
 
-@Singleton
 class LabelConfigServiceDao implements LabelDao {
-  private final LabelConfigServiceFutureStub labelConfigServiceStub;
+  private final LabelsConfigServiceFutureStub labelConfigServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
-  private final GraphQlServiceConfig serviceConfig;
+  private final HypertraceGraphQlServiceConfig serviceConfig;
   private final LabelResponseConverter converter;
 
   @Inject
   LabelConfigServiceDao(
-      GraphQlServiceConfig serviceConfig,
+      HypertraceGraphQlServiceConfig serviceConfig,
       CallCredentials credentials,
       GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry grpcChannelRegistry,
@@ -35,7 +33,7 @@ class LabelConfigServiceDao implements LabelDao {
     this.serviceConfig = serviceConfig;
     this.converter = converter;
     this.labelConfigServiceStub =
-        LabelConfigServiceGrpc.newFutureStub(
+        LabelsConfigServiceGrpc.newFutureStub(
                 grpcChannelRegistry.forAddress(
                     serviceConfig.getConfigServiceHost(), serviceConfig.getConfigServicePort()))
             .withCallCredentials(credentials);
