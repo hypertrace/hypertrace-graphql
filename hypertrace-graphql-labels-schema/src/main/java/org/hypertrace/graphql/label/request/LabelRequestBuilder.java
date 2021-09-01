@@ -3,7 +3,7 @@ package org.hypertrace.graphql.label.request;
 import java.util.Map;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
-public interface LabelsConfigRequestBuilder {
+public interface LabelRequestBuilder {
   LabelCreateRequest buildCreateRequest(
       GraphQlRequestContext requestContext, Map<String, Object> arguments);
 

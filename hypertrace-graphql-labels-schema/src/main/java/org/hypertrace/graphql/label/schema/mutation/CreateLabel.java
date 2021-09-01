@@ -1,13 +1,12 @@
-package org.hypertrace.graphql.label.schema;
+package org.hypertrace.graphql.label.schema.mutation;
 
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
-import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 
-@GraphQLName(Label.TYPE_NAME)
-public interface Label extends Identifiable {
-  String TYPE_NAME = "Label";
+@GraphQLName(CreateLabel.TYPE_NAME)
+public interface CreateLabel {
+  String TYPE_NAME = "CreateLabel";
   String ARGUMENT_NAME = "label";
   String KEY = "key";
 

@@ -4,20 +4,17 @@ import java.util.Map;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.graphql.label.deserialization.LabelIdArgument;
-import org.hypertrace.graphql.label.deserialization.LabelKeyArgument;
 import org.hypertrace.graphql.label.schema.Label;
+import org.hypertrace.graphql.label.schema.mutation.CreateLabel;
 
-public class LabelsConfigRequestBuilderImpl implements LabelsConfigRequestBuilder {
+public class LabelRequestBuilderImpl implements LabelRequestBuilder {
   private final ArgumentDeserializer argumentDeserializer;
 
   @Inject
-  LabelsConfigRequestBuilderImpl(
-      ArgumentDeserializer argumentDeserializer,
-      AttributeScopeStringTranslator scopeStringTranslator) {
+  LabelRequestBuilderImpl(ArgumentDeserializer argumentDeserializer) {
     this.argumentDeserializer = argumentDeserializer;
   }
 
@@ -26,16 +23,7 @@ public class LabelsConfigRequestBuilderImpl implements LabelsConfigRequestBuilde
       GraphQlRequestContext requestContext, Map<String, Object> arguments) {
     return new LabelCreateRequestImpl(
         requestContext,
-        this.argumentDeserializer
-            .deserializePrimitive(arguments, LabelKeyArgument.class)
-            .orElseThrow());
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  private static class LabelCreateRequestImpl implements LabelCreateRequest {
-    GraphQlRequestContext context;
-    String key;
+        this.argumentDeserializer.deserializeObject(arguments, CreateLabel.class).orElseThrow());
   }
 
   @Override
@@ -46,13 +34,6 @@ public class LabelsConfigRequestBuilderImpl implements LabelsConfigRequestBuilde
         this.argumentDeserializer
             .deserializePrimitive(arguments, LabelIdArgument.class)
             .orElseThrow());
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  private static class LabelDeleteRequestImpl implements LabelDeleteRequest {
-    GraphQlRequestContext context;
-    String id;
   }
 
   @Override
@@ -66,8 +47,22 @@ public class LabelsConfigRequestBuilderImpl implements LabelsConfigRequestBuilde
 
   @Value
   @Accessors(fluent = true)
+  private static class LabelCreateRequestImpl implements LabelCreateRequest {
+    GraphQlRequestContext context;
+    CreateLabel label;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class LabelDeleteRequestImpl implements LabelDeleteRequest {
+    GraphQlRequestContext context;
+    String id;
+  }
+
+  @Value
+  @Accessors(fluent = true)
   private static class LabelUpdateRequestImpl implements LabelUpdateRequest {
     GraphQlRequestContext context;
-    Label newLabel;
+    Label label;
   }
 }

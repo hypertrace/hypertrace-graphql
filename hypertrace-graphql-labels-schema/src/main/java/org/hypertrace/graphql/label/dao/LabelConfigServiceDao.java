@@ -19,9 +19,10 @@ import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.label.config.service.v1.GetLabelsRequest;
 import org.hypertrace.label.config.service.v1.GetLabelsResponse;
 import org.hypertrace.label.config.service.v1.LabelsConfigServiceGrpc;
+import org.hypertrace.label.config.service.v1.LabelsConfigServiceGrpc.LabelsConfigServiceFutureStub;
 
 class LabelConfigServiceDao implements LabelDao {
-  private final LabelsConfigServiceGrpc.LabelsConfigServiceFutureStub labelConfigServiceStub;
+  private final LabelsConfigServiceFutureStub labelConfigServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
   private final HypertraceGraphQlServiceConfig serviceConfig;
   private final LabelRequestConverter requestConverter;
@@ -49,7 +50,7 @@ class LabelConfigServiceDao implements LabelDao {
   @Override
   public Single<LabelResultSet> getLabels(ContextualRequest request) {
     return this.makeRequest(request.context(), GetLabelsRequest.getDefaultInstance())
-        .flatMap(serverResponse -> responseConverter.convert(serverResponse));
+        .flatMap(this.responseConverter::convert);
   }
 
   private Single<GetLabelsResponse> makeRequest(

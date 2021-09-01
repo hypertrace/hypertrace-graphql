@@ -1,9 +1,8 @@
 package org.hypertrace.graphql.label;
 
-import javax.annotation.Nullable;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 import org.hypertrace.graphql.label.schema.LabelSchema;
-import org.hypertrace.graphql.label.schema.mutation.LabelsMutationSchema;
+import org.hypertrace.graphql.label.schema.mutation.LabelMutationSchema;
 
 class LabelSchemaFragment implements GraphQlSchemaFragment {
 
@@ -17,9 +16,8 @@ class LabelSchemaFragment implements GraphQlSchemaFragment {
     return LabelSchema.class;
   }
 
-  @Nullable
   @Override
   public Class<?> annotatedMutationClass() {
-    return LabelsMutationSchema.class;
+    return LabelMutationSchema.class;
   }
 }

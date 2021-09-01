@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.graphql.label.dao.LabelDao;
-import org.hypertrace.graphql.label.request.LabelsConfigRequestBuilder;
+import org.hypertrace.graphql.label.request.LabelRequestBuilder;
 
 public class LabelDeleteMutator extends InjectableDataFetcher<Boolean> {
   public LabelDeleteMutator() {
@@ -15,10 +15,10 @@ public class LabelDeleteMutator extends InjectableDataFetcher<Boolean> {
 
   static final class LabelDeletionMutatorImpl implements DataFetcher<CompletableFuture<Boolean>> {
     private final LabelDao configDao;
-    private final LabelsConfigRequestBuilder requestBuilder;
+    private final LabelRequestBuilder requestBuilder;
 
     @Inject
-    LabelDeletionMutatorImpl(LabelDao configDao, LabelsConfigRequestBuilder requestBuilder) {
+    LabelDeletionMutatorImpl(LabelDao configDao, LabelRequestBuilder requestBuilder) {
       this.configDao = configDao;
       this.requestBuilder = requestBuilder;
     }

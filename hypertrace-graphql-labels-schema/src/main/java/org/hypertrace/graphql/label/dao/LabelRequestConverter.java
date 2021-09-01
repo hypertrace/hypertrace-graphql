@@ -12,7 +12,7 @@ import org.hypertrace.label.config.service.v1.UpdateLabelRequest;
 public class LabelRequestConverter {
   CreateLabelRequest convertCreationRequest(LabelCreateRequest creationRequest) {
     return CreateLabelRequest.newBuilder()
-        .setLabel(CreateLabel.newBuilder().setKey(creationRequest.key()).build())
+        .setLabel(CreateLabel.newBuilder().setKey(creationRequest.label().key()).build())
         .build();
   }
 
@@ -24,8 +24,8 @@ public class LabelRequestConverter {
     return UpdateLabelRequest.newBuilder()
         .setLabel(
             Label.newBuilder()
-                .setKey(updateRequest.newLabel().key())
-                .setId(updateRequest.newLabel().id())
+                .setKey(updateRequest.label().key())
+                .setId(updateRequest.label().id())
                 .build())
         .build();
   }

@@ -6,5 +6,5 @@ import org.hypertrace.graphql.label.schema.Label;
 public interface LabelUpdateRequest {
   GraphQlRequestContext context();
 
-  Label newLabel();
+  Label label();
 }
