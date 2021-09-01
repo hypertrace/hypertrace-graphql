@@ -1,61 +1,74 @@
 package org.hypertrace.core.graphql.attributes;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Table;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
-import java.util.Collection;
+import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.hypertrace.core.graphql.context.ContextualCachingKey;
+import org.hypertrace.core.attribute.service.cachingclient.CachingAttributeClient;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
+import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
+import org.hypertrace.core.grpcutils.client.rx.GrpcRxExecutionContext;
 
 @Singleton
 class CachingAttributeStore implements AttributeStore {
 
-  private final AttributeClient attributeClient;
+  private final CachingAttributeClient cachingAttributeClient;
   private final IdLookup idLookup;
+  private final GrpcContextBuilder grpcContextBuilder;
+  private final AttributeModelTranslator translator;
 
   @Inject
-  CachingAttributeStore(AttributeClient attributeClient, IdLookup idLookup) {
-    this.attributeClient = attributeClient;
+  CachingAttributeStore(
+      IdLookup idLookup,
+      GrpcContextBuilder grpcContextBuilder,
+      AttributeModelTranslator translator,
+      GrpcChannelRegistry channelRegistry,
+      GraphQlServiceConfig serviceConfig) {
+    this(
+        idLookup,
+        grpcContextBuilder,
+        translator,
+        CachingAttributeClient.builder(
+                channelRegistry.forAddress(
+                    serviceConfig.getAttributeServiceHost(),
+                    serviceConfig.getAttributeServicePort()))
+            .withCacheExpiration(Duration.ofMinutes(5))
+            .withMaximumCacheContexts(1000)
+            .build());
+  }
+
+  CachingAttributeStore(
+      IdLookup idLookup,
+      GrpcContextBuilder grpcContextBuilder,
+      AttributeModelTranslator translator,
+      CachingAttributeClient cachingAttributeClient) {
     this.idLookup = idLookup;
-  }
-
-  private final LoadingCache<ContextualCachingKey, Single<Table<String, String, AttributeModel>>>
-      cache =
-          CacheBuilder.newBuilder()
-              .maximumSize(1000)
-              .expireAfterWrite(15, TimeUnit.MINUTES)
-              .build(CacheLoader.from(this::loadTable));
-
-  @Override
-  public Single<List<AttributeModel>> getAll(GraphQlRequestContext context) {
-    return this.getOrInvalidate(context).map(table -> List.copyOf(table.values()));
+    this.grpcContextBuilder = grpcContextBuilder;
+    this.translator = translator;
+    this.cachingAttributeClient = cachingAttributeClient;
   }
 
   @Override
-  public Single<AttributeModel> get(GraphQlRequestContext context, String scope, String key) {
-    return this.getOrInvalidate(context)
-        .mapOptional(table -> Optional.ofNullable(table.get(scope, key)))
+  public Single<List<AttributeModel>> getAll(GraphQlRequestContext requestContext) {
+    return GrpcRxExecutionContext.forContext(this.grpcContextBuilder.build(requestContext))
+        .wrapSingle(this.cachingAttributeClient::getAll)
+        .flattenAsObservable(list -> list)
+        .mapOptional(this.translator::translate)
+        .toList();
+  }
+
+  @Override
+  public Single<AttributeModel> get(
+      GraphQlRequestContext requestContext, String scope, String key) {
+    return GrpcRxExecutionContext.forContext(this.grpcContextBuilder.build(requestContext))
+        .wrapSingle(() -> this.cachingAttributeClient.get(scope, key))
+        .toMaybe()
+        .mapOptional(this.translator::translate)
         .switchIfEmpty(Single.error(this.buildErrorForMissingAttribute(scope, key)));
-  }
-
-  @Override
-  public Single<Map<String, AttributeModel>> get(
-      GraphQlRequestContext context, String scope, Collection<String> keys) {
-    return this.getOrInvalidate(context)
-        .flatMap(table -> this.getValuesOrError(scope, table.row(scope), keys));
   }
 
   @Override
@@ -70,28 +83,6 @@ class CachingAttributeStore implements AttributeStore {
         .flatMap(key -> this.get(context, scope, key));
   }
 
-  private Single<Table<String, String, AttributeModel>> loadTable(ContextualCachingKey cachingKey) {
-    return this.attributeClient
-        .queryAll(cachingKey.getContext())
-        .toList()
-        .map(this::buildTable)
-        .cache();
-  }
-
-  private Table<String, String, AttributeModel> buildTable(List<AttributeModel> attributes) {
-    return attributes.stream()
-        .collect(
-            ImmutableTable.toImmutableTable(
-                AttributeModel::scope, AttributeModel::key, Function.identity()));
-  }
-
-  private Single<Table<String, String, AttributeModel>> getOrInvalidate(
-      GraphQlRequestContext context) {
-    return this.cache
-        .getUnchecked(context.getCachingKey())
-        .doOnError(x -> this.cache.invalidate(context.getCachingKey()));
-  }
-
   private Single<String> getForeignIdKey(
       GraphQlRequestContext context, String scope, String foreignScope) {
     return this.idLookup
@@ -104,19 +95,6 @@ class CachingAttributeStore implements AttributeStore {
     return this.idLookup
         .idKey(context, scope)
         .switchIfEmpty(Single.error(this.buildErrorForMissingIdMapping(scope)));
-  }
-
-  private Single<Map<String, AttributeModel>> getValuesOrError(
-      String scope,
-      Map<String, AttributeModel> definedAttributes,
-      Collection<String> requestedAttributeKeys) {
-    return Observable.fromIterable(requestedAttributeKeys)
-        .flatMap(
-            key ->
-                definedAttributes.containsKey(key)
-                    ? Observable.just(definedAttributes.get(key))
-                    : Observable.error(this.buildErrorForMissingAttribute(scope, key)))
-        .collect(Collectors.toUnmodifiableMap(AttributeModel::key, Function.identity()));
   }
 
   private NoSuchElementException buildErrorForMissingAttribute(String scope, String key) {

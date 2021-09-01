@@ -5,11 +5,11 @@ plugins {
 dependencies {
   constraints {
 
-    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.5.1")
-    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.5.1")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.5.1")
+    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.6.1")
+    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.6.1")
+    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.6.1")
     api("org.hypertrace.gateway.service:gateway-service-api:0.1.59")
-    api("org.hypertrace.core.attribute.service:attribute-service-api:0.9.3")
+    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.13.3")
 
     api("com.google.inject:guice:4.2.3")
     api("com.graphql-java:graphql-java:15.0")
@@ -23,10 +23,10 @@ dependencies {
     api("com.typesafe:config:1.4.1")
     api("com.google.guava:guava:30.1-jre")
     api("com.graphql-java-kickstart:graphql-java-servlet:10.1.0")
-    api("io.grpc:grpc-api:1.36.0")
-    api("io.grpc:grpc-core:1.36.0")
-    api("io.grpc:grpc-stub:1.36.0")
-    api("io.grpc:grpc-context:1.36.0")
+    api("io.grpc:grpc-api:1.40.0")
+    api("io.grpc:grpc-core:1.40.0")
+    api("io.grpc:grpc-stub:1.40.0")
+    api("io.grpc:grpc-context:1.40.0")
     api("com.fasterxml.jackson.core:jackson-databind:2.12.3")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.3")
@@ -34,7 +34,7 @@ dependencies {
     api("io.opentelemetry:opentelemetry-proto:1.1.0-alpha")
 
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
-    runtime("io.grpc:grpc-netty:1.37.0")
+    runtime("io.grpc:grpc-netty:1.40.0")
     runtime("io.netty:netty-codec-http2:4.1.61.Final") {
       because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1083991")
     }
