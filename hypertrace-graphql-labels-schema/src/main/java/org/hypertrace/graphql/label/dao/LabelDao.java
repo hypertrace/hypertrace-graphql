@@ -10,7 +10,10 @@ import org.hypertrace.graphql.label.schema.LabelResultSet;
 
 public interface LabelDao {
   Single<LabelResultSet> getLabels(ContextualRequest request);
+
   Single<Label> createLabel(LabelCreateRequest request);
+
   Single<Boolean> deleteLabel(LabelDeleteRequest request);
+
   Single<Label> updateLabel(LabelUpdateRequest request);
 }

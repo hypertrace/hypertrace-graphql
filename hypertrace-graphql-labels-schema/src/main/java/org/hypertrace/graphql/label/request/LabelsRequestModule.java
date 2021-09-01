@@ -5,11 +5,11 @@ import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringT
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 
 public class LabelsRequestModule extends AbstractModule {
-    @Override
-    protected void configure() {
-        bind(LabelsConfigRequestBuilder.class).to(LabelsConfigRequestBuilderImpl.class);
+  @Override
+  protected void configure() {
+    bind(LabelsConfigRequestBuilder.class).to(LabelsConfigRequestBuilderImpl.class);
 
-        requireBinding(ArgumentDeserializer.class);
-        requireBinding(AttributeScopeStringTranslator.class);
-    }
+    requireBinding(ArgumentDeserializer.class);
+    requireBinding(AttributeScopeStringTranslator.class);
+  }
 }

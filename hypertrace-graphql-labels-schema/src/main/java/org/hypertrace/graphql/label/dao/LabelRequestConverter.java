@@ -10,25 +10,23 @@ import org.hypertrace.label.config.service.v1.Label;
 import org.hypertrace.label.config.service.v1.UpdateLabelRequest;
 
 public class LabelRequestConverter {
-    CreateLabelRequest convertCreationRequest(LabelCreateRequest creationRequest) {
-        return CreateLabelRequest.newBuilder()
-                .setLabel(CreateLabel.newBuilder()
-                        .setKey(creationRequest.key())
-                        .build())
-                .build();
-    }
-    DeleteLabelRequest convertDeleteRequest(LabelDeleteRequest deletionRequest){
-        return DeleteLabelRequest.newBuilder()
-                .setId(deletionRequest.id())
-                .build();
-    }
-    UpdateLabelRequest convertUpdateRequest(LabelUpdateRequest updateRequest){
-        return UpdateLabelRequest.newBuilder()
-                .setLabel(Label.newBuilder()
-                        .setKey(updateRequest.newLabel().key())
-                        .setId(updateRequest.newLabel().id())
-                        .build())
-                .build();
-    }
-}
+  CreateLabelRequest convertCreationRequest(LabelCreateRequest creationRequest) {
+    return CreateLabelRequest.newBuilder()
+        .setLabel(CreateLabel.newBuilder().setKey(creationRequest.key()).build())
+        .build();
+  }
 
+  DeleteLabelRequest convertDeleteRequest(LabelDeleteRequest deletionRequest) {
+    return DeleteLabelRequest.newBuilder().setId(deletionRequest.id()).build();
+  }
+
+  UpdateLabelRequest convertUpdateRequest(LabelUpdateRequest updateRequest) {
+    return UpdateLabelRequest.newBuilder()
+        .setLabel(
+            Label.newBuilder()
+                .setKey(updateRequest.newLabel().key())
+                .setId(updateRequest.newLabel().id())
+                .build())
+        .build();
+  }
+}

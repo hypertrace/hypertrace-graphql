@@ -21,15 +21,15 @@ class LabelResponseConverter {
     return Single.just(new DefaultLabelResultSet(labelList, labelList.size(), labelList.size()));
   }
 
-  Single<Label> convertLabel(CreateLabelResponse response){
+  Single<Label> convertLabel(CreateLabelResponse response) {
     return Single.just(new DefaultLabel(response.getLabel().getId(), response.getLabel().getKey()));
   }
 
-  Single<Boolean> buildDeleteResponse(){
+  Single<Boolean> buildDeleteResponse() {
     return Single.just(true);
   }
 
-  Single<Label> convertUpdateLabel(UpdateLabelResponse response){
+  Single<Label> convertUpdateLabel(UpdateLabelResponse response) {
     return Single.just(new DefaultLabel(response.getLabel().getId(), response.getLabel().getKey()));
   }
 
