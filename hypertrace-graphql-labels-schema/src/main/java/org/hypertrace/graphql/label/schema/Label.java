@@ -8,6 +8,7 @@ import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 @GraphQLName(Label.TYPE_NAME)
 public interface Label extends Identifiable {
   String TYPE_NAME = "Label";
+  String ARGUMENT_NAME = "newLabel";
   String KEY = "key";
 
   @GraphQLField

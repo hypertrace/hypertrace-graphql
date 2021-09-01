@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 import org.hypertrace.graphql.label.dao.LabelDaoModule;
+import org.hypertrace.graphql.label.deserialization.LabelDeserializationModule;
+import org.hypertrace.graphql.label.request.LabelsRequestModule;
 
 public class LabelSchemaModule extends AbstractModule {
   @Override
@@ -13,5 +15,7 @@ public class LabelSchemaModule extends AbstractModule {
         .to(LabelSchemaFragment.class);
 
     install(new LabelDaoModule());
+    install(new LabelDeserializationModule());
+    install(new LabelsRequestModule());
   }
 }
