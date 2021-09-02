@@ -7,9 +7,6 @@ public interface LabelRequestBuilder {
   LabelCreateRequest buildCreateRequest(
       GraphQlRequestContext requestContext, Map<String, Object> arguments);
 
-  LabelDeleteRequest buildDeleteRequest(
-      GraphQlRequestContext requestContext, Map<String, Object> arguments);
-
   LabelUpdateRequest buildUpdateRequest(
       GraphQlRequestContext requestContext, Map<String, Object> arguments);
 }

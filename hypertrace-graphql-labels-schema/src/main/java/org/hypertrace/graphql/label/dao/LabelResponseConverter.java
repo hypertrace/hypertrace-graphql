@@ -25,10 +25,6 @@ class LabelResponseConverter {
     return Single.just(new DefaultLabel(response.getLabel().getId(), response.getLabel().getKey()));
   }
 
-  Single<Boolean> buildDeleteResponse() {
-    return Single.just(true);
-  }
-
   Single<Label> convertUpdateLabel(UpdateLabelResponse response) {
     return Single.just(new DefaultLabel(response.getLabel().getId(), response.getLabel().getKey()));
   }

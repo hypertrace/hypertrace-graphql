@@ -12,7 +12,6 @@ import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.label.request.LabelCreateRequest;
-import org.hypertrace.graphql.label.request.LabelDeleteRequest;
 import org.hypertrace.graphql.label.request.LabelUpdateRequest;
 import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
@@ -79,21 +78,6 @@ class LabelConfigServiceDao implements LabelDao {
                                 TimeUnit.MILLISECONDS)
                             .createLabel(this.requestConverter.convertCreationRequest(request))))
         .flatMap(this.responseConverter::convertLabel);
-  }
-
-  @Override
-  public Single<Boolean> deleteLabel(LabelDeleteRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.labelConfigServiceStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(),
-                                TimeUnit.MILLISECONDS)
-                            .deleteLabel(this.requestConverter.convertDeleteRequest(request))))
-        .flatMap(unusedResponse -> this.responseConverter.buildDeleteResponse());
   }
 
   @Override

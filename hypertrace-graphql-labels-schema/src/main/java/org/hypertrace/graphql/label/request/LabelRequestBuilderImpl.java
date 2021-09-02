@@ -6,7 +6,6 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
-import org.hypertrace.graphql.label.deserialization.LabelIdArgument;
 import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.mutation.CreateLabel;
 
@@ -27,16 +26,6 @@ public class LabelRequestBuilderImpl implements LabelRequestBuilder {
   }
 
   @Override
-  public LabelDeleteRequest buildDeleteRequest(
-      GraphQlRequestContext requestContext, Map<String, Object> arguments) {
-    return new LabelDeleteRequestImpl(
-        requestContext,
-        this.argumentDeserializer
-            .deserializePrimitive(arguments, LabelIdArgument.class)
-            .orElseThrow());
-  }
-
-  @Override
   public LabelUpdateRequest buildUpdateRequest(
       GraphQlRequestContext requestContext, Map<String, Object> arguments) {
     System.out.println(arguments);
@@ -50,13 +39,6 @@ public class LabelRequestBuilderImpl implements LabelRequestBuilder {
   private static class LabelCreateRequestImpl implements LabelCreateRequest {
     GraphQlRequestContext context;
     CreateLabel label;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  private static class LabelDeleteRequestImpl implements LabelDeleteRequest {
-    GraphQlRequestContext context;
-    String id;
   }
 
   @Value
