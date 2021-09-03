@@ -26,12 +26,17 @@ import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.EntityType;
+import org.hypertrace.graphql.label.schema.Label;
+import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 
 class GatewayServiceEntityConverter {
   private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
       attributeMapConverter;
+  private static final ConvertedLabelResultSet EMPTY_LABEL_RESULT_SET =
+      new ConvertedLabelResultSet(List.of(), 0, 0);
+  private static final String LABELS_ATTRIBUTE_NAME = "labels";
 
   private final TriConverter<
           Collection<MetricRequest>,
@@ -58,17 +63,22 @@ class GatewayServiceEntityConverter {
   }
 
   Single<EntityResultSet> convert(
-      EntityRequest request, EntitiesResponse response, BaselineEntitiesResponse baselineResponse) {
+      EntityRequest request,
+      EntitiesResponse response,
+      BaselineEntitiesResponse baselineResponse,
+      Map<String, String> labelsMap) {
     return this.edgeLookupConverter
         .convert(request, response)
-        .flatMap(edgeLookup -> this.convert(request, response, baselineResponse, edgeLookup));
+        .flatMap(
+            edgeLookup -> this.convert(request, response, baselineResponse, edgeLookup, labelsMap));
   }
 
   private Single<EntityResultSet> convert(
       EntityRequest request,
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
-      EdgeLookup edgeLookup) {
+      EdgeLookup edgeLookup,
+      Map<String, String> labelsMap) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
@@ -78,7 +88,8 @@ class GatewayServiceEntityConverter {
                     entity,
                     getBaselineEntity(baselineEntityMap, entity.getId()),
                     edgeLookup.getIncoming().row(entity),
-                    edgeLookup.getOutgoing().row(entity)))
+                    edgeLookup.getOutgoing().row(entity),
+                    labelsMap))
         .toList()
         .map(
             entities ->
@@ -103,7 +114,8 @@ class GatewayServiceEntityConverter {
       org.hypertrace.gateway.service.v1.entity.Entity platformEntity,
       BaselineEntity baselineEntity,
       Map<String, EdgeResultSet> incomingEdges,
-      Map<String, EdgeResultSet> outgoingEdges) {
+      Map<String, EdgeResultSet> outgoingEdges,
+      Map<String, String> labelsMap) {
     return zip(
         this.attributeMapConverter.convert(
             entityRequest.resultSetRequest().attributes(), platformEntity.getAttributeMap()),
@@ -118,7 +130,26 @@ class GatewayServiceEntityConverter {
                 attrMap,
                 containerMap,
                 incomingEdges,
-                outgoingEdges));
+                outgoingEdges,
+                buildLabelResultSet(attrMap, labelsMap)));
+  }
+
+  private LabelResultSet buildLabelResultSet(
+      Map<String, Object> attrMap, Map<String, String> labelsMap) {
+    if (labelsMap.isEmpty()) {
+      return EMPTY_LABEL_RESULT_SET;
+    }
+    List<String> labels = (List<String>) attrMap.get(LABELS_ATTRIBUTE_NAME);
+    if (labels == null || labels.isEmpty()) {
+      return EMPTY_LABEL_RESULT_SET;
+    }
+    List<Label> convertedLabels =
+        labelsMap.entrySet().stream()
+            .filter(entry -> labels.contains(entry.getKey()))
+            .map(entry -> new ConvertedLabel(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toUnmodifiableList());
+    return new ConvertedLabelResultSet(
+        convertedLabels, convertedLabels.size(), convertedLabels.size());
   }
 
   @lombok.Value
@@ -130,6 +161,7 @@ class GatewayServiceEntityConverter {
     Map<String, MetricContainer> metricContainers;
     Map<String, EdgeResultSet> incomingEdges;
     Map<String, EdgeResultSet> outgoingEdges;
+    LabelResultSet labels;
 
     @Override
     public Object attribute(String key) {
@@ -172,5 +204,20 @@ class GatewayServiceEntityConverter {
     List<Entity> results;
     long total;
     long count;
+  }
+
+  @lombok.Value
+  @Accessors(fluent = true)
+  private static class ConvertedLabel implements Label {
+    String id;
+    String key;
+  }
+
+  @lombok.Value
+  @Accessors(fluent = true)
+  private static class ConvertedLabelResultSet implements LabelResultSet {
+    List<Label> results;
+    long count;
+    long total;
   }
 }

@@ -8,6 +8,7 @@ import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.core.graphql.common.schema.type.Typed;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
+import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.metric.schema.MetricQueryable;
 
 @GraphQLName(Entity.TYPE_NAME)
@@ -15,6 +16,7 @@ public interface Entity extends AttributeQueryable, MetricQueryable, Identifiabl
   String TYPE_NAME = "Entity";
   String ENTITY_INCOMING_EDGES_KEY = "incomingEdges";
   String ENTITY_OUTGOING_EDGES_KEY = "outgoingEdges";
+  String LABELS_KEY = "labels";
 
   @Override
   @GraphQLField
@@ -35,4 +37,9 @@ public interface Entity extends AttributeQueryable, MetricQueryable, Identifiabl
   EdgeResultSet outgoingEdges(
       @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME) EntityType neighborType,
       @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope);
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(LABELS_KEY)
+  LabelResultSet labels();
 }

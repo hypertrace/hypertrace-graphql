@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -99,7 +100,8 @@ class NeighborEntitiesRequestBuilder {
                 // Supporting time agnostic interations would mean a change in the way interactions
                 // are implemented
                 false,
-                false));
+                false,
+                Optional.empty()));
   }
 
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
@@ -178,5 +180,6 @@ class NeighborEntitiesRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
+    Optional<ContextualRequest> labelRequest;
   }
 }

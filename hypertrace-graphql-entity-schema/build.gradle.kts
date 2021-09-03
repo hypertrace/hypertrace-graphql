@@ -28,6 +28,10 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
+  implementation("org.hypertrace.config.service:labels-config-service-api")
+
+  implementation(project(":hypertrace-graphql-service-config"))
+  implementation(project(":hypertrace-graphql-labels-schema"))
 
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")

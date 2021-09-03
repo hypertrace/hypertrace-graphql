@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.request.ContextualRequest;
+import org.hypertrace.core.graphql.common.request.ContextualRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
@@ -23,6 +25,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
+import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
@@ -38,6 +41,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   private final ArgumentDeserializer argumentDeserializer;
   private final GraphQlSelectionFinder selectionFinder;
   private final EdgeRequestBuilder edgeRequestBuilder;
+  private final ContextualRequestBuilder contextualRequestBuilder;
 
   @Inject
   DefaultEntityRequestBuilder(
@@ -45,12 +49,14 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       MetricRequestBuilder metricRequestBuilder,
       ArgumentDeserializer argumentDeserializer,
       GraphQlSelectionFinder selectionFinder,
-      EdgeRequestBuilder edgeRequestBuilder) {
+      EdgeRequestBuilder edgeRequestBuilder,
+      ContextualRequestBuilder contextualRequestBuilder) {
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.metricRequestBuilder = metricRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.selectionFinder = selectionFinder;
     this.edgeRequestBuilder = edgeRequestBuilder;
+    this.contextualRequestBuilder = contextualRequestBuilder;
   }
 
   @Override
@@ -88,6 +94,20 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 .count()
             > 0;
 
+    boolean fetchLabels =
+        this.selectionFinder
+                .findSelections(
+                    selectionSet,
+                    SelectionQuery.builder()
+                        .selectionPath(
+                            List.of(ResultSet.RESULT_SET_RESULTS_NAME, Entity.LABELS_KEY))
+                        .build())
+                .count()
+            > 0;
+
+    Optional<ContextualRequest> labelRequest =
+        fetchLabels ? Optional.of(contextualRequestBuilder.build(context)) : Optional.empty();
+
     return zip(
         this.resultSetRequestBuilder.build(
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
@@ -110,7 +130,8 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 incomingEdges,
                 outgoingEdges,
                 includeInactive,
-                fetchTotal));
+                fetchTotal,
+                labelRequest));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -154,5 +175,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
+    Optional<ContextualRequest> labelRequest;
   }
 }
