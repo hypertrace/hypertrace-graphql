@@ -135,11 +135,14 @@ class GatewayServiceEntityConverter {
   }
 
   private LabelResultSet buildLabelResultSet(
-          org.hypertrace.gateway.service.v1.entity.Entity entity, EntityRequest request, Map<String, String> labelsMap) {
+      org.hypertrace.gateway.service.v1.entity.Entity entity,
+      EntityRequest request,
+      Map<String, String> labelsMap) {
     if (labelsMap.isEmpty()) {
       return EMPTY_LABEL_RESULT_SET;
     }
-    Value value = entity.getAttributeOrDefault(request.labelsAttributeRequest().attribute().id(), null);
+    Value value =
+        entity.getAttributeOrDefault(request.labelsAttributeRequest().attribute().id(), null);
     if (value == null) {
       return EMPTY_LABEL_RESULT_SET;
     }
