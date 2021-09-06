@@ -3,6 +3,7 @@ package org.hypertrace.graphql.entity.dao;
 import static io.reactivex.rxjava3.core.Single.zip;
 import static org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeFetcher.EMPTY_EDGE_RESULT_SET;
 
+import com.google.protobuf.ProtocolStringList;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
@@ -36,7 +37,6 @@ class GatewayServiceEntityConverter {
       attributeMapConverter;
   private static final ConvertedLabelResultSet EMPTY_LABEL_RESULT_SET =
       new ConvertedLabelResultSet(List.of(), 0, 0);
-  private static final String LABELS_ATTRIBUTE_NAME = "labels";
 
   private final TriConverter<
           Collection<MetricRequest>,
@@ -89,7 +89,7 @@ class GatewayServiceEntityConverter {
                     getBaselineEntity(baselineEntityMap, entity.getId()),
                     edgeLookup.getIncoming().row(entity),
                     edgeLookup.getOutgoing().row(entity),
-                    labelsMap))
+                    buildLabelResultSet(entity, request, labelsMap)))
         .toList()
         .map(
             entities ->
@@ -115,7 +115,7 @@ class GatewayServiceEntityConverter {
       BaselineEntity baselineEntity,
       Map<String, EdgeResultSet> incomingEdges,
       Map<String, EdgeResultSet> outgoingEdges,
-      Map<String, String> labelsMap) {
+      LabelResultSet labelResultSet) {
     return zip(
         this.attributeMapConverter.convert(
             entityRequest.resultSetRequest().attributes(), platformEntity.getAttributeMap()),
@@ -131,21 +131,22 @@ class GatewayServiceEntityConverter {
                 containerMap,
                 incomingEdges,
                 outgoingEdges,
-                buildLabelResultSet(attrMap, labelsMap)));
+                labelResultSet));
   }
 
   private LabelResultSet buildLabelResultSet(
-      Map<String, Object> attrMap, Map<String, String> labelsMap) {
+          org.hypertrace.gateway.service.v1.entity.Entity entity, EntityRequest request, Map<String, String> labelsMap) {
     if (labelsMap.isEmpty()) {
       return EMPTY_LABEL_RESULT_SET;
     }
-    List<String> labels = (List<String>) attrMap.get(LABELS_ATTRIBUTE_NAME);
-    if (labels == null || labels.isEmpty()) {
+    Value value = entity.getAttributeOrDefault(request.labelsAttributeRequest().attribute().id(), null);
+    if (value == null) {
       return EMPTY_LABEL_RESULT_SET;
     }
+    ProtocolStringList valueList = value.getStringArrayList();
     List<Label> convertedLabels =
         labelsMap.entrySet().stream()
-            .filter(entry -> labels.contains(entry.getKey()))
+            .filter(entry -> valueList.contains(entry.getKey()))
             .map(entry -> new ConvertedLabel(entry.getKey(), entry.getValue()))
             .collect(Collectors.toUnmodifiableList());
     return new ConvertedLabelResultSet(

@@ -5,6 +5,7 @@ import static org.hypertrace.core.graphql.common.utils.CollectorUtils.flatten;
 
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
@@ -67,19 +68,25 @@ class GatewayServiceEntityRequestBuilder {
                 .collect(flatten(MetricRequest::seriesRequests))),
         this.interactionRequestBuilder.build(entityRequest.incomingEdgeRequests()),
         this.interactionRequestBuilder.build(entityRequest.outgoingEdgeRequests()),
+        this.selectionConverter.convert(
+            entityRequest.labelRequest().isPresent()
+                ? Set.of(entityRequest.labelsAttributeRequest())
+                : Collections.emptySet()),
         (selections,
             orderBys,
             filter,
             aggregations,
             series,
             incomingInteractions,
-            outgoingInteractions) ->
+            outgoingInteractions,
+            labelSelections) ->
             EntitiesRequest.newBuilder()
                 .setEntityType(entityRequest.entityType())
                 .setStartTimeMillis(resultSetRequest.timeRange().startTime().toEpochMilli())
                 .setEndTimeMillis(resultSetRequest.timeRange().endTime().toEpochMilli())
                 .addAllSelection(selections)
                 .addAllSelection(aggregations)
+                .addAllSelection(labelSelections)
                 .addAllTimeAggregation(series)
                 .setIncomingInteractions(incomingInteractions)
                 .setOutgoingInteractions(outgoingInteractions)

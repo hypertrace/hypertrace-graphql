@@ -274,6 +274,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
     boolean includeInactive = true; // When joining we want the entity regardless of time range
     Optional<ContextualRequest> labelRequest = Optional.empty();
+    AttributeRequest labelsAttributeRequest = null;
   }
 
   @Value
