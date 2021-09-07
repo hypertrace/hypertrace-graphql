@@ -16,7 +16,6 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
-import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.common.request.ContextualRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -112,9 +111,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 .count()
             > 0;
 
-    Optional<ContextualRequest> labelRequest =
-        fetchLabels ? Optional.of(contextualRequestBuilder.build(context)) : Optional.empty();
-
     return zip(
         this.resultSetRequestBuilder.build(
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
@@ -130,11 +126,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             this.space(arguments),
             this.getOutgoingEdges(selectionSet)),
         attributeRequestBuilder.buildForKey(context, scope, LABELS_KEY_NAME),
-        (resultSetRequest,
-            metricRequestList,
-            incomingEdges,
-            outgoingEdges,
-            labelsAttributeRequest) ->
+        (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges, attributeRequest) ->
             new DefaultEntityRequest(
                 scope,
                 resultSetRequest,
@@ -143,8 +135,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 outgoingEdges,
                 includeInactive,
                 fetchTotal,
-                labelRequest,
-                labelsAttributeRequest));
+                buildLabelRequest(fetchLabels, attributeRequest)));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -178,6 +169,11 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     return this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
   }
 
+  private Optional<LabelRequest> buildLabelRequest(
+      boolean fetchLabels, AttributeRequest attributeRequest) {
+    return fetchLabels ? Optional.of(new DefaultLabelRequest(attributeRequest)) : Optional.empty();
+  }
+
   @Value
   @Accessors(fluent = true)
   private static class DefaultEntityRequest implements EntityRequest {
@@ -188,7 +184,12 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
-    Optional<ContextualRequest> labelRequest;
-    AttributeRequest labelsAttributeRequest;
+    Optional<LabelRequest> labelRequest;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class DefaultLabelRequest implements LabelRequest {
+    AttributeRequest attributeRequest;
   }
 }

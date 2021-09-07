@@ -18,8 +18,6 @@ import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
-import org.hypertrace.core.graphql.common.request.AttributeRequest;
-import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -102,8 +100,7 @@ class NeighborEntitiesRequestBuilder {
                 // are implemented
                 false,
                 false,
-                Optional.empty(),
-                null));
+                Optional.empty()));
   }
 
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
@@ -182,7 +179,6 @@ class NeighborEntitiesRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
-    Optional<ContextualRequest> labelRequest;
-    AttributeRequest labelsAttributeRequest;
+    Optional<LabelRequest> labelRequest;
   }
 }

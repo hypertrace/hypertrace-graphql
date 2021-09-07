@@ -5,10 +5,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
@@ -25,7 +22,6 @@ import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.label.config.service.v1.GetLabelsRequest;
 import org.hypertrace.label.config.service.v1.GetLabelsResponse;
-import org.hypertrace.label.config.service.v1.Label;
 import org.hypertrace.label.config.service.v1.LabelsConfigServiceGrpc;
 import org.hypertrace.label.config.service.v1.LabelsConfigServiceGrpc.LabelsConfigServiceFutureStub;
 
@@ -72,37 +68,32 @@ class GatewayServiceEntityDao implements EntityDao {
 
   @Override
   public Single<EntityResultSet> getEntities(EntityRequest request) {
+    GraphQlRequestContext context = request.resultSetRequest().context();
+    Single<EntitiesRequest> entitiesRequestSingle = this.requestBuilder.buildRequest(request);
     return Single.zip(
-            this.requestBuilder
-                .buildRequest(request)
+            entitiesRequestSingle,
+            entitiesRequestSingle
                 .subscribeOn(this.boundedIoScheduler)
-                .flatMap(
-                    serverRequest ->
-                        this.makeEntityRequest(request.resultSetRequest().context(), serverRequest)
-                            .map(serverResponse -> Map.entry(serverRequest, serverResponse))),
-            this.makeLabelRequest(request.resultSetRequest().context(), request)
-                .subscribeOn(this.boundedIoScheduler),
-            (serviceRequestResponseEntry, labelsResponse) -> {
-              EntitiesRequest entitiesRequest = serviceRequestResponseEntry.getKey();
-              EntitiesResponse entitiesResponse = serviceRequestResponseEntry.getValue();
-              Map<String, String> labelsMap =
-                  labelsResponse
-                      .map(GetLabelsResponse::getLabelsList)
-                      .orElse(Collections.emptyList())
-                      .stream()
-                      .collect(Collectors.toUnmodifiableMap(Label::getId, Label::getKey));
-              return baselineDao
-                  .getBaselines(
-                      request.resultSetRequest().context(),
-                      entitiesRequest,
-                      entitiesResponse,
-                      request)
-                  .flatMap(
-                      baselineResponse ->
-                          this.entityConverter.convert(
-                              request, entitiesResponse, baselineResponse, labelsMap));
+                .flatMap(serverRequest -> this.makeEntityRequest(context, serverRequest)),
+            this.makeLabelRequest(context, request).subscribeOn(this.boundedIoScheduler),
+            (entitiesRequest, entitiesResponse, labelsResponse) -> {
+              return getEntityResultSet(request, entitiesRequest, entitiesResponse, labelsResponse);
             })
         .flatMap(entityResultSet -> entityResultSet);
+  }
+
+  private Single<EntityResultSet> getEntityResultSet(
+      EntityRequest request,
+      EntitiesRequest entitiesRequest,
+      EntitiesResponse entitiesResponse,
+      Optional<GetLabelsResponse> labelsResponse) {
+    GraphQlRequestContext context = request.resultSetRequest().context();
+    return baselineDao
+        .getBaselines(context, entitiesRequest, entitiesResponse, request)
+        .flatMap(
+            baselineResponse ->
+                this.entityConverter.convert(
+                    request, entitiesResponse, baselineResponse, labelsResponse));
   }
 
   private Single<EntitiesResponse> makeEntityRequest(

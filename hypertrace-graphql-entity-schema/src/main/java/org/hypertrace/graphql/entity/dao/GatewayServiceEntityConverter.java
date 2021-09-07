@@ -7,6 +7,7 @@ import com.google.protobuf.ProtocolStringList;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,12 +32,11 @@ import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
+import org.hypertrace.label.config.service.v1.GetLabelsResponse;
 
 class GatewayServiceEntityConverter {
   private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
       attributeMapConverter;
-  private static final ConvertedLabelResultSet EMPTY_LABEL_RESULT_SET =
-      new ConvertedLabelResultSet(List.of(), 0, 0);
 
   private final TriConverter<
           Collection<MetricRequest>,
@@ -66,11 +66,12 @@ class GatewayServiceEntityConverter {
       EntityRequest request,
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
-      Map<String, String> labelsMap) {
+      Optional<GetLabelsResponse> labelsResponse) {
     return this.edgeLookupConverter
         .convert(request, response)
         .flatMap(
-            edgeLookup -> this.convert(request, response, baselineResponse, edgeLookup, labelsMap));
+            edgeLookup ->
+                this.convert(request, response, baselineResponse, edgeLookup, labelsResponse));
   }
 
   private Single<EntityResultSet> convert(
@@ -78,8 +79,9 @@ class GatewayServiceEntityConverter {
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
       EdgeLookup edgeLookup,
-      Map<String, String> labelsMap) {
+      Optional<GetLabelsResponse> labelsResponse) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
+    Map<String, String> labelsMap = getLabelsMap(labelsResponse);
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
             entity ->
@@ -94,6 +96,17 @@ class GatewayServiceEntityConverter {
         .map(
             entities ->
                 new ConvertedEntityResultSet(entities, response.getTotal(), entities.size()));
+  }
+
+  private Map<String, String> getLabelsMap(Optional<GetLabelsResponse> labelsResponse) {
+    return labelsResponse
+        .map(GetLabelsResponse::getLabelsList)
+        .orElse(Collections.emptyList())
+        .stream()
+        .collect(
+            Collectors.toUnmodifiableMap(
+                org.hypertrace.label.config.service.v1.Label::getId,
+                org.hypertrace.label.config.service.v1.Label::getKey));
   }
 
   private BaselineEntity getBaselineEntity(
@@ -138,18 +151,22 @@ class GatewayServiceEntityConverter {
       org.hypertrace.gateway.service.v1.entity.Entity entity,
       EntityRequest request,
       Map<String, String> labelsMap) {
-    if (labelsMap.isEmpty()) {
-      return EMPTY_LABEL_RESULT_SET;
+    if (request.labelRequest().isEmpty()) {
+      return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
     }
     Value value =
-        entity.getAttributeOrDefault(request.labelsAttributeRequest().attribute().id(), null);
+        entity.getAttributeOrDefault(
+            request.labelRequest().get().attributeRequest().attribute().id(), null);
     if (value == null) {
-      return EMPTY_LABEL_RESULT_SET;
+      return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
     }
-    ProtocolStringList valueList = value.getStringArrayList();
+    ProtocolStringList labelIds = value.getStringArrayList();
+    if (labelIds.isEmpty() || labelsMap.isEmpty()) {
+      return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
+    }
     List<Label> convertedLabels =
         labelsMap.entrySet().stream()
-            .filter(entry -> valueList.contains(entry.getKey()))
+            .filter(entry -> labelIds.contains(entry.getKey()))
             .map(entry -> new ConvertedLabel(entry.getKey(), entry.getValue()))
             .collect(Collectors.toUnmodifiableList());
     return new ConvertedLabelResultSet(
@@ -220,6 +237,8 @@ class GatewayServiceEntityConverter {
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedLabelResultSet implements LabelResultSet {
+    static final ConvertedLabelResultSet EMPTY_LABEL_RESULT_SET =
+        new ConvertedLabelResultSet(List.of(), 0, 0);
     List<Label> results;
     long count;
     long total;

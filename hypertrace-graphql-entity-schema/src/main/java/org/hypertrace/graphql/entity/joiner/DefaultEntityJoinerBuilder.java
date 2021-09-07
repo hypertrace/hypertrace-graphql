@@ -35,7 +35,6 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
-import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -52,6 +51,7 @@ import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
+import org.hypertrace.graphql.entity.request.LabelRequest;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityJoinable;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -273,8 +273,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     EdgeSetGroupRequest incomingEdgeRequests = new EmptyEdgeSetGroupRequest();
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
     boolean includeInactive = true; // When joining we want the entity regardless of time range
-    Optional<ContextualRequest> labelRequest = Optional.empty();
-    AttributeRequest labelsAttributeRequest = null;
+    Optional<LabelRequest> labelRequest = Optional.empty();
   }
 
   @Value

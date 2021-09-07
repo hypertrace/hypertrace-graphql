@@ -69,9 +69,10 @@ class GatewayServiceEntityRequestBuilder {
         this.interactionRequestBuilder.build(entityRequest.incomingEdgeRequests()),
         this.interactionRequestBuilder.build(entityRequest.outgoingEdgeRequests()),
         this.selectionConverter.convert(
-            entityRequest.labelRequest().isPresent()
-                ? Set.of(entityRequest.labelsAttributeRequest())
-                : Collections.emptySet()),
+            entityRequest
+                .labelRequest()
+                .map(request -> Set.of(request.attributeRequest()))
+                .orElse(Collections.emptySet())),
         (selections,
             orderBys,
             filter,
