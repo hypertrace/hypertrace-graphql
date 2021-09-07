@@ -100,7 +100,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 .count()
             > 0;
 
-    boolean fetchLabels =
+    boolean canFetchLabels =
         this.selectionFinder
                 .findSelections(
                     selectionSet,
@@ -126,7 +126,11 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             this.space(arguments),
             this.getOutgoingEdges(selectionSet)),
         attributeRequestBuilder.buildForKey(context, scope, LABELS_KEY_NAME),
-        (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges, attributeRequest) ->
+        (resultSetRequest,
+            metricRequestList,
+            incomingEdges,
+            outgoingEdges,
+            labelsAttributeRequest) ->
             new DefaultEntityRequest(
                 scope,
                 resultSetRequest,
@@ -135,7 +139,9 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 outgoingEdges,
                 includeInactive,
                 fetchTotal,
-                buildLabelRequest(fetchLabels, attributeRequest)));
+                canFetchLabels
+                    ? Optional.of(new DefaultLabelRequest(labelsAttributeRequest))
+                    : Optional.empty()));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -167,11 +173,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
 
   private Optional<String> space(Map<String, Object> arguments) {
     return this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
-  }
-
-  private Optional<LabelRequest> buildLabelRequest(
-      boolean fetchLabels, AttributeRequest attributeRequest) {
-    return fetchLabels ? Optional.of(new DefaultLabelRequest(attributeRequest)) : Optional.empty();
   }
 
   @Value

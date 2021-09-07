@@ -1,6 +1,7 @@
 package org.hypertrace.graphql.entity.dao;
 
 import static io.reactivex.rxjava3.core.Single.zip;
+import static java.util.function.Function.identity;
 import static org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeFetcher.EMPTY_EDGE_RESULT_SET;
 
 import com.google.protobuf.ProtocolStringList;
@@ -81,7 +82,8 @@ class GatewayServiceEntityConverter {
       EdgeLookup edgeLookup,
       Optional<GetLabelsResponse> labelsResponse) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
-    Map<String, String> labelsMap = getLabelsMap(labelsResponse);
+    Map<String, org.hypertrace.label.config.service.v1.Label> labelsMap =
+        labelsResponse.map(this::getLabelsMap).orElse(Collections.emptyMap());
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
             entity ->
@@ -98,17 +100,6 @@ class GatewayServiceEntityConverter {
                 new ConvertedEntityResultSet(entities, response.getTotal(), entities.size()));
   }
 
-  private Map<String, String> getLabelsMap(Optional<GetLabelsResponse> labelsResponse) {
-    return labelsResponse
-        .map(GetLabelsResponse::getLabelsList)
-        .orElse(Collections.emptyList())
-        .stream()
-        .collect(
-            Collectors.toUnmodifiableMap(
-                org.hypertrace.label.config.service.v1.Label::getId,
-                org.hypertrace.label.config.service.v1.Label::getKey));
-  }
-
   private BaselineEntity getBaselineEntity(
       Map<String, BaselineEntity> baselineEntityMap, String entityId) {
     return baselineEntityMap.containsKey(entityId)
@@ -120,6 +111,14 @@ class GatewayServiceEntityConverter {
       BaselineEntitiesResponse baselineResponse) {
     return baselineResponse.getBaselineEntityList().stream()
         .collect(Collectors.toMap(BaselineEntity::getId, entity -> entity));
+  }
+
+  private Map<String, org.hypertrace.label.config.service.v1.Label> getLabelsMap(
+      GetLabelsResponse labelsResponse) {
+    return labelsResponse.getLabelsList().stream()
+        .collect(
+            Collectors.toUnmodifiableMap(
+                org.hypertrace.label.config.service.v1.Label::getId, identity()));
   }
 
   private Single<Entity> convertEntity(
@@ -150,7 +149,7 @@ class GatewayServiceEntityConverter {
   private LabelResultSet buildLabelResultSet(
       org.hypertrace.gateway.service.v1.entity.Entity entity,
       EntityRequest request,
-      Map<String, String> labelsMap) {
+      Map<String, org.hypertrace.label.config.service.v1.Label> labelsMap) {
     if (request.labelRequest().isEmpty()) {
       return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
     }
@@ -167,7 +166,7 @@ class GatewayServiceEntityConverter {
     List<Label> convertedLabels =
         labelsMap.entrySet().stream()
             .filter(entry -> labelIds.contains(entry.getKey()))
-            .map(entry -> new ConvertedLabel(entry.getKey(), entry.getValue()))
+            .map(entry -> new ConvertedLabel(entry.getKey(), entry.getValue().getKey()))
             .collect(Collectors.toUnmodifiableList());
     return new ConvertedLabelResultSet(
         convertedLabels, convertedLabels.size(), convertedLabels.size());
