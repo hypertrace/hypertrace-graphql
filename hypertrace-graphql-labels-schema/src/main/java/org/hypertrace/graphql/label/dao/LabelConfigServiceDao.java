@@ -48,11 +48,12 @@ class LabelConfigServiceDao implements LabelDao {
 
   @Override
   public Single<LabelResultSet> getLabels(ContextualRequest request) {
-    return this.makeRequest(request.context(), GetLabelsRequest.getDefaultInstance())
+    return this.getLabelsResponse(request.context(), GetLabelsRequest.getDefaultInstance())
         .flatMap(this.responseConverter::convert);
   }
 
-  private Single<GetLabelsResponse> makeRequest(
+  @Override
+  public Single<GetLabelsResponse> getLabelsResponse(
       GraphQlRequestContext context, GetLabelsRequest request) {
     return Single.fromFuture(
         this.grpcContextBuilder

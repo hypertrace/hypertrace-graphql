@@ -1,14 +1,11 @@
 package org.hypertrace.graphql.entity.dao;
 
 import static io.reactivex.rxjava3.core.Single.zip;
-import static java.util.function.Function.identity;
 import static org.hypertrace.graphql.entity.dao.GatewayServiceEntityEdgeFetcher.EMPTY_EDGE_RESULT_SET;
 
-import com.google.protobuf.ProtocolStringList;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,11 +26,9 @@ import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.EntityType;
-import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
-import org.hypertrace.label.config.service.v1.GetLabelsResponse;
 
 class GatewayServiceEntityConverter {
   private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
@@ -67,12 +62,12 @@ class GatewayServiceEntityConverter {
       EntityRequest request,
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
-      Optional<GetLabelsResponse> labelsResponse) {
+      Map<String, LabelResultSet> labelResultSetMap) {
     return this.edgeLookupConverter
         .convert(request, response)
         .flatMap(
             edgeLookup ->
-                this.convert(request, response, baselineResponse, edgeLookup, labelsResponse));
+                this.convert(request, response, baselineResponse, edgeLookup, labelResultSetMap));
   }
 
   private Single<EntityResultSet> convert(
@@ -80,10 +75,8 @@ class GatewayServiceEntityConverter {
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
       EdgeLookup edgeLookup,
-      Optional<GetLabelsResponse> labelsResponse) {
+      Map<String, LabelResultSet> labelResultSetMap) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
-    Map<String, org.hypertrace.label.config.service.v1.Label> labelsMap =
-        labelsResponse.map(this::getLabelsMap).orElse(Collections.emptyMap());
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
             entity ->
@@ -93,7 +86,7 @@ class GatewayServiceEntityConverter {
                     getBaselineEntity(baselineEntityMap, entity.getId()),
                     edgeLookup.getIncoming().row(entity),
                     edgeLookup.getOutgoing().row(entity),
-                    buildLabelResultSet(entity, request, labelsMap)))
+                    labelResultSetMap.get(entity.getId())))
         .toList()
         .map(
             entities ->
@@ -111,14 +104,6 @@ class GatewayServiceEntityConverter {
       BaselineEntitiesResponse baselineResponse) {
     return baselineResponse.getBaselineEntityList().stream()
         .collect(Collectors.toMap(BaselineEntity::getId, entity -> entity));
-  }
-
-  private Map<String, org.hypertrace.label.config.service.v1.Label> getLabelsMap(
-      GetLabelsResponse labelsResponse) {
-    return labelsResponse.getLabelsList().stream()
-        .collect(
-            Collectors.toUnmodifiableMap(
-                org.hypertrace.label.config.service.v1.Label::getId, identity()));
   }
 
   private Single<Entity> convertEntity(
@@ -144,32 +129,6 @@ class GatewayServiceEntityConverter {
                 incomingEdges,
                 outgoingEdges,
                 labelResultSet));
-  }
-
-  private LabelResultSet buildLabelResultSet(
-      org.hypertrace.gateway.service.v1.entity.Entity entity,
-      EntityRequest request,
-      Map<String, org.hypertrace.label.config.service.v1.Label> labelsMap) {
-    if (request.labelRequest().isEmpty()) {
-      return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
-    }
-    Value value =
-        entity.getAttributeOrDefault(
-            request.labelRequest().get().attributeRequest().attribute().id(), null);
-    if (value == null) {
-      return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
-    }
-    ProtocolStringList labelIds = value.getStringArrayList();
-    if (labelIds.isEmpty() || labelsMap.isEmpty()) {
-      return ConvertedLabelResultSet.EMPTY_LABEL_RESULT_SET;
-    }
-    List<Label> convertedLabels =
-        labelsMap.entrySet().stream()
-            .filter(entry -> labelIds.contains(entry.getKey()))
-            .map(entry -> new ConvertedLabel(entry.getKey(), entry.getValue().getKey()))
-            .collect(Collectors.toUnmodifiableList());
-    return new ConvertedLabelResultSet(
-        convertedLabels, convertedLabels.size(), convertedLabels.size());
   }
 
   @lombok.Value
@@ -224,22 +183,5 @@ class GatewayServiceEntityConverter {
     List<Entity> results;
     long total;
     long count;
-  }
-
-  @lombok.Value
-  @Accessors(fluent = true)
-  private static class ConvertedLabel implements Label {
-    String id;
-    String key;
-  }
-
-  @lombok.Value
-  @Accessors(fluent = true)
-  private static class ConvertedLabelResultSet implements LabelResultSet {
-    static final ConvertedLabelResultSet EMPTY_LABEL_RESULT_SET =
-        new ConvertedLabelResultSet(List.of(), 0, 0);
-    List<Label> results;
-    long count;
-    long total;
   }
 }

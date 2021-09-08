@@ -51,7 +51,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultEntityJoinerBuilderTest {
+class DefaultLabelJoinerBuilderTest {
   private static final String FIRST_ENTITY_TYPE = "first";
   private static final String SECOND_ENTITY_TYPE = "second";
 

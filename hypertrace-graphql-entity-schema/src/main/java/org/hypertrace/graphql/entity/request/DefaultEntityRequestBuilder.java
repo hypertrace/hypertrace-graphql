@@ -191,6 +191,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultLabelRequest implements LabelRequest {
-    AttributeRequest attributeRequest;
+    AttributeRequest labelIdArrayAttributeRequest;
   }
 }

@@ -71,7 +71,7 @@ class GatewayServiceEntityRequestBuilder {
         this.selectionConverter.convert(
             entityRequest
                 .labelRequest()
-                .map(request -> Set.of(request.attributeRequest()))
+                .map(request -> Set.of(request.labelIdArrayAttributeRequest()))
                 .orElse(Collections.emptySet())),
         (selections,
             orderBys,

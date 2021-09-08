@@ -4,5 +4,5 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 
 public interface LabelRequest {
 
-  AttributeRequest attributeRequest();
+  AttributeRequest labelIdArrayAttributeRequest();
 }

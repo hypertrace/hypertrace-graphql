@@ -28,6 +28,7 @@ import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.entity.health.BaselineDao;
+import org.hypertrace.graphql.label.joiner.LabelJoinerBuilder;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
@@ -46,6 +47,7 @@ public class EntityDaoModule extends AbstractModule {
     requireBinding(GrpcChannelRegistry.class);
     requireBinding(GrpcContextBuilder.class);
     requireBinding(Key.get(Scheduler.class, BoundedIoScheduler.class));
+    requireBinding(LabelJoinerBuilder.class);
 
     requireBinding(
         Key.get(new TypeLiteral<Converter<Collection<AttributeRequest>, Set<Expression>>>() {}));
