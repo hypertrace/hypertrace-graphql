@@ -117,16 +117,15 @@ class GatewayServiceEntityDao implements EntityDao {
                 joiner.joinLabels(
                     entitiesResponse.getEntityList(),
                     Entity::getId,
-                    entity ->
-                        entity
-                            .getAttributeOrDefault(
-                                request
-                                    .labelRequest()
-                                    .get()
-                                    .labelIdArrayAttributeRequest()
-                                    .attribute()
-                                    .id(),
-                                EMPTY_STRING_ARRAY_VALUE)
-                            .getStringArrayList()));
+                    getEntityLabelsGetter(request)));
+  }
+
+  private LabelJoiner.LabelsGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
+    return entity ->
+        entity
+            .getAttributeOrDefault(
+                request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(),
+                EMPTY_STRING_ARRAY_VALUE)
+            .getStringArrayList();
   }
 }
