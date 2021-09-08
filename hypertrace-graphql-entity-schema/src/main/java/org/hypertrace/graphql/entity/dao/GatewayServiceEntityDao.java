@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
+import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
@@ -19,7 +20,6 @@ import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
 import org.hypertrace.gateway.service.v1.entity.Entity;
-import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.entity.health.BaselineDao;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -37,13 +37,13 @@ class GatewayServiceEntityDao implements EntityDao {
   private final GatewayServiceEntityRequestBuilder requestBuilder;
   private final GatewayServiceEntityConverter entityConverter;
   private final BaselineDao baselineDao;
-  private final HypertraceGraphQlServiceConfig serviceConfig;
+  private final GraphQlServiceConfig serviceConfig;
   private final Scheduler boundedIoScheduler;
   private final LabelJoinerBuilder labelJoinerBuilder;
 
   @Inject
   GatewayServiceEntityDao(
-      HypertraceGraphQlServiceConfig serviceConfig,
+      GraphQlServiceConfig serviceConfig,
       CallCredentials credentials,
       GrpcContextBuilder grpcContextBuilder,
       GrpcChannelRegistry grpcChannelRegistry,

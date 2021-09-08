@@ -29,7 +29,6 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
 
-  implementation(project(":hypertrace-graphql-service-config"))
   implementation(project(":hypertrace-graphql-labels-schema"))
 
   testImplementation("org.junit.jupiter:junit-jupiter")
