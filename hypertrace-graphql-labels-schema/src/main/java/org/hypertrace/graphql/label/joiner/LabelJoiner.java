@@ -32,6 +32,6 @@ public interface LabelJoiner {
 
   @FunctionalInterface
   interface LabelIdGetter<T> {
-    List<String> getLabelIds(T source);
+    Single<List<String>> getLabelIds(T source);
   }
 }

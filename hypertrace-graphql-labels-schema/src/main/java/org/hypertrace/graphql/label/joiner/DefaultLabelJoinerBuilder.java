@@ -46,15 +46,24 @@ class DefaultLabelJoinerBuilder implements LabelJoinerBuilder {
         Collection<T> joinSources, LabelIdGetter<T> labelIdGetter) {
       return labelDao
           .getLabels(requestBuilder.build(context))
-          .flatMap(labels -> getResultSetMap(labels, joinSources, labelIdGetter));
+          .flatMap(labels -> getLabelResultSetMap(joinSources, labelIdGetter, labels));
     }
 
-    private <T> Single<Map<T, LabelResultSet>> getResultSetMap(
-        List<Label> labels, Collection<T> joinSources, LabelIdGetter<T> labelIdGetter) {
+    private <T> Single<Map<T, LabelResultSet>> getLabelResultSetMap(
+        Collection<T> joinSources, LabelIdGetter<T> labelIdGetter, List<Label> labels) {
       return Observable.fromIterable(joinSources)
-          .toMap(
-              source -> source,
-              source -> responseConverter.convert(labelIdGetter.getLabelIds(source), labels));
+          .flatMapSingle(
+              source ->
+                  getLabelResultSet(source, labelIdGetter, labels)
+                      .map(labelResultSet -> Map.entry(source, labelResultSet)))
+          .toMap(entry -> entry.getKey(), entry -> entry.getValue());
+    }
+
+    private <T> Single<LabelResultSet> getLabelResultSet(
+        T source, LabelIdGetter<T> labelIdGetter, List<Label> labels) {
+      return labelIdGetter
+          .getLabelIds(source)
+          .flatMap(labelIds -> responseConverter.convert(labelIds, labels));
     }
   }
 }
