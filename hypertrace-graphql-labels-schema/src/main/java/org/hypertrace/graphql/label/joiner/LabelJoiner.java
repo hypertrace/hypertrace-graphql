@@ -13,8 +13,8 @@ public interface LabelJoiner {
   LabelJoiner NO_OP_JOINER =
       new LabelJoiner() {
         @Override
-        public <T> Single<Map<String, LabelResultSet>> joinLabels(
-            Collection<T> joinSources, IdGetter<T> idGetter, LabelsGetter<T> labelsGetter) {
+        public <T> Single<Map<T, LabelResultSet>> joinLabels(
+            Collection<T> joinSources, LabelIdGetter<T> labelIdGetter) {
           return Single.just(Collections.emptyMap());
         }
       };
@@ -23,21 +23,15 @@ public interface LabelJoiner {
    * Produces a map of label result set to source ids
    *
    * @param joinSources a collection of source data
-   * @param idGetter A method that retrieves an ID from the source
-   * @param labelsGetter A method that retrieves labels from the source
+   * @param labelIdGetter A method that retrieves labels from the source
    * @param <T> Type of source data
-   * @return A map of id of each source to its matching label result set
+   * @return A map of each source to its matching label result set
    */
-  <T> Single<Map<String, LabelResultSet>> joinLabels(
-      Collection<T> joinSources, IdGetter<T> idGetter, LabelsGetter<T> labelsGetter);
+  <T> Single<Map<T, LabelResultSet>> joinLabels(
+      Collection<T> joinSources, LabelIdGetter<T> labelIdGetter);
 
   @FunctionalInterface
-  interface IdGetter<T> {
-    String getId(T source);
-  }
-
-  @FunctionalInterface
-  interface LabelsGetter<T> {
-    List<String> getLabels(T source);
+  interface LabelIdGetter<T> {
+    List<String> getLabelIds(T source);
   }
 }

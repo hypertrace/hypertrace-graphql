@@ -62,7 +62,7 @@ class GatewayServiceEntityConverter {
       EntityRequest request,
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
-      Map<String, LabelResultSet> labelResultSetMap) {
+      Map<org.hypertrace.gateway.service.v1.entity.Entity, LabelResultSet> labelResultSetMap) {
     return this.edgeLookupConverter
         .convert(request, response)
         .flatMap(
@@ -75,7 +75,7 @@ class GatewayServiceEntityConverter {
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
       EdgeLookup edgeLookup,
-      Map<String, LabelResultSet> labelResultSetMap) {
+      Map<org.hypertrace.gateway.service.v1.entity.Entity, LabelResultSet> labelResultSetMap) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
@@ -86,7 +86,7 @@ class GatewayServiceEntityConverter {
                     getBaselineEntity(baselineEntityMap, entity.getId()),
                     edgeLookup.getIncoming().row(entity),
                     edgeLookup.getOutgoing().row(entity),
-                    labelResultSetMap.get(entity.getId())))
+                    labelResultSetMap.get(entity)))
         .toList()
         .map(
             entities ->

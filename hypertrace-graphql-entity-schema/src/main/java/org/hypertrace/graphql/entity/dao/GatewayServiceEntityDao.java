@@ -70,26 +70,27 @@ class GatewayServiceEntityDao implements EntityDao {
   @Override
   public Single<EntityResultSet> getEntities(EntityRequest request) {
     GraphQlRequestContext context = request.resultSetRequest().context();
-    Single<EntitiesRequest> entitiesRequestSingle = this.requestBuilder.buildRequest(request);
-    return Single.zip(
-            entitiesRequestSingle,
-            entitiesRequestSingle
-                .subscribeOn(this.boundedIoScheduler)
-                .flatMap(serverRequest -> this.makeEntityRequest(context, serverRequest)),
-            (entitiesRequest, entitiesResponse) ->
-                getEntityResultSet(request, entitiesRequest, entitiesResponse))
-        .flatMap(entityResultSet -> entityResultSet);
+    return this.requestBuilder
+        .buildRequest(request)
+        .subscribeOn(this.boundedIoScheduler)
+        .flatMap(serverRequest -> this.fetchAndMapEntities(context, request, serverRequest));
+  }
+
+  private Single<EntityResultSet> fetchAndMapEntities(
+      GraphQlRequestContext context, EntityRequest request, EntitiesRequest serverRequest) {
+    return this.makeEntityRequest(context, serverRequest)
+        .flatMap(serverResponse -> this.getEntityResultSet(request, serverRequest, serverResponse));
   }
 
   private Single<EntityResultSet> getEntityResultSet(
-      EntityRequest request, EntitiesRequest entitiesRequest, EntitiesResponse entitiesResponse) {
+      EntityRequest request, EntitiesRequest serverRequest, EntitiesResponse serverResponse) {
     GraphQlRequestContext context = request.resultSetRequest().context();
     return Single.zip(
-            baselineDao.getBaselines(context, entitiesRequest, entitiesResponse, request),
-            buildLabelResultSetMap(context, request, entitiesResponse),
+            baselineDao.getBaselines(context, serverRequest, serverResponse, request),
+            buildLabelResultSetMap(context, request, serverResponse),
             (baselineResponse, labelResultSetMap) ->
                 this.entityConverter.convert(
-                    request, entitiesResponse, baselineResponse, labelResultSetMap))
+                    request, serverResponse, baselineResponse, labelResultSetMap))
         .flatMap(entityResultSet -> entityResultSet);
   }
 
@@ -106,7 +107,7 @@ class GatewayServiceEntityDao implements EntityDao {
                         .getEntities(request)));
   }
 
-  private Single<Map<String, LabelResultSet>> buildLabelResultSetMap(
+  private Single<Map<Entity, LabelResultSet>> buildLabelResultSetMap(
       GraphQlRequestContext context, EntityRequest request, EntitiesResponse entitiesResponse) {
     return request
         .labelRequest()
@@ -115,12 +116,10 @@ class GatewayServiceEntityDao implements EntityDao {
         .flatMap(
             joiner ->
                 joiner.joinLabels(
-                    entitiesResponse.getEntityList(),
-                    Entity::getId,
-                    getEntityLabelsGetter(request)));
+                    entitiesResponse.getEntityList(), getEntityLabelsGetter(request)));
   }
 
-  private LabelJoiner.LabelsGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
+  private LabelJoiner.LabelIdGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
     return entity ->
         entity
             .getAttributeOrDefault(

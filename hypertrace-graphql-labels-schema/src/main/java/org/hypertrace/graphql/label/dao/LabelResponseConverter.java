@@ -11,14 +11,30 @@ import org.hypertrace.label.config.service.v1.CreateLabelResponse;
 import org.hypertrace.label.config.service.v1.GetLabelsResponse;
 import org.hypertrace.label.config.service.v1.UpdateLabelResponse;
 
-class LabelResponseConverter {
+public class LabelResponseConverter {
+
+  public LabelResultSet convert(List<String> labelIds, List<Label> labelList) {
+    if (labelIds.isEmpty() || labelList.isEmpty()) {
+      return DefaultLabelResultSet.EMPTY_LABEL_RESULT_SET;
+    }
+    List<Label> convertedLabels =
+        labelList.stream()
+            .filter(label -> labelIds.contains(label.id()))
+            .collect(Collectors.toUnmodifiableList());
+    return new DefaultLabelResultSet(
+        convertedLabels, convertedLabels.size(), convertedLabels.size());
+  }
 
   Single<LabelResultSet> convert(GetLabelsResponse response) {
-    List<Label> labelList =
+    return convertToLabelList(response)
+        .map(labelList -> new DefaultLabelResultSet(labelList, labelList.size(), labelList.size()));
+  }
+
+  Single<List<Label>> convertToLabelList(GetLabelsResponse response) {
+    return Single.just(
         response.getLabelsList().stream()
             .map(label -> new DefaultLabel(label.getId(), label.getKey()))
-            .collect(Collectors.toUnmodifiableList());
-    return Single.just(new DefaultLabelResultSet(labelList, labelList.size(), labelList.size()));
+            .collect(Collectors.toUnmodifiableList()));
   }
 
   Single<Label> convertLabel(CreateLabelResponse response) {
@@ -32,6 +48,7 @@ class LabelResponseConverter {
   @Value
   @Accessors(fluent = true)
   private static class DefaultLabelResultSet implements LabelResultSet {
+    static final LabelResultSet EMPTY_LABEL_RESULT_SET = new DefaultLabelResultSet(List.of(), 0, 0);
     List<Label> results;
     long count;
     long total;

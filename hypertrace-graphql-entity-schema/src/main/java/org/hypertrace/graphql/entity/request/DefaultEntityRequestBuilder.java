@@ -16,7 +16,6 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
-import org.hypertrace.core.graphql.common.request.ContextualRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
@@ -44,7 +43,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   private final ArgumentDeserializer argumentDeserializer;
   private final GraphQlSelectionFinder selectionFinder;
   private final EdgeRequestBuilder edgeRequestBuilder;
-  private final ContextualRequestBuilder contextualRequestBuilder;
   private final AttributeRequestBuilder attributeRequestBuilder;
 
   @Inject
@@ -54,14 +52,12 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       ArgumentDeserializer argumentDeserializer,
       GraphQlSelectionFinder selectionFinder,
       EdgeRequestBuilder edgeRequestBuilder,
-      ContextualRequestBuilder contextualRequestBuilder,
       AttributeRequestBuilder attributeRequestBuilder) {
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.metricRequestBuilder = metricRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.selectionFinder = selectionFinder;
     this.edgeRequestBuilder = edgeRequestBuilder;
-    this.contextualRequestBuilder = contextualRequestBuilder;
     this.attributeRequestBuilder = attributeRequestBuilder;
   }
 

@@ -28,7 +28,7 @@ public class LabelFetcher extends InjectableDataFetcher<LabelResultSet> {
     @Override
     public CompletableFuture<LabelResultSet> get(DataFetchingEnvironment environment) {
       return this.labelDao
-          .getLabels(this.requestBuilder.build(environment.getContext()))
+          .getLabelResultSet(this.requestBuilder.build(environment.getContext()))
           .toCompletionStage()
           .toCompletableFuture();
     }
