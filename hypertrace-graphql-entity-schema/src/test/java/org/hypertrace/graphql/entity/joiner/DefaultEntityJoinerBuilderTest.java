@@ -42,6 +42,7 @@ import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
+import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -266,6 +267,11 @@ class DefaultEntityJoinerBuilderTest {
 
     @Override
     public MetricContainer metric(String key) {
+      return null;
+    }
+
+    @Override
+    public LabelResultSet labels() {
       return null;
     }
   }

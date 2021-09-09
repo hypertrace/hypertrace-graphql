@@ -51,6 +51,7 @@ import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
+import org.hypertrace.graphql.entity.request.LabelRequest;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityJoinable;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -272,6 +273,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     EdgeSetGroupRequest incomingEdgeRequests = new EmptyEdgeSetGroupRequest();
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
     boolean includeInactive = true; // When joining we want the entity regardless of time range
+    Optional<LabelRequest> labelRequest = Optional.empty();
   }
 
   @Value

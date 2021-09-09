@@ -5,8 +5,11 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collections;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -14,14 +17,21 @@ import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
+import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
+import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.entity.health.BaselineDao;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
+import org.hypertrace.graphql.label.joiner.LabelJoiner;
+import org.hypertrace.graphql.label.joiner.LabelJoinerBuilder;
+import org.hypertrace.graphql.label.schema.LabelResultSet;
 
+@Slf4j
 @Singleton
 class GatewayServiceEntityDao implements EntityDao {
+
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceEntityRequestBuilder requestBuilder;
@@ -29,6 +39,7 @@ class GatewayServiceEntityDao implements EntityDao {
   private final BaselineDao baselineDao;
   private final GraphQlServiceConfig serviceConfig;
   private final Scheduler boundedIoScheduler;
+  private final LabelJoinerBuilder labelJoinerBuilder;
 
   @Inject
   GatewayServiceEntityDao(
@@ -39,11 +50,13 @@ class GatewayServiceEntityDao implements EntityDao {
       GatewayServiceEntityRequestBuilder requestBuilder,
       GatewayServiceEntityConverter entityConverter,
       BaselineDao baselineDao,
+      LabelJoinerBuilder labelJoinerBuilder,
       @BoundedIoScheduler Scheduler boundedIoScheduler) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
     this.entityConverter = entityConverter;
     this.baselineDao = baselineDao;
+    this.labelJoinerBuilder = labelJoinerBuilder;
     this.serviceConfig = serviceConfig;
     this.boundedIoScheduler = boundedIoScheduler;
 
@@ -56,27 +69,32 @@ class GatewayServiceEntityDao implements EntityDao {
 
   @Override
   public Single<EntityResultSet> getEntities(EntityRequest request) {
+    GraphQlRequestContext context = request.resultSetRequest().context();
     return this.requestBuilder
         .buildRequest(request)
         .subscribeOn(this.boundedIoScheduler)
-        .flatMap(
-            serverRequest ->
-                this.makeRequest(request.resultSetRequest().context(), serverRequest)
-                    .flatMap(
-                        serverResponse ->
-                            baselineDao
-                                .getBaselines(
-                                    request.resultSetRequest().context(),
-                                    serverRequest,
-                                    serverResponse,
-                                    request)
-                                .flatMap(
-                                    baselineResponse ->
-                                        this.entityConverter.convert(
-                                            request, serverResponse, baselineResponse))));
+        .flatMap(serverRequest -> this.fetchAndMapEntities(context, request, serverRequest));
   }
 
-  private Single<EntitiesResponse> makeRequest(
+  private Single<EntityResultSet> fetchAndMapEntities(
+      GraphQlRequestContext context, EntityRequest request, EntitiesRequest serverRequest) {
+    return this.makeEntityRequest(context, serverRequest)
+        .flatMap(serverResponse -> this.getEntityResultSet(request, serverRequest, serverResponse));
+  }
+
+  private Single<EntityResultSet> getEntityResultSet(
+      EntityRequest request, EntitiesRequest serverRequest, EntitiesResponse serverResponse) {
+    GraphQlRequestContext context = request.resultSetRequest().context();
+    return Single.zip(
+            baselineDao.getBaselines(context, serverRequest, serverResponse, request),
+            buildLabelResultSetMap(context, request, serverResponse),
+            (baselineResponse, labelResultSetMap) ->
+                this.entityConverter.convert(
+                    request, serverResponse, baselineResponse, labelResultSetMap))
+        .flatMap(entityResultSet -> entityResultSet);
+  }
+
+  private Single<EntitiesResponse> makeEntityRequest(
       GraphQlRequestContext context, EntitiesRequest request) {
     return Single.fromFuture(
         this.grpcContextBuilder
@@ -87,5 +105,30 @@ class GatewayServiceEntityDao implements EntityDao {
                         .withDeadlineAfter(
                             serviceConfig.getGatewayServiceTimeout().toMillis(), MILLISECONDS)
                         .getEntities(request)));
+  }
+
+  private Single<Map<Entity, LabelResultSet>> buildLabelResultSetMap(
+      GraphQlRequestContext context, EntityRequest request, EntitiesResponse entitiesResponse) {
+    return request
+        .labelRequest()
+        .map(labelRequest -> labelJoinerBuilder.build(context))
+        .orElse(Single.just(LabelJoiner.NO_OP_JOINER))
+        .flatMap(
+            joiner ->
+                joiner.joinLabels(
+                    entitiesResponse.getEntityList(), getEntityLabelsGetter(request)));
+  }
+
+  private LabelJoiner.LabelIdGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
+    return entity -> {
+      Value labelAttributeValue =
+          entity.getAttributeOrDefault(
+              request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(), null);
+      if (labelAttributeValue == null) {
+        log.warn("Unable to fetch labels attribute for entity with id {}", entity.getId());
+        return Single.just(Collections.emptyList());
+      }
+      return Single.just(labelAttributeValue.getStringArrayList());
+    };
   }
 }

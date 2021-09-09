@@ -99,7 +99,8 @@ class NeighborEntitiesRequestBuilder {
                 // Supporting time agnostic interations would mean a change in the way interactions
                 // are implemented
                 false,
-                false));
+                false,
+                Optional.empty()));
   }
 
   private Single<ResultSetRequest<AggregatableOrderArgument>> buildResultSetRequest(
@@ -178,5 +179,6 @@ class NeighborEntitiesRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
+    Optional<LabelRequest> labelRequest;
   }
 }

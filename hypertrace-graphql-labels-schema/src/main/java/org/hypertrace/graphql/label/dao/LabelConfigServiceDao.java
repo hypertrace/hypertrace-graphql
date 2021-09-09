@@ -46,7 +46,6 @@ class LabelConfigServiceDao implements LabelDao {
             .withCallCredentials(credentials);
   }
 
-  @Override
   public Single<LabelResultSet> getLabels(ContextualRequest request) {
     return this.makeRequest(request.context(), GetLabelsRequest.getDefaultInstance())
         .flatMap(this.responseConverter::convert);

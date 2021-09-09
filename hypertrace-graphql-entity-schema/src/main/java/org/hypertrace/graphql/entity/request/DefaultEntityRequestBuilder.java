@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
@@ -23,6 +25,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
+import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeArgument;
@@ -33,11 +36,14 @@ import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 class DefaultEntityRequestBuilder implements EntityRequestBuilder {
 
+  private static final String LABELS_KEY_NAME = "labels";
+
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final MetricRequestBuilder metricRequestBuilder;
   private final ArgumentDeserializer argumentDeserializer;
   private final GraphQlSelectionFinder selectionFinder;
   private final EdgeRequestBuilder edgeRequestBuilder;
+  private final AttributeRequestBuilder attributeRequestBuilder;
 
   @Inject
   DefaultEntityRequestBuilder(
@@ -45,12 +51,14 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
       MetricRequestBuilder metricRequestBuilder,
       ArgumentDeserializer argumentDeserializer,
       GraphQlSelectionFinder selectionFinder,
-      EdgeRequestBuilder edgeRequestBuilder) {
+      EdgeRequestBuilder edgeRequestBuilder,
+      AttributeRequestBuilder attributeRequestBuilder) {
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.metricRequestBuilder = metricRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
     this.selectionFinder = selectionFinder;
     this.edgeRequestBuilder = edgeRequestBuilder;
+    this.attributeRequestBuilder = attributeRequestBuilder;
   }
 
   @Override
@@ -88,6 +96,17 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 .count()
             > 0;
 
+    boolean canFetchLabels =
+        this.selectionFinder
+                .findSelections(
+                    selectionSet,
+                    SelectionQuery.builder()
+                        .selectionPath(
+                            List.of(ResultSet.RESULT_SET_RESULTS_NAME, Entity.LABELS_KEY))
+                        .build())
+                .count()
+            > 0;
+
     return zip(
         this.resultSetRequestBuilder.build(
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
@@ -102,7 +121,12 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             this.timeRange(arguments),
             this.space(arguments),
             this.getOutgoingEdges(selectionSet)),
-        (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
+        attributeRequestBuilder.buildForKey(context, scope, LABELS_KEY_NAME),
+        (resultSetRequest,
+            metricRequestList,
+            incomingEdges,
+            outgoingEdges,
+            labelsAttributeRequest) ->
             new DefaultEntityRequest(
                 scope,
                 resultSetRequest,
@@ -110,7 +134,10 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 incomingEdges,
                 outgoingEdges,
                 includeInactive,
-                fetchTotal));
+                fetchTotal,
+                canFetchLabels
+                    ? Optional.of(new DefaultLabelRequest(labelsAttributeRequest))
+                    : Optional.empty()));
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
@@ -154,5 +181,12 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
+    Optional<LabelRequest> labelRequest;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class DefaultLabelRequest implements LabelRequest {
+    AttributeRequest labelIdArrayAttributeRequest;
   }
 }

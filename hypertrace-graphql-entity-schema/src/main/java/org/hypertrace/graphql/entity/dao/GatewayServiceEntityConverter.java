@@ -26,6 +26,7 @@ import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.EntityType;
+import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 
@@ -58,17 +59,23 @@ class GatewayServiceEntityConverter {
   }
 
   Single<EntityResultSet> convert(
-      EntityRequest request, EntitiesResponse response, BaselineEntitiesResponse baselineResponse) {
+      EntityRequest request,
+      EntitiesResponse response,
+      BaselineEntitiesResponse baselineResponse,
+      Map<org.hypertrace.gateway.service.v1.entity.Entity, LabelResultSet> labelResultSetMap) {
     return this.edgeLookupConverter
         .convert(request, response)
-        .flatMap(edgeLookup -> this.convert(request, response, baselineResponse, edgeLookup));
+        .flatMap(
+            edgeLookup ->
+                this.convert(request, response, baselineResponse, edgeLookup, labelResultSetMap));
   }
 
   private Single<EntityResultSet> convert(
       EntityRequest request,
       EntitiesResponse response,
       BaselineEntitiesResponse baselineResponse,
-      EdgeLookup edgeLookup) {
+      EdgeLookup edgeLookup,
+      Map<org.hypertrace.gateway.service.v1.entity.Entity, LabelResultSet> labelResultSetMap) {
     Map<String, BaselineEntity> baselineEntityMap = getBaselineEntityMap(baselineResponse);
     return Observable.fromIterable(response.getEntityList())
         .flatMapSingle(
@@ -78,7 +85,8 @@ class GatewayServiceEntityConverter {
                     entity,
                     getBaselineEntity(baselineEntityMap, entity.getId()),
                     edgeLookup.getIncoming().row(entity),
-                    edgeLookup.getOutgoing().row(entity)))
+                    edgeLookup.getOutgoing().row(entity),
+                    labelResultSetMap.get(entity)))
         .toList()
         .map(
             entities ->
@@ -103,7 +111,8 @@ class GatewayServiceEntityConverter {
       org.hypertrace.gateway.service.v1.entity.Entity platformEntity,
       BaselineEntity baselineEntity,
       Map<String, EdgeResultSet> incomingEdges,
-      Map<String, EdgeResultSet> outgoingEdges) {
+      Map<String, EdgeResultSet> outgoingEdges,
+      LabelResultSet labelResultSet) {
     return zip(
         this.attributeMapConverter.convert(
             entityRequest.resultSetRequest().attributes(), platformEntity.getAttributeMap()),
@@ -118,7 +127,8 @@ class GatewayServiceEntityConverter {
                 attrMap,
                 containerMap,
                 incomingEdges,
-                outgoingEdges));
+                outgoingEdges,
+                labelResultSet));
   }
 
   @lombok.Value
@@ -130,6 +140,7 @@ class GatewayServiceEntityConverter {
     Map<String, MetricContainer> metricContainers;
     Map<String, EdgeResultSet> incomingEdges;
     Map<String, EdgeResultSet> outgoingEdges;
+    LabelResultSet labels;
 
     @Override
     public Object attribute(String key) {
