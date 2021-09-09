@@ -13,16 +13,8 @@ import org.hypertrace.label.config.service.v1.UpdateLabelResponse;
 
 public class LabelResponseConverter {
 
-  public Single<LabelResultSet> convert(List<String> labelIds, List<Label> labelList) {
-    if (labelIds.isEmpty() || labelList.isEmpty()) {
-      return Single.just(DefaultLabelResultSet.EMPTY_LABEL_RESULT_SET);
-    }
-    List<Label> convertedLabels =
-        labelList.stream()
-            .filter(label -> labelIds.contains(label.id()))
-            .collect(Collectors.toUnmodifiableList());
-    return Single.just(
-        new DefaultLabelResultSet(convertedLabels, convertedLabels.size(), convertedLabels.size()));
+  public Single<LabelResultSet> convert(List<Label> labels) {
+    return Single.just(new DefaultLabelResultSet(labels, labels.size(), labels.size()));
   }
 
   Single<LabelResultSet> convert(GetLabelsResponse response) {

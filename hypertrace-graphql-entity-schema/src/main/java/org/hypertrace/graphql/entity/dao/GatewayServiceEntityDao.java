@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -27,10 +28,9 @@ import org.hypertrace.graphql.label.joiner.LabelJoiner;
 import org.hypertrace.graphql.label.joiner.LabelJoinerBuilder;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 
+@Slf4j
 @Singleton
 class GatewayServiceEntityDao implements EntityDao {
-  private static final Value EMPTY_STRING_ARRAY_VALUE =
-      Value.newBuilder().addAllStringArray(Collections.emptyList()).build();
 
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
@@ -120,12 +120,15 @@ class GatewayServiceEntityDao implements EntityDao {
   }
 
   private LabelJoiner.LabelIdGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
-    return entity ->
-        Single.just(
-            entity
-                .getAttributeOrDefault(
-                    request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(),
-                    EMPTY_STRING_ARRAY_VALUE)
-                .getStringArrayList());
+    return entity -> {
+      Value labelAttributeValue =
+          entity.getAttributeOrDefault(
+              request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(), null);
+      if (labelAttributeValue == null) {
+        log.warn("Unable to fetch labels attribute for entity with id {}", entity.getId());
+        return Single.just(Collections.emptyList());
+      }
+      return Single.just(labelAttributeValue.getStringArrayList());
+    };
   }
 }

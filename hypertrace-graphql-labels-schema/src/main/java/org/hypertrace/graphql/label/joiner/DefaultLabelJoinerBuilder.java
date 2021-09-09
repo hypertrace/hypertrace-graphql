@@ -1,14 +1,19 @@
 package org.hypertrace.graphql.label.joiner;
 
+import static java.util.function.Function.identity;
+
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.request.ContextualRequestBuilder;
+import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.label.dao.LabelDao;
 import org.hypertrace.graphql.label.dao.LabelResponseConverter;
@@ -46,24 +51,44 @@ class DefaultLabelJoinerBuilder implements LabelJoinerBuilder {
         Collection<T> joinSources, LabelIdGetter<T> labelIdGetter) {
       return labelDao
           .getLabels(requestBuilder.build(context))
-          .flatMap(labels -> getLabelResultSetMap(joinSources, labelIdGetter, labels));
+          .flatMap(labelResultSet -> buildLabelMap(labelResultSet.results()))
+          .flatMap(labelMap -> getLabelResultSetMap(joinSources, labelIdGetter, labelMap));
+    }
+
+    private Single<Map<String, Label>> buildLabelMap(List<Label> results) {
+      return Single.just(
+          results.stream().collect(Collectors.toUnmodifiableMap(Label::id, identity())));
     }
 
     private <T> Single<Map<T, LabelResultSet>> getLabelResultSetMap(
-        Collection<T> joinSources, LabelIdGetter<T> labelIdGetter, List<Label> labels) {
+        Collection<T> joinSources, LabelIdGetter<T> labelIdGetter, Map<String, Label> labelMap) {
       return Observable.fromIterable(joinSources)
-          .flatMapSingle(
-              source ->
-                  getLabelResultSet(source, labelIdGetter, labels)
-                      .map(labelResultSet -> Map.entry(source, labelResultSet)))
-          .toMap(entry -> entry.getKey(), entry -> entry.getValue());
+          .flatMapSingle(source -> buildLabelResultSetMapEntry(source, labelIdGetter, labelMap))
+          .collect(CollectorUtils.immutableMapEntryCollector());
     }
 
-    private <T> Single<LabelResultSet> getLabelResultSet(
-        T source, LabelIdGetter<T> labelIdGetter, List<Label> labels) {
+    private <T> Single<Map.Entry<T, LabelResultSet>> buildLabelResultSetMapEntry(
+        T source, LabelIdGetter<T> labelIdGetter, Map<String, Label> labelMap) {
       return labelIdGetter
           .getLabelIds(source)
-          .flatMap(labelIds -> responseConverter.convert(labelIds, labels));
+          .flatMap(labelIds -> filterLabels(labelIds, labelMap))
+          .flatMap(labels -> responseConverter.convert(labels))
+          .map(labelResultSet -> Map.entry(source, labelResultSet));
+    }
+
+    private Single<List<Label>> filterLabels(List<String> labelIds, Map<String, Label> labelMap) {
+      return Single.just(
+          labelIds.stream()
+              .map(
+                  labelId -> {
+                    Label label = labelMap.get(labelId);
+                    if (label == null) {
+                      log.warn("Label config doesn't exist for label id {}", labelId);
+                    }
+                    return label;
+                  })
+              .filter(Objects::nonNull)
+              .collect(Collectors.toUnmodifiableList()));
     }
   }
 }

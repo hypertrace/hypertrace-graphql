@@ -4,7 +4,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Single;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.request.ContextualRequest;
@@ -47,16 +46,9 @@ class LabelConfigServiceDao implements LabelDao {
             .withCallCredentials(credentials);
   }
 
-  @Override
-  public Single<LabelResultSet> getLabelResultSet(ContextualRequest request) {
+  public Single<LabelResultSet> getLabels(ContextualRequest request) {
     return this.makeRequest(request.context(), GetLabelsRequest.getDefaultInstance())
         .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<List<Label>> getLabels(ContextualRequest request) {
-    return this.makeRequest(request.context(), GetLabelsRequest.getDefaultInstance())
-        .flatMap(this.responseConverter::convertToLabelList);
   }
 
   private Single<GetLabelsResponse> makeRequest(
