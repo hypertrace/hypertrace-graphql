@@ -53,9 +53,9 @@ class DefaultEntityLabelRequestBuilder implements EntityLabelRequestBuilder {
       GraphQlRequestContext context, String scope, Collection<SelectedField> entityFields) {
     if (entityFields.stream()
         .anyMatch(field -> isLabelFieldRequested(field.getSelectionSet(), LABEL_FIELD_QUERY))) {
-      return Single.just(Optional.empty());
+      return buildRequest(context, scope);
     }
-    return buildRequest(context, scope);
+    return Single.just(Optional.empty());
   }
 
   private boolean isLabelFieldRequested(
