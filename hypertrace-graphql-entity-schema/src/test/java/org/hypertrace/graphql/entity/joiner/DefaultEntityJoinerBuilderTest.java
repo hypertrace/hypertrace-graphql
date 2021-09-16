@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,6 +26,8 @@ import java.util.stream.Stream;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -60,10 +63,12 @@ class DefaultEntityJoinerBuilderTest {
   @Mock ArgumentDeserializer mockDeserializer;
   @Mock ResultSetRequestBuilder mockResultSetRequestBuilder;
   @Mock FilterRequestBuilder mockFilterRequestBuilder;
+  @Mock AttributeRequestBuilder attributeRequestBuilder;
   @Mock GraphQlRequestContext mockRequestContext;
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock AttributeAssociation<FilterArgument> mockFilter;
   @Mock ResultSetRequest mockResultSetRequest;
+  @Mock AttributeRequest mockAttributeRequest;
 
   Scheduler testScheduler = Schedulers.single();
 
@@ -78,6 +83,7 @@ class DefaultEntityJoinerBuilderTest {
             mockDeserializer,
             mockResultSetRequestBuilder,
             mockFilterRequestBuilder,
+            attributeRequestBuilder,
             testScheduler);
   }
 
@@ -118,6 +124,7 @@ class DefaultEntityJoinerBuilderTest {
             List.of(firstTypeFirstIdEntity, firstTypeSecondIdEntity),
             SECOND_ENTITY_TYPE,
             List.of(secondTypeFirstIdEntity, secondTypeSecondIdEntity)));
+    mockLabelAttributeRequest();
 
     EntityJoiner joiner =
         this.entityJoinerBuilder
@@ -214,6 +221,12 @@ class DefaultEntityJoinerBuilderTest {
 
               return Single.error(new UnsupportedOperationException());
             });
+  }
+
+  private void mockLabelAttributeRequest() {
+    doReturn(Single.just(mockAttributeRequest))
+        .when(attributeRequestBuilder)
+        .buildForKey(any(), any(), any());
   }
 
   @Value

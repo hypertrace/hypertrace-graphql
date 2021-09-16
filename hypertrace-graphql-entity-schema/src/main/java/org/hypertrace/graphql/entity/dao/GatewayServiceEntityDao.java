@@ -6,6 +6,7 @@ import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -120,15 +121,17 @@ class GatewayServiceEntityDao implements EntityDao {
   }
 
   private LabelJoiner.LabelIdGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
-    return entity -> {
-      Value labelAttributeValue =
-          entity.getAttributeOrDefault(
-              request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(), null);
-      if (labelAttributeValue == null) {
-        log.warn("Unable to fetch labels attribute for entity with id {}", entity.getId());
-        return Single.just(Collections.emptyList());
-      }
-      return Single.just(labelAttributeValue.getStringArrayList());
-    };
+    return entity -> Single.just(getLabelAttributeValue(request, entity));
+  }
+
+  private List<String> getLabelAttributeValue(EntityRequest request, Entity entity) {
+    Value labelAttributeValue =
+        entity.getAttributeOrDefault(
+            request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(), null);
+    if (labelAttributeValue == null) {
+      log.warn("Unable to fetch labels attribute for entity with id {}", entity.getId());
+      return Collections.emptyList();
+    }
+    return labelAttributeValue.getStringArrayList();
   }
 }

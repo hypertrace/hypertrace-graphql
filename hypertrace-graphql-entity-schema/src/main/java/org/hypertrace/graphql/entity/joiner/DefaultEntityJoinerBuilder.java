@@ -3,6 +3,7 @@ package org.hypertrace.graphql.entity.joiner;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Tables.immutableCell;
+import static io.reactivex.rxjava3.core.Single.zip;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableSetMultimap;
@@ -35,6 +36,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -62,7 +64,7 @@ import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 @Slf4j
 class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
-
+  private static final String LABELS_KEY_NAME = "labels";
   private static final int ZERO_OFFSET = 0;
 
   private final EntityDao entityDao;
@@ -70,6 +72,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   private final ArgumentDeserializer argumentDeserializer;
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
+  private final AttributeRequestBuilder attributeRequestBuilder;
   private final Scheduler boundedIoScheduler;
 
   @Inject
@@ -79,6 +82,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       ArgumentDeserializer argumentDeserializer,
       ResultSetRequestBuilder resultSetRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
+      AttributeRequestBuilder attributeRequestBuilder,
       @BoundedIoScheduler Scheduler boundedIoScheduler) {
 
     this.entityDao = entityDao;
@@ -86,6 +90,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     this.argumentDeserializer = argumentDeserializer;
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
+    this.attributeRequestBuilder = attributeRequestBuilder;
     this.boundedIoScheduler = boundedIoScheduler;
   }
 
@@ -241,25 +246,57 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       return buildIdFilter(context, entityType, entityIdsToFilter)
           .flatMap(
               filterArguments ->
-                  resultSetRequestBuilder.build(
-                      context,
-                      entityType,
-                      entityIdsToFilter.size(),
-                      ZERO_OFFSET,
-                      new InstantTimeRange(),
-                      List
-                          .<AttributeAssociation<AggregatableOrderArgument>>
-                              of(), // Order does not matter
-                      filterArguments,
-                      this.entityFieldsByType.get(entityType).stream(),
-                      Optional.empty()))
-          .map(resultSetRequest -> new DefaultEntityRequest(entityType, resultSetRequest));
+                  buildEntityRequest(
+                      context, entityType, entityIdsToFilter.size(), filterArguments));
+    }
+
+    private Single<EntityRequest> buildEntityRequest(
+        GraphQlRequestContext context,
+        String entityType,
+        int entityIdsToFilterSize,
+        List<AttributeAssociation<FilterArgument>> filterArguments) {
+      return zip(
+          resultSetRequestBuilder.build(
+              context,
+              entityType,
+              entityIdsToFilterSize,
+              ZERO_OFFSET,
+              new InstantTimeRange(),
+              List.<AttributeAssociation<AggregatableOrderArgument>>of(), // Order does not matter
+              filterArguments,
+              this.entityFieldsByType.get(entityType).stream(),
+              Optional.empty()),
+          attributeRequestBuilder.buildForKey(context, entityType, LABELS_KEY_NAME),
+          (resultSetRequest, labelsAttributeRequest) ->
+              new DefaultEntityRequest(
+                  entityType,
+                  resultSetRequest,
+                  canFetchLabels(entityType)
+                      ? Optional.of(new DefaultLabelRequest(labelsAttributeRequest))
+                      : Optional.empty()));
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildIdFilter(
         GraphQlRequestContext context, String entityScope, Collection<String> entityIds) {
       return filterRequestBuilder.build(
           context, entityScope, Set.of(new EntityIdFilter(entityIds, entityScope)));
+    }
+
+    private boolean canFetchLabels(String entityType) {
+      return this.entityFieldsByType.get(entityType).stream()
+          .map(SelectedField::getSelectionSet)
+          .filter(
+              selectionSet ->
+                  selectionFinder
+                          .findSelections(
+                              selectionSet,
+                              SelectionQuery.builder()
+                                  .selectionPath(List.of(Entity.LABELS_KEY))
+                                  .build())
+                          .count()
+                      > 0)
+          .findAny()
+          .isPresent();
     }
   }
 
@@ -273,7 +310,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     EdgeSetGroupRequest incomingEdgeRequests = new EmptyEdgeSetGroupRequest();
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
     boolean includeInactive = true; // When joining we want the entity regardless of time range
-    Optional<LabelRequest> labelRequest = Optional.empty();
+    Optional<LabelRequest> labelRequest;
   }
 
   @Value
@@ -311,5 +348,11 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     Collection<String> value;
     AttributeScope idType = null;
     String idScope;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class DefaultLabelRequest implements LabelRequest {
+    AttributeRequest labelIdArrayAttributeRequest;
   }
 }
