@@ -17,7 +17,7 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.schema.Entity;
 
-public class DefaultEntityLabelRequestBuilder implements EntityLabelRequestBuilder {
+class DefaultEntityLabelRequestBuilder implements EntityLabelRequestBuilder {
 
   private static final String LABELS_ATTRIBUTE_KEY = "labels";
 
