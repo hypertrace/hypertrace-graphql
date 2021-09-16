@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -26,7 +25,6 @@ import java.util.stream.Stream;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
-import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
@@ -39,6 +37,7 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.joiner.EntityJoiner.EntityIdGetter;
+import org.hypertrace.graphql.entity.request.EntityLabelRequestBuilder;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
@@ -68,7 +67,7 @@ class DefaultEntityJoinerBuilderTest {
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock AttributeAssociation<FilterArgument> mockFilter;
   @Mock ResultSetRequest mockResultSetRequest;
-  @Mock AttributeRequest mockAttributeRequest;
+  @Mock EntityLabelRequestBuilder mockEntityLabelRequestBuilder;
 
   Scheduler testScheduler = Schedulers.single();
 
@@ -84,7 +83,8 @@ class DefaultEntityJoinerBuilderTest {
             mockResultSetRequestBuilder,
             mockFilterRequestBuilder,
             attributeRequestBuilder,
-            testScheduler);
+            testScheduler,
+            mockEntityLabelRequestBuilder);
   }
 
   @Test
@@ -117,6 +117,9 @@ class DefaultEntityJoinerBuilderTest {
             mock(SelectedField.class)),
         "pathToEntity");
 
+    when(this.mockEntityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
+            eq(mockRequestContext), any(), any()))
+        .thenReturn(Single.just(Optional.empty()));
     mockRequestBuilding();
     mockResult(
         Map.of(
@@ -124,7 +127,6 @@ class DefaultEntityJoinerBuilderTest {
             List.of(firstTypeFirstIdEntity, firstTypeSecondIdEntity),
             SECOND_ENTITY_TYPE,
             List.of(secondTypeFirstIdEntity, secondTypeSecondIdEntity)));
-    mockLabelAttributeRequest();
 
     EntityJoiner joiner =
         this.entityJoinerBuilder
@@ -221,12 +223,6 @@ class DefaultEntityJoinerBuilderTest {
 
               return Single.error(new UnsupportedOperationException());
             });
-  }
-
-  private void mockLabelAttributeRequest() {
-    doReturn(Single.just(mockAttributeRequest))
-        .when(attributeRequestBuilder)
-        .buildForKey(any(), any(), any());
   }
 
   @Value

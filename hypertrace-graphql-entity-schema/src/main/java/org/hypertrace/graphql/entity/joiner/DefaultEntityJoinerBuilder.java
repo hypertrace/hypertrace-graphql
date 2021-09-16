@@ -52,8 +52,9 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
+import org.hypertrace.graphql.entity.request.EntityLabelRequest;
+import org.hypertrace.graphql.entity.request.EntityLabelRequestBuilder;
 import org.hypertrace.graphql.entity.request.EntityRequest;
-import org.hypertrace.graphql.entity.request.LabelRequest;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityJoinable;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -74,6 +75,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   private final FilterRequestBuilder filterRequestBuilder;
   private final AttributeRequestBuilder attributeRequestBuilder;
   private final Scheduler boundedIoScheduler;
+  private final EntityLabelRequestBuilder entityLabelRequestBuilder;
 
   @Inject
   DefaultEntityJoinerBuilder(
@@ -83,7 +85,8 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       ResultSetRequestBuilder resultSetRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
       AttributeRequestBuilder attributeRequestBuilder,
-      @BoundedIoScheduler Scheduler boundedIoScheduler) {
+      @BoundedIoScheduler Scheduler boundedIoScheduler,
+      EntityLabelRequestBuilder entityLabelRequestBuilder) {
 
     this.entityDao = entityDao;
     this.selectionFinder = selectionFinder;
@@ -92,6 +95,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     this.filterRequestBuilder = filterRequestBuilder;
     this.attributeRequestBuilder = attributeRequestBuilder;
     this.boundedIoScheduler = boundedIoScheduler;
+    this.entityLabelRequestBuilder = entityLabelRequestBuilder;
   }
 
   @Override
@@ -266,37 +270,16 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
               filterArguments,
               this.entityFieldsByType.get(entityType).stream(),
               Optional.empty()),
-          attributeRequestBuilder.buildForKey(context, entityType, LABELS_KEY_NAME),
-          (resultSetRequest, labelsAttributeRequest) ->
-              new DefaultEntityRequest(
-                  entityType,
-                  resultSetRequest,
-                  canFetchLabels(entityType)
-                      ? Optional.of(new DefaultLabelRequest(labelsAttributeRequest))
-                      : Optional.empty()));
+          entityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
+              context, entityType, this.entityFieldsByType.get(entityType)),
+          (resultSetRequest, optionalLabelRequest) ->
+              new DefaultEntityRequest(entityType, resultSetRequest, optionalLabelRequest));
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildIdFilter(
         GraphQlRequestContext context, String entityScope, Collection<String> entityIds) {
       return filterRequestBuilder.build(
           context, entityScope, Set.of(new EntityIdFilter(entityIds, entityScope)));
-    }
-
-    private boolean canFetchLabels(String entityType) {
-      return this.entityFieldsByType.get(entityType).stream()
-          .map(SelectedField::getSelectionSet)
-          .filter(
-              selectionSet ->
-                  selectionFinder
-                          .findSelections(
-                              selectionSet,
-                              SelectionQuery.builder()
-                                  .selectionPath(List.of(Entity.LABELS_KEY))
-                                  .build())
-                          .count()
-                      > 0)
-          .findAny()
-          .isPresent();
     }
   }
 
@@ -310,7 +293,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     EdgeSetGroupRequest incomingEdgeRequests = new EmptyEdgeSetGroupRequest();
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
     boolean includeInactive = true; // When joining we want the entity regardless of time range
-    Optional<LabelRequest> labelRequest;
+    Optional<EntityLabelRequest> labelRequest;
   }
 
   @Value
@@ -348,11 +331,5 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     Collection<String> value;
     AttributeScope idType = null;
     String idScope;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  private static class DefaultLabelRequest implements LabelRequest {
-    AttributeRequest labelIdArrayAttributeRequest;
   }
 }

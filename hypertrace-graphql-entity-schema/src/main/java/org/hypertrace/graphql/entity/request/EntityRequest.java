@@ -21,5 +21,5 @@ public interface EntityRequest {
 
   boolean fetchTotal();
 
-  Optional<LabelRequest> labelRequest();
+  Optional<EntityLabelRequest> labelRequest();
 }
