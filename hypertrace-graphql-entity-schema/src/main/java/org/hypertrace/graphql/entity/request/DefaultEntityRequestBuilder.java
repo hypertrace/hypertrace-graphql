@@ -96,17 +96,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 .count()
             > 0;
 
-    boolean canFetchLabels =
-        this.selectionFinder
-                .findSelections(
-                    selectionSet,
-                    SelectionQuery.builder()
-                        .selectionPath(
-                            List.of(ResultSet.RESULT_SET_RESULTS_NAME, Entity.LABELS_KEY))
-                        .build())
-                .count()
-            > 0;
-
     return zip(
         this.resultSetRequestBuilder.build(
             context, scope, arguments, selectionSet, AggregatableOrderArgument.class),
@@ -121,7 +110,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             this.timeRange(arguments),
             this.space(arguments),
             this.getOutgoingEdges(selectionSet)),
-        attributeRequestBuilder.buildForKey(context, scope, LABELS_KEY_NAME),
+        buildLabelRequest(context, scope, selectionSet),
         (resultSetRequest,
             metricRequestList,
             incomingEdges,
@@ -135,9 +124,28 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
                 outgoingEdges,
                 includeInactive,
                 fetchTotal,
-                canFetchLabels
-                    ? Optional.of(new DefaultLabelRequest(labelsAttributeRequest))
-                    : Optional.empty()));
+                labelsAttributeRequest));
+  }
+
+  private Single<Optional<LabelRequest>> buildLabelRequest(
+      GraphQlRequestContext context, String scope, DataFetchingFieldSelectionSet selectionSet) {
+    boolean canFetchLabels =
+        this.selectionFinder
+                .findSelections(
+                    selectionSet,
+                    SelectionQuery.builder()
+                        .selectionPath(
+                            List.of(ResultSet.RESULT_SET_RESULTS_NAME, Entity.LABELS_KEY))
+                        .build())
+                .count()
+            > 0;
+
+    return canFetchLabels
+        ? attributeRequestBuilder
+            .buildForKey(context, scope, LABELS_KEY_NAME)
+            .map(DefaultLabelRequest::new)
+            .map(Optional::of)
+        : Single.just(Optional.empty());
   }
 
   private Stream<SelectedField> getResultSets(DataFetchingFieldSelectionSet selectionSet) {
