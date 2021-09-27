@@ -7,7 +7,6 @@ import java.util.NoSuchElementException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.attribute.service.cachingclient.CachingAttributeClient;
-import org.hypertrace.core.attribute.service.v1.AttributeMetadataFilter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
@@ -37,7 +36,6 @@ class CachingAttributeStore implements AttributeStore {
                 channelRegistry.forAddress(
                     serviceConfig.getAttributeServiceHost(),
                     serviceConfig.getAttributeServicePort()))
-            .withAttributeFilter(AttributeMetadataFilter.newBuilder().setInternal(false).build())
             .withCacheExpiration(Duration.ofMinutes(5))
             .withMaximumCacheContexts(1000)
             .build());
