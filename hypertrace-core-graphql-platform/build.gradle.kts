@@ -9,7 +9,7 @@ dependencies {
     api("org.hypertrace.core.grpcutils:grpc-client-utils:0.6.1")
     api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.6.1")
     api("org.hypertrace.gateway.service:gateway-service-api:0.1.59")
-    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.13.3")
+    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.13.6")
 
     api("com.google.inject:guice:4.2.3")
     api("com.graphql-java:graphql-java:15.0")
@@ -35,10 +35,10 @@ dependencies {
 
     runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
     runtime("io.grpc:grpc-netty:1.40.0")
-    runtime("io.netty:netty-codec-http2:4.1.61.Final") {
+    runtime("io.netty:netty-codec-http2:4.1.68.Final") {
       because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1083991")
     }
-    runtime("io.netty:netty-handler-proxy:4.1.61.Final") {
+    runtime("io.netty:netty-handler-proxy:4.1.68.Final") {
       because("https://snyk.io/vuln/SNYK-JAVA-IONETTY-1083991")
     }
   }
