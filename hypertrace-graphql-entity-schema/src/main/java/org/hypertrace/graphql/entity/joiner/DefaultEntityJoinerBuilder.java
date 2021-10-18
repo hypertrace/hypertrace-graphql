@@ -65,7 +65,6 @@ import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 @Slf4j
 class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
-  private static final String LABELS_KEY_NAME = "labels";
   private static final int ZERO_OFFSET = 0;
 
   private final EntityDao entityDao;
