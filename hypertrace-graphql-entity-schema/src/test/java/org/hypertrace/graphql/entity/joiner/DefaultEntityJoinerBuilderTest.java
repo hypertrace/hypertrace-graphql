@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,7 +80,7 @@ class DefaultEntityJoinerBuilderTest {
   @BeforeEach
   void beforeEach() {
     this.entityLabelRequestBuilder =
-        spy(new DefaultEntityLabelRequestBuilder(attributeRequestBuilder, mockSelectionFinder));
+        new DefaultEntityLabelRequestBuilder(attributeRequestBuilder, mockSelectionFinder);
 
     this.entityJoinerBuilder =
         new DefaultEntityJoinerBuilder(

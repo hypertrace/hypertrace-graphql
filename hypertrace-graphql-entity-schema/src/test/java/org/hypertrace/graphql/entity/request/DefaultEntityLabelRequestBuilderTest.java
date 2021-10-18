@@ -64,7 +64,6 @@ class DefaultEntityLabelRequestBuilderTest {
         this.entityLabelRequestBuilder
             .buildLabelRequestIfPresentInResultSet(mockRequestContext, SCOPE, mockSelectionSet)
             .blockingGet();
-    assertFalse(entityLabelRequestOptional.isEmpty());
     assertEquals(
         mockAttributeRequest, entityLabelRequestOptional.get().labelIdArrayAttributeRequest());
   }
@@ -84,7 +83,6 @@ class DefaultEntityLabelRequestBuilderTest {
             .buildLabelRequestIfPresentInAnyEntity(
                 mockRequestContext, SCOPE, List.of(mockSelectionField))
             .blockingGet();
-    assertFalse(entityLabelRequestOptional.isEmpty());
     assertEquals(
         mockAttributeRequest, entityLabelRequestOptional.get().labelIdArrayAttributeRequest());
   }
