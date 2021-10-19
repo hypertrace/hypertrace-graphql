@@ -14,6 +14,7 @@ public class EntityRequestModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(EntityRequestBuilder.class).to(DefaultEntityRequestBuilder.class);
+    bind(EntityLabelRequestBuilder.class).to(DefaultEntityLabelRequestBuilder.class);
     requireBinding(ResultSetRequestBuilder.class);
     requireBinding(ArgumentDeserializer.class);
     requireBinding(MetricRequestBuilder.class);

@@ -179,6 +179,6 @@ class NeighborEntitiesRequestBuilder {
     EdgeSetGroupRequest outgoingEdgeRequests;
     boolean includeInactive;
     boolean fetchTotal;
-    Optional<LabelRequest> labelRequest;
+    Optional<EntityLabelRequest> labelRequest;
   }
 }

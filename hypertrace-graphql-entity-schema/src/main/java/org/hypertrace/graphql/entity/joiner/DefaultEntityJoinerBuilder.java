@@ -3,6 +3,7 @@ package org.hypertrace.graphql.entity.joiner;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Tables.immutableCell;
+import static io.reactivex.rxjava3.core.Single.zip;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableSetMultimap;
@@ -35,6 +36,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -50,8 +52,9 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
+import org.hypertrace.graphql.entity.request.EntityLabelRequest;
+import org.hypertrace.graphql.entity.request.EntityLabelRequestBuilder;
 import org.hypertrace.graphql.entity.request.EntityRequest;
-import org.hypertrace.graphql.entity.request.LabelRequest;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityJoinable;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -62,7 +65,6 @@ import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 @Slf4j
 class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
-
   private static final int ZERO_OFFSET = 0;
 
   private final EntityDao entityDao;
@@ -70,7 +72,9 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   private final ArgumentDeserializer argumentDeserializer;
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
+  private final AttributeRequestBuilder attributeRequestBuilder;
   private final Scheduler boundedIoScheduler;
+  private final EntityLabelRequestBuilder entityLabelRequestBuilder;
 
   @Inject
   DefaultEntityJoinerBuilder(
@@ -79,14 +83,18 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       ArgumentDeserializer argumentDeserializer,
       ResultSetRequestBuilder resultSetRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
-      @BoundedIoScheduler Scheduler boundedIoScheduler) {
+      AttributeRequestBuilder attributeRequestBuilder,
+      @BoundedIoScheduler Scheduler boundedIoScheduler,
+      EntityLabelRequestBuilder entityLabelRequestBuilder) {
 
     this.entityDao = entityDao;
     this.selectionFinder = selectionFinder;
     this.argumentDeserializer = argumentDeserializer;
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
+    this.attributeRequestBuilder = attributeRequestBuilder;
     this.boundedIoScheduler = boundedIoScheduler;
+    this.entityLabelRequestBuilder = entityLabelRequestBuilder;
   }
 
   @Override
@@ -241,19 +249,30 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       return buildIdFilter(context, entityType, entityIdsToFilter)
           .flatMap(
               filterArguments ->
-                  resultSetRequestBuilder.build(
-                      context,
-                      entityType,
-                      entityIdsToFilter.size(),
-                      ZERO_OFFSET,
-                      new InstantTimeRange(),
-                      List
-                          .<AttributeAssociation<AggregatableOrderArgument>>
-                              of(), // Order does not matter
-                      filterArguments,
-                      this.entityFieldsByType.get(entityType).stream(),
-                      Optional.empty()))
-          .map(resultSetRequest -> new DefaultEntityRequest(entityType, resultSetRequest));
+                  buildEntityRequest(
+                      context, entityType, entityIdsToFilter.size(), filterArguments));
+    }
+
+    private Single<EntityRequest> buildEntityRequest(
+        GraphQlRequestContext context,
+        String entityType,
+        int entityIdsToFilterSize,
+        List<AttributeAssociation<FilterArgument>> filterArguments) {
+      return zip(
+          resultSetRequestBuilder.build(
+              context,
+              entityType,
+              entityIdsToFilterSize,
+              ZERO_OFFSET,
+              new InstantTimeRange(),
+              List.<AttributeAssociation<AggregatableOrderArgument>>of(), // Order does not matter
+              filterArguments,
+              this.entityFieldsByType.get(entityType).stream(),
+              Optional.empty()),
+          entityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
+              context, entityType, this.entityFieldsByType.get(entityType)),
+          (resultSetRequest, optionalLabelRequest) ->
+              new DefaultEntityRequest(entityType, resultSetRequest, optionalLabelRequest));
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildIdFilter(
@@ -273,7 +292,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     EdgeSetGroupRequest incomingEdgeRequests = new EmptyEdgeSetGroupRequest();
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
     boolean includeInactive = true; // When joining we want the entity regardless of time range
-    Optional<LabelRequest> labelRequest = Optional.empty();
+    Optional<EntityLabelRequest> labelRequest;
   }
 
   @Value

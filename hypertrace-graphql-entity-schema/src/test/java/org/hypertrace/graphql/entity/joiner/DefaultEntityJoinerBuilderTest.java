@@ -3,9 +3,11 @@ package org.hypertrace.graphql.entity.joiner;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -21,10 +23,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -36,6 +40,8 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.joiner.EntityJoiner.EntityIdGetter;
+import org.hypertrace.graphql.entity.request.EntityLabelRequest;
+import org.hypertrace.graphql.entity.request.EntityLabelRequestBuilder;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
@@ -60,10 +66,12 @@ class DefaultEntityJoinerBuilderTest {
   @Mock ArgumentDeserializer mockDeserializer;
   @Mock ResultSetRequestBuilder mockResultSetRequestBuilder;
   @Mock FilterRequestBuilder mockFilterRequestBuilder;
+  @Mock AttributeRequestBuilder attributeRequestBuilder;
   @Mock GraphQlRequestContext mockRequestContext;
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock AttributeAssociation<FilterArgument> mockFilter;
   @Mock ResultSetRequest mockResultSetRequest;
+  @Mock EntityLabelRequestBuilder mockEntityLabelRequestBuilder;
 
   Scheduler testScheduler = Schedulers.single();
 
@@ -78,7 +86,9 @@ class DefaultEntityJoinerBuilderTest {
             mockDeserializer,
             mockResultSetRequestBuilder,
             mockFilterRequestBuilder,
-            testScheduler);
+            attributeRequestBuilder,
+            testScheduler,
+            mockEntityLabelRequestBuilder);
   }
 
   @Test
@@ -111,6 +121,9 @@ class DefaultEntityJoinerBuilderTest {
             mock(SelectedField.class)),
         "pathToEntity");
 
+    when(this.mockEntityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
+            eq(mockRequestContext), any(), any()))
+        .thenReturn(Single.just(Optional.empty()));
     mockRequestBuilding();
     mockResult(
         Map.of(
@@ -165,6 +178,73 @@ class DefaultEntityJoinerBuilderTest {
         joiner.joinEntities(joinSources, new TestJoinSourceIdGetter()).blockingGet());
 
     verify(this.mockEntityDao, never()).getEntities(any());
+  }
+
+  @Test
+  void fetchesEntitiesWithLabels() {
+    Entity firstTypeFirstIdEntity = new TestEntity(FIRST_ENTITY_TYPE, "first-id-1");
+    Entity firstTypeSecondIdEntity = new TestEntity(FIRST_ENTITY_TYPE, "first-id-2");
+    Entity secondTypeFirstIdEntity = new TestEntity(SECOND_ENTITY_TYPE, "second-id-1");
+    Entity secondTypeSecondIdEntity = new TestEntity(SECOND_ENTITY_TYPE, "second-id-2");
+    TestJoinSource firstJoinSource = new TestJoinSource("first-id-1", null);
+    TestJoinSource secondJoinSource = new TestJoinSource("first-id-2", null);
+    TestJoinSource thirdJoinSource = new TestJoinSource(null, "second-id-1");
+    TestJoinSource fourthJoinSource = new TestJoinSource("first-id-1", "second-id-2");
+    Table<TestJoinSource, String, Entity> expected =
+        ImmutableTable.<TestJoinSource, String, Entity>builder()
+            .put(firstJoinSource, FIRST_ENTITY_TYPE, firstTypeFirstIdEntity)
+            .put(secondJoinSource, FIRST_ENTITY_TYPE, firstTypeSecondIdEntity)
+            .put(thirdJoinSource, SECOND_ENTITY_TYPE, secondTypeFirstIdEntity)
+            .put(fourthJoinSource, FIRST_ENTITY_TYPE, firstTypeFirstIdEntity)
+            .put(fourthJoinSource, SECOND_ENTITY_TYPE, secondTypeSecondIdEntity)
+            .build();
+
+    List<TestJoinSource> joinSources =
+        List.of(firstJoinSource, secondJoinSource, thirdJoinSource, fourthJoinSource);
+
+    SelectedField mockSelectionField1 = mock(SelectedField.class);
+    SelectedField mockSelectionField2 = mock(SelectedField.class);
+    EntityLabelRequest mockEntityLabelRequest = mock(EntityLabelRequest.class);
+    when(mockEntityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
+            eq(mockRequestContext), eq(FIRST_ENTITY_TYPE), eq(Set.of(mockSelectionField1))))
+        .thenReturn(Single.just(Optional.of(mockEntityLabelRequest)));
+    when(mockEntityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
+            eq(mockRequestContext), eq(SECOND_ENTITY_TYPE), eq(Set.of(mockSelectionField2))))
+        .thenReturn(Single.just(Optional.empty()));
+    mockRequestedEntityFields(
+        Map.of(
+            FIRST_ENTITY_TYPE, mockSelectionField1,
+            SECOND_ENTITY_TYPE, mockSelectionField2),
+        "pathToEntity");
+
+    mockRequestBuilding();
+    mockResult(
+        Map.of(
+            FIRST_ENTITY_TYPE,
+            List.of(firstTypeFirstIdEntity, firstTypeSecondIdEntity),
+            SECOND_ENTITY_TYPE,
+            List.of(secondTypeFirstIdEntity, secondTypeSecondIdEntity)));
+
+    EntityJoiner joiner =
+        this.entityJoinerBuilder
+            .build(this.mockRequestContext, this.mockSelectionSet, List.of("pathToEntity"))
+            .blockingGet();
+
+    assertEquals(
+        expected, joiner.joinEntities(joinSources, new TestJoinSourceIdGetter()).blockingGet());
+
+    verify(mockEntityDao, times(1))
+        .getEntities(
+            argThat(
+                request ->
+                    request.entityType().equals(FIRST_ENTITY_TYPE)
+                        && request.labelRequest().get().equals(mockEntityLabelRequest)));
+    verify(mockEntityDao, times(1))
+        .getEntities(
+            argThat(
+                request ->
+                    request.entityType().equals(SECOND_ENTITY_TYPE)
+                        && request.labelRequest().isEmpty()));
   }
 
   private void mockRequestedEntityFields(

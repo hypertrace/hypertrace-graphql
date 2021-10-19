@@ -79,16 +79,17 @@ class DefaultLabelJoinerBuilder implements LabelJoinerBuilder {
     private Single<List<Label>> filterLabels(List<String> labelIds, Map<String, Label> labelMap) {
       return Single.just(
           labelIds.stream()
-              .map(
-                  labelId -> {
-                    Label label = labelMap.get(labelId);
-                    if (label == null) {
-                      log.warn("Label config doesn't exist for label id {}", labelId);
-                    }
-                    return label;
-                  })
+              .map(labelId -> getLabelFromMap(labelId, labelMap))
               .filter(Objects::nonNull)
               .collect(Collectors.toUnmodifiableList()));
+    }
+
+    private Label getLabelFromMap(String labelId, Map<String, Label> labelMap) {
+      Label label = labelMap.get(labelId);
+      if (label == null) {
+        log.warn("Label config doesn't exist for label id {}", labelId);
+      }
+      return label;
     }
   }
 }
