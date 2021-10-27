@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 public interface ValueCondition {
   String TYPE_NAME = "ValueCondition";
 
-  String STRING_CONDITION_KEY = "leafCondition";
-  String UNARY_CONDITION_KEY = "compositeCondition";
+  String STRING_CONDITION_KEY = "stringCondition";
+  String UNARY_CONDITION_KEY = "unaryCondition";
 
   enum ValueConditionType {
     STRING_CONDITION,
