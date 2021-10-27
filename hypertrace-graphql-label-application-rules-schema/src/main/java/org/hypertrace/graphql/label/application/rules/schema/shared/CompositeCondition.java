@@ -6,7 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import java.util.List;
 
 @GraphQLName(CompositeCondition.TYPE_NAME)
-public interface CompositeCondition extends Condition {
+public interface CompositeCondition {
   String TYPE_NAME = "CompositeCondition";
 
   String LOGICAL_OPERATOR_KEY = "LogicalOperator";

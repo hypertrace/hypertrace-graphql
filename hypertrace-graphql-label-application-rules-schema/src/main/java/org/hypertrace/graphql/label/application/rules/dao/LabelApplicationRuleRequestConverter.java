@@ -27,13 +27,15 @@ public class LabelApplicationRuleRequestConverter {
 
   org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
       convertMatchingCondition(Condition condition) {
-    if (condition.getClass().getName().equals(LeafCondition.class.getName())) {
-      return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-          .Condition.newBuilder()
-          .setLeafCondition(convertLeafCondition((LeafCondition) condition))
-          .build();
-    } else {
-      throw new IllegalArgumentException("Error when parsing matching condition");
+    switch (condition.conditionType()) {
+      case LEAF_CONDITION:
+        return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+            .Condition.newBuilder()
+            .setLeafCondition(convertLeafCondition(condition.leafCondition()))
+            .build();
+      case COMPOSITE_CONDITION:
+      default:
+        throw new IllegalArgumentException("Error when parsing matching condition");
     }
   }
 
@@ -50,18 +52,20 @@ public class LabelApplicationRuleRequestConverter {
             org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
                 .LeafCondition.newBuilder()
                 .setKeyCondition(convertStringCondition(leafCondition.keyCondition()));
-    if (validateSameClass(leafCondition.valueCondition().getClass(), StringCondition.class)) {
-      return leafConditionBuilder
-          .setStringCondition(
-              convertStringCondition((StringCondition) leafCondition.valueCondition()))
-          .build();
+    switch (leafCondition.valueCondition().valueConditionType()) {
+      case STRING_CONDITION:
+        return leafConditionBuilder
+            .setStringCondition(
+                convertStringCondition(leafCondition.valueCondition().stringCondition()))
+            .build();
+      case UNARY_CONDITION:
+        return leafConditionBuilder
+            .setUnaryCondition(
+                convertUnaryCondition(leafCondition.valueCondition().unaryCondition()))
+            .build();
+      default:
+        throw new IllegalArgumentException("Unsupported Leaf Condition");
     }
-    if (validateSameClass(leafCondition.valueCondition().getClass(), UnaryCondition.class)) {
-      return leafConditionBuilder
-          .setUnaryCondition(convertUnaryCondition((UnaryCondition) leafCondition.valueCondition()))
-          .build();
-    }
-    throw new IllegalArgumentException("Unsupported Leaf Condition");
   }
 
   org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.StringCondition
@@ -106,9 +110,5 @@ public class LabelApplicationRuleRequestConverter {
       default:
         throw new IllegalArgumentException("Unsupported Unary Condition Operator");
     }
-  }
-
-  private boolean validateSameClass(Class<?> class1, Class<?> class2) {
-    return class1.getName().equals(class2.getName());
   }
 }

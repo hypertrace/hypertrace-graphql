@@ -5,7 +5,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 
 @GraphQLName(StringCondition.TYPE_NAME)
-public interface StringCondition extends ValueCondition {
+public interface StringCondition {
   String TYPE_NAME = "StringCondition";
 
   String OPERATOR_KEY = "Operator";

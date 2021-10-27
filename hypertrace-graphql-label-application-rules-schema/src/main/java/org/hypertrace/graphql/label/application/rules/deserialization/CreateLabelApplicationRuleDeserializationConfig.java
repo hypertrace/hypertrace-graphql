@@ -70,12 +70,16 @@ public class CreateLabelApplicationRuleDeserializationConfig
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-  @JsonSubTypes({
-    @Type(value = LeafConditionArgument.class, name = "LeafConditionArgument"),
-    @Type(value = CompositeConditionArgument.class, name = "CompositeConditionArgument")
-  })
-  private static class ConditionArgument implements Condition {}
+  private static class ConditionArgument implements Condition {
+    @JsonProperty(LEAF_CONDITION_KEY)
+    LeafCondition leafCondition;
+
+    @JsonProperty(COMPOSITE_CONDITION_KEY)
+    CompositeCondition compositeCondition;
+
+    @JsonProperty(ConditionType.TYPE_NAME)
+    ConditionType conditionType;
+  }
 
   @Value
   @Accessors(fluent = true)

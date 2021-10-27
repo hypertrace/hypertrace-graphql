@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.graphql.label.application.rules.schema.query.LabelApplicationRuleResultSet;
+import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRule;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
@@ -67,18 +68,27 @@ class LabelApplicationRuleResponseConverter {
     Condition condition;
   }
 
+  @Value
+  @Accessors(fluent = true)
   private static class DefaultCondition implements Condition {
     private static Condition of(
         org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
             condition) {
       switch (condition.getConditionCase()) {
         case LEAF_CONDITION:
-          return DefaultLeafCondition.of(condition.getLeafCondition());
+          return new DefaultCondition(
+              DefaultLeafCondition.of(condition.getLeafCondition()),
+              null,
+              ConditionType.LEAF_CONDITION);
         case COMPOSITE_CONDITION:
         default:
           throw new IllegalArgumentException("Condition not set correctly");
       }
     }
+
+    LeafCondition leafCondition;
+    CompositeCondition compositeCondition;
+    ConditionType conditionType;
   }
 
   @Value
@@ -106,14 +116,24 @@ class LabelApplicationRuleResponseConverter {
             leafCondition) {
       switch (leafCondition.getConditionCase()) {
         case STRING_CONDITION:
-          return DefaultStringCondition.of(leafCondition.getStringCondition());
+          return new DefaultValueCondition(
+              DefaultStringCondition.of(leafCondition.getStringCondition()),
+              null,
+              ValueConditionType.STRING_CONDITION);
         case UNARY_CONDITION:
-          return DefaultUnaryCondition.of(leafCondition.getUnaryCondition());
+          return new DefaultValueCondition(
+              null,
+              DefaultUnaryCondition.of(leafCondition.getUnaryCondition()),
+              ValueConditionType.UNARY_CONDITION);
         case JSON_CONDITION:
         default:
           throw new IllegalArgumentException("Invalid operator in leaf condition");
       }
     }
+
+    StringCondition stringCondition;
+    UnaryCondition unaryCondition;
+    ValueConditionType valueConditionType;
   }
 
   @Value
