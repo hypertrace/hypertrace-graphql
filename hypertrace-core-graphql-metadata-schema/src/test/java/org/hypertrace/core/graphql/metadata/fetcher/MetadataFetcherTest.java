@@ -36,7 +36,7 @@ class MetadataFetcherTest {
     List<AttributeModel> mockModelResult = List.of(mockModel);
     List<AttributeMetadata> mockMetadataResult = List.of(mockMetadata);
     when(this.mockDataFetchingEnvironment.getContext()).thenReturn(this.mockContext);
-    when(this.mockAttributeStore.getAll(eq(this.mockContext)))
+    when(this.mockAttributeStore.getAllExternal(eq(this.mockContext)))
         .thenReturn(Single.just(mockModelResult));
     when(this.mockResponseBuilder.build(eq(mockModelResult)))
         .thenReturn(Single.just(mockMetadataResult));

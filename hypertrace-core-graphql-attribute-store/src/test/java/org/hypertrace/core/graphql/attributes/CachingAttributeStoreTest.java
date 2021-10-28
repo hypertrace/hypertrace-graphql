@@ -59,15 +59,24 @@ class CachingAttributeStoreTest {
             .setInternal(false)
             .build();
 
+    AttributeMetadata internalAttrResponse =
+        AttributeMetadata.newBuilder()
+            .setScopeString("SPAN")
+            .setKey("other")
+            .setInternal(true)
+            .build();
+
     when(this.mockAttributeClient.get("SPAN", "id")).thenReturn(Single.just(spanIdResponse));
     when(this.mockAttributeModeTranslator.translate(spanIdResponse))
         .thenReturn(Optional.of(spanIdAttribute));
 
     assertEquals(spanIdAttribute, this.attributeStore.get(mockContext, "SPAN", "id").blockingGet());
 
-    when(this.mockAttributeClient.getAll()).thenReturn(Single.just(List.of(spanIdResponse)));
+    when(this.mockAttributeClient.getAll())
+        .thenReturn(Single.just(List.of(spanIdResponse, internalAttrResponse)));
 
-    assertEquals(List.of(spanIdAttribute), this.attributeStore.getAll(mockContext).blockingGet());
+    assertEquals(
+        List.of(spanIdAttribute), this.attributeStore.getAllExternal(mockContext).blockingGet());
   }
 
   @Test

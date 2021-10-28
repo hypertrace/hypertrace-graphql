@@ -5,7 +5,7 @@ import java.util.List;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface AttributeStore {
-  Single<List<AttributeModel>> getAll(GraphQlRequestContext context);
+  Single<List<AttributeModel>> getAllExternal(GraphQlRequestContext context);
 
   Single<AttributeModel> get(GraphQlRequestContext context, String scope, String key);
 

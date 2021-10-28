@@ -30,7 +30,7 @@ public class MetadataFetcher extends InjectableDataFetcher<List<AttributeMetadat
     @Override
     public CompletableFuture<List<AttributeMetadata>> get(DataFetchingEnvironment environment) {
       return this.attributeStore
-          .getAll(environment.getContext())
+          .getAllExternal(environment.getContext())
           .flatMap(this.responseBuilder::build)
           .toCompletionStage()
           .toCompletableFuture();
