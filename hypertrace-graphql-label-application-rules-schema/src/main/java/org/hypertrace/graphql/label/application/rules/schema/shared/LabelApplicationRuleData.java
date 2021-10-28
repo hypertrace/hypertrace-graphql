@@ -21,4 +21,9 @@ public interface LabelApplicationRuleData {
   @GraphQLNonNull
   @GraphQLName(CONDITION_KEY)
   Condition condition();
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(ACTION_KEY)
+  Action action();
 }

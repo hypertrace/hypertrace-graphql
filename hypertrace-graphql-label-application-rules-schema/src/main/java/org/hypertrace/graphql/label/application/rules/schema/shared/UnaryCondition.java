@@ -8,12 +8,12 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 public interface UnaryCondition {
   String TYPE_NAME = "UnaryCondition";
 
-  String OPERATOR_KEY = "Operator";
+  String OPERATOR_KEY = "operator";
 
   @GraphQLName(Operator.TYPE_NAME)
   enum Operator {
     OPERATOR_EXISTS;
-    static final String TYPE_NAME = "Operator";
+    private static final String TYPE_NAME = "UnaryConditionOperator";
   }
 
   @GraphQLField

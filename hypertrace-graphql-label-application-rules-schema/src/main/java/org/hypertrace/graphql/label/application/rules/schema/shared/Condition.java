@@ -11,12 +11,13 @@ public interface Condition {
 
   String LEAF_CONDITION_KEY = "leafCondition";
   String COMPOSITE_CONDITION_KEY = "compositeCondition";
+  String CONDITION_TYPE_KEY = "conditionType";
 
+  @GraphQLName(ConditionType.TYPE_NAME)
   enum ConditionType {
     LEAF_CONDITION,
     COMPOSITE_CONDITION;
-
-    public static final String TYPE_NAME = "ConditionType";
+    private static final String TYPE_NAME = "ConditionType";
   }
 
   @GraphQLField
@@ -30,7 +31,7 @@ public interface Condition {
   CompositeCondition compositeCondition();
 
   @GraphQLField
-  @GraphQLName(ConditionType.TYPE_NAME)
+  @GraphQLName(CONDITION_TYPE_KEY)
   @GraphQLNonNull
   ConditionType conditionType();
 }

@@ -9,14 +9,14 @@ import java.util.List;
 public interface CompositeCondition {
   String TYPE_NAME = "CompositeCondition";
 
-  String LOGICAL_OPERATOR_KEY = "LogicalOperator";
-  String CHILDREN_KEY = "ChildConditions";
+  String LOGICAL_OPERATOR_KEY = "operator";
+  String CHILDREN_KEY = "children";
 
-  @GraphQLName(StringCondition.Operator.TYPE_NAME)
+  @GraphQLName(LogicalOperator.TYPE_NAME)
   enum LogicalOperator {
     LOGICAL_OPERATOR_AND,
     LOGICAL_OPERATOR_OR;
-    static final String TYPE_NAME = "LogicalOperator";
+    private static final String TYPE_NAME = "LogicalOperator";
   }
 
   @GraphQLField

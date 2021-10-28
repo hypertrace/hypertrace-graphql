@@ -8,8 +8,8 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 public interface LeafCondition {
   String TYPE_NAME = "LeafCondition";
 
-  String KEY_CONDITION_KEY = "KeyCondition";
-  String VALUE_CONDITION_KEY = "ValueCondition";
+  String KEY_CONDITION_KEY = "keyCondition";
+  String VALUE_CONDITION_KEY = "valueCondition";
 
   @GraphQLField
   @GraphQLNonNull

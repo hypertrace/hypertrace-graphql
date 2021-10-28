@@ -1,57 +1,104 @@
 package org.hypertrace.graphql.label.application.rules.dao;
 
+import java.util.stream.Collectors;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
-import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
-import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
-import org.hypertrace.graphql.label.application.rules.schema.shared.LeafCondition;
-import org.hypertrace.graphql.label.application.rules.schema.shared.StringCondition;
-import org.hypertrace.graphql.label.application.rules.schema.shared.UnaryCondition;
 import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplicationRuleRequest;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.CompositeCondition;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.StringCondition;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.UnaryCondition;
 
-public class LabelApplicationRuleRequestConverter {
+class LabelApplicationRuleRequestConverter {
   CreateLabelApplicationRuleRequest convertCreationRequest(
       LabelApplicationRuleCreateRequest labelApplicationRuleCreateRequest) {
-    LabelApplicationRuleData data =
+    org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData data =
         labelApplicationRuleCreateRequest
             .createLabelApplicationRuleRequest()
             .labelApplicationRuleData();
     return CreateLabelApplicationRuleRequest.newBuilder()
         .setData(
-            org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-                .newBuilder()
+            LabelApplicationRuleData.newBuilder()
                 .setName(data.name())
                 .setMatchingCondition(convertMatchingCondition(data.condition()))
-                .setLabelAction(convertLabelAction()))
+                .setLabelAction(convertLabelAction(data.action())))
         .build();
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
-      convertMatchingCondition(Condition condition) {
+  Condition convertMatchingCondition(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Condition condition) {
     switch (condition.conditionType()) {
       case LEAF_CONDITION:
-        return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-            .Condition.newBuilder()
+        return Condition.newBuilder()
             .setLeafCondition(convertLeafCondition(condition.leafCondition()))
             .build();
       case COMPOSITE_CONDITION:
+        return Condition.newBuilder()
+            .setCompositeCondition(convertCompositeCondition(condition.compositeCondition()))
+            .build();
       default:
         throw new IllegalArgumentException("Error when parsing matching condition");
     }
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
-      convertLabelAction() {
-    return null;
+  Action convertLabelAction(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
+    Action.Builder actionBuilder = Action.newBuilder().addAllEntityTypes(action.entityTypes());
+
+    switch (action.operation()) {
+      case OPERATION_MERGE:
+        actionBuilder.setOperation(Action.Operation.OPERATION_MERGE);
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported Operation");
+    }
+
+    switch (action.valueType()) {
+      case STATIC_LABELS:
+        return actionBuilder
+            .setStaticLabels(
+                Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build())
+            .build();
+      case DYNAMIC_LABEL_KEY:
+        return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
+      default:
+        throw new IllegalArgumentException("Unsupported action value");
+    }
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition
-      convertLeafCondition(LeafCondition leafCondition) {
-    org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition
-            .Builder
-        leafConditionBuilder =
-            org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-                .LeafCondition.newBuilder()
-                .setKeyCondition(convertStringCondition(leafCondition.keyCondition()));
+  CompositeCondition convertCompositeCondition(
+      org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition
+          compositeCondition) {
+    CompositeCondition.Builder compositeConditionBuilder =
+        CompositeCondition.newBuilder()
+            .addAllChildren(
+                compositeCondition.children().stream()
+                    .map(this::convertLeafCondition)
+                    .map(
+                        leafCondition ->
+                            Condition.newBuilder().setLeafCondition(leafCondition).build())
+                    .collect(Collectors.toList()));
+    switch (compositeCondition.operator()) {
+      case LOGICAL_OPERATOR_AND:
+        return compositeConditionBuilder
+            .setOperator(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_AND)
+            .build();
+      case LOGICAL_OPERATOR_OR:
+        return compositeConditionBuilder
+            .setOperator(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_OR)
+            .build();
+      default:
+        throw new IllegalArgumentException("Composite Condition Conversion Failed");
+    }
+  }
+
+  LeafCondition convertLeafCondition(
+      org.hypertrace.graphql.label.application.rules.schema.shared.LeafCondition leafCondition) {
+    LeafCondition.Builder leafConditionBuilder =
+        LeafCondition.newBuilder()
+            .setKeyCondition(convertStringCondition(leafCondition.keyCondition()));
     switch (leafCondition.valueCondition().valueConditionType()) {
       case STRING_CONDITION:
         return leafConditionBuilder
@@ -68,45 +115,41 @@ public class LabelApplicationRuleRequestConverter {
     }
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.StringCondition
-      convertStringCondition(StringCondition stringCondition) {
-    return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-        .StringCondition.newBuilder()
+  StringCondition convertStringCondition(
+      org.hypertrace.graphql.label.application.rules.schema.shared.StringCondition
+          stringCondition) {
+    return StringCondition.newBuilder()
         .setOperator(convertStringConditionOperator(stringCondition.operator()))
         .setValue(stringCondition.value())
         .build();
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.UnaryCondition
-      convertUnaryCondition(UnaryCondition unaryCondition) {
-    return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-        .UnaryCondition.newBuilder()
+  UnaryCondition convertUnaryCondition(
+      org.hypertrace.graphql.label.application.rules.schema.shared.UnaryCondition unaryCondition) {
+    return UnaryCondition.newBuilder()
         .setOperator(convertUnaryOperator(unaryCondition.operator()))
         .build();
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.StringCondition
-          .Operator
-      convertStringConditionOperator(StringCondition.Operator operator) {
+  StringCondition.Operator convertStringConditionOperator(
+      org.hypertrace.graphql.label.application.rules.schema.shared.StringCondition.Operator
+          operator) {
     switch (operator) {
       case OPERATOR_EQUALS:
-        return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-            .StringCondition.Operator.OPERATOR_EQUALS;
+        return StringCondition.Operator.OPERATOR_EQUALS;
       case OPERATOR_MATCHES_REGEX:
-        return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-            .StringCondition.Operator.OPERATOR_MATCHES_REGEX;
+        return StringCondition.Operator.OPERATOR_MATCHES_REGEX;
       default:
         throw new IllegalArgumentException("Unsupported String Condition Operator");
     }
   }
 
-  org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.UnaryCondition
-          .Operator
-      convertUnaryOperator(UnaryCondition.Operator operator) {
+  UnaryCondition.Operator convertUnaryOperator(
+      org.hypertrace.graphql.label.application.rules.schema.shared.UnaryCondition.Operator
+          operator) {
     switch (operator) {
       case OPERATOR_EXISTS:
-        return org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-            .UnaryCondition.Operator.OPERATOR_EXISTS;
+        return UnaryCondition.Operator.OPERATOR_EXISTS;
       default:
         throw new IllegalArgumentException("Unsupported Unary Condition Operator");
     }

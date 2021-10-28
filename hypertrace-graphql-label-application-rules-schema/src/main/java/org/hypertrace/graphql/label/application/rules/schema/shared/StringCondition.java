@@ -8,14 +8,14 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 public interface StringCondition {
   String TYPE_NAME = "StringCondition";
 
-  String OPERATOR_KEY = "Operator";
-  String VALUE_KEY = "Value";
+  String OPERATOR_KEY = "operator";
+  String VALUE_KEY = "value";
 
   @GraphQLName(Operator.TYPE_NAME)
   enum Operator {
     OPERATOR_EQUALS,
     OPERATOR_MATCHES_REGEX;
-    static final String TYPE_NAME = "Operator";
+    private static final String TYPE_NAME = "StringConditionOperator";
   }
 
   @GraphQLField

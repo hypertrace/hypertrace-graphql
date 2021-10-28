@@ -8,8 +8,8 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 public interface LabelApplicationRule {
   String TYPE_NAME = "LabelApplicationRule";
 
-  String ID_KEY = "Id";
-  String LABEL_APPLICATION_RULE_DATA_KEY = "LabelApplicationRuleData";
+  String ID_KEY = "id";
+  String LABEL_APPLICATION_RULE_DATA_KEY = "labelApplicationRuleData";
 
   @GraphQLField
   @GraphQLNonNull

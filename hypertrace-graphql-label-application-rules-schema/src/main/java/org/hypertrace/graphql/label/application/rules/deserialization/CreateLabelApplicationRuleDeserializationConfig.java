@@ -1,10 +1,6 @@
 package org.hypertrace.graphql.label.application.rules.deserialization;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.util.List;
@@ -13,10 +9,12 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.label.application.rules.schema.mutation.CreateLabelApplicationRule;
+import org.hypertrace.graphql.label.application.rules.schema.shared.Action;
 import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LeafCondition;
+import org.hypertrace.graphql.label.application.rules.schema.shared.StaticLabels;
 import org.hypertrace.graphql.label.application.rules.schema.shared.StringCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.UnaryCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.ValueCondition;
@@ -41,6 +39,8 @@ public class CreateLabelApplicationRuleDeserializationConfig
                 CreateLabelApplicationRule.class, CreateLabelApplicationRuleArgument.class)
             .addAbstractTypeMapping(
                 LabelApplicationRuleData.class, LabelApplicationRuleDataArgument.class)
+            .addAbstractTypeMapping(Action.class, ActionArgument.class)
+            .addAbstractTypeMapping(StaticLabels.class, StaticLabelsArgument.class)
             .addAbstractTypeMapping(Condition.class, ConditionArgument.class)
             .addAbstractTypeMapping(LeafCondition.class, LeafConditionArgument.class)
             .addAbstractTypeMapping(CompositeCondition.class, CompositeConditionArgument.class)
@@ -65,6 +65,37 @@ public class CreateLabelApplicationRuleDeserializationConfig
 
     @JsonProperty(CONDITION_KEY)
     Condition condition;
+
+    @JsonProperty(ACTION_KEY)
+    Action action;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  @NoArgsConstructor(force = true)
+  private static class ActionArgument implements Action {
+    @JsonProperty(ENTITY_TYPES_KEY)
+    List<String> entityTypes;
+
+    @JsonProperty(OPERATION_KEY)
+    Operation operation;
+
+    @JsonProperty(STATIC_LABELS)
+    StaticLabels staticLabels;
+
+    @JsonProperty(DYNAMIC_LABEL_KEY_KEY)
+    String dynamicLabelKey;
+
+    @JsonProperty(VALUE_TYPE_KEY)
+    ValueType valueType;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  @NoArgsConstructor(force = true)
+  private static class StaticLabelsArgument implements StaticLabels {
+    @JsonProperty(IDS_KEY)
+    List<String> ids;
   }
 
   @Value
@@ -77,31 +108,24 @@ public class CreateLabelApplicationRuleDeserializationConfig
     @JsonProperty(COMPOSITE_CONDITION_KEY)
     CompositeCondition compositeCondition;
 
-    @JsonProperty(ConditionType.TYPE_NAME)
+    @JsonProperty(CONDITION_TYPE_KEY)
     ConditionType conditionType;
   }
 
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  @JsonTypeName("LeafConditionArgument")
   private static class LeafConditionArgument implements LeafCondition {
     @JsonProperty(KEY_CONDITION_KEY)
     StringCondition keyCondition;
 
     @JsonProperty(VALUE_CONDITION_KEY)
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-    @JsonSubTypes({
-      @Type(value = StringConditionArgument.class, name = "StringConditionArgument"),
-      @Type(value = UnaryConditionArgument.class, name = "UnaryConditionArgument")
-    })
     ValueCondition valueCondition;
   }
 
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  @JsonTypeName("CompositeConditionArgument")
   private static class CompositeConditionArgument implements CompositeCondition {
     @JsonProperty(LOGICAL_OPERATOR_KEY)
     LogicalOperator operator;
@@ -113,7 +137,6 @@ public class CreateLabelApplicationRuleDeserializationConfig
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  @JsonTypeName("StringConditionArgument")
   private static class StringConditionArgument implements StringCondition {
     @JsonProperty(OPERATOR_KEY)
     Operator operator;
@@ -125,7 +148,6 @@ public class CreateLabelApplicationRuleDeserializationConfig
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  @JsonTypeName("UnaryConditionArgument")
   private static class UnaryConditionArgument implements UnaryCondition {
     @JsonProperty(OPERATOR_KEY)
     Operator operator;

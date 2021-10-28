@@ -9,13 +9,14 @@ import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
+import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleUpdateRequest;
 import org.hypertrace.graphql.label.application.rules.schema.query.LabelApplicationRuleResultSet;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRule;
 import org.hypertrace.label.application.rule.config.service.v1.GetLabelApplicationRulesRequest;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleConfigServiceGrpc;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleConfigServiceGrpc.LabelApplicationRuleConfigServiceFutureStub;
 
-public class LabelApplicationRuleConfigServiceDao implements LabelApplicationRuleDao {
+class LabelApplicationRuleConfigServiceDao implements LabelApplicationRuleDao {
 
   private final LabelApplicationRuleConfigServiceFutureStub
       labelApplicationRuleConfigServiceFutureStub;
@@ -77,7 +78,8 @@ public class LabelApplicationRuleConfigServiceDao implements LabelApplicationRul
   }
 
   @Override
-  public Single<LabelApplicationRule> updateLabelApplicationRule(ContextualRequest request) {
-    return null;
+  public Single<LabelApplicationRule> updateLabelApplicationRule(
+      LabelApplicationRuleUpdateRequest request) {
+    return Single.error(new UnsupportedOperationException("Not yet implemented"));
   }
 }

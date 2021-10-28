@@ -6,11 +6,13 @@ import java.util.List;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.graphql.label.application.rules.schema.query.LabelApplicationRuleResultSet;
+import org.hypertrace.graphql.label.application.rules.schema.shared.Action;
 import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRule;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LeafCondition;
+import org.hypertrace.graphql.label.application.rules.schema.shared.StaticLabels;
 import org.hypertrace.graphql.label.application.rules.schema.shared.StringCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.UnaryCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.ValueCondition;
@@ -19,6 +21,7 @@ import org.hypertrace.label.application.rule.config.service.v1.GetLabelApplicati
 
 class LabelApplicationRuleResponseConverter {
 
+  // TODO: Refactor logic into convert methods from the static methods
   Single<LabelApplicationRuleResultSet> convertGetLabelApplicationsRuleResponse(
       GetLabelApplicationRulesResponse response) {
     return Observable.fromIterable(response.getLabelApplicationRulesList())
@@ -61,11 +64,64 @@ class LabelApplicationRuleResponseConverter {
         org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData data) {
       String ruleName = data.getName();
       Condition matchingCondition = DefaultCondition.of(data.getMatchingCondition());
-      return new DefaultLabelApplicationRuleData(ruleName, matchingCondition);
+      Action action = DefaultAction.of(data.getLabelAction());
+      return new DefaultLabelApplicationRuleData(ruleName, matchingCondition, action);
     }
 
     String name;
     Condition condition;
+    Action action;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class DefaultAction implements Action {
+    private static Action of(
+        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
+            action) {
+      List<String> entityTypes = action.getEntityTypesList();
+      Operation operation;
+      switch (action.getOperation()) {
+        case OPERATION_MERGE:
+          operation = Operation.OPERATION_MERGE;
+          break;
+        default:
+          throw new IllegalArgumentException("Invalid operation in label");
+      }
+      switch (action.getValueCase()) {
+        case STATIC_LABELS:
+          return new DefaultAction(
+              entityTypes,
+              operation,
+              DefaultStaticLabels.of(action.getStaticLabels()),
+              null,
+              ValueType.STATIC_LABELS);
+        case DYNAMIC_LABEL_KEY:
+          return new DefaultAction(
+              entityTypes, operation, null, action.getDynamicLabelKey(), ValueType.STATIC_LABELS);
+        default:
+          throw new IllegalArgumentException("Unsupported value type in action");
+      }
+    }
+
+    List<String> entityTypes;
+    Operation operation;
+    StaticLabels staticLabels;
+    String dynamicLabelKey;
+    ValueType valueType;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class DefaultStaticLabels implements StaticLabels {
+    private static StaticLabels of(
+        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
+                .StaticLabels
+            staticLabels) {
+      return new DefaultStaticLabels(staticLabels.getIdsList());
+    }
+
+    List<String> ids;
   }
 
   @Value
