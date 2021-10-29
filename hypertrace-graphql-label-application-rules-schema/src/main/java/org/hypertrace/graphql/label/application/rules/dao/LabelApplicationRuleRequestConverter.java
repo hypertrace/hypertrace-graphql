@@ -69,29 +69,37 @@ class LabelApplicationRuleRequestConverter {
     }
   }
 
-  private Action convertLabelAction(
-      org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
-    Action.Builder actionBuilder = Action.newBuilder().addAllEntityTypes(action.entityTypes());
-
-    switch (action.operation()) {
+  private void setOperationInAction(org.hypertrace.graphql.label.application.rules.schema.shared.Action action, Action.Builder actionBuilder){
+    switch(action.operation()){
       case OPERATION_MERGE:
         actionBuilder.setOperation(Action.Operation.OPERATION_MERGE);
-        break;
+        return;
       default:
         throw new IllegalArgumentException("Unsupported Operation");
     }
+  }
 
+  private void setLabelsInAction(org.hypertrace.graphql.label.application.rules.schema.shared.Action action, Action.Builder actionBuilder){
     switch (action.valueType()) {
       case STATIC_LABELS:
-        return actionBuilder
-            .setStaticLabels(
-                Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build())
-            .build();
+        actionBuilder
+                .setStaticLabels(
+                        Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build());
+        return;
       case DYNAMIC_LABEL_KEY:
-        return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
+        actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
+        return;
       default:
         throw new IllegalArgumentException("Unsupported action value");
     }
+  }
+
+  private Action convertLabelAction(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
+    Action.Builder actionBuilder = Action.newBuilder().addAllEntityTypes(action.entityTypes());
+    setOperationInAction(action, actionBuilder);
+    setLabelsInAction(action, actionBuilder);
+    return actionBuilder.build();
   }
 
   CompositeCondition convertCompositeCondition(
