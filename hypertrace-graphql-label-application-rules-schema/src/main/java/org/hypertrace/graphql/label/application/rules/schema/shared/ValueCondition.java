@@ -11,12 +11,12 @@ public interface ValueCondition {
 
   String STRING_CONDITION_KEY = "stringCondition";
   String UNARY_CONDITION_KEY = "unaryCondition";
+  String VALUE_CONDITION_TYPE_KEY = "valueConditionType";
 
   @GraphQLName(ValueConditionType.TYPE_NAME)
   enum ValueConditionType {
     STRING_CONDITION,
     UNARY_CONDITION;
-
     private static final String TYPE_NAME = "ValueConditionType";
   }
 
@@ -31,7 +31,7 @@ public interface ValueCondition {
   UnaryCondition unaryCondition();
 
   @GraphQLField
-  @GraphQLName(ValueConditionType.TYPE_NAME)
+  @GraphQLName(VALUE_CONDITION_TYPE_KEY)
   @GraphQLNonNull
   ValueConditionType valueConditionType();
 }

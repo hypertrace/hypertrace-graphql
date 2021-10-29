@@ -40,6 +40,7 @@ public class LabelApplicationRuleDataDeserializationConfig
             .addAbstractTypeMapping(StaticLabels.class, StaticLabelsArgument.class)
             .addAbstractTypeMapping(Condition.class, ConditionArgument.class)
             .addAbstractTypeMapping(LeafCondition.class, LeafConditionArgument.class)
+            .addAbstractTypeMapping(ValueCondition.class, ValueConditionArgument.class)
             .addAbstractTypeMapping(CompositeCondition.class, CompositeConditionArgument.class)
             .addAbstractTypeMapping(StringCondition.class, StringConditionArgument.class)
             .addAbstractTypeMapping(UnaryCondition.class, UnaryConditionArgument.class));
@@ -110,6 +111,20 @@ public class LabelApplicationRuleDataDeserializationConfig
 
     @JsonProperty(VALUE_CONDITION_KEY)
     ValueCondition valueCondition;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  @NoArgsConstructor(force = true)
+  private static class ValueConditionArgument implements ValueCondition {
+    @JsonProperty(STRING_CONDITION_KEY)
+    StringCondition stringCondition;
+
+    @JsonProperty(UNARY_CONDITION_KEY)
+    UnaryCondition unaryCondition;
+
+    @JsonProperty(VALUE_CONDITION_TYPE_KEY)
+    ValueConditionType valueConditionType;
   }
 
   @Value
