@@ -3,8 +3,11 @@ package org.hypertrace.graphql.label.application.rules.dao;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.graphql.label.application.rules.schema.query.LabelApplicationRuleResultSet;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Action;
 import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
@@ -20,64 +23,270 @@ import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplic
 import org.hypertrace.label.application.rule.config.service.v1.GetLabelApplicationRulesResponse;
 import org.hypertrace.label.application.rule.config.service.v1.UpdateLabelApplicationRuleResponse;
 
+@Slf4j
 class LabelApplicationRuleResponseConverter {
+  Single<LabelApplicationRule> convertCreateLabelApplicationRuleResponse(
+      CreateLabelApplicationRuleResponse response) {
+    Optional<LabelApplicationRule> rule =
+        convertLabelApplicationRule(response.getLabelApplicationRule());
+    if (rule.isPresent()) {
+      return Single.just(rule.get());
+    } else {
+      return Single.error(new IllegalArgumentException("Unable to convert rule create response"));
+    }
+  }
 
-  // TODO: Refactor logic into convert methods from the static methods
   Single<LabelApplicationRuleResultSet> convertGetLabelApplicationsRuleResponse(
       GetLabelApplicationRulesResponse response) {
     return Observable.fromIterable(response.getLabelApplicationRulesList())
-        .flatMapSingle(this::convertLabelApplicationRule)
+        .map(this::convertLabelApplicationRule)
+        .flatMapSingle(
+            convertedRule -> {
+              if (convertedRule.isEmpty()) {
+                return Single.error(
+                    new IllegalArgumentException("Unable to convert a rule in get all response"));
+              }
+              return Single.just(convertedRule.get());
+            })
         .toList()
         .map(ConvertedLabelApplicationRuleResultSet::forRuleList);
   }
 
-  Single<LabelApplicationRule> convertCreateLabelApplicationRuleResponse(
-      CreateLabelApplicationRuleResponse response) {
-    return convertLabelApplicationRule(response.getLabelApplicationRule());
-  }
-
   Single<LabelApplicationRule> convertUpdateLabelApplicationRuleResponse(
       UpdateLabelApplicationRuleResponse response) {
-    return convertLabelApplicationRule(response.getLabelApplicationRule());
+    Optional<LabelApplicationRule> rule =
+        convertLabelApplicationRule(response.getLabelApplicationRule());
+    if (rule.isPresent()) {
+      return Single.just(rule.get());
+    } else {
+      return Single.error(new IllegalArgumentException("Unable to convert rule update response"));
+    }
   }
 
   Single<Boolean> buildDeleteLabelApplicationRuleResponse() {
     return Single.just(true);
   }
 
-  Single<LabelApplicationRule> convertLabelApplicationRule(
+  private Optional<LabelApplicationRule> convertLabelApplicationRule(
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRule rule) {
-    try {
-      return Single.just(DefaultLabelApplicationRule.of(rule));
-    } catch (Exception exception) {
-      return Single.error(exception);
+    Optional<LabelApplicationRuleData> ruleData = convertLabelApplicationRuleData(rule.getData());
+    return ruleData.map(data -> new ConvertedLabelApplicationRule(rule.getId(), data));
+  }
+
+  private Optional<LabelApplicationRuleData> convertLabelApplicationRuleData(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData data) {
+    Optional<Action> action = convertAction(data.getLabelAction());
+    Optional<Condition> condition = convertCondition(data.getMatchingCondition());
+    if (condition.isEmpty() || action.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        new ConvertedLabelApplicationRuleData(data.getName(), condition.get(), action.get()));
+  }
+
+  private Optional<Action.Operation> convertOperationInAction(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
+          action) {
+    switch (action.getOperation()) {
+      case OPERATION_MERGE:
+        return Optional.of(Action.Operation.OPERATION_MERGE);
+      default:
+        log.error("Unrecognized Operation type in Action{}", action.getOperation().name());
+        return Optional.empty();
+    }
+  }
+
+  private Optional<Action> convertAction(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
+          action) {
+    List<String> entityTypes = action.getEntityTypesList();
+    Optional<Action.Operation> operation = convertOperationInAction(action);
+    if (operation.isEmpty()) {
+      return Optional.empty();
+    }
+    switch (action.getValueCase()) {
+      case STATIC_LABELS:
+        StaticLabels staticLabels = convertStaticLabels(action.getStaticLabels());
+        return Optional.of(
+            new ConvertedAction(
+                entityTypes, operation.get(), staticLabels, null, Action.ValueType.STATIC_LABELS));
+      case DYNAMIC_LABEL_KEY:
+        return Optional.of(
+            new ConvertedAction(
+                entityTypes,
+                operation.get(),
+                null,
+                action.getDynamicLabelKey(),
+                Action.ValueType.STATIC_LABELS));
+      default:
+        log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
+        return Optional.empty();
+    }
+  }
+
+  private StaticLabels convertStaticLabels(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
+              .StaticLabels
+          staticLabels) {
+    return new ConvertedStaticLabels(staticLabels.getIdsList());
+  }
+
+  private Optional<Condition> convertCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
+          condition) {
+    switch (condition.getConditionCase()) {
+      case LEAF_CONDITION:
+        Optional<LeafCondition> leafCondition = convertLeafCondition(condition.getLeafCondition());
+        return leafCondition.map(
+            leafCond ->
+                new ConvertedCondition(leafCond, null, Condition.ConditionType.LEAF_CONDITION));
+      case COMPOSITE_CONDITION:
+        Optional<CompositeCondition> compositeCondition =
+            convertCompositeCondition(condition.getCompositeCondition());
+        return compositeCondition.map(
+            compositeCond ->
+                new ConvertedCondition(
+                    null, compositeCond, Condition.ConditionType.COMPOSITE_CONDITION));
+      default:
+        log.error("Unrecognized Condition Type {}", condition.getConditionCase().name());
+        return Optional.empty();
+    }
+  }
+
+  private Optional<CompositeCondition> convertCompositeCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+              .CompositeCondition
+          compositeCondition) {
+    List<LeafCondition> leafConditionList =
+        compositeCondition.getChildrenList().stream()
+            .filter(this::isLeafCondition)
+            .map(condition -> convertLeafCondition(condition.getLeafCondition()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
+    if (leafConditionList.size() != compositeCondition.getChildrenList().size()) {
+      return Optional.empty();
+    }
+    Optional<CompositeCondition.LogicalOperator> logicalOperator =
+        convertLogicalOperator(compositeCondition);
+    return logicalOperator.map(
+        operator -> new ConvertedCompositeCondition(operator, leafConditionList));
+  }
+
+  private boolean isLeafCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
+          condition) {
+    switch (condition.getConditionCase()) {
+      case LEAF_CONDITION:
+        return true;
+      case COMPOSITE_CONDITION:
+      default:
+        return false;
+    }
+  }
+
+  private Optional<CompositeCondition.LogicalOperator> convertLogicalOperator(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+              .CompositeCondition
+          compositeCondition) {
+    switch (compositeCondition.getOperator()) {
+      case LOGICAL_OPERATOR_AND:
+        return Optional.of(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_AND);
+      case LOGICAL_OPERATOR_OR:
+        return Optional.of(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_OR);
+      default:
+        log.error("Unrecognized Logical Operator in Composite Condition");
+        return Optional.empty();
+    }
+  }
+
+  private Optional<LeafCondition> convertLeafCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition
+          leafCondition) {
+    Optional<StringCondition> keyCondition =
+        convertStringCondition(leafCondition.getKeyCondition());
+    Optional<ValueCondition> valueCondition = convertValueCondition(leafCondition);
+    if (keyCondition.isEmpty() || valueCondition.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new ConvertedLeafCondition(keyCondition.get(), valueCondition.get()));
+  }
+
+  private Optional<ValueCondition> convertValueCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition
+          leafCondition) {
+    switch (leafCondition.getConditionCase()) {
+      case STRING_CONDITION:
+        Optional<StringCondition> stringValueCondition =
+            convertStringCondition(leafCondition.getStringCondition());
+        return stringValueCondition.map(
+            stringCondition ->
+                new ConvertedValueCondition(
+                    stringCondition, null, ValueCondition.ValueConditionType.STRING_CONDITION));
+      case UNARY_CONDITION:
+        Optional<UnaryCondition> unaryValueCondition =
+            convertUnaryCondition(leafCondition.getUnaryCondition());
+        return unaryValueCondition.map(
+            unaryCondition ->
+                new ConvertedValueCondition(
+                    null, unaryCondition, ValueCondition.ValueConditionType.UNARY_CONDITION));
+      case JSON_CONDITION:
+      default:
+        log.error("Unrecognized Value Condition Type {}", leafCondition.getConditionCase().name());
+        return Optional.empty();
+    }
+  }
+
+  private Optional<StringCondition> convertStringCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+              .StringCondition
+          stringCondition) {
+    Optional<StringCondition.Operator> operator = convertOperatorInStringCondition(stringCondition);
+    return operator.map(op -> new ConvertedStringCondition(op, stringCondition.getValue()));
+  }
+
+  private Optional<StringCondition.Operator> convertOperatorInStringCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+              .StringCondition
+          stringCondition) {
+    switch (stringCondition.getOperator()) {
+      case OPERATOR_EQUALS:
+        return Optional.of(StringCondition.Operator.OPERATOR_EQUALS);
+      case OPERATOR_MATCHES_REGEX:
+        return Optional.of(StringCondition.Operator.OPERATOR_MATCHES_REGEX);
+      default:
+        log.error(
+            "Unrecognized Operator Type in String Condition {}",
+            stringCondition.getOperator().name());
+        return Optional.empty();
+    }
+  }
+
+  private Optional<UnaryCondition> convertUnaryCondition(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+              .UnaryCondition
+          unaryCondition) {
+    switch (unaryCondition.getOperator()) {
+      case OPERATOR_EXISTS:
+        return Optional.of(new ConvertedUnaryCondition(UnaryCondition.Operator.OPERATOR_EXISTS));
+      default:
+        log.error(
+            "Unrecognized Operator Type in Unary Condition {}",
+            unaryCondition.getOperator().name());
+        return Optional.empty();
     }
   }
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultLabelApplicationRule implements LabelApplicationRule {
-    private static LabelApplicationRule of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRule rule) {
-      return new DefaultLabelApplicationRule(
-          rule.getId(), DefaultLabelApplicationRuleData.of(rule.getData()));
-    }
-
+  private static class ConvertedLabelApplicationRule implements LabelApplicationRule {
     String id;
     LabelApplicationRuleData labelApplicationRuleData;
   }
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultLabelApplicationRuleData implements LabelApplicationRuleData {
-    private static LabelApplicationRuleData of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData data) {
-      String ruleName = data.getName();
-      Condition matchingCondition = DefaultCondition.of(data.getMatchingCondition());
-      Action action = DefaultAction.of(data.getLabelAction());
-      return new DefaultLabelApplicationRuleData(ruleName, matchingCondition, action);
-    }
-
+  private static class ConvertedLabelApplicationRuleData implements LabelApplicationRuleData {
     String name;
     Condition condition;
     Action action;
@@ -85,35 +294,7 @@ class LabelApplicationRuleResponseConverter {
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultAction implements Action {
-    private static Action of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
-            action) {
-      List<String> entityTypes = action.getEntityTypesList();
-      Operation operation;
-      switch (action.getOperation()) {
-        case OPERATION_MERGE:
-          operation = Operation.OPERATION_MERGE;
-          break;
-        default:
-          throw new IllegalArgumentException("Invalid operation in label");
-      }
-      switch (action.getValueCase()) {
-        case STATIC_LABELS:
-          return new DefaultAction(
-              entityTypes,
-              operation,
-              DefaultStaticLabels.of(action.getStaticLabels()),
-              null,
-              ValueType.STATIC_LABELS);
-        case DYNAMIC_LABEL_KEY:
-          return new DefaultAction(
-              entityTypes, operation, null, action.getDynamicLabelKey(), ValueType.STATIC_LABELS);
-        default:
-          throw new IllegalArgumentException("Unsupported value type in action");
-      }
-    }
-
+  private static class ConvertedAction implements Action {
     List<String> entityTypes;
     Operation operation;
     StaticLabels staticLabels;
@@ -123,35 +304,13 @@ class LabelApplicationRuleResponseConverter {
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultStaticLabels implements StaticLabels {
-    private static StaticLabels of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
-                .StaticLabels
-            staticLabels) {
-      return new DefaultStaticLabels(staticLabels.getIdsList());
-    }
-
+  private static class ConvertedStaticLabels implements StaticLabels {
     List<String> ids;
   }
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultCondition implements Condition {
-    private static Condition of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
-            condition) {
-      switch (condition.getConditionCase()) {
-        case LEAF_CONDITION:
-          return new DefaultCondition(
-              DefaultLeafCondition.of(condition.getLeafCondition()),
-              null,
-              ConditionType.LEAF_CONDITION);
-        case COMPOSITE_CONDITION:
-        default:
-          throw new IllegalArgumentException("Condition not set correctly");
-      }
-    }
-
+  private static class ConvertedCondition implements Condition {
     LeafCondition leafCondition;
     CompositeCondition compositeCondition;
     ConditionType conditionType;
@@ -159,44 +318,21 @@ class LabelApplicationRuleResponseConverter {
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultLeafCondition implements LeafCondition {
-    private static LeafCondition of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-                .LeafCondition
-            leafCondition) {
-      return new DefaultLeafCondition(
-          DefaultStringCondition.of(leafCondition.getKeyCondition()),
-          DefaultValueCondition.of(leafCondition));
-    }
+  private static class ConvertedCompositeCondition implements CompositeCondition {
+    LogicalOperator operator;
+    List<LeafCondition> children;
+  }
 
+  @Value
+  @Accessors(fluent = true)
+  private static class ConvertedLeafCondition implements LeafCondition {
     StringCondition keyCondition;
     ValueCondition valueCondition;
   }
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultValueCondition implements ValueCondition {
-    private static ValueCondition of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-                .LeafCondition
-            leafCondition) {
-      switch (leafCondition.getConditionCase()) {
-        case STRING_CONDITION:
-          return new DefaultValueCondition(
-              DefaultStringCondition.of(leafCondition.getStringCondition()),
-              null,
-              ValueConditionType.STRING_CONDITION);
-        case UNARY_CONDITION:
-          return new DefaultValueCondition(
-              null,
-              DefaultUnaryCondition.of(leafCondition.getUnaryCondition()),
-              ValueConditionType.UNARY_CONDITION);
-        case JSON_CONDITION:
-        default:
-          throw new IllegalArgumentException("Invalid operator in leaf condition");
-      }
-    }
-
+  private static class ConvertedValueCondition implements ValueCondition {
     StringCondition stringCondition;
     UnaryCondition unaryCondition;
     ValueConditionType valueConditionType;
@@ -204,41 +340,13 @@ class LabelApplicationRuleResponseConverter {
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultUnaryCondition implements UnaryCondition {
-    private static UnaryCondition of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-                .UnaryCondition
-            unaryCondition) {
-      switch (unaryCondition.getOperator()) {
-        case OPERATOR_EXISTS:
-          return new DefaultUnaryCondition(Operator.OPERATOR_EXISTS);
-        case OPERATOR_UNSPECIFIED:
-        default:
-          throw new IllegalArgumentException("Operator not set in unary condition");
-      }
-    }
-
+  private static class ConvertedUnaryCondition implements UnaryCondition {
     Operator operator;
   }
 
   @Value
   @Accessors(fluent = true)
-  private static class DefaultStringCondition implements StringCondition {
-    private static StringCondition of(
-        org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-                .StringCondition
-            stringCondition) {
-      switch (stringCondition.getOperator()) {
-        case OPERATOR_EQUALS:
-          return new DefaultStringCondition(Operator.OPERATOR_EQUALS, stringCondition.getValue());
-        case OPERATOR_MATCHES_REGEX:
-          return new DefaultStringCondition(
-              Operator.OPERATOR_MATCHES_REGEX, stringCondition.getValue());
-        default:
-          throw new IllegalArgumentException("String Condition operator is not set");
-      }
-    }
-
+  private static class ConvertedStringCondition implements StringCondition {
     Operator operator;
     String value;
   }
