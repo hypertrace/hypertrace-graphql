@@ -7,7 +7,7 @@ import java.util.List;
 
 @GraphQLName(CompositeCondition.TYPE_NAME)
 public interface CompositeCondition {
-  String TYPE_NAME = "CompositeCondition";
+  String TYPE_NAME = "LabelApplicationCompositeCondition";
 
   String LOGICAL_OPERATOR_KEY = "operator";
   String CHILDREN_KEY = "children";

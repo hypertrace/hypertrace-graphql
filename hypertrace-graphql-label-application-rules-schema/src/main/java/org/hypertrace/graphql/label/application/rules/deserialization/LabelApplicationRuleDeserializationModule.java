@@ -12,7 +12,14 @@ public class LabelApplicationRuleDeserializationModule extends AbstractModule {
 
     deserializationConfigBinder
         .addBinding()
-        .to(CreateLabelApplicationRuleDeserializationConfig.class);
+        .to(LabelApplicationRuleDataDeserializationConfig.class);
     deserializationConfigBinder.addBinding().to(LabelApplicationRuleDeserializationConfig.class);
+
+    deserializationConfigBinder
+        .addBinding()
+        .toInstance(
+            ArgumentDeserializationConfig.forPrimitive(
+                LabelApplicationRuleIdArgument.ARGUMENT_NAME,
+                LabelApplicationRuleIdArgument.class));
   }
 }

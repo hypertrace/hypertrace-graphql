@@ -9,6 +9,7 @@ import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
+import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleDeleteRequest;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleUpdateRequest;
 import org.hypertrace.graphql.label.application.rules.schema.query.LabelApplicationRuleResultSet;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRule;
@@ -80,6 +81,34 @@ class LabelApplicationRuleConfigServiceDao implements LabelApplicationRuleDao {
   @Override
   public Single<LabelApplicationRule> updateLabelApplicationRule(
       LabelApplicationRuleUpdateRequest request) {
-    return Single.error(new UnsupportedOperationException("Not yet implemented"));
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .call(
+                    () ->
+                        this.labelApplicationRuleConfigServiceFutureStub
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(),
+                                TimeUnit.MILLISECONDS)
+                            .updateLabelApplicationRule(
+                                this.requestConverter.convertUpdateRequest(request))))
+        .flatMap(this.responseConverter::convertUpdateLabelApplicationRuleResponse);
+  }
+
+  @Override
+  public Single<Boolean> deleteLabelApplicationRule(LabelApplicationRuleDeleteRequest request) {
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .call(
+                    () ->
+                        this.labelApplicationRuleConfigServiceFutureStub
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(),
+                                TimeUnit.MILLISECONDS)
+                            .deleteLabelApplicationRule(
+                                this.requestConverter.convertDeleteRequest(request))))
+        .flatMap(
+            unusedResponse -> this.responseConverter.buildDeleteLabelApplicationRuleResponse());
   }
 }

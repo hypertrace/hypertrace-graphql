@@ -6,7 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 
 @GraphQLName(UnaryCondition.TYPE_NAME)
 public interface UnaryCondition {
-  String TYPE_NAME = "UnaryCondition";
+  String TYPE_NAME = "LabelApplicationUnaryCondition";
 
   String OPERATOR_KEY = "operator";
 

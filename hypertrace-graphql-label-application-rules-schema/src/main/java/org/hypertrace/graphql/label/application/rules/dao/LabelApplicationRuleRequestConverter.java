@@ -2,7 +2,10 @@ package org.hypertrace.graphql.label.application.rules.dao;
 
 import java.util.stream.Collectors;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
+import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleDeleteRequest;
+import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleUpdateRequest;
 import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplicationRuleRequest;
+import org.hypertrace.label.application.rule.config.service.v1.DeleteLabelApplicationRuleRequest;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.CompositeCondition;
@@ -10,24 +13,47 @@ import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationR
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.StringCondition;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.UnaryCondition;
+import org.hypertrace.label.application.rule.config.service.v1.UpdateLabelApplicationRuleRequest;
 
 class LabelApplicationRuleRequestConverter {
-  CreateLabelApplicationRuleRequest convertCreationRequest(
+  public CreateLabelApplicationRuleRequest convertCreationRequest(
       LabelApplicationRuleCreateRequest labelApplicationRuleCreateRequest) {
     org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData data =
-        labelApplicationRuleCreateRequest
-            .createLabelApplicationRuleRequest()
-            .labelApplicationRuleData();
+        labelApplicationRuleCreateRequest.labelApplicationRuleData();
     return CreateLabelApplicationRuleRequest.newBuilder()
-        .setData(
-            LabelApplicationRuleData.newBuilder()
-                .setName(data.name())
-                .setMatchingCondition(convertMatchingCondition(data.condition()))
-                .setLabelAction(convertLabelAction(data.action())))
+        .setData(convertLabelApplicationRuleData(data))
         .build();
   }
 
-  Condition convertMatchingCondition(
+  public UpdateLabelApplicationRuleRequest convertUpdateRequest(
+      LabelApplicationRuleUpdateRequest labelApplicationRuleUpdateRequest) {
+    return UpdateLabelApplicationRuleRequest.newBuilder()
+        .setId(labelApplicationRuleUpdateRequest.labelApplicationRule().id())
+        .setData(
+            convertLabelApplicationRuleData(
+                labelApplicationRuleUpdateRequest
+                    .labelApplicationRule()
+                    .labelApplicationRuleData()))
+        .build();
+  }
+
+  public DeleteLabelApplicationRuleRequest convertDeleteRequest(
+      LabelApplicationRuleDeleteRequest labelApplicationRuleDeleteRequest) {
+    return DeleteLabelApplicationRuleRequest.newBuilder()
+        .setId(labelApplicationRuleDeleteRequest.id())
+        .build();
+  }
+
+  private LabelApplicationRuleData convertLabelApplicationRuleData(
+      org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData data) {
+    return LabelApplicationRuleData.newBuilder()
+        .setName(data.name())
+        .setMatchingCondition(convertMatchingCondition(data.condition()))
+        .setLabelAction(convertLabelAction(data.action()))
+        .build();
+  }
+
+  private Condition convertMatchingCondition(
       org.hypertrace.graphql.label.application.rules.schema.shared.Condition condition) {
     switch (condition.conditionType()) {
       case LEAF_CONDITION:
@@ -43,7 +69,7 @@ class LabelApplicationRuleRequestConverter {
     }
   }
 
-  Action convertLabelAction(
+  private Action convertLabelAction(
       org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
     Action.Builder actionBuilder = Action.newBuilder().addAllEntityTypes(action.entityTypes());
 

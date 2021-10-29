@@ -6,8 +6,9 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
-import org.hypertrace.graphql.label.application.rules.schema.mutation.CreateLabelApplicationRule;
-import org.hypertrace.graphql.label.application.rules.schema.mutation.UpdateLabelApplicationRule;
+import org.hypertrace.graphql.label.application.rules.deserialization.LabelApplicationRuleIdArgument;
+import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRule;
+import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
 
 public class LabelApplicationRuleRequestBuilderImpl implements LabelApplicationRuleRequestBuilder {
   private final ArgumentDeserializer argumentDeserializer;
@@ -23,7 +24,7 @@ public class LabelApplicationRuleRequestBuilderImpl implements LabelApplicationR
     return new LabelApplicationRuleCreateRequestImpl(
         requestContext,
         this.argumentDeserializer
-            .deserializeObject(arguments, CreateLabelApplicationRule.class)
+            .deserializeObject(arguments, LabelApplicationRuleData.class)
             .orElseThrow());
   }
 
@@ -33,7 +34,17 @@ public class LabelApplicationRuleRequestBuilderImpl implements LabelApplicationR
     return new LabelApplicationRuleUpdateRequestImpl(
         requestContext,
         this.argumentDeserializer
-            .deserializeObject(arguments, UpdateLabelApplicationRule.class)
+            .deserializeObject(arguments, LabelApplicationRule.class)
+            .orElseThrow());
+  }
+
+  @Override
+  public LabelApplicationRuleDeleteRequest buildDeleteLabelApplicationRuleRequest(
+      GraphQlRequestContext requestContext, Map<String, Object> arguments) {
+    return new LabelApplicationRuleIdArgumentImpl(
+        requestContext,
+        this.argumentDeserializer
+            .deserializePrimitive(arguments, LabelApplicationRuleIdArgument.class)
             .orElseThrow());
   }
 
@@ -42,7 +53,7 @@ public class LabelApplicationRuleRequestBuilderImpl implements LabelApplicationR
   private static class LabelApplicationRuleCreateRequestImpl
       implements LabelApplicationRuleCreateRequest {
     GraphQlRequestContext context;
-    CreateLabelApplicationRule createLabelApplicationRuleRequest;
+    LabelApplicationRuleData labelApplicationRuleData;
   }
 
   @Value
@@ -50,6 +61,14 @@ public class LabelApplicationRuleRequestBuilderImpl implements LabelApplicationR
   private static class LabelApplicationRuleUpdateRequestImpl
       implements LabelApplicationRuleUpdateRequest {
     GraphQlRequestContext context;
-    UpdateLabelApplicationRule updateLabelApplicationRuleRequest;
+    LabelApplicationRule labelApplicationRule;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class LabelApplicationRuleIdArgumentImpl
+      implements LabelApplicationRuleDeleteRequest {
+    GraphQlRequestContext context;
+    String id;
   }
 }

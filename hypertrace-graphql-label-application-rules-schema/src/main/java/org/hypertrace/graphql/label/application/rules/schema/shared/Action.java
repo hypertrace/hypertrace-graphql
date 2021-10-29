@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 @GraphQLName(Action.TYPE_NAME)
 public interface Action {
-  String TYPE_NAME = "Action";
+  String TYPE_NAME = "LabelApplicationAction";
 
   String ENTITY_TYPES_KEY = "entityTypes";
   String OPERATION_KEY = "operation";

@@ -18,6 +18,7 @@ import org.hypertrace.graphql.label.application.rules.schema.shared.UnaryConditi
 import org.hypertrace.graphql.label.application.rules.schema.shared.ValueCondition;
 import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplicationRuleResponse;
 import org.hypertrace.label.application.rule.config.service.v1.GetLabelApplicationRulesResponse;
+import org.hypertrace.label.application.rule.config.service.v1.UpdateLabelApplicationRuleResponse;
 
 class LabelApplicationRuleResponseConverter {
 
@@ -33,6 +34,15 @@ class LabelApplicationRuleResponseConverter {
   Single<LabelApplicationRule> convertCreateLabelApplicationRuleResponse(
       CreateLabelApplicationRuleResponse response) {
     return convertLabelApplicationRule(response.getLabelApplicationRule());
+  }
+
+  Single<LabelApplicationRule> convertUpdateLabelApplicationRuleResponse(
+      UpdateLabelApplicationRuleResponse response) {
+    return convertLabelApplicationRule(response.getLabelApplicationRule());
+  }
+
+  Single<Boolean> buildDeleteLabelApplicationRuleResponse() {
+    return Single.just(true);
   }
 
   Single<LabelApplicationRule> convertLabelApplicationRule(

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
-import org.hypertrace.graphql.label.application.rules.schema.mutation.CreateLabelApplicationRule;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Action;
 import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
@@ -19,24 +18,22 @@ import org.hypertrace.graphql.label.application.rules.schema.shared.StringCondit
 import org.hypertrace.graphql.label.application.rules.schema.shared.UnaryCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.ValueCondition;
 
-public class CreateLabelApplicationRuleDeserializationConfig
+public class LabelApplicationRuleDataDeserializationConfig
     implements ArgumentDeserializationConfig {
   @Override
   public String getArgumentKey() {
-    return CreateLabelApplicationRule.ARGUMENT_NAME;
+    return LabelApplicationRuleData.ARGUMENT_NAME;
   }
 
   @Override
   public Class<?> getArgumentSchema() {
-    return CreateLabelApplicationRule.class;
+    return LabelApplicationRuleData.class;
   }
 
   @Override
   public List<Module> jacksonModules() {
     return List.of(
         new SimpleModule()
-            .addAbstractTypeMapping(
-                CreateLabelApplicationRule.class, CreateLabelApplicationRuleArgument.class)
             .addAbstractTypeMapping(
                 LabelApplicationRuleData.class, LabelApplicationRuleDataArgument.class)
             .addAbstractTypeMapping(Action.class, ActionArgument.class)
@@ -46,14 +43,6 @@ public class CreateLabelApplicationRuleDeserializationConfig
             .addAbstractTypeMapping(CompositeCondition.class, CompositeConditionArgument.class)
             .addAbstractTypeMapping(StringCondition.class, StringConditionArgument.class)
             .addAbstractTypeMapping(UnaryCondition.class, UnaryConditionArgument.class));
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  @NoArgsConstructor(force = true)
-  private static class CreateLabelApplicationRuleArgument implements CreateLabelApplicationRule {
-    @JsonProperty(LABEL_APPLICATION_RULE_DATA)
-    LabelApplicationRuleData labelApplicationRuleData;
   }
 
   @Value

@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 @GraphQLName(ValueCondition.TYPE_NAME)
 public interface ValueCondition {
-  String TYPE_NAME = "ValueCondition";
+  String TYPE_NAME = "LabelApplicationValueCondition";
 
   String STRING_CONDITION_KEY = "stringCondition";
   String UNARY_CONDITION_KEY = "unaryCondition";

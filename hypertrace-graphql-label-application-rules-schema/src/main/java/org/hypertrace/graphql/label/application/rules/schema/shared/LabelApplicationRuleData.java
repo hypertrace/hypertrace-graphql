@@ -7,6 +7,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 @GraphQLName(LabelApplicationRuleData.TYPE_NAME)
 public interface LabelApplicationRuleData {
   String TYPE_NAME = "LabelApplicationRuleData";
+  String ARGUMENT_NAME = "labelApplicationRuleData";
 
   String NAME_KEY = "name";
   String CONDITION_KEY = "condition";

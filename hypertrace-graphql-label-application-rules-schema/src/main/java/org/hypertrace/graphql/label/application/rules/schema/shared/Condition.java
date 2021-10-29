@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 @GraphQLName(Condition.TYPE_NAME)
 public interface Condition {
-  String TYPE_NAME = "Condition";
+  String TYPE_NAME = "LabelApplicationCondition";
 
   String LEAF_CONDITION_KEY = "leafCondition";
   String COMPOSITE_CONDITION_KEY = "compositeCondition";

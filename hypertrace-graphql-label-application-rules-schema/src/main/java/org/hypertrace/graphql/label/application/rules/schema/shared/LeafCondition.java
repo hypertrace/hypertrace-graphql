@@ -6,7 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 
 @GraphQLName(LeafCondition.TYPE_NAME)
 public interface LeafCondition {
-  String TYPE_NAME = "LeafCondition";
+  String TYPE_NAME = "LabelApplicationLeafCondition";
 
   String KEY_CONDITION_KEY = "keyCondition";
   String VALUE_CONDITION_KEY = "valueCondition";

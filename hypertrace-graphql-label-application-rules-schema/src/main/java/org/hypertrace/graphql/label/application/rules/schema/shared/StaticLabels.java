@@ -7,7 +7,7 @@ import java.util.List;
 
 @GraphQLName(StaticLabels.TYPE_NAME)
 public interface StaticLabels {
-  String TYPE_NAME = "StaticLabels";
+  String TYPE_NAME = "LabelApplicationStaticLabels";
 
   String IDS_KEY = "ids";
 

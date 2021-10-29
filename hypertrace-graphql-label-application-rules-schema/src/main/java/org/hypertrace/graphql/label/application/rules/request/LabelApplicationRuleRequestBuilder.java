@@ -9,4 +9,7 @@ public interface LabelApplicationRuleRequestBuilder {
 
   LabelApplicationRuleUpdateRequest buildUpdateLabelApplicationRuleRequest(
       GraphQlRequestContext requestContext, Map<String, Object> arguments);
+
+  LabelApplicationRuleDeleteRequest buildDeleteLabelApplicationRuleRequest(
+      GraphQlRequestContext requestContext, Map<String, Object> arguments);
 }
