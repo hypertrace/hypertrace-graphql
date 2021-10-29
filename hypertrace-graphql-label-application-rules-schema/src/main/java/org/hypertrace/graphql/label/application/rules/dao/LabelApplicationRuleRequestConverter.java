@@ -69,8 +69,10 @@ class LabelApplicationRuleRequestConverter {
     }
   }
 
-  private void setOperationInAction(org.hypertrace.graphql.label.application.rules.schema.shared.Action action, Action.Builder actionBuilder){
-    switch(action.operation()){
+  private void setOperationInAction(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Action action,
+      Action.Builder actionBuilder) {
+    switch (action.operation()) {
       case OPERATION_MERGE:
         actionBuilder.setOperation(Action.Operation.OPERATION_MERGE);
         return;
@@ -79,12 +81,13 @@ class LabelApplicationRuleRequestConverter {
     }
   }
 
-  private void setLabelsInAction(org.hypertrace.graphql.label.application.rules.schema.shared.Action action, Action.Builder actionBuilder){
+  private void setLabelsInAction(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Action action,
+      Action.Builder actionBuilder) {
     switch (action.valueType()) {
       case STATIC_LABELS:
-        actionBuilder
-                .setStaticLabels(
-                        Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build());
+        actionBuilder.setStaticLabels(
+            Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build());
         return;
       case DYNAMIC_LABEL_KEY:
         actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
