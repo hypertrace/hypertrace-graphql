@@ -9,7 +9,6 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Action;
-import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LeafCondition;
@@ -41,7 +40,6 @@ public class LabelApplicationRuleDataDeserializationConfig
             .addAbstractTypeMapping(Condition.class, ConditionArgument.class)
             .addAbstractTypeMapping(LeafCondition.class, LeafConditionArgument.class)
             .addAbstractTypeMapping(ValueCondition.class, ValueConditionArgument.class)
-            .addAbstractTypeMapping(CompositeCondition.class, CompositeConditionArgument.class)
             .addAbstractTypeMapping(StringCondition.class, StringConditionArgument.class)
             .addAbstractTypeMapping(UnaryCondition.class, UnaryConditionArgument.class));
   }
@@ -53,8 +51,8 @@ public class LabelApplicationRuleDataDeserializationConfig
     @JsonProperty(NAME_KEY)
     String name;
 
-    @JsonProperty(CONDITION_KEY)
-    Condition condition;
+    @JsonProperty(CONDITION_LIST_KEY)
+    List<Condition> conditionList;
 
     @JsonProperty(ACTION_KEY)
     Action action;
@@ -94,12 +92,6 @@ public class LabelApplicationRuleDataDeserializationConfig
   private static class ConditionArgument implements Condition {
     @JsonProperty(LEAF_CONDITION_KEY)
     LeafCondition leafCondition;
-
-    @JsonProperty(COMPOSITE_CONDITION_KEY)
-    CompositeCondition compositeCondition;
-
-    @JsonProperty(CONDITION_TYPE_KEY)
-    ConditionType conditionType;
   }
 
   @Value
@@ -125,17 +117,6 @@ public class LabelApplicationRuleDataDeserializationConfig
 
     @JsonProperty(VALUE_CONDITION_TYPE_KEY)
     ValueConditionType valueConditionType;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  @NoArgsConstructor(force = true)
-  private static class CompositeConditionArgument implements CompositeCondition {
-    @JsonProperty(LOGICAL_OPERATOR_KEY)
-    LogicalOperator operator;
-
-    @JsonProperty(CHILDREN_KEY)
-    List<LeafCondition> children;
   }
 
   @Value

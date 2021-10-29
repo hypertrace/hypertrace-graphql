@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.label.application.rules.dao;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleDeleteRequest;
@@ -48,25 +49,9 @@ class LabelApplicationRuleRequestConverter {
       org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData data) {
     return LabelApplicationRuleData.newBuilder()
         .setName(data.name())
-        .setMatchingCondition(convertMatchingCondition(data.condition()))
+        .setMatchingCondition(convertConditionList(data.conditionList()))
         .setLabelAction(convertLabelAction(data.action()))
         .build();
-  }
-
-  private Condition convertMatchingCondition(
-      org.hypertrace.graphql.label.application.rules.schema.shared.Condition condition) {
-    switch (condition.conditionType()) {
-      case LEAF_CONDITION:
-        return Condition.newBuilder()
-            .setLeafCondition(convertLeafCondition(condition.leafCondition()))
-            .build();
-      case COMPOSITE_CONDITION:
-        return Condition.newBuilder()
-            .setCompositeCondition(convertCompositeCondition(condition.compositeCondition()))
-            .build();
-      default:
-        throw new IllegalArgumentException("Error when parsing matching condition");
-    }
   }
 
   private void setOperationInAction(
@@ -105,30 +90,27 @@ class LabelApplicationRuleRequestConverter {
     return actionBuilder.build();
   }
 
-  CompositeCondition convertCompositeCondition(
-      org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition
-          compositeCondition) {
-    CompositeCondition.Builder compositeConditionBuilder =
-        CompositeCondition.newBuilder()
-            .addAllChildren(
-                compositeCondition.children().stream()
-                    .map(this::convertLeafCondition)
-                    .map(
-                        leafCondition ->
-                            Condition.newBuilder().setLeafCondition(leafCondition).build())
-                    .collect(Collectors.toList()));
-    switch (compositeCondition.operator()) {
-      case LOGICAL_OPERATOR_AND:
-        return compositeConditionBuilder
-            .setOperator(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_AND)
-            .build();
-      case LOGICAL_OPERATOR_OR:
-        return compositeConditionBuilder
-            .setOperator(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_OR)
-            .build();
-      default:
-        throw new IllegalArgumentException("Composite Condition Conversion Failed");
+  Condition convertConditionList(
+      List<org.hypertrace.graphql.label.application.rules.schema.shared.Condition> conditionList) {
+    if (conditionList.size() == 1) {
+      return convertCondition(conditionList.get(0));
+    } else {
+      List<Condition> childConditions =
+          conditionList.stream().map(this::convertCondition).collect(Collectors.toList());
+
+      CompositeCondition compositeCondition =
+          CompositeCondition.newBuilder()
+              .addAllChildren(childConditions)
+              .setOperator(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_AND)
+              .build();
+      return Condition.newBuilder().setCompositeCondition(compositeCondition).build();
     }
+  }
+
+  Condition convertCondition(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Condition condition) {
+    LeafCondition leafCondition = convertLeafCondition(condition.leafCondition());
+    return Condition.newBuilder().setLeafCondition(leafCondition).build();
   }
 
   LeafCondition convertLeafCondition(

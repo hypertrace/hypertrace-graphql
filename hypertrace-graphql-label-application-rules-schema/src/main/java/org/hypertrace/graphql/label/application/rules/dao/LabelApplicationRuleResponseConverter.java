@@ -2,6 +2,7 @@ package org.hypertrace.graphql.label.application.rules.dao;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,7 +11,6 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.graphql.label.application.rules.schema.query.LabelApplicationRuleResultSet;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Action;
-import org.hypertrace.graphql.label.application.rules.schema.shared.CompositeCondition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.Condition;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRule;
 import org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData;
@@ -76,12 +76,12 @@ class LabelApplicationRuleResponseConverter {
   private Optional<LabelApplicationRuleData> convertLabelApplicationRuleData(
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData data) {
     Optional<Action> action = convertAction(data.getLabelAction());
-    Optional<Condition> condition = convertCondition(data.getMatchingCondition());
-    if (condition.isEmpty() || action.isEmpty()) {
+    List<Condition> conditionList = convertCondition(data.getMatchingCondition());
+    if (conditionList.isEmpty() || action.isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(
-        new ConvertedLabelApplicationRuleData(data.getName(), condition.get(), action.get()));
+        new ConvertedLabelApplicationRuleData(data.getName(), conditionList, action.get()));
   }
 
   private Optional<Action.Operation> convertOperationInAction(
@@ -131,46 +131,38 @@ class LabelApplicationRuleResponseConverter {
     return new ConvertedStaticLabels(staticLabels.getIdsList());
   }
 
-  private Optional<Condition> convertCondition(
+  private List<Condition> convertCondition(
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition
           condition) {
     switch (condition.getConditionCase()) {
       case LEAF_CONDITION:
-        Optional<LeafCondition> leafCondition = convertLeafCondition(condition.getLeafCondition());
-        return leafCondition.map(
-            leafCond ->
-                new ConvertedCondition(leafCond, null, Condition.ConditionType.LEAF_CONDITION));
+        Optional<Condition> convertedCondition =
+            convertLeafCondition(condition.getLeafCondition()).map(ConvertedCondition::new);
+        return convertedCondition.map(List::of).orElse(Collections.emptyList());
       case COMPOSITE_CONDITION:
-        Optional<CompositeCondition> compositeCondition =
-            convertCompositeCondition(condition.getCompositeCondition());
-        return compositeCondition.map(
-            compositeCond ->
-                new ConvertedCondition(
-                    null, compositeCond, Condition.ConditionType.COMPOSITE_CONDITION));
+        return convertCompositeCondition(condition.getCompositeCondition());
       default:
         log.error("Unrecognized Condition Type {}", condition.getConditionCase().name());
-        return Optional.empty();
+        return Collections.emptyList();
     }
   }
 
-  private Optional<CompositeCondition> convertCompositeCondition(
+  private List<Condition> convertCompositeCondition(
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
               .CompositeCondition
           compositeCondition) {
-    List<LeafCondition> leafConditionList =
+    List<Condition> leafConditionList =
         compositeCondition.getChildrenList().stream()
             .filter(this::isLeafCondition)
             .map(condition -> convertLeafCondition(condition.getLeafCondition()))
             .filter(Optional::isPresent)
             .map(Optional::get)
+            .map(ConvertedCondition::new)
             .collect(Collectors.toList());
     if (leafConditionList.size() != compositeCondition.getChildrenList().size()) {
-      return Optional.empty();
+      return Collections.emptyList();
     }
-    Optional<CompositeCondition.LogicalOperator> logicalOperator =
-        convertLogicalOperator(compositeCondition);
-    return logicalOperator.map(
-        operator -> new ConvertedCompositeCondition(operator, leafConditionList));
+    return leafConditionList;
   }
 
   private boolean isLeafCondition(
@@ -182,21 +174,6 @@ class LabelApplicationRuleResponseConverter {
       case COMPOSITE_CONDITION:
       default:
         return false;
-    }
-  }
-
-  private Optional<CompositeCondition.LogicalOperator> convertLogicalOperator(
-      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-              .CompositeCondition
-          compositeCondition) {
-    switch (compositeCondition.getOperator()) {
-      case LOGICAL_OPERATOR_AND:
-        return Optional.of(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_AND);
-      case LOGICAL_OPERATOR_OR:
-        return Optional.of(CompositeCondition.LogicalOperator.LOGICAL_OPERATOR_OR);
-      default:
-        log.error("Unrecognized Logical Operator in Composite Condition");
-        return Optional.empty();
     }
   }
 
@@ -288,7 +265,7 @@ class LabelApplicationRuleResponseConverter {
   @Accessors(fluent = true)
   private static class ConvertedLabelApplicationRuleData implements LabelApplicationRuleData {
     String name;
-    Condition condition;
+    List<Condition> conditionList;
     Action action;
   }
 
@@ -312,15 +289,6 @@ class LabelApplicationRuleResponseConverter {
   @Accessors(fluent = true)
   private static class ConvertedCondition implements Condition {
     LeafCondition leafCondition;
-    CompositeCondition compositeCondition;
-    ConditionType conditionType;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  private static class ConvertedCompositeCondition implements CompositeCondition {
-    LogicalOperator operator;
-    List<LeafCondition> children;
   }
 
   @Value

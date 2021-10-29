@@ -3,6 +3,7 @@ package org.hypertrace.graphql.label.application.rules.schema.shared;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import java.util.List;
 
 @GraphQLName(LabelApplicationRuleData.TYPE_NAME)
 public interface LabelApplicationRuleData {
@@ -10,7 +11,7 @@ public interface LabelApplicationRuleData {
   String ARGUMENT_NAME = "labelApplicationRuleData";
 
   String NAME_KEY = "name";
-  String CONDITION_KEY = "condition";
+  String CONDITION_LIST_KEY = "conditionList";
   String ACTION_KEY = "action";
 
   @GraphQLField
@@ -20,8 +21,8 @@ public interface LabelApplicationRuleData {
 
   @GraphQLField
   @GraphQLNonNull
-  @GraphQLName(CONDITION_KEY)
-  Condition condition();
+  @GraphQLName(CONDITION_LIST_KEY)
+  List<Condition> conditionList();
 
   @GraphQLField
   @GraphQLNonNull
