@@ -6,7 +6,7 @@ import java.util.List;
 public class MetricArguments {
 
   public static List<Object> avgRateWithPeriod(Duration period) {
-    return List.of(period.toSeconds());
+    return List.of(period.toString());
   }
 
   public static List<Object> percentileWithSize(int size) {
