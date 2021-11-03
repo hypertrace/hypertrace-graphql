@@ -54,7 +54,8 @@ class LabelApplicationRuleRequestConverter {
         .build();
   }
 
-  private Action.Operation getOperationFromAction(org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
+  private Action.Operation getOperationFromAction(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
     switch (action.operation()) {
       case OPERATION_MERGE:
         return Action.Operation.OPERATION_MERGE;
@@ -67,17 +68,15 @@ class LabelApplicationRuleRequestConverter {
       org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
     Action.Operation operation = getOperationFromAction(action);
     Action.Builder actionBuilder =
-            Action.newBuilder()
-                    .setOperation(operation)
-                    .addAllEntityTypes(action.entityTypes());
+        Action.newBuilder().setOperation(operation).addAllEntityTypes(action.entityTypes());
     switch (action.valueType()) {
       case STATIC_LABELS:
-        return actionBuilder.setStaticLabels(
+        return actionBuilder
+            .setStaticLabels(
                 Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build())
-                .build();
+            .build();
       case DYNAMIC_LABEL_KEY:
-        return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey())
-                .build();
+        return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
       default:
         throw new IllegalArgumentException("Unsupported action value");
     }

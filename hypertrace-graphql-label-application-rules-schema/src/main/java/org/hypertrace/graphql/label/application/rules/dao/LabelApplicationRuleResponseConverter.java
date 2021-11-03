@@ -30,8 +30,10 @@ class LabelApplicationRuleResponseConverter {
       CreateLabelApplicationRuleResponse response) {
     Optional<LabelApplicationRule> labelApplicationRule =
         convertLabelApplicationRule(response.getLabelApplicationRule());
-    return labelApplicationRule.map(Single::just)
-            .orElse(Single.error(new IllegalArgumentException("Unable to convert rule create response")));
+    return labelApplicationRule
+        .map(Single::just)
+        .orElse(
+            Single.error(new IllegalArgumentException("Unable to convert rule create response")));
   }
 
   Single<LabelApplicationRuleResultSet> convertGetLabelApplicationsRuleResponse(
@@ -47,8 +49,10 @@ class LabelApplicationRuleResponseConverter {
       UpdateLabelApplicationRuleResponse response) {
     Optional<LabelApplicationRule> labelApplicationRule =
         convertLabelApplicationRule(response.getLabelApplicationRule());
-    return labelApplicationRule.map(Single::just)
-            .orElse(Single.error(new IllegalArgumentException("Unable to convert rule update response")));
+    return labelApplicationRule
+        .map(Single::just)
+        .orElse(
+            Single.error(new IllegalArgumentException("Unable to convert rule update response")));
   }
 
   Single<Boolean> buildDeleteLabelApplicationRuleResponse() {
@@ -68,7 +72,9 @@ class LabelApplicationRuleResponseConverter {
     if (conditionList.isEmpty()) {
       return Optional.empty();
     }
-    return action.map(labelAction -> new ConvertedLabelApplicationRuleData(data.getName(), conditionList, labelAction));
+    return action.map(
+        labelAction ->
+            new ConvertedLabelApplicationRuleData(data.getName(), conditionList, labelAction));
   }
 
   private Optional<Action.Operation> convertOperationInAction(
@@ -91,15 +97,19 @@ class LabelApplicationRuleResponseConverter {
     switch (action.getValueCase()) {
       case STATIC_LABELS:
         StaticLabels staticLabels = convertStaticLabels(action.getStaticLabels());
-        return operation.map(op ->
-                new ConvertedAction(entityTypes, op, staticLabels, null, Action.ValueType.STATIC_LABELS));
+        return operation.map(
+            op ->
+                new ConvertedAction(
+                    entityTypes, op, staticLabels, null, Action.ValueType.STATIC_LABELS));
       case DYNAMIC_LABEL_KEY:
-        return operation.map(op -> new ConvertedAction(
-                entityTypes,
-                op,
-                null,
-                action.getDynamicLabelKey(),
-                Action.ValueType.STATIC_LABELS));
+        return operation.map(
+            op ->
+                new ConvertedAction(
+                    entityTypes,
+                    op,
+                    null,
+                    action.getDynamicLabelKey(),
+                    Action.ValueType.STATIC_LABELS));
       default:
         log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
         return Optional.empty();
@@ -167,7 +177,8 @@ class LabelApplicationRuleResponseConverter {
     if (keyCondition.isEmpty() || valueCondition.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(new ConvertedLeafCondition(keyCondition.orElseThrow(), valueCondition.orElseThrow()));
+    return Optional.of(
+        new ConvertedLeafCondition(keyCondition.orElseThrow(), valueCondition.orElseThrow()));
   }
 
   private Optional<ValueCondition> convertValueCondition(
