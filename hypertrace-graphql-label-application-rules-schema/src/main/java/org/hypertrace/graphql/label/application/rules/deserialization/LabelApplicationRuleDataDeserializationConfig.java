@@ -75,7 +75,7 @@ public class LabelApplicationRuleDataDeserializationConfig
     String dynamicLabelKey;
 
     @JsonProperty(VALUE_TYPE_KEY)
-    ValueType valueType;
+    LabelApplicationActionType labelApplicationActionType;
   }
 
   @Value

@@ -100,7 +100,11 @@ class LabelApplicationRuleResponseConverter {
         return operation.map(
             op ->
                 new ConvertedAction(
-                    entityTypes, op, staticLabels, null, Action.ValueType.STATIC_LABELS));
+                    entityTypes,
+                    op,
+                    staticLabels,
+                    null,
+                    Action.LabelApplicationActionType.STATIC_LABELS));
       case DYNAMIC_LABEL_KEY:
         return operation.map(
             op ->
@@ -109,7 +113,7 @@ class LabelApplicationRuleResponseConverter {
                     op,
                     null,
                     action.getDynamicLabelKey(),
-                    Action.ValueType.STATIC_LABELS));
+                    Action.LabelApplicationActionType.STATIC_LABELS));
       default:
         log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
         return Optional.empty();
@@ -268,7 +272,7 @@ class LabelApplicationRuleResponseConverter {
     Operation operation;
     StaticLabels staticLabels;
     String dynamicLabelKey;
-    ValueType valueType;
+    LabelApplicationActionType labelApplicationActionType;
   }
 
   @Value
