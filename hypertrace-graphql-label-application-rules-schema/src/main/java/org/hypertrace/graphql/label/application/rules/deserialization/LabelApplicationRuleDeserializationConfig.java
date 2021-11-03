@@ -86,7 +86,7 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
     @JsonProperty(DYNAMIC_LABEL_KEY_KEY)
     String dynamicLabelKey;
 
-    @JsonProperty(VALUE_TYPE_KEY)
+    @JsonProperty(LABEL_APPLICATION_ACTION_TYPE)
     LabelApplicationActionType labelApplicationActionType;
   }
 

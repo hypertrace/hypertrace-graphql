@@ -14,7 +14,7 @@ public interface Action {
   String OPERATION_KEY = "operation";
   String STATIC_LABELS = "staticLabels";
   String DYNAMIC_LABEL_KEY_KEY = "dynamicLabelKey";
-  String VALUE_TYPE_KEY = "actionType";
+  String LABEL_APPLICATION_ACTION_TYPE = "actionType";
 
   @GraphQLName(Operation.TYPE_NAME)
   enum Operation {
@@ -51,6 +51,6 @@ public interface Action {
 
   @GraphQLField
   @GraphQLNonNull
-  @GraphQLName(VALUE_TYPE_KEY)
+  @GraphQLName(LABEL_APPLICATION_ACTION_TYPE)
   LabelApplicationActionType labelApplicationActionType();
 }
