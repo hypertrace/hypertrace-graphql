@@ -14,19 +14,19 @@ public interface Action {
   String OPERATION_KEY = "operation";
   String STATIC_LABELS = "staticLabels";
   String DYNAMIC_LABEL_KEY_KEY = "dynamicLabelKey";
-  String VALUE_TYPE_KEY = "valueType";
+  String VALUE_TYPE_KEY = "actionType";
 
   @GraphQLName(Operation.TYPE_NAME)
   enum Operation {
     OPERATION_MERGE;
-    private static final String TYPE_NAME = "ActionOperator";
+    private static final String TYPE_NAME = "LabelApplicationActionOperator";
   }
 
   @GraphQLName(ValueType.TYPE_NAME)
   enum ValueType {
     STATIC_LABELS,
     DYNAMIC_LABEL_KEY;
-    private static final String TYPE_NAME = "ValueType";
+    private static final String TYPE_NAME = "LabelApplicationValueType";
   }
 
   @GraphQLField

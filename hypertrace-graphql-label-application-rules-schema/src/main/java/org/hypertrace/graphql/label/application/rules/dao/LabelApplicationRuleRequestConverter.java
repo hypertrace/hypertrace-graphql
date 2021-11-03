@@ -54,40 +54,33 @@ class LabelApplicationRuleRequestConverter {
         .build();
   }
 
-  private void setOperationInAction(
-      org.hypertrace.graphql.label.application.rules.schema.shared.Action action,
-      Action.Builder actionBuilder) {
+  private Action.Operation getOperationFromAction(org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
     switch (action.operation()) {
       case OPERATION_MERGE:
-        actionBuilder.setOperation(Action.Operation.OPERATION_MERGE);
-        return;
+        return Action.Operation.OPERATION_MERGE;
       default:
         throw new IllegalArgumentException("Unsupported Operation");
     }
   }
 
-  private void setLabelsInAction(
-      org.hypertrace.graphql.label.application.rules.schema.shared.Action action,
-      Action.Builder actionBuilder) {
+  private Action convertLabelAction(
+      org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
+    Action.Operation operation = getOperationFromAction(action);
+    Action.Builder actionBuilder =
+            Action.newBuilder()
+                    .setOperation(operation)
+                    .addAllEntityTypes(action.entityTypes());
     switch (action.valueType()) {
       case STATIC_LABELS:
-        actionBuilder.setStaticLabels(
-            Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build());
-        return;
+        return actionBuilder.setStaticLabels(
+                Action.StaticLabels.newBuilder().addAllIds(action.staticLabels().ids()).build())
+                .build();
       case DYNAMIC_LABEL_KEY:
-        actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
-        return;
+        return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey())
+                .build();
       default:
         throw new IllegalArgumentException("Unsupported action value");
     }
-  }
-
-  private Action convertLabelAction(
-      org.hypertrace.graphql.label.application.rules.schema.shared.Action action) {
-    Action.Builder actionBuilder = Action.newBuilder().addAllEntityTypes(action.entityTypes());
-    setOperationInAction(action, actionBuilder);
-    setLabelsInAction(action, actionBuilder);
-    return actionBuilder.build();
   }
 
   Condition convertConditionList(

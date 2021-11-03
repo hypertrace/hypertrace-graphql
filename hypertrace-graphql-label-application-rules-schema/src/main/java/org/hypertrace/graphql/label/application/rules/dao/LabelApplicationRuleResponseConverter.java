@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.label.application.rules.dao;
 
+import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collections;
@@ -27,40 +28,27 @@ import org.hypertrace.label.application.rule.config.service.v1.UpdateLabelApplic
 class LabelApplicationRuleResponseConverter {
   Single<LabelApplicationRule> convertCreateLabelApplicationRuleResponse(
       CreateLabelApplicationRuleResponse response) {
-    Optional<LabelApplicationRule> rule =
+    Optional<LabelApplicationRule> labelApplicationRule =
         convertLabelApplicationRule(response.getLabelApplicationRule());
-    if (rule.isPresent()) {
-      return Single.just(rule.get());
-    } else {
-      return Single.error(new IllegalArgumentException("Unable to convert rule create response"));
-    }
+    return labelApplicationRule.map(Single::just)
+            .orElse(Single.error(new IllegalArgumentException("Unable to convert rule create response")));
   }
 
   Single<LabelApplicationRuleResultSet> convertGetLabelApplicationsRuleResponse(
       GetLabelApplicationRulesResponse response) {
     return Observable.fromIterable(response.getLabelApplicationRulesList())
         .map(this::convertLabelApplicationRule)
-        .flatMapSingle(
-            convertedRule -> {
-              if (convertedRule.isEmpty()) {
-                return Single.error(
-                    new IllegalArgumentException("Unable to convert a rule in get all response"));
-              }
-              return Single.just(convertedRule.get());
-            })
+        .flatMapMaybe(Maybe::fromOptional)
         .toList()
         .map(ConvertedLabelApplicationRuleResultSet::forRuleList);
   }
 
   Single<LabelApplicationRule> convertUpdateLabelApplicationRuleResponse(
       UpdateLabelApplicationRuleResponse response) {
-    Optional<LabelApplicationRule> rule =
+    Optional<LabelApplicationRule> labelApplicationRule =
         convertLabelApplicationRule(response.getLabelApplicationRule());
-    if (rule.isPresent()) {
-      return Single.just(rule.get());
-    } else {
-      return Single.error(new IllegalArgumentException("Unable to convert rule update response"));
-    }
+    return labelApplicationRule.map(Single::just)
+            .orElse(Single.error(new IllegalArgumentException("Unable to convert rule update response")));
   }
 
   Single<Boolean> buildDeleteLabelApplicationRuleResponse() {
@@ -77,11 +65,10 @@ class LabelApplicationRuleResponseConverter {
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData data) {
     Optional<Action> action = convertAction(data.getLabelAction());
     List<Condition> conditionList = convertCondition(data.getMatchingCondition());
-    if (conditionList.isEmpty() || action.isEmpty()) {
+    if (conditionList.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(
-        new ConvertedLabelApplicationRuleData(data.getName(), conditionList, action.get()));
+    return action.map(labelAction -> new ConvertedLabelApplicationRuleData(data.getName(), conditionList, labelAction));
   }
 
   private Optional<Action.Operation> convertOperationInAction(
@@ -101,20 +88,15 @@ class LabelApplicationRuleResponseConverter {
           action) {
     List<String> entityTypes = action.getEntityTypesList();
     Optional<Action.Operation> operation = convertOperationInAction(action);
-    if (operation.isEmpty()) {
-      return Optional.empty();
-    }
     switch (action.getValueCase()) {
       case STATIC_LABELS:
         StaticLabels staticLabels = convertStaticLabels(action.getStaticLabels());
-        return Optional.of(
-            new ConvertedAction(
-                entityTypes, operation.get(), staticLabels, null, Action.ValueType.STATIC_LABELS));
+        return operation.map(op ->
+                new ConvertedAction(entityTypes, op, staticLabels, null, Action.ValueType.STATIC_LABELS));
       case DYNAMIC_LABEL_KEY:
-        return Optional.of(
-            new ConvertedAction(
+        return operation.map(op -> new ConvertedAction(
                 entityTypes,
-                operation.get(),
+                op,
                 null,
                 action.getDynamicLabelKey(),
                 Action.ValueType.STATIC_LABELS));
@@ -155,8 +137,7 @@ class LabelApplicationRuleResponseConverter {
         compositeCondition.getChildrenList().stream()
             .filter(this::isLeafCondition)
             .map(condition -> convertLeafCondition(condition.getLeafCondition()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+            .flatMap(Optional::stream)
             .map(ConvertedCondition::new)
             .collect(Collectors.toList());
     if (leafConditionList.size() != compositeCondition.getChildrenList().size()) {
@@ -186,7 +167,7 @@ class LabelApplicationRuleResponseConverter {
     if (keyCondition.isEmpty() || valueCondition.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(new ConvertedLeafCondition(keyCondition.get(), valueCondition.get()));
+    return Optional.of(new ConvertedLeafCondition(keyCondition.orElseThrow(), valueCondition.orElseThrow()));
   }
 
   private Optional<ValueCondition> convertValueCondition(

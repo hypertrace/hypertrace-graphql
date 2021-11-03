@@ -49,7 +49,7 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
   private static class LabelApplicationRuleArgument implements LabelApplicationRule {
-    @JsonProperty(ID_KEY)
+    @JsonProperty(IDENTITY_FIELD_NAME)
     String id;
 
     @JsonProperty(LABEL_APPLICATION_RULE_DATA_KEY)
