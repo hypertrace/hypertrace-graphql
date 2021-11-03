@@ -69,7 +69,7 @@ class LabelApplicationRuleRequestConverter {
     Action.Operation operation = getOperationFromAction(action);
     Action.Builder actionBuilder =
         Action.newBuilder().setOperation(operation).addAllEntityTypes(action.entityTypes());
-    switch (action.labelApplicationActionType()) {
+    switch (action.type()) {
       case STATIC_LABELS:
         return actionBuilder
             .setStaticLabels(

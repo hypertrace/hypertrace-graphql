@@ -14,7 +14,7 @@ public interface Action {
   String OPERATION_KEY = "operation";
   String STATIC_LABELS = "staticLabels";
   String DYNAMIC_LABEL_KEY_KEY = "dynamicLabelKey";
-  String LABEL_APPLICATION_ACTION_TYPE = "actionType";
+  String ACTION_TYPE_KEY = "type";
 
   @GraphQLName(Operation.TYPE_NAME)
   enum Operation {
@@ -22,11 +22,11 @@ public interface Action {
     private static final String TYPE_NAME = "LabelApplicationActionOperator";
   }
 
-  @GraphQLName(LabelApplicationActionType.TYPE_NAME)
-  enum LabelApplicationActionType {
+  @GraphQLName(ActionType.TYPE_NAME)
+  enum ActionType {
     STATIC_LABELS,
     DYNAMIC_LABEL_KEY;
-    private static final String TYPE_NAME = "LabelApplicationValueType";
+    private static final String TYPE_NAME = "LabelApplicationActionType";
   }
 
   @GraphQLField
@@ -51,6 +51,6 @@ public interface Action {
 
   @GraphQLField
   @GraphQLNonNull
-  @GraphQLName(LABEL_APPLICATION_ACTION_TYPE)
-  LabelApplicationActionType labelApplicationActionType();
+  @GraphQLName(ACTION_TYPE_KEY)
+  ActionType type();
 }

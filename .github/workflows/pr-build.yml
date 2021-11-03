@@ -20,6 +20,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: Ensure submodules point to commit from main branch
+        run: git submodule foreach --recursive "git merge-base --is-ancestor HEAD origin/main"
+
       - name: create checksum file
         uses: hypertrace/github-actions/checksum@main
 
@@ -72,7 +75,7 @@ jobs:
       - name: Setup snyk
         uses: snyk/actions/setup@0.3.0
       - name: Snyk test
-        run: snyk test --all-sub-projects --org=hypertrace --severity-threshold=low --policy-path=.snyk
+        run: snyk test --all-sub-projects --org=hypertrace --severity-threshold=low --policy-path=.snyk --remote-repo-url='${{ github.server_url }}/${{ github.repository }}.git'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           GRADLE_OPTS: -Dorg.gradle.workers.max=1 # Snyk doesn't handle parallelism
