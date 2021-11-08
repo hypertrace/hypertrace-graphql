@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.hypertrace.graphql.label.schema.LabelResultSet;
+import org.hypertrace.graphql.label.schema.query.LabelResultSet;
 
 public interface LabelJoiner {
 

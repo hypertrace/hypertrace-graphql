@@ -27,7 +27,7 @@ import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.label.joiner.LabelJoiner;
 import org.hypertrace.graphql.label.joiner.LabelJoinerBuilder;
-import org.hypertrace.graphql.label.schema.LabelResultSet;
+import org.hypertrace.graphql.label.schema.query.LabelResultSet;
 
 @Slf4j
 @Singleton

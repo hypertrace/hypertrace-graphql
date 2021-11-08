@@ -1,4 +1,4 @@
-package org.hypertrace.graphql.label.schema;
+package org.hypertrace.graphql.label.schema.query;
 
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
