@@ -6,7 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.graphql.label.mutator.LabelCreateMutator;
 import org.hypertrace.graphql.label.mutator.LabelUpdateMutator;
-import org.hypertrace.graphql.label.schema.Label;
+import org.hypertrace.graphql.label.schema.query.Label;
 
 public interface LabelMutationSchema {
   String CREATE_LABEL = "createLabel";
@@ -22,5 +22,5 @@ public interface LabelMutationSchema {
   @GraphQLNonNull
   @GraphQLName(UPDATE_LABEL)
   @GraphQLDataFetcher(LabelUpdateMutator.class)
-  Label updateLabel(@GraphQLNonNull @GraphQLName(Label.ARGUMENT_NAME) Label label);
+  Label updateLabel(@GraphQLNonNull @GraphQLName(UpdateLabel.ARGUMENT_NAME) UpdateLabel label);
 }

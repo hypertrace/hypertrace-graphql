@@ -48,7 +48,7 @@ import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
-import org.hypertrace.graphql.label.schema.LabelResultSet;
+import org.hypertrace.graphql.label.schema.query.LabelResultSet;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

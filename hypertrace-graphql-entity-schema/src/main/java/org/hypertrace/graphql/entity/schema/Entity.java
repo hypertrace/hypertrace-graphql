@@ -8,7 +8,7 @@ import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.core.graphql.common.schema.type.Typed;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
-import org.hypertrace.graphql.label.schema.LabelResultSet;
+import org.hypertrace.graphql.label.schema.query.LabelResultSet;
 import org.hypertrace.graphql.metric.schema.MetricQueryable;
 
 @GraphQLName(Entity.TYPE_NAME)

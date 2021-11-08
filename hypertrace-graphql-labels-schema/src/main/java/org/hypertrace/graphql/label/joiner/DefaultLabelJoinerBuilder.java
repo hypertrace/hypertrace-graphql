@@ -17,8 +17,8 @@ import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.label.dao.LabelDao;
 import org.hypertrace.graphql.label.dao.LabelResponseConverter;
-import org.hypertrace.graphql.label.schema.Label;
-import org.hypertrace.graphql.label.schema.LabelResultSet;
+import org.hypertrace.graphql.label.schema.query.Label;
+import org.hypertrace.graphql.label.schema.query.LabelResultSet;
 
 @Slf4j
 class DefaultLabelJoinerBuilder implements LabelJoinerBuilder {

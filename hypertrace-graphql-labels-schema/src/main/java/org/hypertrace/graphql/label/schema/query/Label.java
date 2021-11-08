@@ -1,18 +1,18 @@
-package org.hypertrace.graphql.label.schema.mutation;
+package org.hypertrace.graphql.label.schema.query;
 
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
-import javax.annotation.Nullable;
+import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.graphql.label.schema.shared.LabelData;
 
-@GraphQLName(CreateLabel.TYPE_NAME)
-public interface CreateLabel {
-  String TYPE_NAME = "CreateLabel";
-  String ARGUMENT_NAME = "createLabel";
+@GraphQLName(Label.TYPE_NAME)
+public interface Label extends Identifiable {
+  String TYPE_NAME = "Label";
 
-  String CREATED_BY_RULE_ID_KEY = "createdByRuleId";
   String LABEL_DATA_KEY = "data";
+  String CREATED_BY_RULE_ID_KEY = "createdByRuleId";
+  String CREATED_BY_KEY = "createdBy";
 
   @GraphQLField()
   @GraphQLName(LABEL_DATA_KEY)
@@ -21,6 +21,6 @@ public interface CreateLabel {
 
   @GraphQLField()
   @GraphQLName(CREATED_BY_RULE_ID_KEY)
-  @Nullable
+  @GraphQLNonNull
   String createdByRuleId();
 }
