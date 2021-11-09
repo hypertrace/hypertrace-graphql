@@ -9,18 +9,9 @@ import org.hypertrace.label.config.service.v1.UpdateLabelRequest;
 
 public class LabelRequestConverter {
   CreateLabelRequest convertCreationRequest(LabelCreateRequest creationRequest) {
-    CreateLabelRequest convertedRequest =
-        CreateLabelRequest.newBuilder()
-            .setData(convertLabelData(creationRequest.label().data()))
-            .build();
-    if (Objects.nonNull(creationRequest.label().createdByRuleId())) {
-      convertedRequest =
-          convertedRequest.toBuilder()
-              .setCreatedByApplicationRuleId(
-                  Objects.requireNonNull(creationRequest.label().createdByRuleId()))
-              .build();
-    }
-    return convertedRequest;
+    return CreateLabelRequest.newBuilder()
+        .setData(convertLabelData(creationRequest.label().data()))
+        .build();
   }
 
   UpdateLabelRequest convertUpdateRequest(LabelUpdateRequest updateRequest) {
@@ -31,17 +22,13 @@ public class LabelRequestConverter {
   }
 
   LabelData convertLabelData(org.hypertrace.graphql.label.schema.shared.LabelData data) {
-    LabelData convertedData = LabelData.newBuilder().setKey(data.key()).build();
+    LabelData.Builder convertedDataBuilder = LabelData.newBuilder().setKey(data.key());
     if (Objects.nonNull(data.color())) {
-      convertedData =
-          convertedData.toBuilder().setColor(Objects.requireNonNull(data.color())).build();
+      convertedDataBuilder.setColor(Objects.requireNonNull(data.color()));
     }
     if (Objects.nonNull(data.description())) {
-      convertedData =
-          convertedData.toBuilder()
-              .setDescription(Objects.requireNonNull(data.description()))
-              .build();
+      convertedDataBuilder.setDescription(Objects.requireNonNull(data.description()));
     }
-    return convertedData;
+    return convertedDataBuilder.build();
   }
 }

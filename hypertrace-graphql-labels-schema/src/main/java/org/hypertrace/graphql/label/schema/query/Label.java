@@ -3,6 +3,7 @@ package org.hypertrace.graphql.label.schema.query;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import javax.annotation.Nullable;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.graphql.label.schema.shared.LabelData;
 
@@ -12,7 +13,6 @@ public interface Label extends Identifiable {
 
   String LABEL_DATA_KEY = "data";
   String CREATED_BY_RULE_ID_KEY = "createdByRuleId";
-  String CREATED_BY_KEY = "createdBy";
 
   @GraphQLField()
   @GraphQLName(LABEL_DATA_KEY)
@@ -21,6 +21,6 @@ public interface Label extends Identifiable {
 
   @GraphQLField()
   @GraphQLName(CREATED_BY_RULE_ID_KEY)
-  @GraphQLNonNull
+  @Nullable
   String createdByRuleId();
 }

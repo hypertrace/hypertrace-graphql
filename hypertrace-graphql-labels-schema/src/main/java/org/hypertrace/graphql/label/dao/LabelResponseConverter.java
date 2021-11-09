@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.label.dao;
 
+import com.google.common.base.Strings;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,11 +42,16 @@ public class LabelResponseConverter {
 
   Label convertLabel(org.hypertrace.label.config.service.v1.Label label) {
     return new ConvertedLabel(
-        label.getId(), convertLabelData(label.getData()), label.getCreatedByApplicationRuleId());
+        label.getId(),
+        convertLabelData(label.getData()),
+        Strings.emptyToNull(label.getCreatedByApplicationRuleId()));
   }
 
   LabelData convertLabelData(org.hypertrace.label.config.service.v1.LabelData data) {
-    return new ConvertedLabelData(data.getKey(), data.getColor(), data.getDescription());
+    return new ConvertedLabelData(
+        data.getKey(),
+        Strings.emptyToNull(data.getColor()),
+        Strings.emptyToNull(data.getDescription()));
   }
 
   @Value

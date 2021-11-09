@@ -16,11 +16,13 @@ public interface LabelMutationSchema {
   @GraphQLNonNull
   @GraphQLName(CREATE_LABEL)
   @GraphQLDataFetcher(LabelCreateMutator.class)
-  Label createLabel(@GraphQLNonNull @GraphQLName(CreateLabel.ARGUMENT_NAME) CreateLabel label);
+  Label createLabel(
+      @GraphQLNonNull @GraphQLName(CreateLabel.ARGUMENT_NAME) CreateLabel createLabel);
 
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(UPDATE_LABEL)
   @GraphQLDataFetcher(LabelUpdateMutator.class)
-  Label updateLabel(@GraphQLNonNull @GraphQLName(UpdateLabel.ARGUMENT_NAME) UpdateLabel label);
+  Label updateLabel(
+      @GraphQLNonNull @GraphQLName(UpdateLabel.ARGUMENT_NAME) UpdateLabel updateLabel);
 }

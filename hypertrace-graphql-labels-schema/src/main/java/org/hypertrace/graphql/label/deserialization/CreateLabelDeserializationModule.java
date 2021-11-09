@@ -34,9 +34,6 @@ public class CreateLabelDeserializationModule implements ArgumentDeserialization
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
   private static class CreateLabelArgument implements CreateLabel {
-    @JsonProperty(CREATED_BY_RULE_ID_KEY)
-    String createdByRuleId;
-
     @JsonProperty(LABEL_DATA_KEY)
     LabelData data;
   }
