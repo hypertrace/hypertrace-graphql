@@ -25,22 +25,23 @@ public class LabelResponseConverter {
   Single<List<Label>> convertToLabelList(GetLabelsResponse response) {
     return Single.just(
         response.getLabelsList().stream()
-            .map(label -> new DefaultLabel(label.getId(), label.getKey()))
+            .map(label -> new DefaultLabel(label.getId(), label.getData().getKey()))
             .collect(Collectors.toUnmodifiableList()));
   }
 
   Single<Label> convertLabel(CreateLabelResponse response) {
-    return Single.just(new DefaultLabel(response.getLabel().getId(), response.getLabel().getKey()));
+    return Single.just(
+        new DefaultLabel(response.getLabel().getId(), response.getLabel().getData().getKey()));
   }
 
   Single<Label> convertUpdateLabel(UpdateLabelResponse response) {
-    return Single.just(new DefaultLabel(response.getLabel().getId(), response.getLabel().getKey()));
+    return Single.just(
+        new DefaultLabel(response.getLabel().getId(), response.getLabel().getData().getKey()));
   }
 
   @Value
   @Accessors(fluent = true)
   private static class DefaultLabelResultSet implements LabelResultSet {
-    static final LabelResultSet EMPTY_LABEL_RESULT_SET = new DefaultLabelResultSet(List.of(), 0, 0);
     List<Label> results;
     long count;
     long total;
