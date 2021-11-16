@@ -25,18 +25,40 @@ public class LabelResponseConverter {
   Single<List<Label>> convertToLabelList(GetLabelsResponse response) {
     return Single.just(
         response.getLabelsList().stream()
-            .map(label -> new DefaultLabel(label.getId(), label.getData().getKey()))
+            .map(
+                label ->
+                    new DefaultLabel(
+                        label.getId(),
+                        label.getData().getKey(),
+                        label.getData().hasColor() ? label.getData().getColor() : null,
+                        label.getData().hasDescription() ? label.getData().getDescription() : null))
             .collect(Collectors.toUnmodifiableList()));
   }
 
   Single<Label> convertLabel(CreateLabelResponse response) {
     return Single.just(
-        new DefaultLabel(response.getLabel().getId(), response.getLabel().getData().getKey()));
+        new DefaultLabel(
+            response.getLabel().getId(),
+            response.getLabel().getData().getKey(),
+            response.getLabel().getData().hasColor()
+                ? response.getLabel().getData().getColor()
+                : null,
+            response.getLabel().getData().hasDescription()
+                ? response.getLabel().getData().getDescription()
+                : null));
   }
 
   Single<Label> convertUpdateLabel(UpdateLabelResponse response) {
     return Single.just(
-        new DefaultLabel(response.getLabel().getId(), response.getLabel().getData().getKey()));
+        new DefaultLabel(
+            response.getLabel().getId(),
+            response.getLabel().getData().getKey(),
+            response.getLabel().getData().hasColor()
+                ? response.getLabel().getData().getColor()
+                : null,
+            response.getLabel().getData().hasDescription()
+                ? response.getLabel().getData().getDescription()
+                : null));
   }
 
   @Value
@@ -52,5 +74,7 @@ public class LabelResponseConverter {
   private static class DefaultLabel implements Label {
     String id;
     String key;
+    String color;
+    String description;
   }
 }
