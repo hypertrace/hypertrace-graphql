@@ -74,7 +74,12 @@ class LabelApplicationRuleResponseConverter {
     }
     return action.map(
         labelAction ->
-            new ConvertedLabelApplicationRuleData(data.getName(), conditionList, labelAction));
+            new ConvertedLabelApplicationRuleData(
+                data.getName(),
+                conditionList,
+                labelAction,
+                data.getEnabled(),
+                data.hasDescription() ? data.getDescription() : null));
   }
 
   private Optional<Action.Operation> convertOperationInAction(
@@ -259,6 +264,8 @@ class LabelApplicationRuleResponseConverter {
     String name;
     List<Condition> conditionList;
     Action action;
+    boolean enabled;
+    String description;
   }
 
   @Value

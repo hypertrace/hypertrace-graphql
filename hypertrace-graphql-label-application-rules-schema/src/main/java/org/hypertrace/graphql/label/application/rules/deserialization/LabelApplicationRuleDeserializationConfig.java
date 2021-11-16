@@ -68,6 +68,12 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
 
     @JsonProperty(ACTION_KEY)
     Action action;
+
+    @JsonProperty(ENABLED_KEY)
+    boolean enabled;
+
+    @JsonProperty(DESCRIPTION_KEY)
+    String description;
   }
 
   @Value

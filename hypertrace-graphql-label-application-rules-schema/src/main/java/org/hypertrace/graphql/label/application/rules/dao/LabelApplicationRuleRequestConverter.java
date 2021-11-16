@@ -1,6 +1,7 @@
 package org.hypertrace.graphql.label.application.rules.dao;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleDeleteRequest;
@@ -47,11 +48,16 @@ class LabelApplicationRuleRequestConverter {
 
   private LabelApplicationRuleData convertLabelApplicationRuleData(
       org.hypertrace.graphql.label.application.rules.schema.shared.LabelApplicationRuleData data) {
-    return LabelApplicationRuleData.newBuilder()
-        .setName(data.name())
-        .setMatchingCondition(convertConditionList(data.conditionList()))
-        .setLabelAction(convertLabelAction(data.action()))
-        .build();
+    LabelApplicationRuleData.Builder convertedDataBuilder =
+        LabelApplicationRuleData.newBuilder()
+            .setName(data.name())
+            .setMatchingCondition(convertConditionList(data.conditionList()))
+            .setLabelAction(convertLabelAction(data.action()))
+            .setEnabled(data.enabled());
+    if (Objects.nonNull(data.description())) {
+      convertedDataBuilder.setDescription(Objects.requireNonNull(data.description()));
+    }
+    return convertedDataBuilder.build();
   }
 
   private Action.Operation getOperationFromAction(
