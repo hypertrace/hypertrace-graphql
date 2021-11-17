@@ -9,20 +9,22 @@ import org.hypertrace.label.config.service.v1.UpdateLabelRequest;
 
 public class LabelRequestConverter {
   CreateLabelRequest convertCreationRequest(LabelCreateRequest creationRequest) {
-    LabelData.Builder dataBuilder = LabelData.newBuilder().setKey(creationRequest.label().key());
-    Optional.ofNullable(creationRequest.label().color()).ifPresent(dataBuilder::setColor);
-    Optional.ofNullable(creationRequest.label().description())
-        .ifPresent(dataBuilder::setDescription);
-    return CreateLabelRequest.newBuilder().setData(dataBuilder.build()).build();
+    return CreateLabelRequest.newBuilder()
+        .setData(convertLabelData(creationRequest.label()))
+        .build();
   }
 
   UpdateLabelRequest convertUpdateRequest(LabelUpdateRequest updateRequest) {
-    LabelData.Builder dataBuilder = LabelData.newBuilder().setKey(updateRequest.label().key());
-    Optional.ofNullable(updateRequest.label().color()).ifPresent(dataBuilder::setColor);
-    Optional.ofNullable(updateRequest.label().description()).ifPresent(dataBuilder::setDescription);
     return UpdateLabelRequest.newBuilder()
         .setId(updateRequest.label().id())
-        .setData(dataBuilder.build())
+        .setData(convertLabelData(updateRequest.label()))
         .build();
+  }
+
+  private LabelData convertLabelData(org.hypertrace.graphql.label.schema.LabelData data) {
+    LabelData.Builder dataBuilder = LabelData.newBuilder().setKey(data.key());
+    Optional.ofNullable(data.color()).ifPresent(dataBuilder::setColor);
+    Optional.ofNullable(data.description()).ifPresent(dataBuilder::setDescription);
+    return dataBuilder.build();
   }
 }
