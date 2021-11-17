@@ -36,5 +36,11 @@ public class LabelDeserializationConfig implements ArgumentDeserializationConfig
 
     @JsonProperty(KEY)
     String key;
+
+    @JsonProperty(COLOR_KEY)
+    String color;
+
+    @JsonProperty(DESCRIPTION_KEY)
+    String description;
   }
 }

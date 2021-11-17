@@ -1,17 +1,10 @@
 package org.hypertrace.graphql.label.schema.mutation;
 
-import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
-import graphql.annotations.annotationTypes.GraphQLNonNull;
+import org.hypertrace.graphql.label.schema.LabelData;
 
 @GraphQLName(CreateLabel.TYPE_NAME)
-public interface CreateLabel {
+public interface CreateLabel extends LabelData {
   String TYPE_NAME = "CreateLabel";
   String ARGUMENT_NAME = "label";
-  String KEY = "key";
-
-  @GraphQLField
-  @GraphQLNonNull
-  @GraphQLName(KEY)
-  String key();
 }
