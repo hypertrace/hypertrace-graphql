@@ -1,7 +1,7 @@
 package org.hypertrace.graphql.label.application.rules.dao;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleCreateRequest;
 import org.hypertrace.graphql.label.application.rules.request.LabelApplicationRuleDeleteRequest;
@@ -54,9 +54,7 @@ class LabelApplicationRuleRequestConverter {
             .setMatchingCondition(convertConditionList(data.conditionList()))
             .setLabelAction(convertLabelAction(data.action()))
             .setEnabled(data.enabled());
-    if (Objects.nonNull(data.description())) {
-      convertedDataBuilder.setDescription(Objects.requireNonNull(data.description()));
-    }
+    Optional.ofNullable(data.description()).ifPresent(convertedDataBuilder::setDescription);
     return convertedDataBuilder.build();
   }
 
