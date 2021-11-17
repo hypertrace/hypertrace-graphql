@@ -28,7 +28,6 @@ public class LabelRequestBuilderImpl implements LabelRequestBuilder {
   @Override
   public LabelUpdateRequest buildUpdateRequest(
       GraphQlRequestContext requestContext, Map<String, Object> arguments) {
-    System.out.println(arguments);
     return new LabelUpdateRequestImpl(
         requestContext,
         this.argumentDeserializer.deserializeObject(arguments, Label.class).orElseThrow());
