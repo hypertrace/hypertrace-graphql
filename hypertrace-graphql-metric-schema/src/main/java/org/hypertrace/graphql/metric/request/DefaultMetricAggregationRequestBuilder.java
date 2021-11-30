@@ -23,8 +23,9 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -52,14 +53,15 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
 
   @Override
   public Observable<MetricAggregationRequest> build(
-      AttributeModel attribute, SelectedField metricAggregationContainerField) {
+      AttributeAssociation<AttributeExpression> attributeExpression,
+      SelectedField metricAggregationContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
                 metricAggregationContainerField.getSelectionSet(),
                 SelectionQuery.builder()
                     .matchesPredicate(field -> this.getAggregationTypeForField(field).isPresent())
                     .build()))
-        .map(selectedField -> this.requestForAggregationField(attribute, selectedField));
+        .map(selectedField -> this.requestForAggregationField(attributeExpression, selectedField));
   }
 
   @Override
@@ -72,26 +74,27 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
   }
 
   public MetricAggregationRequest build(
-      AttributeModel attribute,
+      AttributeAssociation<AttributeExpression> attributeExpression,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
-    return this.build(attribute, aggregationType, arguments, false);
+    return this.build(attributeExpression, aggregationType, arguments, false);
   }
 
-  public MetricAggregationRequest build(
-      AttributeModel attribute,
+  private MetricAggregationRequest build(
+      AttributeAssociation<AttributeExpression> attributeExpression,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments,
       boolean baseline) {
-    return new DefaultMetricAggregationRequest(attribute, aggregationType, arguments, baseline);
+    return new DefaultMetricAggregationRequest(
+        attributeExpression, aggregationType, arguments, baseline);
   }
 
   private MetricAggregationRequest requestForAggregationField(
-      AttributeModel attribute, SelectedField field) {
+      AttributeAssociation<AttributeExpression> attributeExpression, SelectedField field) {
     AttributeModelMetricAggregationType aggregationType =
         this.getAggregationTypeForField(field).orElseThrow();
     return this.build(
-        attribute,
+        attributeExpression,
         aggregationType,
         this.getArgumentsForAggregation(aggregationType, field.getArguments()),
         this.selectionFinder
@@ -167,7 +170,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
   @Value
   @Accessors(fluent = true)
   private static class DefaultMetricAggregationRequest implements MetricAggregationRequest {
-    AttributeModel attribute;
+    AttributeAssociation<AttributeExpression> attributeExpression;
     AttributeModelMetricAggregationType aggregation;
     List<Object> arguments;
     boolean baseline;
@@ -175,7 +178,8 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     @Override
     public String alias() {
       return String.format(
-          "%s_%s_%s", this.aggregation.name(), this.attribute.id(), this.arguments);
+          "%s_%s_%s",
+          this.aggregation.name(), this.attributeExpression.attribute().id(), this.arguments);
     }
 
     @Override

@@ -11,6 +11,7 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -66,7 +67,8 @@ class DefaultEntityLabelRequestBuilder implements EntityLabelRequestBuilder {
   private Single<Optional<EntityLabelRequest>> buildRequest(
       GraphQlRequestContext context, String scope) {
     return this.attributeRequestBuilder
-        .buildForKey(context, scope, LABELS_ATTRIBUTE_KEY)
+        .buildForAttributeExpression(
+            context, scope, AttributeExpression.forAttributeKey(LABELS_ATTRIBUTE_KEY))
         .map(DefaultLabelRequest::new)
         .map(Optional::of);
   }

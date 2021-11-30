@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
@@ -29,7 +29,10 @@ import org.hypertrace.graphql.metric.schema.MetricInterval;
 
 class MetricContainerMapConverter
     implements TriConverter<
-        Collection<MetricRequest>, Entity, BaselineEntity, Map<String, MetricContainer>> {
+        Collection<MetricRequest>,
+        Entity,
+        BaselineEntity,
+        Map<AttributeExpression, MetricContainer>> {
 
   private final BaselinedMetricAggregationMapConverter aggregationMapConverter;
   private final MetricSeriesMapConverter seriesMapConverter;
@@ -46,17 +49,17 @@ class MetricContainerMapConverter
   }
 
   @Override
-  public Single<Map<String, MetricContainer>> convert(
+  public Single<Map<AttributeExpression, MetricContainer>> convert(
       Collection<MetricRequest> metricRequests, Entity entity, BaselineEntity baselineEntity) {
     return Observable.fromIterable(metricRequests)
         .distinct()
-        .groupBy(MetricRequest::attribute)
+        .groupBy(request -> request.attributeExpression().value())
         .flatMapSingle(requests -> this.buildMetricContainerEntry(requests, entity, baselineEntity))
         .collect(immutableMapEntryCollector());
   }
 
-  private Single<Entry<String, MetricContainer>> buildMetricContainerEntry(
-      GroupedObservable<AttributeModel, MetricRequest> requestsForAttribute,
+  private Single<Entry<AttributeExpression, MetricContainer>> buildMetricContainerEntry(
+      GroupedObservable<AttributeExpression, MetricRequest> requestsForAttribute,
       Entity entity,
       BaselineEntity baselineEntity) {
     return requestsForAttribute
@@ -64,7 +67,7 @@ class MetricContainerMapConverter
         .flatMap(
             metricRequests ->
                 this.buildMetricContainerForAttribute(metricRequests, entity, baselineEntity))
-        .map(container -> Map.entry(requestsForAttribute.getKey().key(), container));
+        .map(container -> Map.entry(requestsForAttribute.getKey(), container));
   }
 
   private Single<MetricContainer> buildMetricContainerForAttribute(

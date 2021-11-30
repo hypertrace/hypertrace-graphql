@@ -13,8 +13,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
-import org.hypertrace.core.graphql.attributes.AttributeStore;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -25,23 +26,23 @@ class MetricQueryableBuilderUtil {
 
   private final GraphQlSelectionFinder selectionFinder;
   private final ArgumentDeserializer argumentDeserializer;
-  private final AttributeStore attributeStore;
+  private final AttributeAssociator attributeAssociator;
 
   @Inject
   MetricQueryableBuilderUtil(
       GraphQlSelectionFinder selectionFinder,
       ArgumentDeserializer argumentDeserializer,
-      AttributeStore attributeStore) {
+      AttributeAssociator attributeAssociator) {
     this.selectionFinder = selectionFinder;
     this.argumentDeserializer = argumentDeserializer;
-    this.attributeStore = attributeStore;
+    this.attributeAssociator = attributeAssociator;
   }
 
   <T> Single<List<T>> buildForEachMetricQueryable(
       GraphQlRequestContext context,
       String scope,
       Stream<SelectedField> metricQueryableFieldStream,
-      BiFunction<AttributeModel, SelectedField, Observable<T>> builder) {
+      BiFunction<AttributeAssociation<AttributeExpression>, SelectedField, Observable<T>> builder) {
 
     return Observable.fromStream(metricQueryableFieldStream)
         .flatMap(field -> this.buildForEachMetricContainer(context, scope, field, builder))
@@ -52,7 +53,7 @@ class MetricQueryableBuilderUtil {
       GraphQlRequestContext context,
       String scope,
       SelectedField metricQueryableField,
-      BiFunction<AttributeModel, SelectedField, Observable<T>> builder) {
+      BiFunction<AttributeAssociation<AttributeExpression>, SelectedField, Observable<T>> builder) {
 
     return Observable.fromStream(
             this.selectionFinder.findSelections(
@@ -68,12 +69,27 @@ class MetricQueryableBuilderUtil {
       GraphQlRequestContext context,
       String scope,
       SelectedField metricContainerField,
-      Function<AttributeModel, Observable<T>> builder) {
-    Optional<String> metricKey =
-        this.argumentDeserializer.deserializePrimitive(
-            metricContainerField.getArguments(), MetricKeyArgument.class);
-    return Maybe.fromOptional(metricKey)
-        .flatMapSingle(key -> this.attributeStore.get(context, scope, key))
+      Function<AttributeAssociation<AttributeExpression>, Observable<T>> builder) {
+    return this.resolveAttributeExpression(context, scope, metricContainerField)
         .flatMapObservable(builder::apply);
+  }
+
+  private Maybe<AttributeAssociation<AttributeExpression>> resolveAttributeExpression(
+      GraphQlRequestContext context, String scope, SelectedField metricContainerField) {
+    Optional<AttributeExpression> maybeExpression =
+        this.argumentDeserializer
+            .deserializeObject(metricContainerField.getArguments(), AttributeExpression.class)
+            .or(
+                () ->
+                    this.argumentDeserializer
+                        .deserializePrimitive(
+                            metricContainerField.getArguments(), MetricKeyArgument.class)
+                        .map(AttributeExpression::forAttributeKey));
+
+    return Maybe.fromOptional(maybeExpression)
+        .flatMapSingle(
+            expression ->
+                this.attributeAssociator.associateAttribute(
+                    context, scope, expression, expression.key()));
   }
 }

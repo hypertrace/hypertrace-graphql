@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.FunctionExpression;
@@ -20,13 +21,14 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
 class MetricAggregationExpressionConverter
     implements Converter<Collection<MetricAggregationRequest>, Set<Expression>> {
-  private final Converter<AttributeModel, Expression> columnExpressionConverter;
+  private final Converter<AttributeAssociation<AttributeExpression>, Expression>
+      columnExpressionConverter;
   private final FunctionTypeConverter functionTypeConverter;
   private final Converter<Object, Expression> literalConverter;
 
   @Inject
   MetricAggregationExpressionConverter(
-      Converter<AttributeModel, Expression> columnExpressionConverter,
+      Converter<AttributeAssociation<AttributeExpression>, Expression> columnExpressionConverter,
       FunctionTypeConverter functionTypeConverter,
       Converter<Object, Expression> literalConverter) {
     this.columnExpressionConverter = columnExpressionConverter;
@@ -43,7 +45,7 @@ class MetricAggregationExpressionConverter
 
   Single<Expression> convert(MetricAggregationRequest metricAggregation, String alias) {
     return this.buildAggregationFunctionExpression(
-            metricAggregation.attribute(),
+            metricAggregation.attributeExpression(),
             metricAggregation.aggregation(),
             metricAggregation.arguments(),
             alias)
@@ -51,27 +53,31 @@ class MetricAggregationExpressionConverter
   }
 
   Single<Expression> convertForNoArgsOrAlias(
-      AttributeModel attribute, AttributeModelMetricAggregationType aggregationType) {
-    return convertForArgsButNoAlias(attribute, aggregationType, Collections.emptyList());
+      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeModelMetricAggregationType aggregationType) {
+    return convertForArgsButNoAlias(attributeExpression, aggregationType, Collections.emptyList());
   }
 
   Single<Expression> convertForArgsButNoAlias(
-      AttributeModel attribute,
+      AttributeAssociation<AttributeExpression> attributeExpression,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
     return this.buildAggregationFunctionExpression(
-            attribute, aggregationType, arguments, StringValue.getDefaultInstance().getValue())
+            attributeExpression,
+            aggregationType,
+            arguments,
+            StringValue.getDefaultInstance().getValue())
         .map(functionExpression -> Expression.newBuilder().setFunction(functionExpression).build());
   }
 
   private Single<FunctionExpression> buildAggregationFunctionExpression(
-      AttributeModel attribute,
+      AttributeAssociation<AttributeExpression> attributeExpression,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments,
       String alias) {
     return zip(
         functionTypeConverter.convert(aggregationType),
-        this.columnExpressionConverter.convert(attribute),
+        this.columnExpressionConverter.convert(attributeExpression),
         this.convertArguments(arguments),
         (functionType, columnExpression, argumentExpressionList) ->
             FunctionExpression.newBuilder()

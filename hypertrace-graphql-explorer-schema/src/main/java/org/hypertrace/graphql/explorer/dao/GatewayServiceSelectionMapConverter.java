@@ -67,12 +67,13 @@ class GatewayServiceSelectionMapConverter {
   private Single<Entry<ExploreResultMapKey, Selection>> buildAttributeMapEntry(
       AttributeRequest attributeRequest, Row row) {
     return this.valueConverter
-        .convert(row.getColumnsOrThrow(attributeRequest.alias()))
-        .flatMap(value -> this.buildSelection(attributeRequest.attribute(), value))
+        .convert(row.getColumnsOrThrow(attributeRequest.asMapKey()))
+        .flatMap(
+            value -> this.buildSelection(attributeRequest.attributeExpression().attribute(), value))
         .map(
             selection ->
                 Map.entry(
-                    ExploreResultMapKey.basicAttribute(attributeRequest.attribute().key()),
+                    ExploreResultMapKey.attribute(attributeRequest.attributeExpression().value()),
                     selection));
   }
 
@@ -87,7 +88,9 @@ class GatewayServiceSelectionMapConverter {
       MetricAggregationRequest aggregationRequest, Row row) {
     return this.valueConverter
         .convert(row.getColumnsOrThrow(aggregationRequest.alias()))
-        .flatMap(value -> this.buildSelection(aggregationRequest.attribute(), value))
+        .flatMap(
+            value ->
+                this.buildSelection(aggregationRequest.attributeExpression().attribute(), value))
         .zipWith(
             this.aggregationTypeConverter.convert(aggregationRequest.aggregation()),
             (selection, aggregation) ->

@@ -7,10 +7,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.Converter;
@@ -48,14 +48,14 @@ public class GatewayMetricUtilsModule extends AbstractModule {
                     Collection<MetricRequest>,
                     Entity,
                     BaselineEntity,
-                    Map<String, MetricContainer>>>() {}))
+                    Map<AttributeExpression, MetricContainer>>>() {}))
         .to(MetricContainerMapConverter.class);
     bind(Key.get(
             new TypeLiteral<
                 BiConverter<
                     Collection<MetricAggregationRequest>,
                     Map<String, AggregatedMetricValue>,
-                    Map<String, BaselinedMetricAggregationContainer>>>() {}))
+                    Map<AttributeExpression, BaselinedMetricAggregationContainer>>>() {}))
         .to(MetricAggregationContainerMapConverter.class);
 
     bind(Key.get(
@@ -65,7 +65,10 @@ public class GatewayMetricUtilsModule extends AbstractModule {
                     List<OrderByExpression>>>() {}))
         .to(AggregatableOrderByExpressionListConverter.class);
 
-    requireBinding(Key.get(new TypeLiteral<Converter<AttributeModel, Expression>>() {}));
+    requireBinding(
+        Key.get(
+            new TypeLiteral<
+                Converter<AttributeAssociation<AttributeExpression>, Expression>>() {}));
     requireBinding(Key.get(new TypeLiteral<Converter<Value, Object>>() {}));
     requireBinding(Key.get(new TypeLiteral<Converter<Object, Expression>>() {}));
     requireBinding(Key.get(new TypeLiteral<Converter<OrderDirection, SortOrder>>() {}));

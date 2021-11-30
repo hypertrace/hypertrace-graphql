@@ -7,6 +7,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import java.time.Instant;
 import java.util.Map;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey;
 import org.hypertrace.graphql.explorer.fetcher.ExplorerSelectionFetcher;
@@ -25,7 +26,8 @@ public interface ExploreResult {
   @GraphQLName(EXPLORE_RESULT_SELECTION_KEY)
   @GraphQLDataFetcher(ExplorerSelectionFetcher.class)
   default Selection selection(
-      @GraphQLName(SelectionKeyArgument.ARGUMENT_NAME) @GraphQLNonNull String key,
+      @Deprecated @GraphQLName(SelectionKeyArgument.ARGUMENT_NAME) String key,
+      @GraphQLName(AttributeExpression.ARGUMENT_NAME) AttributeExpression attributeExpression,
       @GraphQLName(SelectionAggregationTypeArgument.ARGUMENT_NAME)
           MetricAggregationType aggregationType,
       @GraphQLName(SelectionSizeArgument.ARGUMENT_NAME) int size,

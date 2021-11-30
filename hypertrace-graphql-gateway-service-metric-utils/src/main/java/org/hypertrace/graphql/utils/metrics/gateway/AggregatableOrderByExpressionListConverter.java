@@ -10,10 +10,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
@@ -25,7 +25,8 @@ class AggregatableOrderByExpressionListConverter
     implements Converter<
         List<AttributeAssociation<AggregatableOrderArgument>>, List<OrderByExpression>> {
 
-  private final Converter<AttributeModel, Expression> columnExpressionConverter;
+  private final Converter<AttributeAssociation<AttributeExpression>, Expression>
+      columnExpressionConverter;
   private final MetricAggregationExpressionConverter metricAggregationExpressionConverter;
   private final Converter<OrderDirection, SortOrder> sortOrderConverter;
   private final Converter<MetricAggregationType, AttributeModelMetricAggregationType>
@@ -33,7 +34,7 @@ class AggregatableOrderByExpressionListConverter
 
   @Inject
   AggregatableOrderByExpressionListConverter(
-      Converter<AttributeModel, Expression> columnExpressionConverter,
+      Converter<AttributeAssociation<AttributeExpression>, Expression> columnExpressionConverter,
       MetricAggregationExpressionConverter metricAggregationExpressionConverter,
       Converter<OrderDirection, SortOrder> sortOrderConverter,
       Converter<MetricAggregationType, AttributeModelMetricAggregationType>
@@ -63,17 +64,26 @@ class AggregatableOrderByExpressionListConverter
 
   private Single<Expression> buildSelectionExpression(
       AttributeAssociation<AggregatableOrderArgument> orderArgument) {
+    AttributeAssociation<AttributeExpression> attributeExpression =
+        this.buildAttributeExpression(orderArgument);
     return Maybe.fromOptional(Optional.ofNullable(orderArgument.value().aggregation()))
         .flatMapSingle(this.aggregationTypeConverter::convert)
         .flatMapSingle(
             aggregationType ->
                 orderArgument.value().size() == null
                     ? this.metricAggregationExpressionConverter.convertForNoArgsOrAlias(
-                        orderArgument.attribute(), aggregationType)
+                        attributeExpression, aggregationType)
                     : this.metricAggregationExpressionConverter.convertForArgsButNoAlias(
-                        orderArgument.attribute(),
+                        attributeExpression,
                         aggregationType,
                         List.of(Objects.requireNonNull(orderArgument.value().size()))))
-        .switchIfEmpty(this.columnExpressionConverter.convert(orderArgument.attribute()));
+        .switchIfEmpty(this.columnExpressionConverter.convert(attributeExpression));
+  }
+
+  private AttributeAssociation<AttributeExpression> buildAttributeExpression(
+      AttributeAssociation<AggregatableOrderArgument> orderArgumentAttributeAssociation) {
+    return AttributeAssociation.of(
+        orderArgumentAttributeAssociation.attribute(),
+        orderArgumentAttributeAssociation.value().resolvedKeyExpression());
   }
 }

@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
@@ -71,9 +72,10 @@ class GatewayServiceEntityInteractionRequestBuilder {
         .map(
             entityTypes ->
                 AttributeAssociation.<FilterArgument>of(
-                    request.neighborTypeAttribute().attribute(),
+                    request.neighborTypeAttribute().attributeExpression().attribute(),
                     new EntityNeighborTypeFilter(
-                        request.neighborTypeAttribute().attribute().key(), entityTypes)))
+                        request.neighborTypeAttribute().attributeExpression().value(),
+                        entityTypes)))
         .flatMap(filterAssociation -> this.filterConverter.convert(Set.of(filterAssociation)));
   }
 
@@ -81,7 +83,8 @@ class GatewayServiceEntityInteractionRequestBuilder {
   @Accessors(fluent = true)
   private static class EntityNeighborTypeFilter implements FilterArgument {
     FilterType type = FilterType.ATTRIBUTE;
-    String key;
+    String key = null;
+    AttributeExpression keyExpression;
     FilterOperatorType operator = FilterOperatorType.IN;
     Collection<String> value;
     AttributeScope idType = null;

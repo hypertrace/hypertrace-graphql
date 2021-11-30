@@ -10,7 +10,8 @@ import java.time.temporal.ChronoUnit;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -35,28 +36,30 @@ class MetricSeriesRequestBuilder {
   }
 
   Observable<MetricSeriesRequest> build(
-      AttributeModel attribute, SelectedField metricContainerField) {
+      AttributeAssociation<AttributeExpression> attributeExpression,
+      SelectedField metricContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
                 metricContainerField.getSelectionSet(),
                 SelectionQuery.namedChild(METRIC_INTERVAL_CONTAINER_SERIES_KEY)))
-        .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
+        .flatMap(field -> this.flattenAggregationsForSeries(attributeExpression, field));
   }
 
   Observable<MetricSeriesRequest> buildBaselineSeriesRequests(
-      AttributeModel attribute, SelectedField metricContainerField) {
+      AttributeAssociation<AttributeExpression> attributeExpression,
+      SelectedField metricContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
                 metricContainerField.getSelectionSet(),
                 SelectionQuery.namedChild(BASELINE_INTERVAL_CONTAINER_SERIES_KEY)))
-        .flatMap(field -> this.flattenAggregationsForSeries(attribute, field));
+        .flatMap(field -> this.flattenAggregationsForSeries(attributeExpression, field));
   }
 
   private Observable<MetricSeriesRequest> flattenAggregationsForSeries(
-      AttributeModel attribute, SelectedField seriesField) {
+      AttributeAssociation<AttributeExpression> attributeExpression, SelectedField seriesField) {
     Duration period = this.buildSeriesPeriod(seriesField);
     return this.aggregationRequestBuilder
-        .build(attribute, seriesField)
+        .build(attributeExpression, seriesField)
         .map(aggregation -> new DefaultMetricSeriesRequest(aggregation, period));
   }
 

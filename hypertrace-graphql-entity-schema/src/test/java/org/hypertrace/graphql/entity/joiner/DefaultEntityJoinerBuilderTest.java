@@ -33,6 +33,7 @@ import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -331,7 +332,7 @@ class DefaultEntityJoinerBuilderTest {
     String id;
 
     @Override
-    public Object attribute(String key) {
+    public Object attribute(AttributeExpression attributeExpression) {
       return null;
     }
 
@@ -346,7 +347,7 @@ class DefaultEntityJoinerBuilderTest {
     }
 
     @Override
-    public MetricContainer metric(String key) {
+    public MetricContainer metric(AttributeExpression attributeExpression) {
       return null;
     }
 

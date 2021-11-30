@@ -19,6 +19,7 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -150,11 +151,15 @@ class EdgeRequestBuilder {
       GraphQlRequestContext context, EdgeType edgeType) {
     switch (edgeType) {
       case INCOMING:
-        return this.attributeRequestBuilder.buildForKey(
-            context, HypertraceAttributeScopeString.INTERACTION, INCOMING_ENTITY_ID_KEY);
+        return this.attributeRequestBuilder.buildForAttributeExpression(
+            context,
+            HypertraceAttributeScopeString.INTERACTION,
+            AttributeExpression.forAttributeKey(INCOMING_ENTITY_ID_KEY));
       case OUTGOING:
-        return this.attributeRequestBuilder.buildForKey(
-            context, HypertraceAttributeScopeString.INTERACTION, OUTGOING_ENTITY_ID_KEY);
+        return this.attributeRequestBuilder.buildForAttributeExpression(
+            context,
+            HypertraceAttributeScopeString.INTERACTION,
+            AttributeExpression.forAttributeKey(OUTGOING_ENTITY_ID_KEY));
       default:
         return Single.error(new IllegalStateException("Unexpected value: " + edgeType));
     }
@@ -164,11 +169,15 @@ class EdgeRequestBuilder {
       GraphQlRequestContext context, EdgeType edgeType) {
     switch (edgeType) {
       case INCOMING:
-        return this.attributeRequestBuilder.buildForKey(
-            context, HypertraceAttributeScopeString.INTERACTION, INCOMING_ENTITY_TYPE_KEY);
+        return this.attributeRequestBuilder.buildForAttributeExpression(
+            context,
+            HypertraceAttributeScopeString.INTERACTION,
+            AttributeExpression.forAttributeKey(INCOMING_ENTITY_TYPE_KEY));
       case OUTGOING:
-        return this.attributeRequestBuilder.buildForKey(
-            context, HypertraceAttributeScopeString.INTERACTION, OUTGOING_ENTITY_TYPE_KEY);
+        return this.attributeRequestBuilder.buildForAttributeExpression(
+            context,
+            HypertraceAttributeScopeString.INTERACTION,
+            AttributeExpression.forAttributeKey(OUTGOING_ENTITY_TYPE_KEY));
       default:
         return Single.error(new IllegalStateException("Unexpected value: " + edgeType));
     }

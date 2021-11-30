@@ -9,11 +9,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
 import org.hypertrace.gateway.service.v1.baseline.BaselineEntitiesResponse;
@@ -31,26 +33,28 @@ import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 
 class GatewayServiceEntityConverter {
-  private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+  private final BiConverter<
+          Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
 
   private final TriConverter<
           Collection<MetricRequest>,
           org.hypertrace.gateway.service.v1.entity.Entity,
           BaselineEntity,
-          Map<String, MetricContainer>>
+          Map<AttributeExpression, MetricContainer>>
       metricContainerConverter;
   private final GatewayServiceEntityEdgeLookupConverter edgeLookupConverter;
 
   @Inject
   GatewayServiceEntityConverter(
-      BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+      BiConverter<
+              Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
           attributeMapConverter,
       TriConverter<
               Collection<MetricRequest>,
               org.hypertrace.gateway.service.v1.entity.Entity,
               BaselineEntity,
-              Map<String, MetricContainer>>
+              Map<AttributeExpression, MetricContainer>>
           metricContainerConverter,
       GatewayServiceEntityEdgeLookupConverter edgeLookupConverter) {
     this.attributeMapConverter = attributeMapConverter;
@@ -103,7 +107,7 @@ class GatewayServiceEntityConverter {
   private Map<String, BaselineEntity> getBaselineEntityMap(
       BaselineEntitiesResponse baselineResponse) {
     return baselineResponse.getBaselineEntityList().stream()
-        .collect(Collectors.toMap(BaselineEntity::getId, entity -> entity));
+        .collect(Collectors.toMap(BaselineEntity::getId, Function.identity()));
   }
 
   private Single<Entity> convertEntity(
@@ -121,7 +125,12 @@ class GatewayServiceEntityConverter {
         (attrMap, containerMap) ->
             new ConvertedEntity(
                 attrMap
-                    .get(entityRequest.resultSetRequest().idAttribute().attribute().key())
+                    .get(
+                        entityRequest
+                            .resultSetRequest()
+                            .idAttribute()
+                            .attributeExpression()
+                            .value())
                     .toString(),
                 entityRequest.entityType(),
                 attrMap,
@@ -136,20 +145,19 @@ class GatewayServiceEntityConverter {
   private static class ConvertedEntity implements Entity {
     String id;
     String type;
-    Map<String, Object> attributeValues;
-    Map<String, MetricContainer> metricContainers;
+    Map<AttributeExpression, Object> attributeValues;
+    Map<AttributeExpression, MetricContainer> metricContainers;
     Map<String, EdgeResultSet> incomingEdges;
     Map<String, EdgeResultSet> outgoingEdges;
     LabelResultSet labels;
 
-    @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
 
     @Override
-    public MetricContainer metric(String key) {
-      return this.metricContainers.get(key);
+    public MetricContainer metric(AttributeExpression attributeExpression) {
+      return this.metricContainers.get(attributeExpression);
     }
 
     @Override

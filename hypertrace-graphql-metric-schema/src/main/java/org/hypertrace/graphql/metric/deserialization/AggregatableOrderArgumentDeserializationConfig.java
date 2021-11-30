@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -41,6 +42,9 @@ class AggregatableOrderArgumentDeserializationConfig implements ArgumentDeserial
 
     @JsonProperty(ORDER_KEY_NAME)
     String key;
+
+    @JsonProperty(ORDER_KEY_EXPRESSION_NAME)
+    AttributeExpression keyExpression;
 
     @JsonProperty(METRIC_AGGREGATION_ORDER_AGGREGATION_TYPE)
     MetricAggregationType aggregation;
