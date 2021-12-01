@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.schema.typefunctions.AttributeScopeDynamicEnum;
 import org.hypertrace.core.graphql.common.schema.typefunctions.DateTimeScalar;
 import org.hypertrace.core.graphql.common.schema.typefunctions.DurationScalar;
+import org.hypertrace.core.graphql.common.schema.typefunctions.OffsetTimeScalar;
 import org.hypertrace.core.graphql.common.schema.typefunctions.UnknownScalar;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 
@@ -16,17 +17,20 @@ class CommonSchemaFragment implements GraphQlSchemaFragment {
   private final UnknownScalar unknownScalar;
   private final AttributeScopeDynamicEnum attributeScopeDynamicEnum;
   private final DurationScalar durationScalar;
+  private final OffsetTimeScalar offsetTimeScalar;
 
   @Inject
   CommonSchemaFragment(
       DateTimeScalar dateTimeScalar,
       UnknownScalar unknownScalar,
       AttributeScopeDynamicEnum attributeScopeDynamicEnum,
-      DurationScalar durationScalar) {
+      DurationScalar durationScalar,
+      OffsetTimeScalar offsetTimeScalar) {
     this.dateTimeScalar = dateTimeScalar;
     this.unknownScalar = unknownScalar;
     this.attributeScopeDynamicEnum = attributeScopeDynamicEnum;
     this.durationScalar = durationScalar;
+    this.offsetTimeScalar = offsetTimeScalar;
   }
 
   @Override
@@ -41,6 +45,7 @@ class CommonSchemaFragment implements GraphQlSchemaFragment {
         this.unknownScalar,
         this.dateTimeScalar,
         this.attributeScopeDynamicEnum,
-        this.durationScalar);
+        this.durationScalar,
+        this.offsetTimeScalar);
   }
 }
