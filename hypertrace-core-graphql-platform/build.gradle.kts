@@ -36,7 +36,7 @@ dependencies {
       because("https://snyk.io/vuln/SNYK-JAVA-COMGOOGLECODEGSON-1730327")
     }
 
-    runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.16.0")
+    runtime("org.apache.logging.log4j:log4j-slf4j-impl:2.17.0")
     runtime("io.grpc:grpc-netty:1.42.0")
     runtime("io.netty:netty-codec-http2:4.1.71.Final")
     runtime("io.netty:netty-handler-proxy:4.1.71.Final")
