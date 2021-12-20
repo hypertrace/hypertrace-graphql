@@ -31,7 +31,7 @@ dependencies {
   implementation(project(":hypertrace-graphql-explorer-context"))
   implementation(project(":hypertrace-graphql-entity-type"))
   implementation(project(":hypertrace-graphql-spaces-schema"))
-  implementation(project(":hypertrace-graphql-labels-schema"))
+  implementation(project(":hypertrace-graphql-labels-schema-impl"))
   implementation(project(":hypertrace-graphql-label-application-rules-schema"))
 
   implementation("org.slf4j:slf4j-api")

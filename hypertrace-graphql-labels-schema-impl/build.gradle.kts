@@ -10,6 +10,7 @@ dependencies {
   api("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
   api("io.github.graphql-java:graphql-java-annotations")
   api("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
+  api(project(":hypertrace-graphql-labels-schema-api"))
 
   annotationProcessor("org.projectlombok:lombok")
   compileOnly("org.projectlombok:lombok")
