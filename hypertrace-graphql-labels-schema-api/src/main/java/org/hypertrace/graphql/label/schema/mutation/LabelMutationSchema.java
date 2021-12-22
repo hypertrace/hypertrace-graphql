@@ -22,5 +22,5 @@ public interface LabelMutationSchema {
   @GraphQLNonNull
   @GraphQLName(UPDATE_LABEL)
   @GraphQLDataFetcher(LabelUpdateMutator.class)
-  Label updateLabel(@GraphQLNonNull @GraphQLName(Label.ARGUMENT_NAME) Label label);
+  Label updateLabel(@GraphQLNonNull @GraphQLName(Label.ARGUMENT_NAME) UpdateLabel label);
 }

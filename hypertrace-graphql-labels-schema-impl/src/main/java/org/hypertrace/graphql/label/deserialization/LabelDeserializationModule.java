@@ -11,6 +11,6 @@ public class LabelDeserializationModule extends AbstractModule {
         Multibinder.newSetBinder(binder(), ArgumentDeserializationConfig.class);
 
     deserializationConfigBinder.addBinding().to(CreateLabelDeserializationConfig.class);
-    deserializationConfigBinder.addBinding().to(LabelDeserializationConfig.class);
+    deserializationConfigBinder.addBinding().to(UpdateLabelDeserializationConfig.class);
   }
 }

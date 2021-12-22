@@ -8,29 +8,30 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
-import org.hypertrace.graphql.label.schema.Label;
+import org.hypertrace.graphql.label.schema.mutation.UpdateLabel;
 
-public class LabelDeserializationConfig implements ArgumentDeserializationConfig {
+public class UpdateLabelDeserializationConfig implements ArgumentDeserializationConfig {
 
   @Override
   public String getArgumentKey() {
-    return Label.ARGUMENT_NAME;
+    return UpdateLabel.ARGUMENT_NAME;
   }
 
   @Override
   public Class<?> getArgumentSchema() {
-    return Label.class;
+    return UpdateLabel.class;
   }
 
   @Override
   public List<Module> jacksonModules() {
-    return List.of(new SimpleModule().addAbstractTypeMapping(Label.class, LabelArgument.class));
+    return List.of(
+        new SimpleModule().addAbstractTypeMapping(UpdateLabel.class, UpdateLabelArgument.class));
   }
 
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  private static class LabelArgument implements Label {
+  private static class UpdateLabelArgument implements UpdateLabel {
     @JsonProperty(IDENTITY_FIELD_NAME)
     String id;
 
