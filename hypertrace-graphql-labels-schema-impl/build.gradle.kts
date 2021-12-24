@@ -27,6 +27,8 @@ dependencies {
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
   implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
 
+  implementation(project(":hypertrace-graphql-entity-schema"))
+
   implementation(project(":hypertrace-graphql-service-config"))
 }
 

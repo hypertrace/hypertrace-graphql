@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.utils.CollectorUtils;
+import org.hypertrace.graphql.entity.schema.Entity;
+import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.label.schema.LabeledEntity;
@@ -51,6 +54,30 @@ public class LabelResponseConverter {
         Collections.emptyMap());
   }
 
+  public Single<Label> convertLabel(Label label, Map<String, EntityResultSet> entityResultMap) {
+    Label convertedLabel =
+        new DefaultLabel(
+            label.id(),
+            label.key(),
+            label.color(),
+            label.description(),
+            getLabeledEntitiesMap(entityResultMap));
+    return Single.just(convertedLabel);
+  }
+
+  private Map<String, List<LabeledEntity>> getLabeledEntitiesMap(
+      Map<String, EntityResultSet> entityResultMap) {
+    return entityResultMap.entrySet().stream()
+        .map(entry -> Map.entry(entry.getKey(), convertEntities(entry.getValue())))
+        .collect(CollectorUtils.immutableMapEntryCollector());
+  }
+
+  private List<LabeledEntity> convertEntities(EntityResultSet entityResultSet) {
+    return entityResultSet.results().stream()
+        .map(DefaultLabeledEntity::new)
+        .collect(Collectors.toList());
+  }
+
   @Value
   @Accessors(fluent = true)
   private static class DefaultLabelResultSet implements LabelResultSet {
@@ -90,12 +117,16 @@ public class LabelResponseConverter {
   @Value
   @Accessors(fluent = true)
   private static class DefaultLabeledEntity implements LabeledEntity {
-    String id;
-    Map<String, Object> attributeValues;
+    Entity entity;
+
+    @Override
+    public String id() {
+      return entity.id();
+    }
 
     @Override
     public Object attribute(String key) {
-      return this.attributeValues.get(key);
+      return this.entity.attribute(key);
     }
   }
 }

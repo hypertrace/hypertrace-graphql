@@ -17,6 +17,11 @@ public interface LabelJoiner {
             Collection<T> joinSources, LabelIdGetter<T> labelIdGetter) {
           return Single.just(Collections.emptyMap());
         }
+
+        @Override
+        public Single<LabelResultSet> joinLabelsWithEntities() {
+          throw new UnsupportedOperationException();
+        }
       };
 
   /**
@@ -29,6 +34,13 @@ public interface LabelJoiner {
    */
   <T> Single<Map<T, LabelResultSet>> joinLabels(
       Collection<T> joinSources, LabelIdGetter<T> labelIdGetter);
+
+  /**
+   * Produces a map of label result set to source ids
+   *
+   * @return A map of each source to its matching label result set
+   */
+  Single<LabelResultSet> joinLabelsWithEntities();
 
   @FunctionalInterface
   interface LabelIdGetter<T> {
