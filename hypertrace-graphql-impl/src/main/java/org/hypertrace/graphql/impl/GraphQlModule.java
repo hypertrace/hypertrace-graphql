@@ -27,7 +27,6 @@ import org.hypertrace.graphql.entity.HypertraceEntityModule;
 import org.hypertrace.graphql.explorer.ExplorerSchemaModule;
 import org.hypertrace.graphql.explorer.context.HypertraceExplorerContextModule;
 import org.hypertrace.graphql.label.LabelSchemaModule;
-import org.hypertrace.graphql.label.application.rules.LabelApplicationRuleSchemaModule;
 import org.hypertrace.graphql.metric.MetricModule;
 import org.hypertrace.graphql.spaces.SpacesSchemaModule;
 import org.hypertrace.graphql.utils.metrics.gateway.GatewayMetricUtilsModule;
@@ -74,6 +73,5 @@ class GraphQlModule extends AbstractModule {
     install(new SpacesSchemaModule());
     install(new RequestTransformationModule());
     install(new LabelSchemaModule());
-    install(new LabelApplicationRuleSchemaModule());
   }
 }

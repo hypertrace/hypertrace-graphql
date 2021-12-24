@@ -18,6 +18,7 @@ dependencies {
   implementation("org.slf4j:slf4j-api")
   implementation("io.reactivex.rxjava3:rxjava")
   implementation("org.hypertrace.config.service:labels-config-service-api")
+  implementation("org.hypertrace.config.service:label-application-rule-config-service-api")
   implementation("com.google.protobuf:protobuf-java-util")
   implementation("com.google.guava:guava")
 
