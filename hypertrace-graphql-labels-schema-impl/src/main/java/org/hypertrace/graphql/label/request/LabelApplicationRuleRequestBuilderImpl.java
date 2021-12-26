@@ -7,8 +7,8 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.graphql.label.deserialization.LabelApplicationRuleIdArgument;
-import org.hypertrace.graphql.label.schema.LabelApplicationRule;
-import org.hypertrace.graphql.label.schema.LabelApplicationRuleData;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 
 public class LabelApplicationRuleRequestBuilderImpl implements LabelApplicationRuleRequestBuilder {
   private final ArgumentDeserializer argumentDeserializer;

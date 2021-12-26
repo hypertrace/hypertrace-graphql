@@ -11,8 +11,8 @@ import org.hypertrace.graphql.label.mutator.LabelApplicationRuleUpdateMutator;
 import org.hypertrace.graphql.label.mutator.LabelCreateMutator;
 import org.hypertrace.graphql.label.mutator.LabelUpdateMutator;
 import org.hypertrace.graphql.label.schema.Label;
-import org.hypertrace.graphql.label.schema.LabelApplicationRule;
-import org.hypertrace.graphql.label.schema.LabelApplicationRuleData;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 
 public interface LabelMutationSchema {
   String CREATE_LABEL = "createLabel";

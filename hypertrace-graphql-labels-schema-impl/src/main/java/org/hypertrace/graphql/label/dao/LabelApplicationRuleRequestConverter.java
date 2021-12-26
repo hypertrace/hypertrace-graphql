@@ -20,7 +20,7 @@ import org.hypertrace.label.application.rule.config.service.v1.UpdateLabelApplic
 class LabelApplicationRuleRequestConverter {
   public CreateLabelApplicationRuleRequest convertCreationRequest(
       LabelApplicationRuleCreateRequest labelApplicationRuleCreateRequest) {
-    org.hypertrace.graphql.label.schema.LabelApplicationRuleData data =
+    org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData data =
         labelApplicationRuleCreateRequest.labelApplicationRuleData();
     return CreateLabelApplicationRuleRequest.newBuilder()
         .setData(convertLabelApplicationRuleData(data))
@@ -47,7 +47,7 @@ class LabelApplicationRuleRequestConverter {
   }
 
   private LabelApplicationRuleData convertLabelApplicationRuleData(
-      org.hypertrace.graphql.label.schema.LabelApplicationRuleData data) {
+      org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData data) {
     LabelApplicationRuleData.Builder convertedDataBuilder =
         LabelApplicationRuleData.newBuilder()
             .setName(data.name())
@@ -59,7 +59,7 @@ class LabelApplicationRuleRequestConverter {
   }
 
   private Action.Operation getOperationFromAction(
-      org.hypertrace.graphql.label.schema.Action action) {
+      org.hypertrace.graphql.label.schema.rule.Action action) {
     switch (action.operation()) {
       case OPERATION_MERGE:
         return Action.Operation.OPERATION_MERGE;
@@ -68,7 +68,7 @@ class LabelApplicationRuleRequestConverter {
     }
   }
 
-  private Action convertLabelAction(org.hypertrace.graphql.label.schema.Action action) {
+  private Action convertLabelAction(org.hypertrace.graphql.label.schema.rule.Action action) {
     Action.Operation operation = getOperationFromAction(action);
     Action.Builder actionBuilder =
         Action.newBuilder().setOperation(operation).addAllEntityTypes(action.entityTypes());
@@ -86,7 +86,7 @@ class LabelApplicationRuleRequestConverter {
   }
 
   Condition convertConditionList(
-      List<org.hypertrace.graphql.label.schema.Condition> conditionList) {
+      List<org.hypertrace.graphql.label.schema.rule.Condition> conditionList) {
     if (conditionList.size() == 1) {
       return convertCondition(conditionList.get(0));
     } else {
@@ -102,13 +102,13 @@ class LabelApplicationRuleRequestConverter {
     }
   }
 
-  Condition convertCondition(org.hypertrace.graphql.label.schema.Condition condition) {
+  Condition convertCondition(org.hypertrace.graphql.label.schema.rule.Condition condition) {
     LeafCondition leafCondition = convertLeafCondition(condition.leafCondition());
     return Condition.newBuilder().setLeafCondition(leafCondition).build();
   }
 
   LeafCondition convertLeafCondition(
-      org.hypertrace.graphql.label.schema.LeafCondition leafCondition) {
+      org.hypertrace.graphql.label.schema.rule.LeafCondition leafCondition) {
     LeafCondition.Builder leafConditionBuilder =
         LeafCondition.newBuilder()
             .setKeyCondition(convertStringCondition(leafCondition.keyCondition()));
@@ -129,7 +129,7 @@ class LabelApplicationRuleRequestConverter {
   }
 
   StringCondition convertStringCondition(
-      org.hypertrace.graphql.label.schema.StringCondition stringCondition) {
+      org.hypertrace.graphql.label.schema.rule.StringCondition stringCondition) {
     return StringCondition.newBuilder()
         .setOperator(convertStringConditionOperator(stringCondition.operator()))
         .setValue(stringCondition.value())
@@ -137,14 +137,14 @@ class LabelApplicationRuleRequestConverter {
   }
 
   UnaryCondition convertUnaryCondition(
-      org.hypertrace.graphql.label.schema.UnaryCondition unaryCondition) {
+      org.hypertrace.graphql.label.schema.rule.UnaryCondition unaryCondition) {
     return UnaryCondition.newBuilder()
         .setOperator(convertUnaryOperator(unaryCondition.operator()))
         .build();
   }
 
   StringCondition.Operator convertStringConditionOperator(
-      org.hypertrace.graphql.label.schema.StringCondition.Operator operator) {
+      org.hypertrace.graphql.label.schema.rule.StringCondition.Operator operator) {
     switch (operator) {
       case OPERATOR_EQUALS:
         return StringCondition.Operator.OPERATOR_EQUALS;
@@ -156,7 +156,7 @@ class LabelApplicationRuleRequestConverter {
   }
 
   UnaryCondition.Operator convertUnaryOperator(
-      org.hypertrace.graphql.label.schema.UnaryCondition.Operator operator) {
+      org.hypertrace.graphql.label.schema.rule.UnaryCondition.Operator operator) {
     switch (operator) {
       case OPERATOR_EXISTS:
         return UnaryCondition.Operator.OPERATOR_EXISTS;

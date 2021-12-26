@@ -5,8 +5,8 @@ import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.graphql.label.request.LabelApplicationRuleCreateRequest;
 import org.hypertrace.graphql.label.request.LabelApplicationRuleDeleteRequest;
 import org.hypertrace.graphql.label.request.LabelApplicationRuleUpdateRequest;
-import org.hypertrace.graphql.label.schema.LabelApplicationRule;
-import org.hypertrace.graphql.label.schema.LabelApplicationRuleResultSet;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
 
 public interface LabelApplicationRuleDao {
   Single<LabelApplicationRule> createLabelApplicationRule(

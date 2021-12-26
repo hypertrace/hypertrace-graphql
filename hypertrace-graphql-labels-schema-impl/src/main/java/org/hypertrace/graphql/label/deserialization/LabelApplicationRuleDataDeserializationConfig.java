@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
-import org.hypertrace.graphql.label.schema.Action;
-import org.hypertrace.graphql.label.schema.Condition;
-import org.hypertrace.graphql.label.schema.LabelApplicationRuleData;
-import org.hypertrace.graphql.label.schema.LeafCondition;
-import org.hypertrace.graphql.label.schema.StaticLabels;
-import org.hypertrace.graphql.label.schema.StringCondition;
-import org.hypertrace.graphql.label.schema.UnaryCondition;
-import org.hypertrace.graphql.label.schema.ValueCondition;
+import org.hypertrace.graphql.label.schema.rule.Action;
+import org.hypertrace.graphql.label.schema.rule.Condition;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
+import org.hypertrace.graphql.label.schema.rule.LeafCondition;
+import org.hypertrace.graphql.label.schema.rule.StaticLabels;
+import org.hypertrace.graphql.label.schema.rule.StringCondition;
+import org.hypertrace.graphql.label.schema.rule.UnaryCondition;
+import org.hypertrace.graphql.label.schema.rule.ValueCondition;
 
 public class LabelApplicationRuleDataDeserializationConfig
     implements ArgumentDeserializationConfig {

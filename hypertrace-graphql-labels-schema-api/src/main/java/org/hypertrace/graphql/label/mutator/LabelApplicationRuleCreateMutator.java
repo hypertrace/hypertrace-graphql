@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.graphql.label.dao.LabelApplicationRuleDao;
 import org.hypertrace.graphql.label.request.LabelApplicationRuleRequestBuilder;
-import org.hypertrace.graphql.label.schema.LabelApplicationRule;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 
 public class LabelApplicationRuleCreateMutator extends InjectableDataFetcher<LabelApplicationRule> {
 

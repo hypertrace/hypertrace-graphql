@@ -6,6 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.graphql.label.fetcher.LabelApplicationRuleFetcher;
 import org.hypertrace.graphql.label.fetcher.LabelFetcher;
+import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
 
 public interface LabelSchema {
   String LABELS_QUERY_NAME = "labels";
