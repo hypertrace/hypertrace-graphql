@@ -4,7 +4,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 
 @GraphQLName(Label.TYPE_NAME)
-public interface Label extends Identifiable, LabelData, LabeledEntities {
+public interface Label extends Identifiable, LabelData, LabeledEntities, LabelApplicationRules {
   String TYPE_NAME = "Label";
   String ARGUMENT_NAME = "label";
 }

@@ -8,6 +8,7 @@ public class LabelJoinerModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(LabelJoinerBuilder.class).to(DefaultLabelJoinerBuilder.class);
+    bind(EntityAndRuleJoinerBuilder.class).to(DefaultEntityAndRuleJoinerBuilder.class);
 
     requireBinding(LabelDao.class);
   }
