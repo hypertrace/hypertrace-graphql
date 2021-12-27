@@ -27,9 +27,9 @@ dependencies {
     api("io.grpc:grpc-core:1.42.0")
     api("io.grpc:grpc-stub:1.42.0")
     api("io.grpc:grpc-context:1.42.0")
-    api("com.fasterxml.jackson.core:jackson-databind:2.12.3")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
-    api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.3")
+    api("com.fasterxml.jackson.core:jackson-databind:2.12.6")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.6")
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.6")
     api("org.apache.commons:commons-text:1.9")
     api("io.opentelemetry:opentelemetry-proto:1.1.0-alpha")
     api("com.google.code.gson:gson:2.8.9") {
