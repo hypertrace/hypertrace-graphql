@@ -13,6 +13,8 @@ dependencies {
 
   annotationProcessor("org.projectlombok:lombok")
   compileOnly("org.projectlombok:lombok")
+
+  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
 }
 
 tasks.test {
