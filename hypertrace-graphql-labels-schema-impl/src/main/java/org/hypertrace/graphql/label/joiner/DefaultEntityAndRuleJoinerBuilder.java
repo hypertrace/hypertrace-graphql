@@ -1,8 +1,8 @@
 package org.hypertrace.graphql.label.joiner;
 
 import static io.reactivex.rxjava3.core.Single.zip;
-import static org.hypertrace.graphql.label.schema.LabelApplicationRules.LABEL_APPLICATION_RULES_QUERY_NAME;
-import static org.hypertrace.graphql.label.schema.LabeledEntities.LABELED_ENTITIES_QUERY_NAME;
+import static org.hypertrace.graphql.label.schema.Label.LABELED_ENTITIES_QUERY_NAME;
+import static org.hypertrace.graphql.label.schema.Label.LABEL_APPLICATION_RULES_QUERY_NAME;
 
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.SelectedField;
