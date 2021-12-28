@@ -20,11 +20,11 @@ public interface Label extends Identifiable, LabelData {
   @GraphQLName(LABELED_ENTITIES_QUERY_NAME)
   LabeledEntityResultSet labeledEntities(
       @GraphQLNonNull @GraphQLName(ENTITY_TYPE_ARGUMENT_NAME) String entityType,
-      @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit);
+      @GraphQLName(LimitArgument.ARGUMENT_NAME) Integer limit);
 
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(LABEL_APPLICATION_RULES_QUERY_NAME)
   LabelApplicationRuleResultSet labelApplicationRules(
-      @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit);
+      @GraphQLName(LimitArgument.ARGUMENT_NAME) Integer limit);
 }

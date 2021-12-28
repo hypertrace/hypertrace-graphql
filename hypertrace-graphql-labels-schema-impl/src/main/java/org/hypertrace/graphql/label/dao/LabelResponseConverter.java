@@ -108,12 +108,12 @@ public class LabelResponseConverter {
     LabelApplicationRuleResultSet labelApplicationRuleResultSet;
 
     @Override
-    public LabeledEntityResultSet labeledEntities(String entityType, int limit) {
+    public LabeledEntityResultSet labeledEntities(String entityType, Integer limit) {
       return labeledEntityResultSetMap.get(entityType);
     }
 
     @Override
-    public LabelApplicationRuleResultSet labelApplicationRules(int limit) {
+    public LabelApplicationRuleResultSet labelApplicationRules(Integer limit) {
       return labelApplicationRuleResultSet;
     }
   }
