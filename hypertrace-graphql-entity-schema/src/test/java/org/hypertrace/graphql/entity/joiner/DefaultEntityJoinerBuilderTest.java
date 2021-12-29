@@ -66,7 +66,6 @@ class DefaultEntityJoinerBuilderTest {
   @Mock ArgumentDeserializer mockDeserializer;
   @Mock ResultSetRequestBuilder mockResultSetRequestBuilder;
   @Mock FilterRequestBuilder mockFilterRequestBuilder;
-  @Mock AttributeRequestBuilder attributeRequestBuilder;
   @Mock GraphQlRequestContext mockRequestContext;
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock AttributeAssociation<FilterArgument> mockFilter;
@@ -86,7 +85,6 @@ class DefaultEntityJoinerBuilderTest {
             mockDeserializer,
             mockResultSetRequestBuilder,
             mockFilterRequestBuilder,
-            attributeRequestBuilder,
             testScheduler,
             mockEntityLabelRequestBuilder);
   }

@@ -72,7 +72,6 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   private final ArgumentDeserializer argumentDeserializer;
   private final ResultSetRequestBuilder resultSetRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
-  private final AttributeRequestBuilder attributeRequestBuilder;
   private final Scheduler boundedIoScheduler;
   private final EntityLabelRequestBuilder entityLabelRequestBuilder;
 
@@ -83,7 +82,6 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       ArgumentDeserializer argumentDeserializer,
       ResultSetRequestBuilder resultSetRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
-      AttributeRequestBuilder attributeRequestBuilder,
       @BoundedIoScheduler Scheduler boundedIoScheduler,
       EntityLabelRequestBuilder entityLabelRequestBuilder) {
 
@@ -92,7 +90,6 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     this.argumentDeserializer = argumentDeserializer;
     this.resultSetRequestBuilder = resultSetRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
-    this.attributeRequestBuilder = attributeRequestBuilder;
     this.boundedIoScheduler = boundedIoScheduler;
     this.entityLabelRequestBuilder = entityLabelRequestBuilder;
   }
@@ -104,7 +101,20 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       List<String> pathToEntityJoinable) {
     return Single.just(
         new DefaultEntityJoiner(
-            context, this.groupEntityFieldsByType(selectionSet, pathToEntityJoinable)));
+            context,
+            new InstantTimeRange(),
+            this.groupEntityFieldsByType(selectionSet, pathToEntityJoinable)));
+  }
+
+  @Override
+  public Single<EntityJoiner> build(
+      GraphQlRequestContext context,
+      TimeRangeArgument timeRange,
+      DataFetchingFieldSelectionSet selectionSet,
+      List<String> pathToEntityJoinable) {
+    return Single.just(
+        new DefaultEntityJoiner(
+            context, timeRange, this.groupEntityFieldsByType(selectionSet, pathToEntityJoinable)));
   }
 
   private String getEntityType(SelectedField entityField) {
@@ -135,6 +145,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   @AllArgsConstructor
   private class DefaultEntityJoiner implements EntityJoiner {
     private final GraphQlRequestContext context;
+    private final TimeRangeArgument timeRange;
     private final Multimap<String, SelectedField> entityFieldsByType;
 
     @Override
@@ -264,7 +275,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
               entityType,
               entityIdsToFilterSize,
               ZERO_OFFSET,
-              new InstantTimeRange(),
+              timeRange,
               List.<AttributeAssociation<AggregatableOrderArgument>>of(), // Order does not matter
               filterArguments,
               this.entityFieldsByType.get(entityType).stream(),
