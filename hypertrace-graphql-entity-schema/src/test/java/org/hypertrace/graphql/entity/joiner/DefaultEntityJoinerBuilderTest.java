@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
-import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
@@ -66,7 +65,6 @@ class DefaultEntityJoinerBuilderTest {
   @Mock ArgumentDeserializer mockDeserializer;
   @Mock ResultSetRequestBuilder mockResultSetRequestBuilder;
   @Mock FilterRequestBuilder mockFilterRequestBuilder;
-  @Mock AttributeRequestBuilder attributeRequestBuilder;
   @Mock GraphQlRequestContext mockRequestContext;
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock AttributeAssociation<FilterArgument> mockFilter;
@@ -86,7 +84,6 @@ class DefaultEntityJoinerBuilderTest {
             mockDeserializer,
             mockResultSetRequestBuilder,
             mockFilterRequestBuilder,
-            attributeRequestBuilder,
             testScheduler,
             mockEntityLabelRequestBuilder);
   }
