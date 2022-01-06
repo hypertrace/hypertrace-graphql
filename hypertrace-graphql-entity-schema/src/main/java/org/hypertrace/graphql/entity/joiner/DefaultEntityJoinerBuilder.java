@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -60,6 +61,7 @@ import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
+import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 @Slf4j
@@ -70,6 +72,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   private final GraphQlSelectionFinder selectionFinder;
   private final ArgumentDeserializer argumentDeserializer;
   private final ResultSetRequestBuilder resultSetRequestBuilder;
+  private final MetricRequestBuilder metricRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
   private final Scheduler boundedIoScheduler;
   private final EntityLabelRequestBuilder entityLabelRequestBuilder;
@@ -80,6 +83,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       GraphQlSelectionFinder selectionFinder,
       ArgumentDeserializer argumentDeserializer,
       ResultSetRequestBuilder resultSetRequestBuilder,
+      MetricRequestBuilder metricRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
       @BoundedIoScheduler Scheduler boundedIoScheduler,
       EntityLabelRequestBuilder entityLabelRequestBuilder) {
@@ -88,6 +92,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
     this.selectionFinder = selectionFinder;
     this.argumentDeserializer = argumentDeserializer;
     this.resultSetRequestBuilder = resultSetRequestBuilder;
+    this.metricRequestBuilder = metricRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
     this.boundedIoScheduler = boundedIoScheduler;
     this.entityLabelRequestBuilder = entityLabelRequestBuilder;
@@ -268,6 +273,8 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
         String entityType,
         int entityIdsToFilterSize,
         List<AttributeAssociation<FilterArgument>> filterArguments) {
+      Collection<SelectedField> selections = this.entityFieldsByType.get(entityType);
+
       return zip(
           resultSetRequestBuilder.build(
               context,
@@ -277,12 +284,14 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
               timeRange,
               List.<AttributeAssociation<AggregatableOrderArgument>>of(), // Order does not matter
               filterArguments,
-              this.entityFieldsByType.get(entityType).stream(),
+              selections.stream(),
               Optional.empty()),
+          metricRequestBuilder.build(context, entityType, selections.stream()),
           entityLabelRequestBuilder.buildLabelRequestIfPresentInAnyEntity(
               context, entityType, this.entityFieldsByType.get(entityType)),
-          (resultSetRequest, optionalLabelRequest) ->
-              new DefaultEntityRequest(entityType, resultSetRequest, optionalLabelRequest));
+          (resultSetRequest, metricRequestList, optionalLabelRequest) ->
+              new DefaultEntityRequest(
+                  entityType, resultSetRequest, metricRequestList, optionalLabelRequest));
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildIdFilter(
@@ -297,7 +306,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   private static class DefaultEntityRequest implements EntityRequest {
     String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
-    List<MetricRequest> metricRequests = Collections.emptyList(); // Only support attributes for now
+    List<MetricRequest> metricRequests;
     boolean fetchTotal = false; // Not needed for a single entity
     EdgeSetGroupRequest incomingEdgeRequests = new EmptyEdgeSetGroupRequest();
     EdgeSetGroupRequest outgoingEdgeRequests = new EmptyEdgeSetGroupRequest();
