@@ -48,6 +48,8 @@ import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.EntityType;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
+import org.hypertrace.graphql.metric.request.MetricRequest;
+import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,11 +66,13 @@ class DefaultEntityJoinerBuilderTest {
   @Mock GraphQlSelectionFinder mockSelectionFinder;
   @Mock ArgumentDeserializer mockDeserializer;
   @Mock ResultSetRequestBuilder mockResultSetRequestBuilder;
+  @Mock MetricRequestBuilder mockMetricRequestBuilder;
   @Mock FilterRequestBuilder mockFilterRequestBuilder;
   @Mock GraphQlRequestContext mockRequestContext;
   @Mock DataFetchingFieldSelectionSet mockSelectionSet;
   @Mock AttributeAssociation<FilterArgument> mockFilter;
   @Mock ResultSetRequest mockResultSetRequest;
+  @Mock List<MetricRequest> mockMetricRequests;
   @Mock EntityLabelRequestBuilder mockEntityLabelRequestBuilder;
 
   Scheduler testScheduler = Schedulers.single();
@@ -83,6 +87,7 @@ class DefaultEntityJoinerBuilderTest {
             mockSelectionFinder,
             mockDeserializer,
             mockResultSetRequestBuilder,
+            mockMetricRequestBuilder,
             mockFilterRequestBuilder,
             testScheduler,
             mockEntityLabelRequestBuilder);
@@ -278,6 +283,9 @@ class DefaultEntityJoinerBuilderTest {
             any(Stream.class),
             eq(Optional.empty())))
         .thenReturn(Single.just(mockResultSetRequest));
+    when(mockMetricRequestBuilder.build(
+            eq(mockRequestContext), any(String.class), any(Stream.class)))
+        .thenReturn(Single.just(mockMetricRequests));
   }
 
   private void mockResult(Map<String, List<Entity>> resultsByEntityType) {
