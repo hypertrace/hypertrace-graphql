@@ -76,7 +76,6 @@ class GatewayServiceEntityDao implements EntityDao {
     GraphQlRequestContext context = request.resultSetRequest().context();
     return this.requestBuilder
         .buildRequest(request)
-        .doOnSuccess(built -> log.warn(JsonFormat.printer().print(built)))
         .subscribeOn(this.boundedIoScheduler)
         .flatMap(serverRequest -> this.fetchAndMapEntities(context, request, serverRequest));
   }
@@ -84,7 +83,6 @@ class GatewayServiceEntityDao implements EntityDao {
   private Single<EntityResultSet> fetchAndMapEntities(
       GraphQlRequestContext context, EntityRequest request, EntitiesRequest serverRequest) {
     return this.makeEntityRequest(context, serverRequest)
-        .doOnSuccess(built -> log.warn(JsonFormat.printer().print(built)))
         .flatMap(serverResponse -> this.getEntityResultSet(request, serverRequest, serverResponse));
   }
 
