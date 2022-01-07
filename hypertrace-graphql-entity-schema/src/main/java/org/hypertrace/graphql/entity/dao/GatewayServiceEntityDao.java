@@ -2,7 +2,6 @@ package org.hypertrace.graphql.entity.dao;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import com.google.protobuf.util.JsonFormat;
 import io.grpc.CallCredentials;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.core.Single;
