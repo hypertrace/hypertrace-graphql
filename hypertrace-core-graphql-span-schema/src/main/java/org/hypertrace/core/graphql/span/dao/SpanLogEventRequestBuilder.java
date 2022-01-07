@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString;
@@ -18,6 +19,7 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
@@ -92,7 +94,7 @@ class SpanLogEventRequestBuilder {
                 spanEvent ->
                     spanEvent
                         .getAttributesMap()
-                        .get(gqlRequest.spanEventsRequest().idAttribute().attribute().id())
+                        .get(gqlRequest.spanEventsRequest().idAttribute().asMapKey())
                         .getString())
             .collect(Collectors.toList());
 
@@ -102,12 +104,12 @@ class SpanLogEventRequestBuilder {
         Set.of(new LogEventFilter(spanIds)));
   }
 
-  @lombok.Value
+  @Value
   @Accessors(fluent = true)
   private static class LogEventFilter implements FilterArgument {
-
     FilterType type = FilterType.ID;
     String key = null;
+    AttributeExpression keyExpression = null;
     FilterOperatorType operator = FilterOperatorType.IN;
     Collection<String> value;
     AttributeScope idType = null;

@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.trace.schema.Trace;
 import org.hypertrace.core.graphql.trace.schema.TraceResultSet;
@@ -16,12 +17,14 @@ import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.trace.TracesResponse;
 
 public class GatewayServiceTraceConverter {
-  private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+  private final BiConverter<
+          Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
 
   @Inject
   GatewayServiceTraceConverter(
-      BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+      BiConverter<
+              Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
           attributeMapConverter) {
     this.attributeMapConverter = attributeMapConverter;
   }
@@ -42,18 +45,19 @@ public class GatewayServiceTraceConverter {
         .map(
             attrMap ->
                 new ConvertedTrace(
-                    attrMap.get(request.idAttribute().attribute().key()).toString(), attrMap));
+                    attrMap.get(request.idAttribute().attributeExpression().value()).toString(),
+                    attrMap));
   }
 
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedTrace implements Trace {
     String id;
-    Map<String, Object> attributeValues;
+    Map<AttributeExpression, Object> attributeValues;
 
     @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
   }
 

@@ -6,7 +6,11 @@ import io.opentelemetry.proto.trace.v1.Span.SpanKind;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.log.event.schema.LogEvent;
 import org.hypertrace.core.graphql.log.event.schema.LogEventResultSet;
 import org.hypertrace.core.graphql.span.export.ExportSpan.Builder;
@@ -18,16 +22,30 @@ import org.junit.jupiter.api.Test;
 
 public class ExportSpanTest {
 
-  @lombok.Value
+  @Value
   @Accessors(fluent = true)
-  static class ConvertedSpan implements Span {
+  private static class ConvertedSpan implements Span {
     String id;
-    Map<String, Object> attributeValues;
+    Map<AttributeExpression, Object> attributeValues;
     Map<String, List<LogEvent>> spanIdToLogEvents;
 
+    ConvertedSpan(
+        String id,
+        Map<String, Object> attributeMap,
+        Map<String, List<LogEvent>> spanIdToLogEvents) {
+      this.id = id;
+      this.spanIdToLogEvents = spanIdToLogEvents;
+      this.attributeValues =
+          attributeMap.entrySet().stream()
+              .collect(
+                  Collectors.toUnmodifiableMap(
+                      entry -> AttributeExpression.forAttributeKey(entry.getKey()),
+                      Entry::getValue));
+    }
+
     @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
 
     @Override
@@ -37,23 +55,31 @@ public class ExportSpanTest {
     }
   }
 
-  @lombok.Value
+  @Value
   @Accessors(fluent = true)
-  static class ConvertedLogEventResultSet implements LogEventResultSet {
+  private static class ConvertedLogEventResultSet implements LogEventResultSet {
     List<LogEvent> results;
     long total;
     long count;
   }
 
-  @lombok.Value
+  @Value
   @Accessors(fluent = true)
-  static class ConvertedLogEvent implements org.hypertrace.core.graphql.log.event.schema.LogEvent {
+  private static class ConvertedLogEvent implements LogEvent {
+    ConvertedLogEvent(Map<String, Object> attributeMap) {
+      this.attributeValues =
+          attributeMap.entrySet().stream()
+              .collect(
+                  Collectors.toUnmodifiableMap(
+                      entry -> AttributeExpression.forAttributeKey(entry.getKey()),
+                      Entry::getValue));
+    }
 
-    Map<String, Object> attributeValues;
+    Map<AttributeExpression, Object> attributeValues;
 
     @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
   }
 

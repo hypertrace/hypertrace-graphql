@@ -16,7 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.hypertrace.core.graphql.attributes.AttributeModelType;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.log.event.schema.LogEventResultSet;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -46,7 +48,7 @@ class GatewayServiceLogEventsResponseConverterTest extends BaseDaoTest {
                 bind(GrpcChannelRegistry.class).toInstance(mock(GrpcChannelRegistry.class));
               }
             });
-    BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+    BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
         attributeMapConverter =
             injector.getInstance(
                 Key.get(
@@ -54,7 +56,7 @@ class GatewayServiceLogEventsResponseConverterTest extends BaseDaoTest {
                         BiConverter<
                             Collection<AttributeRequest>,
                             Map<String, Value>,
-                            Map<String, Object>>>() {}));
+                            Map<AttributeExpression, Object>>>() {}));
     responseConverter = new GatewayServiceLogEventsResponseConverter(attributeMapConverter);
   }
 
@@ -82,29 +84,33 @@ class GatewayServiceLogEventsResponseConverterTest extends BaseDaoTest {
     Collection<AttributeRequest> attributeRequests =
         List.of(
             new DefaultAttributeRequest(
-                new DefaultAttributeModel(
-                    "traceId",
-                    "LOG_EVENT",
-                    "traceId",
-                    "Trace Id",
-                    AttributeModelType.STRING,
-                    "",
-                    false,
-                    false,
-                    Collections.emptyList(),
-                    false)),
+                AttributeAssociation.of(
+                    new DefaultAttributeModel(
+                        "traceId",
+                        "LOG_EVENT",
+                        "traceId",
+                        "Trace Id",
+                        AttributeModelType.STRING,
+                        "",
+                        false,
+                        false,
+                        Collections.emptyList(),
+                        false),
+                    AttributeExpression.forAttributeKey("traceId"))),
             new DefaultAttributeRequest(
-                new DefaultAttributeModel(
-                    "timestamp",
-                    "LOG_EVENT",
-                    "timestamp",
-                    "Timestamp",
-                    AttributeModelType.TIMESTAMP,
-                    "ns",
-                    false,
-                    false,
-                    Collections.emptyList(),
-                    false)));
+                AttributeAssociation.of(
+                    new DefaultAttributeModel(
+                        "timestamp",
+                        "LOG_EVENT",
+                        "timestamp",
+                        "Timestamp",
+                        AttributeModelType.TIMESTAMP,
+                        "ns",
+                        false,
+                        false,
+                        Collections.emptyList(),
+                        false),
+                    AttributeExpression.forAttributeKey("timestamp"))));
     DefaultLogEventRequest defaultLogEventRequest =
         new DefaultLogEventRequest(
             null,
@@ -117,9 +123,17 @@ class GatewayServiceLogEventsResponseConverterTest extends BaseDaoTest {
     LogEventResultSet logEventResultSet =
         responseConverter.convert(defaultLogEventRequest, logEventsResponse).blockingGet();
     assertEquals(1, logEventResultSet.results().size());
-    assertEquals("trace1", logEventResultSet.results().get(0).attribute("traceId"));
+    assertEquals(
+        "trace1",
+        logEventResultSet
+            .results()
+            .get(0)
+            .attribute(AttributeExpression.forAttributeKey("traceId")));
     assertEquals(
         Instant.ofEpochSecond(0, Duration.ofMillis(startTime).toNanos()),
-        logEventResultSet.results().get(0).attribute("timestamp"));
+        logEventResultSet
+            .results()
+            .get(0)
+            .attribute(AttributeExpression.forAttributeKey("timestamp")));
   }
 }

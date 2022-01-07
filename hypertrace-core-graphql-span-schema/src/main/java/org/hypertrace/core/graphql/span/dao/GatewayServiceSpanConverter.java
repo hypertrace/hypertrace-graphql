@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.log.event.schema.LogEvent;
 import org.hypertrace.core.graphql.log.event.schema.LogEventResultSet;
@@ -20,12 +21,14 @@ import org.hypertrace.gateway.service.v1.span.SpanEvent;
 
 class GatewayServiceSpanConverter {
 
-  private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+  private final BiConverter<
+          Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
 
   @Inject
   GatewayServiceSpanConverter(
-      BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+      BiConverter<
+              Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
           attributeMapConverter) {
     this.attributeMapConverter = attributeMapConverter;
   }
@@ -47,7 +50,8 @@ class GatewayServiceSpanConverter {
             attrMap ->
                 new ConvertedSpan(
                     attrMap
-                        .get(request.spanEventsRequest().idAttribute().attribute().key())
+                        .get(
+                            request.spanEventsRequest().idAttribute().attributeExpression().value())
                         .toString(),
                     attrMap,
                     spanIdToLogEvents));
@@ -57,12 +61,12 @@ class GatewayServiceSpanConverter {
   @Accessors(fluent = true)
   private static class ConvertedSpan implements Span {
     String id;
-    Map<String, Object> attributeValues;
+    Map<AttributeExpression, Object> attributeValues;
     Map<String, List<LogEvent>> spanIdToLogEvents;
 
     @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
 
     @Override

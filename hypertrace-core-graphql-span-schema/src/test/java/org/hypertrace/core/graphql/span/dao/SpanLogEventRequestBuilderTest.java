@@ -34,6 +34,7 @@ import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.core.graphql.span.dao.DaoTestUtil.DefaultAttributeRequest;
@@ -45,7 +46,6 @@ import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.gateway.GatewayUtilsModule;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
-import org.hypertrace.gateway.service.v1.common.ColumnIdentifier;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.LiteralConstant;
@@ -109,9 +109,10 @@ class SpanLogEventRequestBuilderTest {
               return Single.just(
                   List.of(
                       AttributeAssociation.of(
-                          spanIdAttribute.attribute(),
+                          spanIdAttribute.attributeExpression().attribute(),
                           new NormalizedFilter(
-                              spanIdAttribute.attribute().key(),
+                              AttributeExpression.forAttributeKey(
+                                  spanIdAttribute.attributeExpression().value().key()),
                               filterArgument.operator(),
                               filterArgument.value()))));
             })
@@ -119,12 +120,14 @@ class SpanLogEventRequestBuilderTest {
         .build(any(), any(), anyCollection());
 
     when(attributeStore.getForeignIdAttribute(any(), anyString(), anyString()))
-        .thenReturn(Single.just(spanIdAttribute.attribute()));
+        .thenReturn(Single.just(spanIdAttribute.attributeExpression().attribute()));
 
     doAnswer(
             invocation -> {
               AttributeModel attributeModel = invocation.getArgument(0, AttributeModel.class);
-              return new DefaultAttributeRequest(attributeModel);
+              return new DefaultAttributeRequest(
+                  AttributeAssociation.of(
+                      attributeModel, AttributeExpression.forAttributeKey(attributeModel.key())));
             })
         .when(attributeRequestBuilder)
         .buildForAttribute(any());
@@ -164,7 +167,7 @@ class SpanLogEventRequestBuilderTest {
                     .setOperator(AND)
                     .addChildFilter(
                         Filter.newBuilder()
-                            .setLhs(buildUnaliasedSelection("spanId"))
+                            .setLhs(buildAliasedSelection("spanId"))
                             .setOperator(IN)
                             .setRhs(buildStringList("span1", "span2", "span3"))))
             .build();
@@ -204,7 +207,7 @@ class SpanLogEventRequestBuilderTest {
                     .setOperator(AND)
                     .addChildFilter(
                         Filter.newBuilder()
-                            .setLhs(buildUnaliasedSelection("spanId"))
+                            .setLhs(buildAliasedSelection("spanId"))
                             .setOperator(IN)
                             .setRhs(buildStringList("span1", "span2", "span3"))))
             .build();
@@ -215,13 +218,10 @@ class SpanLogEventRequestBuilderTest {
 
   Expression buildAliasedSelection(String name) {
     return Expression.newBuilder()
-        .setColumnIdentifier(ColumnIdentifier.newBuilder().setColumnName(name).setAlias(name))
-        .build();
-  }
-
-  Expression buildUnaliasedSelection(String name) {
-    return Expression.newBuilder()
-        .setColumnIdentifier(ColumnIdentifier.newBuilder().setColumnName(name))
+        .setAttributeExpression(
+            org.hypertrace.gateway.service.v1.common.AttributeExpression.newBuilder()
+                .setAttributeId(name)
+                .setAlias(name))
         .build();
   }
 

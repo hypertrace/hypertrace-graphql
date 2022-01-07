@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
@@ -38,5 +39,8 @@ class OrderArgumentDeserializationConfig implements ArgumentDeserializationConfi
 
     @JsonProperty(ORDER_KEY_NAME)
     String key;
+
+    @JsonProperty(ORDER_KEY_EXPRESSION_NAME)
+    AttributeExpression keyExpression;
   }
 }

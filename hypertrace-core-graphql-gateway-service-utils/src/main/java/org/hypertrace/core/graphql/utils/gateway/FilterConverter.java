@@ -16,16 +16,16 @@ import org.hypertrace.gateway.service.v1.common.Operator;
 class FilterConverter
     implements Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> {
 
-  private final ColumnIdentifierExpressionConverter columnIdentifierExpressionConverter;
+  private final AttributeExpressionConverter attributeExpressionConverter;
   private final OperatorConverter operatorConverter;
   private final LiteralConstantExpressionConverter literalConstantExpressionConverter;
 
   @Inject
   FilterConverter(
-      ColumnIdentifierExpressionConverter columnIdentifierExpressionConverter,
+      AttributeExpressionConverter attributeExpressionConverter,
       OperatorConverter operatorConverter,
       LiteralConstantExpressionConverter literalConstantExpressionConverter) {
-    this.columnIdentifierExpressionConverter = columnIdentifierExpressionConverter;
+    this.attributeExpressionConverter = attributeExpressionConverter;
     this.operatorConverter = operatorConverter;
     this.literalConstantExpressionConverter = literalConstantExpressionConverter;
   }
@@ -49,7 +49,8 @@ class FilterConverter
 
   private Single<Filter> buildFilter(AttributeAssociation<FilterArgument> filter) {
     return zip(
-        this.columnIdentifierExpressionConverter.convert(filter.attribute()),
+        this.attributeExpressionConverter.convert(
+            AttributeAssociation.of(filter.attribute(), filter.value().keyExpression())),
         this.operatorConverter.convert(filter.value().operator()),
         this.literalConstantExpressionConverter.convert(filter.value().value()),
         (key, operator, value) ->

@@ -62,7 +62,7 @@ class UnwrappedValueConverter
       if ("ns".equals(attributeModel.units())) {
         return Single.just(Instant.ofEpochSecond(0, value.getTimestamp()));
       }
-      return Single.just((Instant.ofEpochMilli(value.getTimestamp())));
+      return Single.just(Instant.ofEpochMilli(value.getTimestamp()));
     } catch (Throwable t) {
       return Single.error(t);
     }

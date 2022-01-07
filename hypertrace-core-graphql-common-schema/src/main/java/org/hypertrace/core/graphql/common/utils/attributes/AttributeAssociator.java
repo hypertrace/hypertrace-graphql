@@ -16,8 +16,5 @@ public interface AttributeAssociator {
       Function<T, String> attributeKeyMapper);
 
   <T> Single<AttributeAssociation<T>> associateAttribute(
-      GraphQlRequestContext context,
-      String requestScope,
-      T input,
-      Function<T, String> attributeKeyMapper);
+      GraphQlRequestContext context, String requestScope, T input, String attributeKey);
 }

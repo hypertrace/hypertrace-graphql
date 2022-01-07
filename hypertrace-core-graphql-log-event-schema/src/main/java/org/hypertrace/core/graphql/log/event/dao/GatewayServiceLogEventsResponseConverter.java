@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.log.event.request.LogEventRequest;
 import org.hypertrace.core.graphql.log.event.schema.LogEvent;
@@ -17,12 +18,14 @@ import org.hypertrace.gateway.service.v1.log.events.LogEventsResponse;
 
 class GatewayServiceLogEventsResponseConverter {
 
-  private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+  private final BiConverter<
+          Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
 
   @Inject
   GatewayServiceLogEventsResponseConverter(
-      BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+      BiConverter<
+              Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
           attributeMapConverter) {
     this.attributeMapConverter = attributeMapConverter;
   }
@@ -47,11 +50,11 @@ class GatewayServiceLogEventsResponseConverter {
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedLogEvent implements LogEvent {
-    Map<String, Object> attributeValues;
+    Map<AttributeExpression, Object> attributeValues;
 
     @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
   }
 

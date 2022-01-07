@@ -1,5 +1,7 @@
 package org.hypertrace.core.graphql.common.request;
 
+import static java.util.Objects.requireNonNull;
+
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -12,6 +14,7 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
@@ -50,12 +53,17 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
       GraphQlRequestContext requestContext, String scope, FilterArgument filterArgument) {
     switch (filterArgument.type()) {
       case ATTRIBUTE:
+        AttributeExpression attributeExpression =
+            Optional.ofNullable(filterArgument.keyExpression())
+                .orElseGet(
+                    () ->
+                        AttributeExpression.forAttributeKey(requireNonNull(filterArgument.key())));
         return this.attributeAssociator.associateAttribute(
             requestContext,
             scope,
             new NormalizedFilter(
-                filterArgument.key(), filterArgument.operator(), filterArgument.value()),
-            FilterArgument::key);
+                attributeExpression, filterArgument.operator(), filterArgument.value()),
+            attributeExpression.key());
       case ID:
         return Maybe.fromOptional(Optional.ofNullable(filterArgument.idType()))
             .map(AttributeScope::getScopeString)
@@ -71,7 +79,7 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
                     AttributeAssociation.of(
                         foreignIdAttribute,
                         new NormalizedFilter(
-                            foreignIdAttribute.key(),
+                            AttributeExpression.forAttributeKey(foreignIdAttribute.key()),
                             filterArgument.operator(),
                             filterArgument.value())));
       default:
@@ -85,7 +93,8 @@ public class DefaultFilterRequestBuilder implements FilterRequestBuilder {
   @Accessors(fluent = true)
   private static class NormalizedFilter implements FilterArgument {
     FilterType type = FilterType.ATTRIBUTE;
-    String key;
+    String key = null;
+    AttributeExpression keyExpression;
     FilterOperatorType operator;
     Object value;
     String idScope = null;

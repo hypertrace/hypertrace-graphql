@@ -4,6 +4,7 @@ import graphql.schema.DataFetchingFieldSelectionSet;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
 import java.util.Map;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface SpanRequestBuilder {
@@ -16,6 +17,6 @@ public interface SpanRequestBuilder {
   Single<SpanRequest> build(
       GraphQlRequestContext context,
       Map<String, Object> arguments,
-      List<String> spanAttributes,
-      List<String> logAttributes);
+      List<AttributeExpression> spanAttributeExpressions,
+      List<AttributeExpression> logAttributeExpressions);
 }

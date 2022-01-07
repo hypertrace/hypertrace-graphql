@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.stream.Stream;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface AttributeRequestBuilder {
@@ -27,8 +28,10 @@ public interface AttributeRequestBuilder {
       String attributeScope,
       Stream<SelectedField> attributeQueryableFields);
 
-  Single<AttributeRequest> buildForKey(
-      GraphQlRequestContext context, String attributeModelScope, String attributeKey);
+  Single<AttributeRequest> buildForAttributeExpression(
+      GraphQlRequestContext context,
+      String attributeScope,
+      AttributeExpression attributeExpression);
 
   AttributeRequest buildForAttribute(AttributeModel attribute);
 }

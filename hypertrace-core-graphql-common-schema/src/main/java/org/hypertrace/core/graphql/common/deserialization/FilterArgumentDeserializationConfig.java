@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
@@ -51,6 +52,9 @@ class FilterArgumentDeserializationConfig implements ArgumentDeserializationConf
 
     @JsonProperty(FILTER_ARGUMENT_KEY)
     String key;
+
+    @JsonProperty(FILTER_ARGUMENT_KEY_EXPRESSION)
+    AttributeExpression keyExpression;
 
     @JsonProperty(FILTER_ARGUMENT_OPERATOR)
     FilterOperatorType operator;

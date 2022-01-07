@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
@@ -42,5 +43,5 @@ public interface ResultSetRequestBuilder {
       GraphQlRequestContext context,
       String requestScope,
       Map<String, Object> arguments,
-      List<String> attributes);
+      List<AttributeExpression> attributeExpressions);
 }

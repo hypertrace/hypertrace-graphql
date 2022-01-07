@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
@@ -42,13 +43,13 @@ class LogEventAttributeRequestBuilder {
   }
 
   Single<Set<AttributeRequest>> buildAttributeRequest(
-      GraphQlRequestContext context, List<String> attributes) {
-    return Observable.fromIterable(attributes)
+      GraphQlRequestContext context, List<AttributeExpression> attributeExpressions) {
+    return Observable.fromIterable(attributeExpressions)
         .distinct()
         .flatMapSingle(
-            attributeKey ->
-                this.attributeRequestBuilder.buildForKey(
-                    context, HypertraceCoreAttributeScopeString.LOG_EVENT, attributeKey))
+            attributeExpression ->
+                this.attributeRequestBuilder.buildForAttributeExpression(
+                    context, HypertraceCoreAttributeScopeString.LOG_EVENT, attributeExpression))
         .collect(Collectors.toUnmodifiableSet());
   }
 

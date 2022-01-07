@@ -13,7 +13,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeKeyArgument;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -26,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DefaultAttributeRequestBuilderTest {
   @Mock AttributeStore mockAttributeStore;
+  @Mock AttributeAssociator mockAttributeAssociator;
   @Mock ArgumentDeserializer mockArgumentDeserializer;
   @Mock GraphQlSelectionFinder mockSelectionFinder;
   @Mock GraphQlRequestContext mockContext;
@@ -39,18 +42,26 @@ class DefaultAttributeRequestBuilderTest {
   void beforeEach() {
     this.requestBuilder =
         new DefaultAttributeRequestBuilder(
-            mockAttributeStore, mockArgumentDeserializer, mockSelectionFinder);
+            mockAttributeStore,
+            mockAttributeAssociator,
+            mockArgumentDeserializer,
+            mockSelectionFinder);
   }
 
   @Test
   void canBuildRequestForSelectionSet() {
+    AttributeAssociation<AttributeExpression> expectedResultExpression =
+        AttributeAssociation.of(this.mockAttribute, AttributeExpression.forAttributeKey("fooKey"));
     when(this.mockSelectionFinder.findSelections(eq(this.mockSelectionSet), any()))
         .thenReturn(Stream.of(this.mockSelectedField));
     when(this.mockArgumentDeserializer.deserializePrimitive(any(), eq(AttributeKeyArgument.class)))
         .thenReturn(Optional.of("fooKey"));
-    when(this.mockAttributeStore.get(eq(this.mockContext), eq("SPAN"), eq("fooKey")))
-        .thenReturn(Single.just(this.mockAttribute));
-    when(this.mockAttribute.id()).thenReturn("fooId");
+    when(this.mockAttributeAssociator.associateAttribute(
+            eq(this.mockContext),
+            eq("SPAN"),
+            eq(AttributeExpression.forAttributeKey("fooKey")),
+            eq("fooKey")))
+        .thenReturn(Single.just(expectedResultExpression));
 
     List<AttributeRequest> returned =
         this.requestBuilder
@@ -59,7 +70,6 @@ class DefaultAttributeRequestBuilderTest {
             .blockingGet();
 
     assertEquals(1, returned.size());
-    assertEquals("fooId", returned.get(0).alias());
-    assertEquals(this.mockAttribute, returned.get(0).attribute());
+    assertEquals(expectedResultExpression, returned.get(0).attributeExpression());
   }
 }

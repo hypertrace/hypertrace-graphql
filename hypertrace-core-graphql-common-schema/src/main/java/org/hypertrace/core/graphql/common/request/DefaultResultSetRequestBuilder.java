@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
@@ -98,7 +99,11 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
 
     return zip(
             this.attributeAssociator
-                .associateAttributes(context, requestScope, requestedOrders, OrderArgument::key)
+                .associateAttributes(
+                    context,
+                    requestScope,
+                    requestedOrders,
+                    arg -> arg.resolvedKeyExpression().key())
                 .collect(Collectors.toUnmodifiableList()),
             this.filterRequestBuilder.build(context, requestScope, requestedFilters),
             (orders, filters) ->
@@ -149,7 +154,7 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
       GraphQlRequestContext context,
       String requestScope,
       Map<String, Object> arguments,
-      List<String> attributes) {
+      List<AttributeExpression> attributeExpressions) {
     int limit =
         this.argumentDeserializer
             .deserializePrimitive(arguments, LimitArgument.class)
@@ -166,7 +171,8 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
             .orElse(Collections.emptyList());
 
     return zip(
-        this.getAttributeRequests(context, requestScope, attributes).collect(Collectors.toList()),
+        this.getAttributeRequests(context, requestScope, attributeExpressions)
+            .collect(Collectors.toList()),
         this.attributeRequestBuilder.buildForId(context, requestScope),
         this.filterRequestBuilder.build(context, requestScope, requestedFilters),
         (attributeRequests, idAttribute, filters) ->
@@ -183,12 +189,15 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
   }
 
   private Observable<AttributeRequest> getAttributeRequests(
-      GraphQlRequestContext context, String requestScope, List<String> attributes) {
-    return Observable.fromIterable(attributes)
+      GraphQlRequestContext context,
+      String requestScope,
+      List<AttributeExpression> attributeExpressions) {
+    return Observable.fromIterable(attributeExpressions)
         .distinct()
         .flatMapSingle(
-            attributeKey ->
-                this.attributeRequestBuilder.buildForKey(context, requestScope, attributeKey));
+            attributeExpression ->
+                this.attributeRequestBuilder.buildForAttributeExpression(
+                    context, requestScope, attributeExpression));
   }
 
   private Stream<SelectedField> getAttributeQueryableFields(

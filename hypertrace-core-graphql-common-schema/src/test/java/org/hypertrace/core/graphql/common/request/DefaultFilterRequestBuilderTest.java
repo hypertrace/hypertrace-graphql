@@ -1,6 +1,9 @@
 package org.hypertrace.core.graphql.common.request;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,6 +12,7 @@ import java.util.List;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterType;
@@ -69,7 +73,9 @@ class DefaultFilterRequestBuilderTest {
             .get(0);
 
     assertEquals(mockForeignAttribute, builtFilter.attribute());
-    assertEquals(filterAttributeKey, builtFilter.value().key());
+    assertEquals(
+        AttributeExpression.forAttributeKey(filterAttributeKey),
+        builtFilter.value().keyExpression());
     assertEquals(filterOperatorType, builtFilter.value().operator());
     assertEquals(filterValue, builtFilter.value().value());
     assertEquals(FilterType.ATTRIBUTE, builtFilter.value().type());
@@ -105,9 +111,44 @@ class DefaultFilterRequestBuilderTest {
             .get(0);
 
     assertEquals(mockForeignAttribute, builtFilter.attribute());
-    assertEquals(filterAttributeKey, builtFilter.value().key());
+    assertEquals(
+        AttributeExpression.forAttributeKey(filterAttributeKey),
+        builtFilter.value().keyExpression());
     assertEquals(filterOperatorType, builtFilter.value().operator());
     assertEquals(filterValue, builtFilter.value().value());
     assertEquals(FilterType.ATTRIBUTE, builtFilter.value().type());
+  }
+
+  @Test
+  void canBuildFilterWithAttributeExpression() {
+    final FilterType filterType = FilterType.ATTRIBUTE;
+    final String filterAttributeKey = "filterKey";
+    final String currentScope = "scope";
+
+    final FilterArgument filterArgument = mock(FilterArgument.class);
+    when(filterArgument.type()).thenReturn(filterType);
+    when(filterArgument.keyExpression())
+        .thenReturn(AttributeExpression.forAttributeKey(filterAttributeKey));
+
+    final AttributeModel mockAttribute = mock(AttributeModel.class);
+    when(this.mockAttributeAssociator.associateAttribute(
+            same(mockRequestContext),
+            eq(currentScope),
+            any(FilterArgument.class),
+            eq(filterAttributeKey)))
+        .thenAnswer(
+            invocation ->
+                Single.just(AttributeAssociation.of(mockAttribute, invocation.getArgument(2))));
+
+    AttributeAssociation<FilterArgument> builtFilter =
+        this.requestBuilder
+            .build(this.mockRequestContext, currentScope, List.of(filterArgument))
+            .blockingGet()
+            .get(0);
+
+    assertEquals(mockAttribute, builtFilter.attribute());
+    assertEquals(
+        AttributeExpression.forAttributeKey(filterAttributeKey),
+        builtFilter.value().keyExpression());
   }
 }

@@ -105,7 +105,11 @@ public class DefaultLogEventRequestBuilder implements LogEventRequestBuilder {
                     context, requestScope, getAttributeQueryableFields(selectionSet))
                 .collect(Collectors.toUnmodifiableSet()),
             this.attributeAssociator
-                .associateAttributes(context, requestScope, requestedOrders, OrderArgument::key)
+                .associateAttributes(
+                    context,
+                    requestScope,
+                    requestedOrders,
+                    arg -> arg.resolvedKeyExpression().key())
                 .collect(Collectors.toUnmodifiableList()),
             this.filterRequestBuilder.build(context, requestScope, requestedFilters),
             (attributeRequests, orders, filters) ->

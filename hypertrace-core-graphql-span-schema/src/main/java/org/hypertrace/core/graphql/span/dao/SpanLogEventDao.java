@@ -50,7 +50,8 @@ class SpanLogEventDao {
       SpanRequest gqlRequest, SpansResponse spansResponse) {
     if (null == gqlRequest.spanEventsRequest().idAttribute()
         || null == gqlRequest.logEventAttributes()
-        || gqlRequest.logEventAttributes().isEmpty()) {
+        || gqlRequest.logEventAttributes().isEmpty()
+        || spansResponse.getSpansList().isEmpty()) {
       return Single.just(new SpanLogEventsResponse(spansResponse, Map.of()));
     }
     return spanLogEventRequestBuilder

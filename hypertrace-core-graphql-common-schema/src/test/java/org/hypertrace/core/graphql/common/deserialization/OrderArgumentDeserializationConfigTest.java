@@ -7,6 +7,7 @@ import com.google.inject.Guice;
 import com.google.inject.multibindings.Multibinder;
 import java.util.List;
 import java.util.Map;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
@@ -54,9 +55,11 @@ class OrderArgumentDeserializationConfigTest {
     List<OrderArgument> result =
         this.argumentDeserializer.deserializeObjectList(argMap, OrderArgument.class).orElseThrow();
     assertEquals(2, result.size());
-    assertEquals("fooKey", result.get(0).key());
+    assertEquals(
+        AttributeExpression.forAttributeKey("fooKey"), result.get(0).resolvedKeyExpression());
     Assertions.assertEquals(OrderDirection.ASC, result.get(0).direction());
-    assertEquals("barKey", result.get(1).key());
+    assertEquals(
+        AttributeExpression.forAttributeKey("barKey"), result.get(1).resolvedKeyExpression());
     Assertions.assertEquals(OrderDirection.DESC, result.get(1).direction());
   }
 }

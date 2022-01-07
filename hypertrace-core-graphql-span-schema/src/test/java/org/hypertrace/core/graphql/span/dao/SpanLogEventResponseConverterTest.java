@@ -17,11 +17,12 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.gateway.service.v1.common.Value;
@@ -35,18 +36,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SpanLogEventResponseConverterTest {
 
   @Mock
-  BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+  BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
 
   @Mock AttributeStore attributeStore;
   @Mock GraphQlRequestContext requestContext;
+  @Mock AttributeRequestBuilder attributeRequestBuilder;
 
   private SpanLogEventResponseConverter spanLogEventResponseConverter;
 
   @BeforeEach
   void beforeEach() {
     spanLogEventResponseConverter =
-        new SpanLogEventResponseConverter(attributeMapConverter, attributeStore);
+        new SpanLogEventResponseConverter(
+            attributeMapConverter, attributeStore, attributeRequestBuilder);
   }
 
   @Test
@@ -55,7 +58,10 @@ class SpanLogEventResponseConverterTest {
         List.of(spanIdAttribute, traceIdAttribute, attributesAttribute);
 
     when(attributeStore.getForeignIdAttribute(any(), anyString(), anyString()))
-        .thenReturn(Single.just(spanIdAttribute.attribute()));
+        .thenReturn(Single.just(spanIdAttribute.attributeExpression().attribute()));
+    when(attributeRequestBuilder.buildForAttribute(
+            spanIdAttribute.attributeExpression().attribute()))
+        .thenReturn(spanIdAttribute);
 
     doAnswer(
             invocation -> {
@@ -64,7 +70,9 @@ class SpanLogEventResponseConverterTest {
                   map.entrySet().stream()
                       .collect(
                           Collectors.toMap(
-                              Entry::getKey, valueEntry -> valueEntry.getValue().getString())));
+                              valueEntry ->
+                                  AttributeExpression.forAttributeKey(valueEntry.getKey()),
+                              valueEntry -> valueEntry.getValue().getString())));
             })
         .when(attributeMapConverter)
         .convert(anyCollection(), anyMap());
@@ -83,7 +91,10 @@ class SpanLogEventResponseConverterTest {
     Collection<AttributeRequest> attributeRequests = List.of(traceIdAttribute, attributesAttribute);
 
     when(attributeStore.getForeignIdAttribute(any(), anyString(), anyString()))
-        .thenReturn(Single.just(spanIdAttribute.attribute()));
+        .thenReturn(Single.just(spanIdAttribute.attributeExpression().attribute()));
+    when(attributeRequestBuilder.buildForAttribute(
+            spanIdAttribute.attributeExpression().attribute()))
+        .thenReturn(spanIdAttribute);
 
     doAnswer(
             invocation -> {
@@ -92,7 +103,9 @@ class SpanLogEventResponseConverterTest {
                   map.entrySet().stream()
                       .collect(
                           Collectors.toMap(
-                              Entry::getKey, valueEntry -> valueEntry.getValue().getString())));
+                              valueEntry ->
+                                  AttributeExpression.forAttributeKey(valueEntry.getKey()),
+                              valueEntry -> valueEntry.getValue().getString())));
             })
         .when(attributeMapConverter)
         .convert(anyCollection(), anyMap());

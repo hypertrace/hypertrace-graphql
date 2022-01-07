@@ -6,6 +6,7 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import javax.annotation.Nullable;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 
 @GraphQLName(FilterArgument.TYPE_NAME)
 public interface FilterArgument {
@@ -13,6 +14,7 @@ public interface FilterArgument {
   String ARGUMENT_NAME = "filterBy";
   String FILTER_ARGUMENT_TYPE = "type";
   String FILTER_ARGUMENT_KEY = "key";
+  String FILTER_ARGUMENT_KEY_EXPRESSION = "keyExpression";
   String FILTER_ARGUMENT_OPERATOR = "operator";
   String FILTER_ARGUMENT_VALUE = "value";
   @Deprecated String FILTER_ARGUMENT_ID_TYPE = "idType";
@@ -26,7 +28,14 @@ public interface FilterArgument {
   @GraphQLField
   @GraphQLName(FILTER_ARGUMENT_KEY)
   @Nullable
+  @GraphQLDeprecate
+  @Deprecated
   String key();
+
+  @GraphQLField
+  @GraphQLName(FILTER_ARGUMENT_KEY_EXPRESSION)
+  @Nullable
+  AttributeExpression keyExpression();
 
   @GraphQLField
   @GraphQLNonNull

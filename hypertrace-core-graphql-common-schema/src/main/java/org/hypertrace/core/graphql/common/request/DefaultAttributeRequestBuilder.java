@@ -11,7 +11,9 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeQueryable;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeKeyArgument;
+import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
@@ -20,15 +22,18 @@ import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
 
   private final AttributeStore attributeStore;
+  private final AttributeAssociator attributeAssociator;
   private final ArgumentDeserializer argumentDeserializer;
   private final GraphQlSelectionFinder selectionFinder;
 
   @Inject
   DefaultAttributeRequestBuilder(
       AttributeStore attributeStore,
+      AttributeAssociator attributeAssociator,
       ArgumentDeserializer argumentDeserializer,
       GraphQlSelectionFinder selectionFinder) {
     this.attributeStore = attributeStore;
+    this.attributeAssociator = attributeAssociator;
     this.argumentDeserializer = argumentDeserializer;
     this.selectionFinder = selectionFinder;
   }
@@ -44,8 +49,10 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
       String attributeScope,
       DataFetchingFieldSelectionSet attributeQueryableSelectionSet) {
     return Observable.fromStream(
-            this.getAttributeKeysForAttributeQueryableSelectionSet(attributeQueryableSelectionSet))
-        .flatMapSingle(key -> this.buildForKey(context, attributeScope, key))
+            this.getAttributeExpressionsForAttributeQueryableSelectionSet(
+                attributeQueryableSelectionSet))
+        .flatMapSingle(
+            expression -> this.buildForAttributeExpression(context, attributeScope, expression))
         .distinct();
   }
 
@@ -73,40 +80,43 @@ class DefaultAttributeRequestBuilder implements AttributeRequestBuilder {
   }
 
   @Override
-  public Single<AttributeRequest> buildForKey(
-      GraphQlRequestContext context, String requestScope, String attributeKey) {
-    return this.attributeStore
-        .get(context, requestScope, attributeKey)
-        .map(this::buildForAttribute);
+  public Single<AttributeRequest> buildForAttributeExpression(
+      GraphQlRequestContext context,
+      String attributeScope,
+      AttributeExpression attributeExpression) {
+    return this.attributeAssociator
+        .associateAttribute(context, attributeScope, attributeExpression, attributeExpression.key())
+        .map(DefaultAttributeRequest::new);
   }
 
   @Override
   public AttributeRequest buildForAttribute(AttributeModel attribute) {
-    return new DefaultAttributeRequest(attribute);
+    return new DefaultAttributeRequest(
+        AttributeAssociation.of(attribute, AttributeExpression.forAttributeKey(attribute.key())));
   }
 
-  private Stream<String> getAttributeKeysForAttributeQueryableSelectionSet(
+  private Stream<AttributeExpression> getAttributeExpressionsForAttributeQueryableSelectionSet(
       DataFetchingFieldSelectionSet selectionSet) {
     return this.selectionFinder
         .findSelections(
             selectionSet, SelectionQuery.namedChild(AttributeQueryable.ATTRIBUTE_FIELD_NAME))
-        .flatMap(this::getArgument);
+        .flatMap(this::resolveAttributeExpression);
   }
 
-  private Stream<String> getArgument(SelectedField attributeField) {
+  private Stream<AttributeExpression> resolveAttributeExpression(SelectedField attributeField) {
     return this.argumentDeserializer
-        .deserializePrimitive(attributeField.getArguments(), AttributeKeyArgument.class)
+        .deserializeObject(attributeField.getArguments(), AttributeExpression.class)
+        .or(
+            () ->
+                this.argumentDeserializer
+                    .deserializePrimitive(attributeField.getArguments(), AttributeKeyArgument.class)
+                    .map(AttributeExpression::forAttributeKey))
         .stream();
   }
 
   @Value
   @Accessors(fluent = true)
   static class DefaultAttributeRequest implements AttributeRequest {
-    AttributeModel attribute;
-
-    @Override
-    public String alias() {
-      return attribute.id();
-    }
+    AttributeAssociation<AttributeExpression> attributeExpression;
   }
 }

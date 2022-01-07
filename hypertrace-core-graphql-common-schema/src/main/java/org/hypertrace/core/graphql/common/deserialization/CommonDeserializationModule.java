@@ -48,6 +48,9 @@ public class CommonDeserializationModule extends AbstractModule {
         .toInstance(
             ArgumentDeserializationConfig.forPrimitive(
                 SpaceArgument.ARGUMENT_NAME, SpaceArgument.class));
+    deserializationConfigMultibinder
+        .addBinding()
+        .to(AttributeExpressionDeserializationConfig.class);
 
     requireBinding(Key.get(new TypeLiteral<Class<? extends AttributeScope>>() {}));
   }

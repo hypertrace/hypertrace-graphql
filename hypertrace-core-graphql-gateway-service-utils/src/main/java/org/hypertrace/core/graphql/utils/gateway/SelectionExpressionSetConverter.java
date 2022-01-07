@@ -14,11 +14,11 @@ import org.hypertrace.gateway.service.v1.common.Expression.Builder;
 class SelectionExpressionSetConverter
     implements Converter<Collection<AttributeRequest>, Set<Expression>> {
 
-  private final ColumnIdentifierExpressionConverter columnExpressionConverter;
+  private final AttributeExpressionConverter attributeExpressionConverter;
 
   @Inject
-  SelectionExpressionSetConverter(ColumnIdentifierExpressionConverter columnExpressionConverter) {
-    this.columnExpressionConverter = columnExpressionConverter;
+  SelectionExpressionSetConverter(AttributeExpressionConverter attributeExpressionConverter) {
+    this.attributeExpressionConverter = attributeExpressionConverter;
   }
 
   @Override
@@ -30,11 +30,9 @@ class SelectionExpressionSetConverter
   }
 
   private Single<Expression> buildAliasedSelectionExpression(AttributeRequest attributeRequest) {
-    return this.columnExpressionConverter
-        .convert(attributeRequest.attribute())
+    return this.attributeExpressionConverter
+        .convert(attributeRequest.attributeExpression())
         .map(Expression::toBuilder)
-        .doOnSuccess(
-            builder -> builder.getColumnIdentifierBuilder().setAlias(attributeRequest.alias()))
         .map(Builder::build);
   }
 }

@@ -15,14 +15,14 @@ import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 class OrderByExpressionListConverter
     implements Converter<List<AttributeAssociation<OrderArgument>>, List<OrderByExpression>> {
 
-  private final ColumnIdentifierExpressionConverter columnExpressionConverter;
+  private final AttributeExpressionConverter attributeExpressionConverter;
   private final SortOrderConverter sortOrderConverter;
 
   @Inject
   OrderByExpressionListConverter(
-      ColumnIdentifierExpressionConverter columnExpressionConverter,
+      AttributeExpressionConverter attributeExpressionConverter,
       SortOrderConverter sortOrderConverter) {
-    this.columnExpressionConverter = columnExpressionConverter;
+    this.attributeExpressionConverter = attributeExpressionConverter;
     this.sortOrderConverter = sortOrderConverter;
   }
 
@@ -37,7 +37,9 @@ class OrderByExpressionListConverter
       AttributeAssociation<OrderArgument> orderArgument) {
     return zip(
         this.sortOrderConverter.convert(orderArgument.value().direction()),
-        this.columnExpressionConverter.convert(orderArgument.attribute()),
+        this.attributeExpressionConverter.convert(
+            AttributeAssociation.of(
+                orderArgument.attribute(), orderArgument.value().resolvedKeyExpression())),
         (sortOrder, columnExpression) ->
             OrderByExpression.newBuilder()
                 .setOrder(sortOrder)

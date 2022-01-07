@@ -14,6 +14,7 @@ import org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeSco
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
@@ -51,12 +52,12 @@ class DefaultSpanRequestBuilder implements SpanRequestBuilder {
   public Single<SpanRequest> build(
       GraphQlRequestContext context,
       Map<String, Object> arguments,
-      List<String> spanAttributes,
-      List<String> logAttributes) {
+      List<AttributeExpression> spanAttributeExpressions,
+      List<AttributeExpression> logAttributeExpressions) {
     return zip(
         resultSetRequestBuilder.build(
-            context, HypertraceCoreAttributeScopeString.SPAN, arguments, spanAttributes),
-        logEventAttributeRequestBuilder.buildAttributeRequest(context, logAttributes),
+            context, HypertraceCoreAttributeScopeString.SPAN, arguments, spanAttributeExpressions),
+        logEventAttributeRequestBuilder.buildAttributeRequest(context, logAttributeExpressions),
         (resultSetRequest, logEventAttributeRequest) ->
             new DefaultSpanRequest(context, resultSetRequest, logEventAttributeRequest));
   }

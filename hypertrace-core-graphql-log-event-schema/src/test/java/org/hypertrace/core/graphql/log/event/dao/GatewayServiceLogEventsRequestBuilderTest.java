@@ -18,6 +18,7 @@ import java.util.Set;
 import org.hypertrace.core.graphql.attributes.AttributeModelType;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.utils.Converter;
@@ -77,29 +78,33 @@ class GatewayServiceLogEventsRequestBuilderTest extends BaseDaoTest {
     Collection<AttributeRequest> attributeRequests =
         List.of(
             new DefaultAttributeRequest(
-                new DefaultAttributeModel(
-                    "traceId",
-                    "LOG_EVENT",
-                    "traceId",
-                    "Trace Id",
-                    AttributeModelType.STRING,
-                    "",
-                    false,
-                    false,
-                    Collections.emptyList(),
-                    false)),
+                AttributeAssociation.of(
+                    new DefaultAttributeModel(
+                        "traceId",
+                        "LOG_EVENT",
+                        "traceId",
+                        "Trace Id",
+                        AttributeModelType.STRING,
+                        "",
+                        false,
+                        false,
+                        Collections.emptyList(),
+                        false),
+                    AttributeExpression.forAttributeKey("traceId"))),
             new DefaultAttributeRequest(
-                new DefaultAttributeModel(
-                    "timestamp",
-                    "LOG_EVENT",
-                    "timestamp",
-                    "Timestamp",
-                    AttributeModelType.TIMESTAMP,
-                    "",
-                    false,
-                    false,
-                    Collections.emptyList(),
-                    false)));
+                AttributeAssociation.of(
+                    new DefaultAttributeModel(
+                        "timestamp",
+                        "LOG_EVENT",
+                        "timestamp",
+                        "Timestamp",
+                        AttributeModelType.TIMESTAMP,
+                        "",
+                        false,
+                        false,
+                        Collections.emptyList(),
+                        false),
+                    AttributeExpression.forAttributeKey("timestamp"))));
     DefaultLogEventRequest defaultLogEventRequest =
         new DefaultLogEventRequest(
             null,

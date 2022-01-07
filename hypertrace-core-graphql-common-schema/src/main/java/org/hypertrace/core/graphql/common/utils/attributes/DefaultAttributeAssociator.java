@@ -26,17 +26,16 @@ class DefaultAttributeAssociator implements AttributeAssociator {
       Function<T, String> attributeKeyMapper) {
     return Observable.fromIterable(inputs)
         .flatMapSingle(
-            input -> this.associateAttribute(context, requestScope, input, attributeKeyMapper));
+            input ->
+                this.associateAttribute(
+                    context, requestScope, input, attributeKeyMapper.apply(input)));
   }
 
   @Override
   public <T> Single<AttributeAssociation<T>> associateAttribute(
-      GraphQlRequestContext context,
-      String requestScope,
-      T input,
-      Function<T, String> attributeKeyMapper) {
+      GraphQlRequestContext context, String requestScope, T input, String attributeKey) {
     return this.attributeStore
-        .get(context, requestScope, attributeKeyMapper.apply(input))
+        .get(context, requestScope, attributeKey)
         .map(attribute -> AttributeAssociation.of(attribute, input));
   }
 }

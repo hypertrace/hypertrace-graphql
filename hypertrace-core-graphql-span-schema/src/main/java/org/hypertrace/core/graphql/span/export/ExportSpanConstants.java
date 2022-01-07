@@ -1,6 +1,7 @@
 package org.hypertrace.core.graphql.span.export;
 
 import java.util.List;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 
 public interface ExportSpanConstants {
   interface SpanAttributes {
@@ -13,16 +14,16 @@ public interface ExportSpanConstants {
     String NAME = "displaySpanName";
     String TAGS = "spanTags";
 
-    List<String> SPAN_ATTRIBUTES =
+    List<AttributeExpression> SPAN_ATTRIBUTES =
         List.of(
-            SpanAttributes.ID,
-            SpanAttributes.SERVICE_NAME,
-            SpanAttributes.TRACE_ID,
-            SpanAttributes.PARENT_SPAN_ID,
-            SpanAttributes.START_TIME,
-            SpanAttributes.END_TIME,
-            SpanAttributes.NAME,
-            SpanAttributes.TAGS);
+            AttributeExpression.forAttributeKey(SpanAttributes.ID),
+            AttributeExpression.forAttributeKey(SpanAttributes.SERVICE_NAME),
+            AttributeExpression.forAttributeKey(SpanAttributes.TRACE_ID),
+            AttributeExpression.forAttributeKey(SpanAttributes.PARENT_SPAN_ID),
+            AttributeExpression.forAttributeKey(SpanAttributes.START_TIME),
+            AttributeExpression.forAttributeKey(SpanAttributes.END_TIME),
+            AttributeExpression.forAttributeKey(SpanAttributes.NAME),
+            AttributeExpression.forAttributeKey(SpanAttributes.TAGS));
   }
 
   interface SpanTagsKey {
@@ -39,7 +40,9 @@ public interface ExportSpanConstants {
     String TIMESTAMP = "timestamp";
     String ATTRIBUTES = "attributes";
 
-    List<String> LOG_EVENT_ATTRIBUTES =
-        List.of(LogEventAttributes.TIMESTAMP, LogEventAttributes.ATTRIBUTES);
+    List<AttributeExpression> LOG_EVENT_ATTRIBUTES =
+        List.of(
+            AttributeExpression.forAttributeKey(LogEventAttributes.TIMESTAMP),
+            AttributeExpression.forAttributeKey(LogEventAttributes.ATTRIBUTES));
   }
 }
