@@ -31,7 +31,7 @@ class SelectionExpressionSetConverter
 
   private Single<Expression> buildAliasedSelectionExpression(AttributeRequest attributeRequest) {
     return this.attributeExpressionConverter
-        .convert(attributeRequest.attributeExpression())
+        .convert(attributeRequest.attributeExpressionAssociation())
         .map(Expression::toBuilder)
         .map(Builder::build);
   }

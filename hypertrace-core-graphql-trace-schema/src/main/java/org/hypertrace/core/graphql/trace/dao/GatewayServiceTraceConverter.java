@@ -45,7 +45,9 @@ public class GatewayServiceTraceConverter {
         .map(
             attrMap ->
                 new ConvertedTrace(
-                    attrMap.get(request.idAttribute().attributeExpression().value()).toString(),
+                    attrMap
+                        .get(request.idAttribute().attributeExpressionAssociation().value())
+                        .toString(),
                     attrMap));
   }
 

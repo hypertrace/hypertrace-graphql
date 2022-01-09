@@ -11,11 +11,12 @@ class AttributeExpressionConverter
     implements Converter<AttributeAssociation<AttributeExpression>, Expression> {
 
   @Override
-  public Single<Expression> convert(AttributeAssociation<AttributeExpression> attributeExpression) {
+  public Single<Expression> convert(
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation) {
     Builder builder = org.hypertrace.gateway.service.v1.common.AttributeExpression.newBuilder();
-    builder.setAttributeId(attributeExpression.attribute().id());
-    attributeExpression.value().subpath().ifPresent(builder::setSubpath);
-    builder.setAlias(attributeExpression.value().asAlias());
+    builder.setAttributeId(attributeExpressionAssociation.attribute().id());
+    attributeExpressionAssociation.value().subpath().ifPresent(builder::setSubpath);
+    builder.setAlias(attributeExpressionAssociation.value().asAlias());
     return Single.just(Expression.newBuilder().setAttributeExpression(builder).build());
   }
 }

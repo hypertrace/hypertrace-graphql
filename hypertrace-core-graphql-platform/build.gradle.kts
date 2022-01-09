@@ -16,7 +16,10 @@ dependencies {
     api("io.github.graphql-java:graphql-java-annotations:8.3")
     api("org.slf4j:slf4j-api:1.7.30")
     api("io.reactivex.rxjava3:rxjava:3.0.9")
-    api("com.google.protobuf:protobuf-java-util:3.14.0")
+    api("com.google.protobuf:protobuf-java-util:3.19.2")
+    api("com.google.protobuf:protobuf-java:3.19.2") {
+      because("https://snyk.io/vuln/SNYK-JAVA-COMGOOGLEPROTOBUF-2331703")
+    }
 
     api("org.projectlombok:lombok:1.18.18")
     api("com.google.code.findbugs:jsr305:3.0.2")

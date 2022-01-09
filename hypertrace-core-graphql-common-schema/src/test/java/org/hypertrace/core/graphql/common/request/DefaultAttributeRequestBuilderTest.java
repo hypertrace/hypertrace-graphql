@@ -70,6 +70,6 @@ class DefaultAttributeRequestBuilderTest {
             .blockingGet();
 
     assertEquals(1, returned.size());
-    assertEquals(expectedResultExpression, returned.get(0).attributeExpression());
+    assertEquals(expectedResultExpression, returned.get(0).attributeExpressionAssociation());
   }
 }

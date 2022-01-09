@@ -109,10 +109,10 @@ class SpanLogEventRequestBuilderTest {
               return Single.just(
                   List.of(
                       AttributeAssociation.of(
-                          spanIdAttribute.attributeExpression().attribute(),
+                          spanIdAttribute.attributeExpressionAssociation().attribute(),
                           new NormalizedFilter(
                               AttributeExpression.forAttributeKey(
-                                  spanIdAttribute.attributeExpression().value().key()),
+                                  spanIdAttribute.attributeExpressionAssociation().value().key()),
                               filterArgument.operator(),
                               filterArgument.value()))));
             })
@@ -120,7 +120,7 @@ class SpanLogEventRequestBuilderTest {
         .build(any(), any(), anyCollection());
 
     when(attributeStore.getForeignIdAttribute(any(), anyString(), anyString()))
-        .thenReturn(Single.just(spanIdAttribute.attributeExpression().attribute()));
+        .thenReturn(Single.just(spanIdAttribute.attributeExpressionAssociation().attribute()));
 
     doAnswer(
             invocation -> {

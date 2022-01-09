@@ -36,7 +36,7 @@ class BaseDaoTest {
   @Value
   @Accessors(fluent = true)
   static class DefaultAttributeRequest implements AttributeRequest {
-    AttributeAssociation<AttributeExpression> attributeExpression;
+    AttributeAssociation<AttributeExpression> attributeExpressionAssociation;
   }
 
   @Value

@@ -41,9 +41,10 @@ class AttributeMapConverter
     return this.valueConverter
         .convert(
             response.get(attributeRequest.asMapKey()),
-            attributeRequest.attributeExpression().attribute())
+            attributeRequest.attributeExpressionAssociation().attribute())
         .map(
             value ->
-                new SimpleImmutableEntry<>(attributeRequest.attributeExpression().value(), value));
+                new SimpleImmutableEntry<>(
+                    attributeRequest.attributeExpressionAssociation().value(), value));
   }
 }

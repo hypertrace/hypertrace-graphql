@@ -51,7 +51,11 @@ class GatewayServiceSpanConverter {
                 new ConvertedSpan(
                     attrMap
                         .get(
-                            request.spanEventsRequest().idAttribute().attributeExpression().value())
+                            request
+                                .spanEventsRequest()
+                                .idAttribute()
+                                .attributeExpressionAssociation()
+                                .value())
                         .toString(),
                     attrMap,
                     spanIdToLogEvents));
