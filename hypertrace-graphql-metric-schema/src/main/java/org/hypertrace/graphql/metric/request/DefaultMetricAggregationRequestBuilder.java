@@ -53,7 +53,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
 
   @Override
   public Observable<MetricAggregationRequest> build(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       SelectedField metricAggregationContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
@@ -61,7 +61,9 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
                 SelectionQuery.builder()
                     .matchesPredicate(field -> this.getAggregationTypeForField(field).isPresent())
                     .build()))
-        .map(selectedField -> this.requestForAggregationField(attributeExpression, selectedField));
+        .map(
+            selectedField ->
+                this.requestForAggregationField(attributeExpressionAssociation, selectedField));
   }
 
   @Override
@@ -74,27 +76,28 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
   }
 
   public MetricAggregationRequest build(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
-    return this.build(attributeExpression, aggregationType, arguments, false);
+    return this.build(attributeExpressionAssociation, aggregationType, arguments, false);
   }
 
   private MetricAggregationRequest build(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments,
       boolean baseline) {
     return new DefaultMetricAggregationRequest(
-        attributeExpression, aggregationType, arguments, baseline);
+        attributeExpressionAssociation, aggregationType, arguments, baseline);
   }
 
   private MetricAggregationRequest requestForAggregationField(
-      AttributeAssociation<AttributeExpression> attributeExpression, SelectedField field) {
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
+      SelectedField field) {
     AttributeModelMetricAggregationType aggregationType =
         this.getAggregationTypeForField(field).orElseThrow();
     return this.build(
-        attributeExpression,
+        attributeExpressionAssociation,
         aggregationType,
         this.getArgumentsForAggregation(aggregationType, field.getArguments()),
         this.selectionFinder
@@ -170,7 +173,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
   @Value
   @Accessors(fluent = true)
   private static class DefaultMetricAggregationRequest implements MetricAggregationRequest {
-    AttributeAssociation<AttributeExpression> attributeExpression;
+    AttributeAssociation<AttributeExpression> attributeExpressionAssociation;
     AttributeModelMetricAggregationType aggregation;
     List<Object> arguments;
     boolean baseline;
@@ -179,7 +182,9 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     public String alias() {
       return String.format(
           "%s_%s_%s",
-          this.aggregation.name(), this.attributeExpression.attribute().id(), this.arguments);
+          this.aggregation.name(),
+          this.attributeExpressionAssociation.attribute().id(),
+          this.arguments);
     }
 
     @Override

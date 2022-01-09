@@ -12,7 +12,7 @@ import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 public interface MetricAggregationRequestBuilder {
   Observable<MetricAggregationRequest> build(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       SelectedField metricAggregationContainerField);
 
   Single<List<MetricAggregationRequest>> build(
@@ -21,7 +21,7 @@ public interface MetricAggregationRequestBuilder {
       Stream<SelectedField> metricQueryableFieldStream);
 
   MetricAggregationRequest build(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments);
 }

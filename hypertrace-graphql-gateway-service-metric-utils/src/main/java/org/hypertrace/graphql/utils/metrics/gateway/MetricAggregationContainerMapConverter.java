@@ -36,7 +36,7 @@ class MetricAggregationContainerMapConverter
       Map<String, AggregatedMetricValue> metricResponses) {
     return Observable.fromIterable(metricRequests)
         .distinct()
-        .groupBy(request -> request.attributeExpression().value())
+        .groupBy(request -> request.attributeExpressionAssociation().value())
         .flatMapSingle(requests -> this.buildMetricContainerEntry(requests, metricResponses))
         .collect(immutableMapEntryCollector());
   }

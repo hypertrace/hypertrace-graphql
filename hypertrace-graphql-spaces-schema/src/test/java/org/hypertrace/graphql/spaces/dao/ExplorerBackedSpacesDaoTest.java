@@ -68,7 +68,7 @@ class ExplorerBackedSpacesDaoTest {
 
     AttributeAssociation<AttributeExpression> mockExpressionAssociation =
         AttributeAssociation.of(mockAttribute, spaceIdExpression);
-    when(this.mockSpaceAttributeRequest.attributeExpression())
+    when(this.mockSpaceAttributeRequest.attributeExpressionAssociation())
         .thenReturn(mockExpressionAssociation);
 
     when(this.mockAttributeRequestBuilder.buildForAttributeExpression(

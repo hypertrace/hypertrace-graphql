@@ -7,7 +7,7 @@ import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeE
 
 public interface MetricAggregationRequest {
 
-  AttributeAssociation<AttributeExpression> attributeExpression();
+  AttributeAssociation<AttributeExpression> attributeExpressionAssociation();
 
   AttributeModelMetricAggregationType aggregation();
 

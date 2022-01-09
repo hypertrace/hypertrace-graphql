@@ -64,23 +64,23 @@ class AggregatableOrderByExpressionListConverter
 
   private Single<Expression> buildSelectionExpression(
       AttributeAssociation<AggregatableOrderArgument> orderArgument) {
-    AttributeAssociation<AttributeExpression> attributeExpression =
-        this.buildAttributeExpression(orderArgument);
+    AttributeAssociation<AttributeExpression> attributeExpressionAssociation =
+        this.buildAttributeExpressionAssociation(orderArgument);
     return Maybe.fromOptional(Optional.ofNullable(orderArgument.value().aggregation()))
         .flatMapSingle(this.aggregationTypeConverter::convert)
         .flatMapSingle(
             aggregationType ->
                 orderArgument.value().size() == null
                     ? this.metricAggregationExpressionConverter.convertForNoArgsOrAlias(
-                        attributeExpression, aggregationType)
+                        attributeExpressionAssociation, aggregationType)
                     : this.metricAggregationExpressionConverter.convertForArgsButNoAlias(
-                        attributeExpression,
+                        attributeExpressionAssociation,
                         aggregationType,
                         List.of(Objects.requireNonNull(orderArgument.value().size()))))
-        .switchIfEmpty(this.columnExpressionConverter.convert(attributeExpression));
+        .switchIfEmpty(this.columnExpressionConverter.convert(attributeExpressionAssociation));
   }
 
-  private AttributeAssociation<AttributeExpression> buildAttributeExpression(
+  private AttributeAssociation<AttributeExpression> buildAttributeExpressionAssociation(
       AttributeAssociation<AggregatableOrderArgument> orderArgumentAttributeAssociation) {
     return AttributeAssociation.of(
         orderArgumentAttributeAssociation.attribute(),

@@ -30,7 +30,7 @@ public class ExploreResultMapKey {
   public static ExploreResultMapKey forAggregationRequest(
       MetricAggregationRequest aggregationRequest, MetricAggregationType aggregationType) {
     return new ExploreResultMapKey(
-        aggregationRequest.attributeExpression().value(),
+        aggregationRequest.attributeExpressionAssociation().value(),
         aggregationType,
         aggregationRequest.arguments());
   }

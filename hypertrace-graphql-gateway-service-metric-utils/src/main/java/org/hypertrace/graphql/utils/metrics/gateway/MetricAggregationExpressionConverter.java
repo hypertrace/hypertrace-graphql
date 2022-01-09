@@ -45,7 +45,7 @@ class MetricAggregationExpressionConverter
 
   Single<Expression> convert(MetricAggregationRequest metricAggregation, String alias) {
     return this.buildAggregationFunctionExpression(
-            metricAggregation.attributeExpression(),
+            metricAggregation.attributeExpressionAssociation(),
             metricAggregation.aggregation(),
             metricAggregation.arguments(),
             alias)
@@ -53,17 +53,18 @@ class MetricAggregationExpressionConverter
   }
 
   Single<Expression> convertForNoArgsOrAlias(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType) {
-    return convertForArgsButNoAlias(attributeExpression, aggregationType, Collections.emptyList());
+    return convertForArgsButNoAlias(
+        attributeExpressionAssociation, aggregationType, Collections.emptyList());
   }
 
   Single<Expression> convertForArgsButNoAlias(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
     return this.buildAggregationFunctionExpression(
-            attributeExpression,
+            attributeExpressionAssociation,
             aggregationType,
             arguments,
             StringValue.getDefaultInstance().getValue())
@@ -71,13 +72,13 @@ class MetricAggregationExpressionConverter
   }
 
   private Single<FunctionExpression> buildAggregationFunctionExpression(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments,
       String alias) {
     return zip(
         functionTypeConverter.convert(aggregationType),
-        this.columnExpressionConverter.convert(attributeExpression),
+        this.columnExpressionConverter.convert(attributeExpressionAssociation),
         this.convertArguments(arguments),
         (functionType, columnExpression, argumentExpressionList) ->
             FunctionExpression.newBuilder()

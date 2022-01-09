@@ -36,30 +36,31 @@ class MetricSeriesRequestBuilder {
   }
 
   Observable<MetricSeriesRequest> build(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       SelectedField metricContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
                 metricContainerField.getSelectionSet(),
                 SelectionQuery.namedChild(METRIC_INTERVAL_CONTAINER_SERIES_KEY)))
-        .flatMap(field -> this.flattenAggregationsForSeries(attributeExpression, field));
+        .flatMap(field -> this.flattenAggregationsForSeries(attributeExpressionAssociation, field));
   }
 
   Observable<MetricSeriesRequest> buildBaselineSeriesRequests(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       SelectedField metricContainerField) {
     return Observable.fromStream(
             this.selectionFinder.findSelections(
                 metricContainerField.getSelectionSet(),
                 SelectionQuery.namedChild(BASELINE_INTERVAL_CONTAINER_SERIES_KEY)))
-        .flatMap(field -> this.flattenAggregationsForSeries(attributeExpression, field));
+        .flatMap(field -> this.flattenAggregationsForSeries(attributeExpressionAssociation, field));
   }
 
   private Observable<MetricSeriesRequest> flattenAggregationsForSeries(
-      AttributeAssociation<AttributeExpression> attributeExpression, SelectedField seriesField) {
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
+      SelectedField seriesField) {
     Duration period = this.buildSeriesPeriod(seriesField);
     return this.aggregationRequestBuilder
-        .build(attributeExpression, seriesField)
+        .build(attributeExpressionAssociation, seriesField)
         .map(aggregation -> new DefaultMetricSeriesRequest(aggregation, period));
   }
 

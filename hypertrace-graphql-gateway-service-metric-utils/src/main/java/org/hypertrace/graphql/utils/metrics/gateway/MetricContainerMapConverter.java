@@ -53,7 +53,7 @@ class MetricContainerMapConverter
       Collection<MetricRequest> metricRequests, Entity entity, BaselineEntity baselineEntity) {
     return Observable.fromIterable(metricRequests)
         .distinct()
-        .groupBy(request -> request.attributeExpression().value())
+        .groupBy(request -> request.attributeExpressionAssociation().value())
         .flatMapSingle(requests -> this.buildMetricContainerEntry(requests, entity, baselineEntity))
         .collect(immutableMapEntryCollector());
   }

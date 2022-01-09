@@ -78,7 +78,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
                     new FixedTimeRange(this.clock.instant()),
                     attributeRequest,
                     this.metricAggregationRequestBuilder.build(
-                        attributeRequest.attributeExpression(),
+                        attributeRequest.attributeExpressionAssociation(),
                         AttributeModelMetricAggregationType.COUNT,
                         emptyList())));
   }
@@ -170,7 +170,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
       this.orderArguments =
           List.of(
               new SpaceExploreOrderArgument(
-                  Optional.of(spaceIdRequest.attributeExpression().attribute())));
+                  Optional.of(spaceIdRequest.attributeExpressionAssociation().attribute())));
       this.groupByAttributeRequests = Set.of(spaceIdRequest);
     }
   }

@@ -39,21 +39,21 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
   }
 
   private Observable<MetricRequest> collectAggregationsAndSeries(
-      AttributeAssociation<AttributeExpression> attributeExpression,
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       SelectedField metricContainerField) {
     return Single.zip(
             this.aggregationRequestBuilder
-                .build(attributeExpression, metricContainerField)
+                .build(attributeExpressionAssociation, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
             this.seriesRequestBuilder
-                .build(attributeExpression, metricContainerField)
+                .build(attributeExpressionAssociation, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
             this.seriesRequestBuilder
-                .buildBaselineSeriesRequests(attributeExpression, metricContainerField)
+                .buildBaselineSeriesRequests(attributeExpressionAssociation, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
             (aggList, seriesList, baselineSeriesList) ->
                 new DefaultMetricRequest(
-                    attributeExpression, aggList, seriesList, baselineSeriesList))
+                    attributeExpressionAssociation, aggList, seriesList, baselineSeriesList))
         .cast(MetricRequest.class)
         .toObservable();
   }
@@ -61,7 +61,7 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultMetricRequest implements MetricRequest {
-    AttributeAssociation<AttributeExpression> attributeExpression;
+    AttributeAssociation<AttributeExpression> attributeExpressionAssociation;
     List<MetricAggregationRequest> aggregationRequests;
     List<MetricSeriesRequest> seriesRequests;
     List<MetricSeriesRequest> baselineSeriesRequests;

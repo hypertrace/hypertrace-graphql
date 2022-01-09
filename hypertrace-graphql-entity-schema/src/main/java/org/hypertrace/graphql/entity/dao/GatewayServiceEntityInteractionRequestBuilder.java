@@ -72,9 +72,9 @@ class GatewayServiceEntityInteractionRequestBuilder {
         .map(
             entityTypes ->
                 AttributeAssociation.<FilterArgument>of(
-                    request.neighborTypeAttribute().attributeExpression().attribute(),
+                    request.neighborTypeAttribute().attributeExpressionAssociation().attribute(),
                     new EntityNeighborTypeFilter(
-                        request.neighborTypeAttribute().attributeExpression().value(),
+                        request.neighborTypeAttribute().attributeExpressionAssociation().value(),
                         entityTypes)))
         .flatMap(filterAssociation -> this.filterConverter.convert(Set.of(filterAssociation)));
   }

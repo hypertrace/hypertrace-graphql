@@ -129,7 +129,7 @@ class GatewayServiceEntityConverter {
                         entityRequest
                             .resultSetRequest()
                             .idAttribute()
-                            .attributeExpression()
+                            .attributeExpressionAssociation()
                             .value())
                     .toString(),
                 entityRequest.entityType(),
