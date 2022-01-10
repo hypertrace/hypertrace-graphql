@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -23,6 +24,7 @@ import org.hypertrace.gateway.service.v1.entity.EntitiesRequest;
 import org.hypertrace.gateway.service.v1.entity.EntitiesResponse;
 import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.entity.health.BaselineDao;
+import org.hypertrace.graphql.entity.request.EntityLabelRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.label.joiner.LabelJoiner;
@@ -117,21 +119,22 @@ class GatewayServiceEntityDao implements EntityDao {
         .flatMap(
             joiner ->
                 joiner.joinLabels(
-                    entitiesResponse.getEntityList(), getEntityLabelsGetter(request)));
-  }
-
-  private LabelJoiner.LabelIdGetter<Entity> getEntityLabelsGetter(EntityRequest request) {
-    return entity -> Single.just(getLabelAttributeValue(request, entity));
+                    entitiesResponse.getEntityList(),
+                    entity -> Single.just(getLabelAttributeValue(request, entity))));
   }
 
   private List<String> getLabelAttributeValue(EntityRequest request, Entity entity) {
-    Value labelAttributeValue =
-        entity.getAttributeOrDefault(
-            request.labelRequest().get().labelIdArrayAttributeRequest().attribute().id(), null);
-    if (labelAttributeValue == null) {
-      log.warn("Unable to fetch labels attribute for entity with id {}", entity.getId());
-      return Collections.emptyList();
-    }
-    return labelAttributeValue.getStringArrayList();
+    return request
+        .labelRequest()
+        .map(EntityLabelRequest::labelIdArrayAttributeRequest)
+        .map(AttributeRequest::asMapKey)
+        .filter(entity::containsAttribute)
+        .map(entity::getAttributeOrThrow)
+        .<List<String>>map(Value::getStringArrayList)
+        .orElseGet(
+            () -> {
+              log.warn("Unable to fetch labels attribute for entity with id {}", entity.getId());
+              return Collections.emptyList();
+            });
   }
 }

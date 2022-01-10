@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeStore;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.explorer.request.ExploreOrderArgument.ExploreOrderArgumentType;
 import org.hypertrace.graphql.explorer.schema.ExploreResult;
@@ -37,9 +38,12 @@ class ExploreOrderArgumentBuilderTest {
   @Test
   void convertsList() {
     AggregatableOrderArgument firstArg = mock(AggregatableOrderArgument.class);
-    when(firstArg.key()).thenReturn(ExploreResult.EXPLORE_RESULT_INTERVAL_START_KEY);
+    when(firstArg.resolvedKeyExpression())
+        .thenReturn(
+            AttributeExpression.forAttributeKey(ExploreResult.EXPLORE_RESULT_INTERVAL_START_KEY));
     AggregatableOrderArgument secondArg = mock(AggregatableOrderArgument.class);
-    when(secondArg.key()).thenReturn("second");
+    when(secondArg.resolvedKeyExpression())
+        .thenReturn(AttributeExpression.forAttributeKey("second"));
     AttributeModel mockAttributeModel = mock(AttributeModel.class);
     when(mockAttributeStore.get(mockRequestContext, MOCK_CONTEXT, "second"))
         .thenReturn(Single.just(mockAttributeModel));

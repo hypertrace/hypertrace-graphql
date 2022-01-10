@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
 import org.hypertrace.gateway.service.v1.baseline.Baseline;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
@@ -18,6 +19,7 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregation;
 import org.hypertrace.graphql.metric.schema.MetricBaselineAggregation;
 
+@Slf4j
 class BaselinedMetricAggregationMapConverter
     implements TriConverter<
         List<MetricAggregationRequest>,
@@ -42,6 +44,7 @@ class BaselinedMetricAggregationMapConverter
       Map<String, AggregatedMetricValue> resultMap,
       Map<String, Baseline> baselineMap) {
     return Observable.fromIterable(aggregationRequests)
+        .distinct()
         .flatMapSingle(
             aggregationRequest ->
                 this.buildMetricAggregationEntry(aggregationRequest, resultMap, baselineMap))

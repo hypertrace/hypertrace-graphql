@@ -73,7 +73,7 @@ class EntityNeighborMapFetcher {
   private Single<Entry<String, InteractionResponse>> buildInteractionEntry(
       AttributeRequest neighborIdAttribute, InteractionResponse response) {
     return this.valueConverter
-        .convert(response.getInteraction().getAttributeMap().get(neighborIdAttribute.alias()))
+        .convert(response.getInteraction().getAttributeMap().get(neighborIdAttribute.asMapKey()))
         .map(String::valueOf)
         .map(id -> Map.entry(id, response));
   }

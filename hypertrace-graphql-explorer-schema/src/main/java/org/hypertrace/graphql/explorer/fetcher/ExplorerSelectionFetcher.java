@@ -1,9 +1,9 @@
 package org.hypertrace.graphql.explorer.fetcher;
 
 import static java.util.Objects.requireNonNull;
+import static org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey.attribute;
 import static org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey.avgRateAggregation;
 import static org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey.basicAggregation;
-import static org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey.basicAttribute;
 import static org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey.percentileAggregation;
 
 import graphql.schema.DataFetcher;
@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.time.TimeUnit;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
 import org.hypertrace.graphql.explorer.schema.ExploreResult;
@@ -57,9 +58,14 @@ public class ExplorerSelectionFetcher extends InjectableDataFetcher<Selection> {
     }
 
     private ExploreResultMapKey getKeyForArguments(Map<String, Object> arguments) {
-      String key =
+      AttributeExpression attributeExpression =
           this.argumentDeserializer
-              .deserializePrimitive(arguments, SelectionKeyArgument.class)
+              .deserializeObject(arguments, AttributeExpression.class)
+              .or(
+                  () ->
+                      this.argumentDeserializer
+                          .deserializePrimitive(arguments, SelectionKeyArgument.class)
+                          .map(AttributeExpression::forAttributeKey))
               .orElseThrow();
       @Nullable
       MetricAggregationType aggregationType =
@@ -67,7 +73,7 @@ public class ExplorerSelectionFetcher extends InjectableDataFetcher<Selection> {
               .deserializePrimitive(arguments, SelectionAggregationTypeArgument.class)
               .orElse(null);
       if (aggregationType == null) {
-        return basicAttribute(key);
+        return attribute(attributeExpression);
       }
 
       @Nullable
@@ -86,9 +92,10 @@ public class ExplorerSelectionFetcher extends InjectableDataFetcher<Selection> {
       switch (aggregationType) {
         case AVGRATE:
           return avgRateAggregation(
-              key, Duration.of(requireNonNull(selectionSize), requireNonNull(selectionUnit)));
+              attributeExpression,
+              Duration.of(requireNonNull(selectionSize), requireNonNull(selectionUnit)));
         case PERCENTILE:
-          return percentileAggregation(key, requireNonNull(selectionSize));
+          return percentileAggregation(attributeExpression, requireNonNull(selectionSize));
         case COUNT:
         case AVG:
         case SUM:
@@ -96,7 +103,7 @@ public class ExplorerSelectionFetcher extends InjectableDataFetcher<Selection> {
         case MAX:
         case DISTINCTCOUNT:
         default:
-          return basicAggregation(key, aggregationType);
+          return basicAggregation(attributeExpression, aggregationType);
       }
     }
   }

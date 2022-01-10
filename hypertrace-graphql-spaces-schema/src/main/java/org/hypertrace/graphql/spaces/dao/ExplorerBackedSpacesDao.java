@@ -23,6 +23,7 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.attributes.MetricAggregationType;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
@@ -66,10 +67,10 @@ class ExplorerBackedSpacesDao implements SpacesDao {
 
   private Single<ExploreRequest> buildRequest(GraphQlRequestContext context) {
     return this.attributeRequestBuilder
-        .buildForKey(
+        .buildForAttributeExpression(
             context,
             ActiveSpaceExploreRequest.SPACE_IDS_SCOPE,
-            ActiveSpaceExploreRequest.SPACE_IDS_KEY)
+            ActiveSpaceExploreRequest.SPACE_IDS_EXPRESSION)
         .map(
             attributeRequest ->
                 new ActiveSpaceExploreRequest(
@@ -77,7 +78,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
                     new FixedTimeRange(this.clock.instant()),
                     attributeRequest,
                     this.metricAggregationRequestBuilder.build(
-                        attributeRequest.attribute(),
+                        attributeRequest.attributeExpressionAssociation(),
                         AttributeModelMetricAggregationType.COUNT,
                         emptyList())));
   }
@@ -91,8 +92,8 @@ class ExplorerBackedSpacesDao implements SpacesDao {
                     exploreResult
                         .selectionMap()
                         .get(
-                            ExploreResultMapKey.basicAttribute(
-                                ActiveSpaceExploreRequest.SPACE_IDS_KEY)))
+                            ExploreResultMapKey.attribute(
+                                ActiveSpaceExploreRequest.SPACE_IDS_EXPRESSION)))
             .map(Selection::value)
             .filter(Objects::nonNull)
             .flatMap(
@@ -136,7 +137,8 @@ class ExplorerBackedSpacesDao implements SpacesDao {
   @Value
   @Accessors(fluent = true)
   private static class ActiveSpaceExploreRequest implements ExploreRequest {
-    private static final String SPACE_IDS_KEY = "spaceIds";
+    private static final AttributeExpression SPACE_IDS_EXPRESSION =
+        AttributeExpression.forAttributeKey("spaceIds");
     private static final String SPACE_IDS_SCOPE = "EVENT";
     private static final int MAX_SPACES = 100;
 
@@ -166,7 +168,9 @@ class ExplorerBackedSpacesDao implements SpacesDao {
       // Aggregation needed to pass explorer validation - a no agg request is not valid
       this.aggregationRequests = Set.of(spaceIdCountRequest);
       this.orderArguments =
-          List.of(new SpaceExploreOrderArgument(Optional.of(spaceIdRequest.attribute())));
+          List.of(
+              new SpaceExploreOrderArgument(
+                  Optional.of(spaceIdRequest.attributeExpressionAssociation().attribute())));
       this.groupByAttributeRequests = Set.of(spaceIdRequest);
     }
   }
@@ -182,7 +186,8 @@ class ExplorerBackedSpacesDao implements SpacesDao {
     @Accessors(fluent = true)
     private static class SpaceOrderArgument implements AggregatableOrderArgument {
       OrderDirection direction = OrderDirection.ASC;
-      String key = ActiveSpaceExploreRequest.SPACE_IDS_KEY;
+      String key = null;
+      AttributeExpression keyExpression = ActiveSpaceExploreRequest.SPACE_IDS_EXPRESSION;
       MetricAggregationType aggregation = null;
       Integer size = null;
     }

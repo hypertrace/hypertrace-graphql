@@ -37,7 +37,8 @@ class ExploreOrderArgumentBuilder {
   private Single<ExploreOrderArgument> buildExploreOrderArgument(
       GraphQlRequestContext requestContext, String scope, AggregatableOrderArgument argument) {
 
-    if (ExploreResult.EXPLORE_RESULT_INTERVAL_START_KEY.equals(argument.key())) {
+    if (ExploreResult.EXPLORE_RESULT_INTERVAL_START_KEY.equals(
+        argument.resolvedKeyExpression().key())) {
       return this.buildIntervalStartExploreOrderArgument(argument);
     }
     return this.buildAttributeExploreOrderArgument(requestContext, scope, argument);
@@ -51,7 +52,7 @@ class ExploreOrderArgumentBuilder {
   private Single<ExploreOrderArgument> buildAttributeExploreOrderArgument(
       GraphQlRequestContext requestContext, String scope, AggregatableOrderArgument argument) {
     return this.attributeStore
-        .get(requestContext, scope, argument.key())
+        .get(requestContext, scope, argument.resolvedKeyExpression().key())
         .map(model -> new AttributeExploreOrderArgument(argument, Optional.of(model)));
   }
 

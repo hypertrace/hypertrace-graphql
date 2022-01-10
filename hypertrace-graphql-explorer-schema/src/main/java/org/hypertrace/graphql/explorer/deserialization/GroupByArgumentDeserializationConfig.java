@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.explorer.schema.argument.GroupByArgument;
 
@@ -35,6 +36,9 @@ public class GroupByArgumentDeserializationConfig implements ArgumentDeserializa
   private static class DefaultGroupByArgument implements GroupByArgument {
     @JsonProperty(GROUP_BY_KEYS_KEY)
     List<String> keys;
+
+    @JsonProperty(GROUP_BY_EXPRESSIONS_KEY)
+    List<AttributeExpression> expressions;
 
     @JsonProperty(GROUP_BY_INCLUDE_REST_KEY)
     boolean includeRest;

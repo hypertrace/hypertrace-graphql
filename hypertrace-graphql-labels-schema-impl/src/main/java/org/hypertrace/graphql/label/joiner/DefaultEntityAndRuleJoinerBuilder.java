@@ -31,6 +31,7 @@ import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeScope;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
@@ -342,7 +343,8 @@ class DefaultEntityAndRuleJoinerBuilder implements EntityAndRuleJoinerBuilder {
   @Accessors(fluent = true)
   private static class LabelIdFilter implements FilterArgument {
     FilterType type = FilterType.ATTRIBUTE;
-    String key = "labels";
+    String key = null;
+    AttributeExpression keyExpression = AttributeExpression.forAttributeKey("labels");
     FilterOperatorType operator = FilterOperatorType.EQUALS;
     String value;
     AttributeScope idType = null;

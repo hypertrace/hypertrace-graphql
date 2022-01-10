@@ -2,11 +2,11 @@ package org.hypertrace.graphql.explorer.request;
 
 import static io.reactivex.rxjava3.core.Single.zip;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
 
 import graphql.schema.DataFetchingFieldSelectionSet;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,11 +20,11 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
 import org.hypertrace.core.graphql.common.request.FilterRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
-import org.hypertrace.core.graphql.common.utils.attributes.AttributeAssociator;
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -42,7 +42,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
 
   private final AttributeRequestBuilder attributeRequestBuilder;
   private final ArgumentDeserializer argumentDeserializer;
-  private final AttributeAssociator attributeAssociator;
   private final ExploreSelectionRequestBuilder selectionRequestBuilder;
   private final FilterRequestBuilder filterRequestBuilder;
   private final AttributeScopeStringTranslator scopeStringTranslator;
@@ -52,14 +51,12 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   DefaultExploreRequestBuilder(
       AttributeRequestBuilder attributeRequestBuilder,
       ArgumentDeserializer argumentDeserializer,
-      AttributeAssociator attributeAssociator,
       ExploreSelectionRequestBuilder selectionRequestBuilder,
       FilterRequestBuilder filterRequestBuilder,
       AttributeScopeStringTranslator scopeStringTranslator,
       ExploreOrderArgumentBuilder exploreOrderArgumentBuilder) {
     this.attributeRequestBuilder = attributeRequestBuilder;
     this.argumentDeserializer = argumentDeserializer;
-    this.attributeAssociator = attributeAssociator;
     this.selectionRequestBuilder = selectionRequestBuilder;
     this.filterRequestBuilder = filterRequestBuilder;
     this.scopeStringTranslator = scopeStringTranslator;
@@ -123,8 +120,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Optional<String> spaceId =
         this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
 
-    Set<String> groupByKeys =
-        groupBy.map(GroupByArgument::keys).map(Set::copyOf).orElse(emptySet());
+    Set<AttributeExpression> groupByExpressions =
+        groupBy.map(this::resolveGroupByExpressions).orElseGet(Collections::emptySet);
 
     Optional<IntervalArgument> intervalArgument =
         this.argumentDeserializer.deserializeObject(arguments, IntervalArgument.class);
@@ -148,7 +145,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
         aggregationSelections,
         orderArguments,
         filterSingle,
-        this.buildGroupByAttributes(requestContext, explorerScope, groupByKeys),
+        this.buildGroupByAttributes(requestContext, explorerScope, groupByExpressions),
         (attributes, aggregations, orders, filters, groupByAttribute) ->
             new DefaultExploreRequest(
                 requestContext,
@@ -168,10 +165,27 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   }
 
   private Single<Set<AttributeRequest>> buildGroupByAttributes(
-      GraphQlRequestContext context, String explorerScope, Set<String> groupByKeys) {
-    return Observable.fromIterable(groupByKeys)
-        .flatMapSingle(key -> this.attributeRequestBuilder.buildForKey(context, explorerScope, key))
+      GraphQlRequestContext context,
+      String explorerScope,
+      Set<AttributeExpression> groupByExpressions) {
+    return Observable.fromIterable(groupByExpressions)
+        .flatMapSingle(
+            expression ->
+                this.attributeRequestBuilder.buildForAttributeExpression(
+                    context, explorerScope, expression))
         .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private Set<AttributeExpression> resolveGroupByExpressions(GroupByArgument groupByArgument) {
+    return Optional.ofNullable(groupByArgument.expressions())
+        .map(Set::copyOf)
+        .orElseGet(
+            () ->
+                Optional.ofNullable(groupByArgument.keys())
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .map(AttributeExpression::forAttributeKey)
+                    .collect(Collectors.toUnmodifiableSet()));
   }
 
   @Value

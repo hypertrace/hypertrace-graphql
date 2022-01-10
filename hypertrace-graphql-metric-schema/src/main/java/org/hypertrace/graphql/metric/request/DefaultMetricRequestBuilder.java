@@ -9,7 +9,8 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
-import org.hypertrace.core.graphql.attributes.AttributeModel;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 
 class DefaultMetricRequestBuilder implements MetricRequestBuilder {
@@ -38,19 +39,21 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
   }
 
   private Observable<MetricRequest> collectAggregationsAndSeries(
-      AttributeModel attribute, SelectedField metricContainerField) {
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
+      SelectedField metricContainerField) {
     return Single.zip(
             this.aggregationRequestBuilder
-                .build(attribute, metricContainerField)
+                .build(attributeExpressionAssociation, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
             this.seriesRequestBuilder
-                .build(attribute, metricContainerField)
+                .build(attributeExpressionAssociation, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
             this.seriesRequestBuilder
-                .buildBaselineSeriesRequests(attribute, metricContainerField)
+                .buildBaselineSeriesRequests(attributeExpressionAssociation, metricContainerField)
                 .collect(Collectors.toUnmodifiableList()),
             (aggList, seriesList, baselineSeriesList) ->
-                new DefaultMetricRequest(attribute, aggList, seriesList, baselineSeriesList))
+                new DefaultMetricRequest(
+                    attributeExpressionAssociation, aggList, seriesList, baselineSeriesList))
         .cast(MetricRequest.class)
         .toObservable();
   }
@@ -58,7 +61,7 @@ class DefaultMetricRequestBuilder implements MetricRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultMetricRequest implements MetricRequest {
-    AttributeModel attribute;
+    AttributeAssociation<AttributeExpression> attributeExpressionAssociation;
     List<MetricAggregationRequest> aggregationRequests;
     List<MetricSeriesRequest> seriesRequests;
     List<MetricSeriesRequest> baselineSeriesRequests;

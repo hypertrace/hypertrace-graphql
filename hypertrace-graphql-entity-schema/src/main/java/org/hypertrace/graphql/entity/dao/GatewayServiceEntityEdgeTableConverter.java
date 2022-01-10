@@ -59,7 +59,8 @@ class GatewayServiceEntityEdgeTableConverter
   private Single<Entry<String, InteractionResponse>> builtInteractionTypeEntry(
       InteractionResponse response, AttributeRequest neighborType) {
 
-    return this.getEntityType(response.getInteraction().getAttributeMap().get(neighborType.alias()))
+    return this.getEntityType(
+            response.getInteraction().getAttributeMap().get(neighborType.asMapKey()))
         .map(entityType -> Map.entry(entityType, response));
   }
 

@@ -19,8 +19,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
 import org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType;
+import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.request.AttributeRequestBuilder;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.explorer.dao.ExplorerDao;
 import org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey;
@@ -47,6 +49,8 @@ class ExplorerBackedSpacesDaoTest {
   @Mock MetricAggregationRequest mockSpaceCountRequest;
   @Mock Clock mockClock;
 
+  final AttributeExpression spaceIdExpression = AttributeExpression.forAttributeKey("spaceIds");
+
   Instant mockEndTime = Instant.parse("2021-02-01T00:00:00.00Z");
 
   ExplorerBackedSpacesDao dao;
@@ -62,13 +66,19 @@ class ExplorerBackedSpacesDaoTest {
 
     when(this.mockClock.instant()).thenReturn(this.mockEndTime);
 
-    when(this.mockSpaceAttributeRequest.attribute()).thenReturn(this.mockAttribute);
+    AttributeAssociation<AttributeExpression> mockExpressionAssociation =
+        AttributeAssociation.of(mockAttribute, spaceIdExpression);
+    when(this.mockSpaceAttributeRequest.attributeExpressionAssociation())
+        .thenReturn(mockExpressionAssociation);
 
-    when(this.mockAttributeRequestBuilder.buildForKey(this.mockContext, "EVENT", "spaceIds"))
+    when(this.mockAttributeRequestBuilder.buildForAttributeExpression(
+            this.mockContext, "EVENT", this.spaceIdExpression))
         .thenReturn(Single.just(this.mockSpaceAttributeRequest));
 
     when(this.mockMetricRequestBuilder.build(
-            this.mockAttribute, AttributeModelMetricAggregationType.COUNT, Collections.emptyList()))
+            mockExpressionAssociation,
+            AttributeModelMetricAggregationType.COUNT,
+            Collections.emptyList()))
         .thenReturn(this.mockSpaceCountRequest);
   }
 
@@ -97,7 +107,12 @@ class ExplorerBackedSpacesDaoTest {
                             .get(0)
                             .attribute()
                             .equals(Optional.of(this.mockAttribute))
-                        && request.orderArguments().get(0).argument().key().equals("spaceIds")
+                        && request
+                            .orderArguments()
+                            .get(0)
+                            .argument()
+                            .resolvedKeyExpression()
+                            .equals(this.spaceIdExpression)
                         && request.orderArguments().get(0).argument().direction().equals(ASC)
                         && request.filterArguments().isEmpty()
                         && request
@@ -136,7 +151,7 @@ class ExplorerBackedSpacesDaoTest {
     Selection mockSelection = mock(Selection.class);
     when(mockSelection.value()).thenReturn(List.of(spaceName));
     when(mockResult.selectionMap())
-        .thenReturn(Map.of(ExploreResultMapKey.basicAttribute("spaceIds"), mockSelection));
+        .thenReturn(Map.of(ExploreResultMapKey.attribute(this.spaceIdExpression), mockSelection));
     return mockResult;
   }
 }

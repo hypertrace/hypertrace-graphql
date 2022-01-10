@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
@@ -34,23 +35,25 @@ class GatewayServiceEntityEdgeFetcher {
 
   private final EntityNeighborMapFetcher neighborMapFetcher;
 
-  private final BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+  private final BiConverter<
+          Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
   private final BiConverter<
           Collection<MetricAggregationRequest>,
           Map<String, AggregatedMetricValue>,
-          Map<String, BaselinedMetricAggregationContainer>>
+          Map<AttributeExpression, BaselinedMetricAggregationContainer>>
       baselineMetricAggregationContainerMapConverter;
 
   @Inject
   GatewayServiceEntityEdgeFetcher(
       EntityNeighborMapFetcher neighborMapFetcher,
-      BiConverter<Collection<AttributeRequest>, Map<String, Value>, Map<String, Object>>
+      BiConverter<
+              Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
           attributeMapConverter,
       BiConverter<
               Collection<MetricAggregationRequest>,
               Map<String, AggregatedMetricValue>,
-              Map<String, BaselinedMetricAggregationContainer>>
+              Map<AttributeExpression, BaselinedMetricAggregationContainer>>
           baselineMetricAggregationContainerMapConverter) {
     this.neighborMapFetcher = neighborMapFetcher;
     this.attributeMapConverter = attributeMapConverter;
@@ -127,17 +130,17 @@ class GatewayServiceEntityEdgeFetcher {
   @Accessors(fluent = true)
   private static class ConvertedEdge implements Edge {
     Entity neighbor;
-    Map<String, Object> attributeValues;
-    Map<String, BaselinedMetricAggregationContainer> metricContainers;
+    Map<AttributeExpression, Object> attributeValues;
+    Map<AttributeExpression, BaselinedMetricAggregationContainer> metricContainers;
 
     @Override
-    public Object attribute(String key) {
-      return this.attributeValues.get(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.attributeValues.get(attributeExpression);
     }
 
     @Override
-    public BaselinedMetricAggregationContainer metric(String key) {
-      return this.metricContainers.get(key);
+    public BaselinedMetricAggregationContainer metric(AttributeExpression attributeExpressiony) {
+      return this.metricContainers.get(attributeExpressiony);
     }
   }
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Value;
 import lombok.experimental.Accessors;
+import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.utils.CollectorUtils;
 import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -137,8 +138,8 @@ public class LabelResponseConverter {
     }
 
     @Override
-    public Object attribute(String key) {
-      return this.entity.attribute(key);
+    public Object attribute(AttributeExpression attributeExpression) {
+      return this.entity.attribute(attributeExpression);
     }
   }
 }
