@@ -15,6 +15,7 @@ public class GraphQlFactory {
 
     return GraphQLConfiguration.with(injector.getInstance(GraphQLSchema.class))
         .with(injector.getInstance(GraphQlRequestContextBuilder.class))
+        .asyncTimeout(config.getGraphQlTimeout().toMillis())
         .build();
   }
 }

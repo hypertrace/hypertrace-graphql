@@ -17,6 +17,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   private static final String GRAPHQL_URL_PATH = "graphql.urlPath";
   private static final String GRAPHQL_CORS_ENABLED = "graphql.corsEnabled";
+  private static final String GRAPHQL_TIMEOUT = "graphql.timeout";
 
   private static final String DEFAULT_TENANT_ID = "defaultTenantId";
 
@@ -40,8 +41,9 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
   String serviceName;
   int servicePort;
-  String graphqlUrlPath;
+  String graphQlUrlPath;
   boolean corsEnabled;
+  Duration graphQlTimeout;
   Optional<String> defaultTenantId;
   int maxIoThreads;
   String attributeServiceHost;
@@ -60,8 +62,9 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   DefaultGraphQlServiceConfig(Config untypedConfig) {
     this.serviceName = untypedConfig.getString(SERVICE_NAME_CONFIG);
     this.servicePort = untypedConfig.getInt(SERVICE_PORT_CONFIG);
-    this.graphqlUrlPath = untypedConfig.getString(GRAPHQL_URL_PATH);
+    this.graphQlUrlPath = untypedConfig.getString(GRAPHQL_URL_PATH);
     this.corsEnabled = untypedConfig.getBoolean(GRAPHQL_CORS_ENABLED);
+    this.graphQlTimeout = untypedConfig.getDuration(GRAPHQL_TIMEOUT);
     this.defaultTenantId = optionallyGet(() -> untypedConfig.getString(DEFAULT_TENANT_ID));
     this.maxIoThreads = untypedConfig.getInt(MAX_IO_THREADS_PROPERTY);
 
