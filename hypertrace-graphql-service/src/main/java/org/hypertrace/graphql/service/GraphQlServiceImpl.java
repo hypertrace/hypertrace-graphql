@@ -23,7 +23,7 @@ public class GraphQlServiceImpl {
     if (this.graphQlServiceConfig.isCorsEnabled()) {
       contextHandler.addFilter(
           CrossOriginFilter.class,
-          this.graphQlServiceConfig.getGraphqlUrlPath(),
+          this.graphQlServiceConfig.getGraphQlUrlPath(),
           EnumSet.of(DispatcherType.REQUEST));
     }
 
@@ -31,7 +31,7 @@ public class GraphQlServiceImpl {
         new ServletHolder(
             new GraphQlServiceHttpServlet(
                 GraphQlFactory.build(this.graphQlServiceConfig, this.serviceLifecycle))),
-        this.graphQlServiceConfig.getGraphqlUrlPath());
+        this.graphQlServiceConfig.getGraphQlUrlPath());
   }
 
   public GraphQlServiceConfig getGraphQlServiceConfig() {

@@ -46,6 +46,7 @@ serviceConfig:
   urlPath: /graphql
   corsEnabled: true
   defaultTenantId: ""
+  timeoutDuration: 30s
   attributeService:
     host: attribute-service
     port: 9012
