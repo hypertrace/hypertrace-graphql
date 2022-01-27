@@ -9,9 +9,11 @@ public interface GraphQlServiceConfig {
 
   String getServiceName();
 
-  String getGraphqlUrlPath();
+  String getGraphQlUrlPath();
 
   boolean isCorsEnabled();
+
+  Duration getGraphQlTimeout();
 
   Optional<String> getDefaultTenantId();
 

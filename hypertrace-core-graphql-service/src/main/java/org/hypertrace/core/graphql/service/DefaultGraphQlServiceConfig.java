@@ -15,6 +15,7 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
 
   private static final String GRAPHQL_URL_PATH = "graphql.urlPath";
   private static final String GRAPHQL_CORS_ENABLED = "graphql.corsEnabled";
+  private static final String GRAPHQL_TIMEOUT = "graphql.timeout";
 
   private static final String DEFAULT_TENANT_ID = "defaultTenantId";
 
@@ -30,8 +31,9 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
 
   private final String serviceName;
   private final int servicePort;
-  private final String graphqlUrlPath;
+  private final String graphQlUrlPath;
   private final boolean corsEnabled;
+  private final Duration graphQlTimeout;
   private final Optional<String> defaultTenantId;
   private final int maxIoThreads;
   private final String attributeServiceHost;
@@ -44,8 +46,9 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   DefaultGraphQlServiceConfig(Config untypedConfig) {
     this.serviceName = untypedConfig.getString(SERVICE_NAME_CONFIG);
     this.servicePort = untypedConfig.getInt(SERVICE_PORT_CONFIG);
-    this.graphqlUrlPath = untypedConfig.getString(GRAPHQL_URL_PATH);
+    this.graphQlUrlPath = untypedConfig.getString(GRAPHQL_URL_PATH);
     this.corsEnabled = untypedConfig.getBoolean(GRAPHQL_CORS_ENABLED);
+    this.graphQlTimeout = untypedConfig.getDuration(GRAPHQL_TIMEOUT);
     this.defaultTenantId = optionallyGet(() -> untypedConfig.getString(DEFAULT_TENANT_ID));
     this.maxIoThreads = untypedConfig.getInt(MAX_IO_THREADS_PROPERTY);
 
@@ -71,8 +74,13 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   }
 
   @Override
-  public String getGraphqlUrlPath() {
-    return graphqlUrlPath;
+  public String getGraphQlUrlPath() {
+    return graphQlUrlPath;
+  }
+
+  @Override
+  public Duration getGraphQlTimeout() {
+    return graphQlTimeout;
   }
 
   @Override

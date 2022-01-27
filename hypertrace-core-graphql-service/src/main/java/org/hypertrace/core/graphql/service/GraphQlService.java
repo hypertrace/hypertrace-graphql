@@ -35,7 +35,7 @@ public class GraphQlService extends PlatformService {
     if (this.graphQlServiceConfig.isCorsEnabled()) {
       context.addFilter(
           CrossOriginFilter.class,
-          this.graphQlServiceConfig.getGraphqlUrlPath(),
+          this.graphQlServiceConfig.getGraphQlUrlPath(),
           EnumSet.of(DispatcherType.REQUEST));
     }
 
@@ -43,7 +43,7 @@ public class GraphQlService extends PlatformService {
         new ServletHolder(
             new GraphQlServiceHttpServlet(
                 GraphQlFactory.build(this.graphQlServiceConfig, this.serviceLifecycle))),
-        this.graphQlServiceConfig.getGraphqlUrlPath());
+        this.graphQlServiceConfig.getGraphQlUrlPath());
 
     this.server.setHandler(context);
     this.server.setStopAtShutdown(true);
