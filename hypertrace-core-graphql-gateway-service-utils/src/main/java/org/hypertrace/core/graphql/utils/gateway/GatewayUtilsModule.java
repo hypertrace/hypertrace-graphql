@@ -13,6 +13,7 @@ import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
+import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterOperatorType;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderDirection;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
@@ -22,6 +23,7 @@ import org.hypertrace.gateway.service.v1.common.ColumnIdentifier;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.LiteralConstant;
+import org.hypertrace.gateway.service.v1.common.Operator;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.SortOrder;
 import org.hypertrace.gateway.service.v1.common.Value;
@@ -50,6 +52,8 @@ public class GatewayUtilsModule extends AbstractModule {
                     List<AttributeAssociation<OrderArgument>>, List<OrderByExpression>>>() {}))
         .to(OrderByExpressionListConverter.class);
 
+    bind(Key.get(new TypeLiteral<Converter<FilterOperatorType, Operator>>() {}))
+        .to(OperatorConverter.class);
     bind(Key.get(
             new TypeLiteral<
                 Converter<Collection<AttributeAssociation<FilterArgument>>, Filter>>() {}))
