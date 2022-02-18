@@ -1,0 +1,24 @@
+package org.hypertrace.graphql.spanprocessing.schema.rule;
+
+import graphql.annotations.annotationTypes.GraphQLField;
+import graphql.annotations.annotationTypes.GraphQLName;
+import graphql.annotations.annotationTypes.GraphQLNonNull;
+import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
+
+@GraphQLName(ExcludeSpanRuleInfo.TYPE_NAME)
+public interface ExcludeSpanRuleInfo {
+  String TYPE_NAME = "ExcludeSpanRuleInfo";
+
+  String NAME_KEY = "name";
+  String SPAN_FILTER_KEY = "spanFilter";
+
+  @GraphQLField
+  @GraphQLName(NAME_KEY)
+  @GraphQLNonNull
+  String name();
+
+  @GraphQLField
+  @GraphQLName(SPAN_FILTER_KEY)
+  @GraphQLNonNull
+  SpanProcessingRuleFilter spanFilter();
+}
