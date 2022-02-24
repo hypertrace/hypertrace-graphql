@@ -1,3 +1,5 @@
+package org.hypertrace.graphql.spanprocessing;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;

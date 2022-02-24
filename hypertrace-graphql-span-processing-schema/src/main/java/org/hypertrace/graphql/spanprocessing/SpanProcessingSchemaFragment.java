@@ -1,3 +1,5 @@
+package org.hypertrace.graphql.spanprocessing;
+
 import javax.annotation.Nullable;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.SpanProcessingMutationSchema;

@@ -32,6 +32,7 @@ dependencies {
   implementation(project(":hypertrace-graphql-entity-type"))
   implementation(project(":hypertrace-graphql-spaces-schema"))
   implementation(project(":hypertrace-graphql-labels-schema-impl"))
+  implementation(project(":hypertrace-graphql-span-processing-schema"))
 
   implementation("org.slf4j:slf4j-api")
   implementation("com.google.inject:guice")
