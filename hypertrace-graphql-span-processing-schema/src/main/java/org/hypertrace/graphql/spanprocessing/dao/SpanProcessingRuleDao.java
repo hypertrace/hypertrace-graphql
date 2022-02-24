@@ -7,14 +7,14 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteR
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleDetails;
 
 public interface SpanProcessingRuleDao {
   Single<ExcludeSpanRuleResultSet> getRules(ContextualRequest request);
 
-  Single<ExcludeSpanRule> createRule(ExcludeSpanCreateRuleRequest request);
+  Single<ExcludeSpanRuleDetails> createRule(ExcludeSpanCreateRuleRequest request);
 
-  Single<ExcludeSpanRule> updateRule(ExcludeSpanUpdateRuleRequest request);
+  Single<ExcludeSpanRuleDetails> updateRule(ExcludeSpanUpdateRuleRequest request);
 
   Single<DeleteSpanProcessingRuleResponse> deleteRule(ExcludeSpanDeleteRuleRequest request);
 }

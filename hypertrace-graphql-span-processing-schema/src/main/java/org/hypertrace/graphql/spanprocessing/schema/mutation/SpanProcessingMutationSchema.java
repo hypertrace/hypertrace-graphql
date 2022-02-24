@@ -7,7 +7,7 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanCreateRuleMutator;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanDeleteRuleMutator;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanUpdateRuleMutator;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleDetails;
 
 public interface SpanProcessingMutationSchema {
   String CREATE_EXCLUDE_SPAN_RULE_MUTATION_NAME = "createExcludeSpanRule";
@@ -18,7 +18,7 @@ public interface SpanProcessingMutationSchema {
   @GraphQLName(CREATE_EXCLUDE_SPAN_RULE_MUTATION_NAME)
   @GraphQLNonNull
   @GraphQLDataFetcher(ExcludeSpanCreateRuleMutator.class)
-  ExcludeSpanRule createExcludeSpanRule(
+  ExcludeSpanRuleDetails createExcludeSpanRule(
       @GraphQLName(ExcludeSpanRuleCreate.ARGUMENT_NAME) @GraphQLNonNull
           ExcludeSpanRuleCreate input);
 
@@ -26,7 +26,7 @@ public interface SpanProcessingMutationSchema {
   @GraphQLName(UPDATE_EXCLUDE_SPAN_RULE_MUTATION_NAME)
   @GraphQLNonNull
   @GraphQLDataFetcher(ExcludeSpanUpdateRuleMutator.class)
-  ExcludeSpanRule updateExcludeSpanRule(
+  ExcludeSpanRuleDetails updateExcludeSpanRule(
       @GraphQLName(ExcludeSpanRuleUpdate.ARGUMENT_NAME) @GraphQLNonNull
           ExcludeSpanRuleUpdate input);
 
