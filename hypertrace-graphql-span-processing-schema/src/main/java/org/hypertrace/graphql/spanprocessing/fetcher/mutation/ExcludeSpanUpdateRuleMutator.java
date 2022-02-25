@@ -7,16 +7,16 @@ import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.graphql.spanprocessing.dao.SpanProcessingRuleDao;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequestBuilder;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleDetails;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 
-public class ExcludeSpanUpdateRuleMutator extends InjectableDataFetcher<ExcludeSpanRuleDetails> {
+public class ExcludeSpanUpdateRuleMutator extends InjectableDataFetcher<ExcludeSpanRule> {
 
   public ExcludeSpanUpdateRuleMutator() {
     super(SpanProcessingUpdateRuleMutatorImpl.class);
   }
 
   static final class SpanProcessingUpdateRuleMutatorImpl
-      implements DataFetcher<CompletableFuture<ExcludeSpanRuleDetails>> {
+      implements DataFetcher<CompletableFuture<ExcludeSpanRule>> {
     private final SpanProcessingRuleDao spanProcessingRuleDao;
     private final ExcludeSpanUpdateRuleRequestBuilder requestBuilder;
 
@@ -29,7 +29,7 @@ public class ExcludeSpanUpdateRuleMutator extends InjectableDataFetcher<ExcludeS
     }
 
     @Override
-    public CompletableFuture<ExcludeSpanRuleDetails> get(DataFetchingEnvironment environment) {
+    public CompletableFuture<ExcludeSpanRule> get(DataFetchingEnvironment environment) {
       return this.requestBuilder
           .build(environment.getContext(), environment.getArguments())
           .flatMap(this.spanProcessingRuleDao::updateRule)

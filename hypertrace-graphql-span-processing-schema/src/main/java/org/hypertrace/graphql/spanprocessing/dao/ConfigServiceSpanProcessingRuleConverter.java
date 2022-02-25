@@ -6,30 +6,28 @@ import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.utils.Converter;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleDetails;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
-class ConfigServiceSpanProcessingRuleDetailsConverter
+class ConfigServiceSpanProcessingRuleConverter
     implements Converter<
-        org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails,
-        ExcludeSpanRuleDetails> {
+        org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails, ExcludeSpanRule> {
 
   private final ConfigServiceSpanFilterConverter filterConverter;
 
   @Inject
-  ConfigServiceSpanProcessingRuleDetailsConverter(
-      ConfigServiceSpanFilterConverter filterConverter) {
+  ConfigServiceSpanProcessingRuleConverter(ConfigServiceSpanFilterConverter filterConverter) {
     this.filterConverter = filterConverter;
   }
 
   @Override
-  public Single<ExcludeSpanRuleDetails> convert(
+  public Single<ExcludeSpanRule> convert(
       org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails ruleDetails) {
     return this.filterConverter
         .convert(ruleDetails.getRule().getRuleInfo().getFilter())
         .map(
             spanProcessingRuleFilter ->
-                new ConvertedExcludeSpanRuleDetails(
+                new ConvertedExcludeSpanRule(
                     ruleDetails.getRule().getId(),
                     ruleDetails.getRule().getRuleInfo().getName(),
                     spanProcessingRuleFilter,
@@ -43,7 +41,7 @@ class ConfigServiceSpanProcessingRuleDetailsConverter
 
   @Value
   @Accessors(fluent = true)
-  private static class ConvertedExcludeSpanRuleDetails implements ExcludeSpanRuleDetails {
+  private static class ConvertedExcludeSpanRule implements ExcludeSpanRule {
     String id;
     String name;
     SpanProcessingRuleFilter spanFilter;

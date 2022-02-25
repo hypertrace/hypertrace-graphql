@@ -14,7 +14,7 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteR
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleDetails;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 import org.hypertrace.span.processing.config.service.v1.GetAllExcludeSpanRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.SpanProcessingConfigServiceGrpc;
 
@@ -61,7 +61,7 @@ public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao
   }
 
   @Override
-  public Single<ExcludeSpanRuleDetails> createRule(ExcludeSpanCreateRuleRequest request) {
+  public Single<ExcludeSpanRule> createRule(ExcludeSpanCreateRuleRequest request) {
     return Single.fromFuture(
             this.grpcContextBuilder
                 .build(request.context())
@@ -75,7 +75,7 @@ public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao
   }
 
   @Override
-  public Single<ExcludeSpanRuleDetails> updateRule(ExcludeSpanUpdateRuleRequest request) {
+  public Single<ExcludeSpanRule> updateRule(ExcludeSpanUpdateRuleRequest request) {
     return Single.fromFuture(
             this.grpcContextBuilder
                 .build(request.context())
