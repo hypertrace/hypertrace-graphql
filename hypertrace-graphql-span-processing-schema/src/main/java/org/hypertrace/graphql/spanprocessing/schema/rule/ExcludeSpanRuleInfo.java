@@ -11,6 +11,7 @@ public interface ExcludeSpanRuleInfo {
 
   String NAME_KEY = "name";
   String SPAN_FILTER_KEY = "spanFilter";
+  String DISABLED_KEY = "disabled";
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
@@ -21,4 +22,9 @@ public interface ExcludeSpanRuleInfo {
   @GraphQLName(SPAN_FILTER_KEY)
   @GraphQLNonNull
   SpanProcessingRuleFilter spanFilter();
+
+  @GraphQLField
+  @GraphQLName(DISABLED_KEY)
+  @GraphQLNonNull
+  boolean disabled();
 }

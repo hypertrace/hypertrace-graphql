@@ -2,6 +2,7 @@ package org.hypertrace.graphql.spanprocessing.schema.mutation;
 
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
+import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
@@ -12,6 +13,7 @@ public interface ExcludeSpanRuleUpdate extends Identifiable {
 
   String NAME_KEY = "name";
   String SPAN_PROCESSING_FILTER_KEY = "spanFilter";
+  String DISABLED_KEY = "disabled";
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
@@ -20,4 +22,9 @@ public interface ExcludeSpanRuleUpdate extends Identifiable {
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_FILTER_KEY)
   SpanProcessingRuleFilter spanFilter();
+
+  @GraphQLField
+  @GraphQLName(DISABLED_KEY)
+  @GraphQLNonNull
+  boolean disabled();
 }

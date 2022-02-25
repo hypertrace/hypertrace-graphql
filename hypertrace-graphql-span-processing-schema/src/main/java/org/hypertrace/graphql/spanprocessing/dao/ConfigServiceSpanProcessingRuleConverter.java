@@ -31,6 +31,7 @@ class ConfigServiceSpanProcessingRuleConverter
                     ruleDetails.getRule().getId(),
                     ruleDetails.getRule().getRuleInfo().getName(),
                     spanProcessingRuleFilter,
+                    ruleDetails.getRule().getRuleInfo().getDisabled(),
                     Instant.ofEpochSecond(
                         ruleDetails.getMetadata().getCreationTimestamp().getSeconds(),
                         ruleDetails.getMetadata().getCreationTimestamp().getNanos()),
@@ -45,6 +46,7 @@ class ConfigServiceSpanProcessingRuleConverter
     String id;
     String name;
     SpanProcessingRuleFilter spanFilter;
+    boolean disabled;
     Instant creationTime;
     Instant lastUpdatedTime;
   }

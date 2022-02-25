@@ -48,6 +48,7 @@ public class ExcludeSpanUpdateInputDeserializationConfig implements ArgumentDese
     String id;
     String name;
     SpanProcessingRuleFilter spanFilter;
+    boolean disabled;
   }
 
   @Value

@@ -6,7 +6,6 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteR
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleUpdate;
-import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 import org.hypertrace.span.processing.config.service.v1.CreateExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleInfo;
@@ -32,6 +31,7 @@ public class ConfigServiceSpanProcessingRequestConverter {
     return ExcludeSpanRuleInfo.newBuilder()
         .setName(excludeSpanRuleCreate.name())
         .setFilter(this.filterConverter.convert(excludeSpanRuleCreate.spanFilter()))
+        .setDisabled(excludeSpanRuleCreate.disabled())
         .build();
   }
 
@@ -42,20 +42,12 @@ public class ConfigServiceSpanProcessingRequestConverter {
   }
 
   private UpdateExcludeSpanRule convertInput(ExcludeSpanRuleUpdate excludeSpanRuleUpdate) {
-    UpdateExcludeSpanRule.Builder updateExcludeSpanRuleBuilder =
-        UpdateExcludeSpanRule.newBuilder().setId(excludeSpanRuleUpdate.id());
-    String name = excludeSpanRuleUpdate.name();
-    SpanProcessingRuleFilter filter = excludeSpanRuleUpdate.spanFilter();
-    if (name != null) {
-      updateExcludeSpanRuleBuilder =
-          updateExcludeSpanRuleBuilder.setName(excludeSpanRuleUpdate.name());
-    }
-    if (filter != null) {
-      updateExcludeSpanRuleBuilder =
-          updateExcludeSpanRuleBuilder.setFilter(
-              this.filterConverter.convert(excludeSpanRuleUpdate.spanFilter()));
-    }
-    return updateExcludeSpanRuleBuilder.build();
+    return UpdateExcludeSpanRule.newBuilder()
+        .setId(excludeSpanRuleUpdate.id())
+        .setName(excludeSpanRuleUpdate.name())
+        .setFilter(this.filterConverter.convert(excludeSpanRuleUpdate.spanFilter()))
+        .setDisabled(excludeSpanRuleUpdate.disabled())
+        .build();
   }
 
   DeleteExcludeSpanRuleRequest convert(ExcludeSpanDeleteRuleRequest request) {
