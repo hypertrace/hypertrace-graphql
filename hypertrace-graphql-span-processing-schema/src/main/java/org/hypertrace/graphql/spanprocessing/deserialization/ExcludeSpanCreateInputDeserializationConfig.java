@@ -47,6 +47,7 @@ public class ExcludeSpanCreateInputDeserializationConfig implements ArgumentDese
   private static class DefaultExcludeSpanRuleCreate implements ExcludeSpanRuleCreate {
     String name;
     SpanProcessingRuleFilter spanFilter;
+    boolean disabled;
   }
 
   @Value

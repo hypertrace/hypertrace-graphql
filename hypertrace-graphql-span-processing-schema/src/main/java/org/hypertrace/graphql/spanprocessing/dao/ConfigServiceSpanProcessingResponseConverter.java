@@ -28,31 +28,31 @@ public class ConfigServiceSpanProcessingResponseConverter {
   }
 
   Single<ExcludeSpanRuleResultSet> convert(GetAllExcludeSpanRulesResponse response) {
-    return this.convertResultSet(response.getRulesList());
+    return this.convertResultSet(response.getRuleDetailsList());
   }
 
   private Maybe<ExcludeSpanRule> convertOrDrop(
-      org.hypertrace.span.processing.config.service.v1.ExcludeSpanRule rule) {
+      org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails ruleDetails) {
     return this.ruleConverter
-        .convert(rule)
+        .convert(ruleDetails)
         .doOnError(error -> log.error("Error converting ExcludeSpanRule", error))
         .onErrorComplete();
   }
 
   private Single<ExcludeSpanRuleResultSet> convertResultSet(
-      List<org.hypertrace.span.processing.config.service.v1.ExcludeSpanRule> rules) {
-    return Observable.fromIterable(rules)
+      List<org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails> ruleDetails) {
+    return Observable.fromIterable(ruleDetails)
         .concatMapMaybe(this::convertOrDrop)
         .toList()
         .map(ConvertedExcludeSpanRuleResultSet::new);
   }
 
   Single<ExcludeSpanRule> convert(CreateExcludeSpanRuleResponse response) {
-    return this.ruleConverter.convert(response.getRule());
+    return this.ruleConverter.convert(response.getRuleDetails());
   }
 
   Single<ExcludeSpanRule> convert(UpdateExcludeSpanRuleResponse response) {
-    return this.ruleConverter.convert(response.getRule());
+    return this.ruleConverter.convert(response.getRuleDetails());
   }
 
   Single<DeleteSpanProcessingRuleResponse> convert(DeleteExcludeSpanRuleResponse response) {

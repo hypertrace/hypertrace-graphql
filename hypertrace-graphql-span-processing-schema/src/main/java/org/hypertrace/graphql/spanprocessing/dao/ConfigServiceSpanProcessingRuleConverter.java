@@ -1,6 +1,7 @@
 package org.hypertrace.graphql.spanprocessing.dao;
 
 import io.reactivex.rxjava3.core.Single;
+import java.time.Instant;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
@@ -10,7 +11,7 @@ import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRu
 
 class ConfigServiceSpanProcessingRuleConverter
     implements Converter<
-        org.hypertrace.span.processing.config.service.v1.ExcludeSpanRule, ExcludeSpanRule> {
+        org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails, ExcludeSpanRule> {
 
   private final ConfigServiceSpanFilterConverter filterConverter;
 
@@ -21,13 +22,22 @@ class ConfigServiceSpanProcessingRuleConverter
 
   @Override
   public Single<ExcludeSpanRule> convert(
-      org.hypertrace.span.processing.config.service.v1.ExcludeSpanRule rule) {
+      org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails ruleDetails) {
     return this.filterConverter
-        .convert(rule.getRuleInfo().getFilter())
+        .convert(ruleDetails.getRule().getRuleInfo().getFilter())
         .map(
             spanProcessingRuleFilter ->
                 new ConvertedExcludeSpanRule(
-                    rule.getId(), rule.getRuleInfo().getName(), spanProcessingRuleFilter));
+                    ruleDetails.getRule().getId(),
+                    ruleDetails.getRule().getRuleInfo().getName(),
+                    spanProcessingRuleFilter,
+                    ruleDetails.getRule().getRuleInfo().getDisabled(),
+                    Instant.ofEpochSecond(
+                        ruleDetails.getMetadata().getCreationTimestamp().getSeconds(),
+                        ruleDetails.getMetadata().getCreationTimestamp().getNanos()),
+                    Instant.ofEpochSecond(
+                        ruleDetails.getMetadata().getLastUpdatedTimestamp().getSeconds(),
+                        ruleDetails.getMetadata().getLastUpdatedTimestamp().getNanos())));
   }
 
   @Value
@@ -36,5 +46,8 @@ class ConfigServiceSpanProcessingRuleConverter
     String id;
     String name;
     SpanProcessingRuleFilter spanFilter;
+    boolean disabled;
+    Instant creationTime;
+    Instant lastUpdatedTime;
   }
 }

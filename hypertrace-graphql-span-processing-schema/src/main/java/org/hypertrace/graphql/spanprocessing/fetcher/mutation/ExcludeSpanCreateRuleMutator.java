@@ -30,7 +30,6 @@ public class ExcludeSpanCreateRuleMutator extends InjectableDataFetcher<ExcludeS
 
     @Override
     public CompletableFuture<ExcludeSpanRule> get(DataFetchingEnvironment environment) {
-
       return this.requestBuilder
           .build(environment.getContext(), environment.getArguments())
           .flatMap(this.spanProcessingRuleDao::createRule)
