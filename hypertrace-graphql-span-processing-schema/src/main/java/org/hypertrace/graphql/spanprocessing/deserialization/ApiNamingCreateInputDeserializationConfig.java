@@ -8,27 +8,27 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
-import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
+import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
-public class ExcludeSpanCreateInputDeserializationConfig implements ArgumentDeserializationConfig {
+public class ApiNamingCreateInputDeserializationConfig implements ArgumentDeserializationConfig {
   @Override
   public String getArgumentKey() {
-    return ExcludeSpanRuleCreate.ARGUMENT_NAME;
+    return ApiNamingRuleCreate.ARGUMENT_NAME;
   }
 
   @Override
-  public Class<ExcludeSpanRuleCreate> getArgumentSchema() {
-    return ExcludeSpanRuleCreate.class;
+  public Class<ApiNamingRuleCreate> getArgumentSchema() {
+    return ApiNamingRuleCreate.class;
   }
 
   @Override
   public List<Module> jacksonModules() {
     return List.of(
         new SimpleModule()
-            .addAbstractTypeMapping(ExcludeSpanRuleCreate.class, DefaultExcludeSpanRuleCreate.class)
+            .addAbstractTypeMapping(ApiNamingRuleCreate.class, DefaultApiNamingRuleCreate.class)
             .addAbstractTypeMapping(
                 SpanProcessingRuleFilter.class, DefaultSpanProcessingRuleFilter.class)
             .addAbstractTypeMapping(
@@ -41,9 +41,11 @@ public class ExcludeSpanCreateInputDeserializationConfig implements ArgumentDese
   @Accessors(fluent = true)
   @Jacksonized
   @Builder
-  private static class DefaultExcludeSpanRuleCreate implements ExcludeSpanRuleCreate {
+  private static class DefaultApiNamingRuleCreate implements ApiNamingRuleCreate {
     String name;
     SpanProcessingRuleFilter spanFilter;
+    String regex;
+    String value;
     boolean disabled;
   }
 }

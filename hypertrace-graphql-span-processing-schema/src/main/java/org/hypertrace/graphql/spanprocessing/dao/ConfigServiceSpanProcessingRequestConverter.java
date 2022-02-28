@@ -1,14 +1,25 @@
 package org.hypertrace.graphql.spanprocessing.dao;
 
 import javax.inject.Inject;
+import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingCreateRuleRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingDeleteRuleRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequest;
+import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleCreate;
+import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleUpdate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleUpdate;
+import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleConfig;
+import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleInfo;
+import org.hypertrace.span.processing.config.service.v1.CreateApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.CreateExcludeSpanRuleRequest;
+import org.hypertrace.span.processing.config.service.v1.DeleteApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleInfo;
+import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRule;
+import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.UpdateExcludeSpanRule;
 import org.hypertrace.span.processing.config.service.v1.UpdateExcludeSpanRuleRequest;
 
@@ -52,5 +63,49 @@ public class ConfigServiceSpanProcessingRequestConverter {
 
   DeleteExcludeSpanRuleRequest convert(ExcludeSpanDeleteRuleRequest request) {
     return DeleteExcludeSpanRuleRequest.newBuilder().setId(request.id()).build();
+  }
+
+  CreateApiNamingRuleRequest convert(ApiNamingCreateRuleRequest request) {
+    return CreateApiNamingRuleRequest.newBuilder()
+        .setRuleInfo(convertInput(request.createInput()))
+        .build();
+  }
+
+  private org.hypertrace.span.processing.config.service.v1.ApiNamingRuleInfo convertInput(
+      ApiNamingRuleCreate apiNamingRuleCreate) {
+    return ApiNamingRuleInfo.newBuilder()
+        .setName(apiNamingRuleCreate.name())
+        .setFilter(this.filterConverter.convert(apiNamingRuleCreate.spanFilter()))
+        .setDisabled(apiNamingRuleCreate.disabled())
+        .setRuleConfig(
+            ApiNamingRuleConfig.newBuilder()
+                .setRegex(apiNamingRuleCreate.regex())
+                .setValue(apiNamingRuleCreate.value())
+                .build())
+        .build();
+  }
+
+  UpdateApiNamingRuleRequest convert(ApiNamingUpdateRuleRequest request) {
+    return UpdateApiNamingRuleRequest.newBuilder()
+        .setRule(convertInput(request.updateInput()))
+        .build();
+  }
+
+  private UpdateApiNamingRule convertInput(ApiNamingRuleUpdate apiNamingRuleUpdate) {
+    return UpdateApiNamingRule.newBuilder()
+        .setId(apiNamingRuleUpdate.id())
+        .setName(apiNamingRuleUpdate.name())
+        .setFilter(this.filterConverter.convert(apiNamingRuleUpdate.spanFilter()))
+        .setDisabled(apiNamingRuleUpdate.disabled())
+        .setRuleConfig(
+            ApiNamingRuleConfig.newBuilder()
+                .setRegex(apiNamingRuleUpdate.regex())
+                .setValue(apiNamingRuleUpdate.value())
+                .build())
+        .build();
+  }
+
+  DeleteApiNamingRuleRequest convert(ApiNamingDeleteRuleRequest request) {
+    return DeleteApiNamingRuleRequest.newBuilder().setId(request.id()).build();
   }
 }

@@ -6,24 +6,24 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.graphql.spanprocessing.dao.SpanProcessingRuleDao;
-import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteRuleRequestBuilder;
+import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingDeleteRuleRequestBuilder;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
 
-public class ExcludeSpanDeleteRuleMutator
+public class ApiNamingDeleteRuleMutator
     extends InjectableDataFetcher<DeleteSpanProcessingRuleResponse> {
 
-  public ExcludeSpanDeleteRuleMutator() {
-    super(ExcludeSpanDeleteRuleMutatorImpl.class);
+  public ApiNamingDeleteRuleMutator() {
+    super(ApiNamingDeleteRuleMutatorImpl.class);
   }
 
-  static final class ExcludeSpanDeleteRuleMutatorImpl
+  static final class ApiNamingDeleteRuleMutatorImpl
       implements DataFetcher<CompletableFuture<DeleteSpanProcessingRuleResponse>> {
     private final SpanProcessingRuleDao spanProcessingRuleDao;
-    private final ExcludeSpanDeleteRuleRequestBuilder requestBuilder;
+    private final ApiNamingDeleteRuleRequestBuilder requestBuilder;
 
     @Inject
-    ExcludeSpanDeleteRuleMutatorImpl(
-        ExcludeSpanDeleteRuleRequestBuilder requestBuilder,
+    ApiNamingDeleteRuleMutatorImpl(
+        ApiNamingDeleteRuleRequestBuilder requestBuilder,
         SpanProcessingRuleDao spanProcessingRuleDao) {
       this.requestBuilder = requestBuilder;
       this.spanProcessingRuleDao = spanProcessingRuleDao;
@@ -34,7 +34,7 @@ public class ExcludeSpanDeleteRuleMutator
         DataFetchingEnvironment environment) {
       return this.requestBuilder
           .build(environment.getContext(), environment.getArguments())
-          .flatMap(this.spanProcessingRuleDao::deleteExcludeSpanRule)
+          .flatMap(this.spanProcessingRuleDao::deleteApiNamingRule)
           .toCompletionStage()
           .toCompletableFuture();
     }

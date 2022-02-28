@@ -8,27 +8,27 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
-import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
+import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleUpdate;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
-public class ExcludeSpanCreateInputDeserializationConfig implements ArgumentDeserializationConfig {
+public class ApiNamingUpdateInputDeserializationConfig implements ArgumentDeserializationConfig {
   @Override
   public String getArgumentKey() {
-    return ExcludeSpanRuleCreate.ARGUMENT_NAME;
+    return ApiNamingRuleUpdate.ARGUMENT_NAME;
   }
 
   @Override
-  public Class<ExcludeSpanRuleCreate> getArgumentSchema() {
-    return ExcludeSpanRuleCreate.class;
+  public Class<ApiNamingRuleUpdate> getArgumentSchema() {
+    return ApiNamingRuleUpdate.class;
   }
 
   @Override
   public List<Module> jacksonModules() {
     return List.of(
         new SimpleModule()
-            .addAbstractTypeMapping(ExcludeSpanRuleCreate.class, DefaultExcludeSpanRuleCreate.class)
+            .addAbstractTypeMapping(ApiNamingRuleUpdate.class, DefaultApiNamingRuleUpdate.class)
             .addAbstractTypeMapping(
                 SpanProcessingRuleFilter.class, DefaultSpanProcessingRuleFilter.class)
             .addAbstractTypeMapping(
@@ -41,9 +41,12 @@ public class ExcludeSpanCreateInputDeserializationConfig implements ArgumentDese
   @Accessors(fluent = true)
   @Jacksonized
   @Builder
-  private static class DefaultExcludeSpanRuleCreate implements ExcludeSpanRuleCreate {
+  private static class DefaultApiNamingRuleUpdate implements ApiNamingRuleUpdate {
+    String id;
     String name;
     SpanProcessingRuleFilter spanFilter;
     boolean disabled;
+    String regex;
+    String value;
   }
 }

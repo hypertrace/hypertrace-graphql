@@ -6,33 +6,33 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import org.hypertrace.core.graphql.common.fetcher.InjectableDataFetcher;
 import org.hypertrace.graphql.spanprocessing.dao.SpanProcessingRuleDao;
-import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequestBuilder;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingCreateRuleRequestBuilder;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 
-public class ExcludeSpanUpdateRuleMutator extends InjectableDataFetcher<ExcludeSpanRule> {
+public class ApiNamingCreateRuleMutator extends InjectableDataFetcher<ApiNamingRule> {
 
-  public ExcludeSpanUpdateRuleMutator() {
-    super(ExcludeSpanUpdateRuleMutatorImpl.class);
+  public ApiNamingCreateRuleMutator() {
+    super(ApiNamingCreateRuleMutatorImpl.class);
   }
 
-  static final class ExcludeSpanUpdateRuleMutatorImpl
-      implements DataFetcher<CompletableFuture<ExcludeSpanRule>> {
+  static final class ApiNamingCreateRuleMutatorImpl
+      implements DataFetcher<CompletableFuture<ApiNamingRule>> {
     private final SpanProcessingRuleDao spanProcessingRuleDao;
-    private final ExcludeSpanUpdateRuleRequestBuilder requestBuilder;
+    private final ApiNamingCreateRuleRequestBuilder requestBuilder;
 
     @Inject
-    ExcludeSpanUpdateRuleMutatorImpl(
-        ExcludeSpanUpdateRuleRequestBuilder requestBuilder,
+    ApiNamingCreateRuleMutatorImpl(
+        ApiNamingCreateRuleRequestBuilder requestBuilder,
         SpanProcessingRuleDao spanProcessingRuleDao) {
       this.requestBuilder = requestBuilder;
       this.spanProcessingRuleDao = spanProcessingRuleDao;
     }
 
     @Override
-    public CompletableFuture<ExcludeSpanRule> get(DataFetchingEnvironment environment) {
+    public CompletableFuture<ApiNamingRule> get(DataFetchingEnvironment environment) {
       return this.requestBuilder
           .build(environment.getContext(), environment.getArguments())
-          .flatMap(this.spanProcessingRuleDao::updateExcludeSpanRule)
+          .flatMap(this.spanProcessingRuleDao::createApiNamingRule)
           .toCompletionStage()
           .toCompletableFuture();
     }
