@@ -1,19 +1,19 @@
-package org.hypertrace.graphql.spanprocessing.schema.mutation;
+package org.hypertrace.graphql.spanprocessing.schema.rule;
 
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
-import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
-@GraphQLName(ExcludeSpanRuleUpdate.TYPE_NAME)
-public interface ExcludeSpanRuleUpdate extends Identifiable {
-  String TYPE_NAME = "ExcludeSpanRuleUpdate";
-  String ARGUMENT_NAME = "input";
+@GraphQLName(ExcludeSpanRuleInfo.TYPE_NAME)
+public interface ApiNamingRuleInfo {
+  String TYPE_NAME = "ApiNamingRuleInfo";
 
   String NAME_KEY = "name";
-  String SPAN_PROCESSING_FILTER_KEY = "spanFilter";
+  String SPAN_FILTER_KEY = "spanFilter";
   String DISABLED_KEY = "disabled";
+  String REGEX_KEY = "regex";
+  String VALUE_KEY = "value";
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
@@ -21,9 +21,19 @@ public interface ExcludeSpanRuleUpdate extends Identifiable {
   String name();
 
   @GraphQLField
-  @GraphQLName(SPAN_PROCESSING_FILTER_KEY)
+  @GraphQLName(SPAN_FILTER_KEY)
   @GraphQLNonNull
   SpanProcessingRuleFilter spanFilter();
+
+  @GraphQLField
+  @GraphQLName(REGEX_KEY)
+  @GraphQLNonNull
+  String regex();
+
+  @GraphQLField
+  @GraphQLName(VALUE_KEY)
+  @GraphQLNonNull
+  String value();
 
   @GraphQLField
   @GraphQLName(DISABLED_KEY)

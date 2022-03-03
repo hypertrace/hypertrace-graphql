@@ -12,16 +12,16 @@ import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 public class ExcludeSpanCreateRuleMutator extends InjectableDataFetcher<ExcludeSpanRule> {
 
   public ExcludeSpanCreateRuleMutator() {
-    super(SpanProcessingCreateRuleMutatorImpl.class);
+    super(ExcludeSpanCreateRuleMutatorImpl.class);
   }
 
-  static final class SpanProcessingCreateRuleMutatorImpl
+  static final class ExcludeSpanCreateRuleMutatorImpl
       implements DataFetcher<CompletableFuture<ExcludeSpanRule>> {
     private final SpanProcessingRuleDao spanProcessingRuleDao;
     private final ExcludeSpanCreateRuleRequestBuilder requestBuilder;
 
     @Inject
-    SpanProcessingCreateRuleMutatorImpl(
+    ExcludeSpanCreateRuleMutatorImpl(
         ExcludeSpanCreateRuleRequestBuilder requestBuilder,
         SpanProcessingRuleDao spanProcessingRuleDao) {
       this.requestBuilder = requestBuilder;
@@ -32,7 +32,7 @@ public class ExcludeSpanCreateRuleMutator extends InjectableDataFetcher<ExcludeS
     public CompletableFuture<ExcludeSpanRule> get(DataFetchingEnvironment environment) {
       return this.requestBuilder
           .build(environment.getContext(), environment.getArguments())
-          .flatMap(this.spanProcessingRuleDao::createRule)
+          .flatMap(this.spanProcessingRuleDao::createExcludeSpanRule)
           .toCompletionStage()
           .toCompletableFuture();
     }

@@ -9,11 +9,8 @@ import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleUpdate;
-import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingFilterField;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
-import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalFilter;
-import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
 public class ExcludeSpanUpdateInputDeserializationConfig implements ArgumentDeserializationConfig {
@@ -49,35 +46,5 @@ public class ExcludeSpanUpdateInputDeserializationConfig implements ArgumentDese
     String name;
     SpanProcessingRuleFilter spanFilter;
     boolean disabled;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  @Jacksonized
-  @Builder
-  private static class DefaultSpanProcessingRuleFilter implements SpanProcessingRuleFilter {
-    SpanProcessingLogicalFilter logicalSpanFilter;
-    SpanProcessingRelationalFilter relationalSpanFilter;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  @Jacksonized
-  @Builder
-  private static class DefaultSpanProcessingLogicalFilter implements SpanProcessingLogicalFilter {
-    SpanProcessingLogicalOperator logicalOperator;
-    List<SpanProcessingRuleFilter> spanFilters;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  @Jacksonized
-  @Builder
-  private static class DefaultSpanProcessingRelationalFilter
-      implements SpanProcessingRelationalFilter {
-    String key;
-    SpanProcessingFilterField field;
-    SpanProcessingRelationalOperator relationalOperator;
-    Object value;
   }
 }
