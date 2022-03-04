@@ -10,4 +10,10 @@ public interface ExploreRequestBuilder {
       GraphQlRequestContext context,
       Map<String, Object> arguments,
       DataFetchingFieldSelectionSet selectionSet);
+
+  Single<ExploreRequest> build(
+      GraphQlRequestContext requestContext,
+      String explorerScope,
+      Map<String, Object> arguments,
+      DataFetchingFieldSelectionSet selectionSet);
 }

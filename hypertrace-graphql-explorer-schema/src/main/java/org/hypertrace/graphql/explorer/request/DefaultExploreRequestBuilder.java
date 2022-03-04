@@ -83,7 +83,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     return this.build(requestContext, explorerScope, arguments, selectionSet);
   }
 
-  private Single<ExploreRequest> build(
+  @Override
+  public Single<ExploreRequest> build(
       GraphQlRequestContext requestContext,
       String explorerScope,
       Map<String, Object> arguments,
