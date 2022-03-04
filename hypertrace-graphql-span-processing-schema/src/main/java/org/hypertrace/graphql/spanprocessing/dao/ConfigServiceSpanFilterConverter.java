@@ -2,6 +2,7 @@ package org.hypertrace.graphql.spanprocessing.dao;
 
 import com.google.common.collect.ImmutableBiMap;
 import io.reactivex.rxjava3.core.Single;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -190,9 +191,8 @@ public class ConfigServiceSpanFilterConverter {
     SpanFilterValue.Builder spanFilterValueBuilder = SpanFilterValue.newBuilder();
     if (String.class.equals(value.getClass())) {
       spanFilterValueBuilder = spanFilterValueBuilder.setStringValue(value.toString());
-    } else if (List.class.equals(value.getClass())) {
-      spanFilterValueBuilder =
-          spanFilterValueBuilder.setListValue(convertToListSpanFilterValue(value));
+    } else if (ArrayList.class.equals(value.getClass())) {
+      spanFilterValueBuilder.setListValue(convertToListSpanFilterValue(value));
     }
     return spanFilterValueBuilder.build();
   }
