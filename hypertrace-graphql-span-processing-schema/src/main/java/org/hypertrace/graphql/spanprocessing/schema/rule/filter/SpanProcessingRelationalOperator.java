@@ -9,6 +9,7 @@ public enum SpanProcessingRelationalOperator {
   CONTAINS,
   STARTS_WITH,
   ENDS_WITH,
-  REGEX_MATCH;
+  REGEX_MATCH,
+  IN;
   static final String TYPE_NAME = "SpanProcessingRelationalOperator";
 }

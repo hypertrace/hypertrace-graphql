@@ -5,15 +5,14 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
-@GraphQLName(ExcludeSpanRuleInfo.TYPE_NAME)
+@GraphQLName(ApiNamingRuleInfo.TYPE_NAME)
 public interface ApiNamingRuleInfo {
   String TYPE_NAME = "ApiNamingRuleInfo";
 
   String NAME_KEY = "name";
   String SPAN_FILTER_KEY = "spanFilter";
   String DISABLED_KEY = "disabled";
-  String REGEX_KEY = "regex";
-  String VALUE_KEY = "value";
+  String API_NAMING_RULE_CONFIG_KEY = "apiNamingRuleConfig";
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
@@ -26,14 +25,9 @@ public interface ApiNamingRuleInfo {
   SpanProcessingRuleFilter spanFilter();
 
   @GraphQLField
-  @GraphQLName(REGEX_KEY)
+  @GraphQLName(API_NAMING_RULE_CONFIG_KEY)
   @GraphQLNonNull
-  String regex();
-
-  @GraphQLField
-  @GraphQLName(VALUE_KEY)
-  @GraphQLNonNull
-  String value();
+  ApiNamingRuleConfig apiNamingRuleConfig();
 
   @GraphQLField
   @GraphQLName(DISABLED_KEY)

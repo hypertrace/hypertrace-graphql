@@ -2,13 +2,19 @@ package org.hypertrace.graphql.spanprocessing.dao;
 
 import io.reactivex.rxjava3.core.Single;
 import java.time.Instant;
+import java.util.List;
+import java.util.NoSuchElementException;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfig;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfigType;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.rule.SegmentMatchingBasedRuleConfig;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleDetails;
+import org.hypertrace.span.processing.config.service.v1.SegmentMatchingBasedConfig;
 
 class ConfigServiceSpanProcessingRuleConverter {
 
@@ -48,14 +54,29 @@ class ConfigServiceSpanProcessingRuleConverter {
                     ruleDetails.getRule().getRuleInfo().getName(),
                     spanProcessingRuleFilter,
                     ruleDetails.getRule().getRuleInfo().getDisabled(),
-                    ruleDetails.getRule().getRuleInfo().getRuleConfig().getRegex(),
-                    ruleDetails.getRule().getRuleInfo().getRuleConfig().getValue(),
+                    convertApiNamingRuleConfig(ruleDetails.getRule().getRuleInfo().getRuleConfig()),
                     Instant.ofEpochSecond(
                         ruleDetails.getMetadata().getCreationTimestamp().getSeconds(),
                         ruleDetails.getMetadata().getCreationTimestamp().getNanos()),
                     Instant.ofEpochSecond(
                         ruleDetails.getMetadata().getLastUpdatedTimestamp().getSeconds(),
                         ruleDetails.getMetadata().getLastUpdatedTimestamp().getNanos())));
+  }
+
+  private ApiNamingRuleConfig convertApiNamingRuleConfig(
+      org.hypertrace.span.processing.config.service.v1.ApiNamingRuleConfig apiNamingRuleConfig) {
+    switch (apiNamingRuleConfig.getRuleConfigCase()) {
+      case SEGMENT_MATCHING_BASED_CONFIG:
+        SegmentMatchingBasedConfig segmentMatchingBasedConfig =
+            apiNamingRuleConfig.getSegmentMatchingBasedConfig();
+        return new ConvertedApiNamingRuleConfig(
+            ApiNamingRuleConfigType.SEGMENT_MATCHING,
+            new ConvertedSegmentMatchingBasedRuleConfig(
+                segmentMatchingBasedConfig.getRegexesList(),
+                segmentMatchingBasedConfig.getValuesList()));
+      default:
+        throw new NoSuchElementException("Unsupported Rule config type: " + apiNamingRuleConfig);
+    }
   }
 
   @Value
@@ -76,9 +97,23 @@ class ConfigServiceSpanProcessingRuleConverter {
     String name;
     SpanProcessingRuleFilter spanFilter;
     boolean disabled;
-    String regex;
-    String value;
+    ApiNamingRuleConfig apiNamingRuleConfig;
     Instant creationTime;
     Instant lastUpdatedTime;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class ConvertedApiNamingRuleConfig implements ApiNamingRuleConfig {
+    ApiNamingRuleConfigType apiNamingRuleConfigType;
+    SegmentMatchingBasedRuleConfig segmentMatchingBasedRuleConfig;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class ConvertedSegmentMatchingBasedRuleConfig
+      implements SegmentMatchingBasedRuleConfig {
+    List<String> regexes;
+    List<String> values;
   }
 }

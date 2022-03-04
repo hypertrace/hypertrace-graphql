@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spanprocessing.dao;
 
+import java.util.NoSuchElementException;
 import javax.inject.Inject;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingDeleteRuleRequest;
@@ -18,6 +19,7 @@ import org.hypertrace.span.processing.config.service.v1.CreateExcludeSpanRuleReq
 import org.hypertrace.span.processing.config.service.v1.DeleteApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleInfo;
+import org.hypertrace.span.processing.config.service.v1.SegmentMatchingBasedConfig;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRule;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.UpdateExcludeSpanRule;
@@ -77,12 +79,25 @@ public class ConfigServiceSpanProcessingRequestConverter {
         .setName(apiNamingRuleCreate.name())
         .setFilter(this.filterConverter.convert(apiNamingRuleCreate.spanFilter()))
         .setDisabled(apiNamingRuleCreate.disabled())
-        .setRuleConfig(
-            ApiNamingRuleConfig.newBuilder()
-                .setRegex(apiNamingRuleCreate.regex())
-                .setValue(apiNamingRuleCreate.value())
-                .build())
+        .setRuleConfig(convertRuleConfig(apiNamingRuleCreate.apiNamingRuleConfig()))
         .build();
+  }
+
+  private ApiNamingRuleConfig convertRuleConfig(
+      org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfig apiNamingRuleConfig) {
+    switch (apiNamingRuleConfig.apiNamingRuleConfigType()) {
+      case SEGMENT_MATCHING:
+        return ApiNamingRuleConfig.newBuilder()
+            .setSegmentMatchingBasedConfig(
+                SegmentMatchingBasedConfig.newBuilder()
+                    .addAllRegexes(apiNamingRuleConfig.segmentMatchingBasedRuleConfig().regexes())
+                    .addAllValues(apiNamingRuleConfig.segmentMatchingBasedRuleConfig().values())
+                    .build())
+            .build();
+      default:
+        throw new NoSuchElementException(
+            "Unsupported api naming rule config type: " + apiNamingRuleConfig);
+    }
   }
 
   UpdateApiNamingRuleRequest convert(ApiNamingUpdateRuleRequest request) {
@@ -97,11 +112,7 @@ public class ConfigServiceSpanProcessingRequestConverter {
         .setName(apiNamingRuleUpdate.name())
         .setFilter(this.filterConverter.convert(apiNamingRuleUpdate.spanFilter()))
         .setDisabled(apiNamingRuleUpdate.disabled())
-        .setRuleConfig(
-            ApiNamingRuleConfig.newBuilder()
-                .setRegex(apiNamingRuleUpdate.regex())
-                .setValue(apiNamingRuleUpdate.value())
-                .build())
+        .setRuleConfig(convertRuleConfig(apiNamingRuleUpdate.apiNamingRuleConfig()))
         .build();
   }
 
