@@ -2,6 +2,7 @@ package org.hypertrace.graphql.spanprocessing.dao;
 
 import com.google.common.collect.ImmutableBiMap;
 import io.reactivex.rxjava3.core.Single;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRe
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 import org.hypertrace.span.processing.config.service.v1.Field;
+import org.hypertrace.span.processing.config.service.v1.ListValue;
 import org.hypertrace.span.processing.config.service.v1.LogicalOperator;
 import org.hypertrace.span.processing.config.service.v1.LogicalSpanFilterExpression;
 import org.hypertrace.span.processing.config.service.v1.RelationalOperator;
@@ -56,6 +58,7 @@ public class ConfigServiceSpanFilterConverter {
               .put(
                   RelationalOperator.RELATIONAL_OPERATOR_REGEX_MATCH,
                   SpanProcessingRelationalOperator.REGEX_MATCH)
+              .put(RelationalOperator.RELATIONAL_OPERATOR_IN, SpanProcessingRelationalOperator.IN)
               .build();
 
   private static final ImmutableBiMap<SpanProcessingRelationalOperator, RelationalOperator>
@@ -148,9 +151,17 @@ public class ConfigServiceSpanFilterConverter {
     switch (spanFilterValue.getValueCase()) {
       case STRING_VALUE:
         return spanFilterValue.getStringValue();
+      case LIST_VALUE:
+        return convertListSpanFilterValue(spanFilterValue.getListValue());
       default:
         throw new NoSuchElementException("Unsupported right operand type");
     }
+  }
+
+  private Object convertListSpanFilterValue(ListValue value) {
+    return value.getValuesList().stream()
+        .map(this::convertSpanFilterValue)
+        .collect(Collectors.toUnmodifiableList());
   }
 
   private RelationalSpanFilterExpression convertRelationalFilter(
@@ -180,8 +191,20 @@ public class ConfigServiceSpanFilterConverter {
     SpanFilterValue.Builder spanFilterValueBuilder = SpanFilterValue.newBuilder();
     if (String.class.equals(value.getClass())) {
       spanFilterValueBuilder = spanFilterValueBuilder.setStringValue(value.toString());
+    } else if (ArrayList.class.equals(value.getClass())) {
+      spanFilterValueBuilder.setListValue(convertToListSpanFilterValue(value));
     }
     return spanFilterValueBuilder.build();
+  }
+
+  private ListValue convertToListSpanFilterValue(Object value) {
+    List<Object> objectList = (List<Object>) value;
+    return ListValue.newBuilder()
+        .addAllValues(
+            objectList.stream()
+                .map(this::convertToSpanFilterValue)
+                .collect(Collectors.toUnmodifiableList()))
+        .build();
   }
 
   @Value

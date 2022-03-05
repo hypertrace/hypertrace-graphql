@@ -9,6 +9,8 @@ import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleCreate;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfig;
+import org.hypertrace.graphql.spanprocessing.schema.rule.SegmentMatchingBasedRuleConfig;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
@@ -29,6 +31,9 @@ public class ApiNamingCreateInputDeserializationConfig implements ArgumentDeseri
     return List.of(
         new SimpleModule()
             .addAbstractTypeMapping(ApiNamingRuleCreate.class, DefaultApiNamingRuleCreate.class)
+            .addAbstractTypeMapping(ApiNamingRuleConfig.class, DefaultApiNamingRuleConfig.class)
+            .addAbstractTypeMapping(
+                SegmentMatchingBasedRuleConfig.class, DefaultSegmentMatchingBasedRuleConfig.class)
             .addAbstractTypeMapping(
                 SpanProcessingRuleFilter.class, DefaultSpanProcessingRuleFilter.class)
             .addAbstractTypeMapping(
@@ -44,8 +49,7 @@ public class ApiNamingCreateInputDeserializationConfig implements ArgumentDeseri
   private static class DefaultApiNamingRuleCreate implements ApiNamingRuleCreate {
     String name;
     SpanProcessingRuleFilter spanFilter;
-    String regex;
-    String value;
+    ApiNamingRuleConfig apiNamingRuleConfig;
     boolean disabled;
   }
 }

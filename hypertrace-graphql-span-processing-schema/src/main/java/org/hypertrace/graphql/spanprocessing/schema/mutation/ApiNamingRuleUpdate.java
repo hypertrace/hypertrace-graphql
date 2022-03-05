@@ -4,6 +4,7 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfig;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
 @GraphQLName(ApiNamingRuleUpdate.TYPE_NAME)
@@ -14,8 +15,7 @@ public interface ApiNamingRuleUpdate extends Identifiable {
   String NAME_KEY = "name";
   String SPAN_PROCESSING_FILTER_KEY = "spanFilter";
   String DISABLED_KEY = "disabled";
-  String REGEX_KEY = "regex";
-  String VALUE_KEY = "value";
+  String API_NAMING_RULE_CONFIG_KEY = "apiNamingRuleConfig";
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
@@ -33,12 +33,7 @@ public interface ApiNamingRuleUpdate extends Identifiable {
   boolean disabled();
 
   @GraphQLField
-  @GraphQLName(REGEX_KEY)
+  @GraphQLName(API_NAMING_RULE_CONFIG_KEY)
   @GraphQLNonNull
-  String regex();
-
-  @GraphQLField
-  @GraphQLName(VALUE_KEY)
-  @GraphQLNonNull
-  String value();
+  ApiNamingRuleConfig apiNamingRuleConfig();
 }
