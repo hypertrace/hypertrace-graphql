@@ -80,15 +80,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
             .map(this.scopeStringTranslator::fromExternal)
             .orElseThrow();
 
-    return this.build(requestContext, explorerScope, arguments, selectionSet);
-  }
-
-  private Single<ExploreRequest> build(
-      GraphQlRequestContext requestContext,
-      String explorerScope,
-      Map<String, Object> arguments,
-      DataFetchingFieldSelectionSet selectionSet) {
-
     int limit =
         this.argumentDeserializer
             .deserializePrimitive(arguments, LimitArgument.class)
@@ -120,9 +111,6 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Optional<String> spaceId =
         this.argumentDeserializer.deserializePrimitive(arguments, SpaceArgument.class);
 
-    Set<AttributeExpression> groupByExpressions =
-        groupBy.map(this::resolveGroupByExpressions).orElseGet(Collections::emptySet);
-
     Optional<IntervalArgument> intervalArgument =
         this.argumentDeserializer.deserializeObject(arguments, IntervalArgument.class);
 
@@ -133,6 +121,39 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Single<Set<MetricAggregationRequest>> aggregationSelections =
         this.selectionRequestBuilder.getAggregationSelections(
             requestContext, explorerScope, selectionSet);
+
+    return build(
+        requestContext,
+        explorerScope,
+        timeRange,
+        spaceId,
+        limit,
+        offset,
+        requestedFilters,
+        requestedOrders,
+        groupBy,
+        intervalArgument,
+        attributeSelections,
+        aggregationSelections);
+  }
+
+  @Override
+  public Single<ExploreRequest> build(
+      GraphQlRequestContext requestContext,
+      String explorerScope,
+      TimeRangeArgument timeRange,
+      Optional<String> spaceId,
+      int limit,
+      int offset,
+      List<FilterArgument> requestedFilters,
+      List<AggregatableOrderArgument> requestedOrders,
+      Optional<GroupByArgument> groupBy,
+      Optional<IntervalArgument> intervalArgument,
+      Single<Set<AttributeRequest>> attributeSelections,
+      Single<Set<MetricAggregationRequest>> aggregationSelections) {
+
+    Set<AttributeExpression> groupByExpressions =
+        groupBy.map(this::resolveGroupByExpressions).orElseGet(Collections::emptySet);
 
     Single<List<ExploreOrderArgument>> orderArguments =
         this.exploreOrderArgumentBuilder.buildList(requestContext, explorerScope, requestedOrders);
@@ -151,8 +172,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
                 requestContext,
                 explorerScope,
                 timeRange,
-                limit,
-                offset,
+                limit > 0 ? limit : DEFAULT_LIMIT,
+                offset >= 0 ? offset : DEFAULT_OFFSET,
                 attributes,
                 aggregations,
                 orders,
