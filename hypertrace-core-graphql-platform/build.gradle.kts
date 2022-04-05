@@ -5,9 +5,9 @@ plugins {
 dependencies {
   constraints {
 
-    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.7.0")
-    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.7.0")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.7.0")
+    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.7.2")
+    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.7.2")
+    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.7.2")
     api("org.hypertrace.gateway.service:gateway-service-api:0.2.0")
     api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.13.6")
 
@@ -30,7 +30,7 @@ dependencies {
     api("io.grpc:grpc-core:1.43.1")
     api("io.grpc:grpc-stub:1.43.1")
     api("io.grpc:grpc-context:1.43.1")
-    api("com.fasterxml.jackson.core:jackson-databind:2.12.6")
+    api("com.fasterxml.jackson.core:jackson-databind:2.13.2.2")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.6")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.6")
     api("org.apache.commons:commons-text:1.9")
