@@ -34,6 +34,15 @@ class LiteralConstantConverterTest {
 
     assertEquals(
         LiteralConstant.newBuilder()
+            .setValue(
+                Value.newBuilder()
+                    .setValueType(ValueType.BOOLEAN_ARRAY)
+                    .addAllBooleanArray(List.of(true, false)))
+            .build(),
+        converter.convert(List.of(true, false)).blockingGet());
+
+    assertEquals(
+        LiteralConstant.newBuilder()
             .setValue(Value.newBuilder().setValueType(ValueType.LONG).setLong(100))
             .build(),
         converter.convert(100L).blockingGet());
