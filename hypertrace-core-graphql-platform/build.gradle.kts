@@ -5,9 +5,9 @@ plugins {
 dependencies {
   constraints {
 
-    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.7.2")
-    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.7.2")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.7.2")
+    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.7.3")
+    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.7.3")
+    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.7.3")
     api("org.hypertrace.gateway.service:gateway-service-api:0.2.0")
     api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.13.6")
 
