@@ -91,8 +91,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
             .orElse(DEFAULT_OFFSET);
 
     Optional<TimeRangeArgument> timeRange =
-        this.argumentDeserializer
-            .deserializeObject(arguments, TimeRangeArgument.class);
+        this.argumentDeserializer.deserializeObject(arguments, TimeRangeArgument.class);
 
     List<AggregatableOrderArgument> requestedOrders =
         this.argumentDeserializer

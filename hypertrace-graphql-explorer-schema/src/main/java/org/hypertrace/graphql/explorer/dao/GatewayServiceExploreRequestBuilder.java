@@ -60,25 +60,27 @@ public class GatewayServiceExploreRequestBuilder {
         this.buildAnyAggregations(request),
         this.buildAnyTimeAggregations(request),
         (attributes, orderBys, groupBys, filter, aggregations, series) -> {
-
-          Builder builder = org.hypertrace.gateway.service.v1.explore.ExploreRequest
-              .newBuilder()
-              .setContext(request.scope())
-              .addAllSelection(attributes)
-              .addAllSelection(aggregations)
-              .addAllTimeAggregation(series)
-              .addAllOrderBy(orderBys)
-              .addAllGroupBy(groupBys)
-              .setLimit(request.limit())
-              .setIncludeRestGroup(request.includeRest())
-              .setOffset(request.offset())
-              .setFilter(filter)
-              .setSpaceId(request.spaceId().orElse("")) // String proto default value
-              .setGroupLimit(request.groupLimit().orElse(0)); // Int proto default value
-          request.timeRange().ifPresent(timeRangeArgument -> {
-            builder.setStartTimeMillis(timeRangeArgument.startTime().toEpochMilli());
-            builder.setEndTimeMillis(timeRangeArgument.startTime().toEpochMilli());
-          });
+          Builder builder =
+              org.hypertrace.gateway.service.v1.explore.ExploreRequest.newBuilder()
+                  .setContext(request.scope())
+                  .addAllSelection(attributes)
+                  .addAllSelection(aggregations)
+                  .addAllTimeAggregation(series)
+                  .addAllOrderBy(orderBys)
+                  .addAllGroupBy(groupBys)
+                  .setLimit(request.limit())
+                  .setIncludeRestGroup(request.includeRest())
+                  .setOffset(request.offset())
+                  .setFilter(filter)
+                  .setSpaceId(request.spaceId().orElse("")) // String proto default value
+                  .setGroupLimit(request.groupLimit().orElse(0)); // Int proto default value
+          request
+              .timeRange()
+              .ifPresent(
+                  timeRangeArgument -> {
+                    builder.setStartTimeMillis(timeRangeArgument.startTime().toEpochMilli());
+                    builder.setEndTimeMillis(timeRangeArgument.startTime().toEpochMilli());
+                  });
 
           return builder.build();
         });
