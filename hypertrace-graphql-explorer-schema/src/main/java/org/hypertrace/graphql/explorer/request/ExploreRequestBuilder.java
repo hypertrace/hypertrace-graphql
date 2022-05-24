@@ -24,7 +24,7 @@ public interface ExploreRequestBuilder {
   Single<ExploreRequest> build(
       GraphQlRequestContext requestContext,
       String explorerScope,
-      TimeRangeArgument timeRange,
+      Optional<TimeRangeArgument> timeRange,
       Optional<String> spaceId,
       int limit,
       int offset,

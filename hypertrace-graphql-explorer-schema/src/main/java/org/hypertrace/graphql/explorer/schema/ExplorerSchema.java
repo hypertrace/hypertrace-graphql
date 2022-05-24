@@ -30,7 +30,7 @@ public interface ExplorerSchema {
   ExploreResultSet explore(
       @Deprecated @GraphQLName(ExplorerContextArgument.ARGUMENT_NAME) ExplorerContext context,
       @GraphQLName(ExplorerScopeArgument.ARGUMENT_NAME) String scope,
-      @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) @GraphQLNonNull TimeRangeArgument timeRange,
+      @GraphQLName(TimeRangeArgument.ARGUMENT_NAME) TimeRangeArgument timeRange,
       @GraphQLName(SpaceArgument.ARGUMENT_NAME) String space,
       @GraphQLName(LimitArgument.ARGUMENT_NAME) int limit,
       @GraphQLName(OffsetArgument.ARGUMENT_NAME) int offset,

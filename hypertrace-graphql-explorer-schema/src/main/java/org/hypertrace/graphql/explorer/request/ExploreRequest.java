@@ -14,7 +14,7 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 public interface ExploreRequest extends ContextualRequest {
   String scope();
 
-  TimeRangeArgument timeRange();
+  Optional<TimeRangeArgument> timeRange();
 
   int limit();
 

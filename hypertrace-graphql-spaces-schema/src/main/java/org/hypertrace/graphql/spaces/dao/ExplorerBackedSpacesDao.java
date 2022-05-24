@@ -75,7 +75,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
             attributeRequest ->
                 new ActiveSpaceExploreRequest(
                     context,
-                    new FixedTimeRange(this.clock.instant()),
+                    Optional.of(new FixedTimeRange(this.clock.instant())),
                     attributeRequest,
                     this.metricAggregationRequestBuilder.build(
                         attributeRequest.attributeExpressionAssociation(),
@@ -153,14 +153,14 @@ class ExplorerBackedSpacesDao implements SpacesDao {
     Optional<String> spaceId = Optional.empty();
     Optional<Integer> groupLimit = Optional.of(MAX_SPACES);
 
-    TimeRangeArgument timeRange;
+    Optional<TimeRangeArgument> timeRange;
     Set<MetricAggregationRequest> aggregationRequests;
     List<ExploreOrderArgument> orderArguments;
     Set<AttributeRequest> groupByAttributeRequests;
 
     ActiveSpaceExploreRequest(
         GraphQlRequestContext context,
-        TimeRangeArgument timeRange,
+        Optional<TimeRangeArgument> timeRange,
         AttributeRequest spaceIdRequest,
         MetricAggregationRequest spaceIdCountRequest) {
       this.context = context;
