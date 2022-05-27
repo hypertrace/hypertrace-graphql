@@ -79,7 +79,7 @@ public class GatewayServiceExploreRequestBuilder {
               .ifPresent(
                   timeRangeArgument -> {
                     builder.setStartTimeMillis(timeRangeArgument.startTime().toEpochMilli());
-                    builder.setEndTimeMillis(timeRangeArgument.startTime().toEpochMilli());
+                    builder.setEndTimeMillis(timeRangeArgument.endTime().toEpochMilli());
                   });
 
           return builder.build();
