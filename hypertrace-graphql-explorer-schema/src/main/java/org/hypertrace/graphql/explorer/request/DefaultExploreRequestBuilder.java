@@ -90,10 +90,8 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
             .deserializePrimitive(arguments, OffsetArgument.class)
             .orElse(DEFAULT_OFFSET);
 
-    TimeRangeArgument timeRange =
-        this.argumentDeserializer
-            .deserializeObject(arguments, TimeRangeArgument.class)
-            .orElseThrow();
+    Optional<TimeRangeArgument> timeRange =
+        this.argumentDeserializer.deserializeObject(arguments, TimeRangeArgument.class);
 
     List<AggregatableOrderArgument> requestedOrders =
         this.argumentDeserializer
@@ -141,7 +139,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   public Single<ExploreRequest> build(
       GraphQlRequestContext requestContext,
       String explorerScope,
-      TimeRangeArgument timeRange,
+      Optional<TimeRangeArgument> timeRange,
       Optional<String> spaceId,
       int limit,
       int offset,
@@ -214,7 +212,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   private static class DefaultExploreRequest implements ExploreRequest {
     GraphQlRequestContext context;
     String scope;
-    TimeRangeArgument timeRange;
+    Optional<TimeRangeArgument> timeRange;
     int limit;
     int offset;
     Set<AttributeRequest> attributeRequests;

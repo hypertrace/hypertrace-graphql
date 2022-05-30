@@ -96,9 +96,10 @@ class ExplorerBackedSpacesDaoTest {
                         && request.offset() == 0
                         && request
                             .timeRange()
+                            .get()
                             .startTime()
                             .equals(Instant.parse("2021-01-01T00:00:00.00Z"))
-                        && request.timeRange().endTime().equals(this.mockEndTime)
+                        && request.timeRange().get().endTime().equals(this.mockEndTime)
                         && request.attributeRequests().isEmpty()
                         && request.aggregationRequests().equals(Set.of(this.mockSpaceCountRequest))
                         && request.orderArguments().size() == 1
