@@ -22,6 +22,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   private static final String DEFAULT_TENANT_ID = "defaultTenantId";
 
   private static final String MAX_IO_THREADS_PROPERTY = "threads.io.max";
+  private static final String MAX_REQUEST_THREADS_PROPERTY = "threads.request.max";
 
   private static final String ATTRIBUTE_SERVICE_HOST_PROPERTY = "attribute.service.host";
   private static final String ATTRIBUTE_SERVICE_PORT_PROPERTY = "attribute.service.port";
@@ -46,6 +47,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   Duration graphQlTimeout;
   Optional<String> defaultTenantId;
   int maxIoThreads;
+  int maxRequestThreads;
   String attributeServiceHost;
   int attributeServicePort;
   Duration attributeServiceTimeout;
@@ -67,6 +69,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.graphQlTimeout = untypedConfig.getDuration(GRAPHQL_TIMEOUT);
     this.defaultTenantId = optionallyGet(() -> untypedConfig.getString(DEFAULT_TENANT_ID));
     this.maxIoThreads = untypedConfig.getInt(MAX_IO_THREADS_PROPERTY);
+    this.maxRequestThreads = untypedConfig.getInt(MAX_REQUEST_THREADS_PROPERTY);
 
     this.attributeServiceHost = untypedConfig.getString(ATTRIBUTE_SERVICE_HOST_PROPERTY);
     this.attributeServicePort = untypedConfig.getInt(ATTRIBUTE_SERVICE_PORT_PROPERTY);
