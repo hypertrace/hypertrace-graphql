@@ -47,6 +47,9 @@ serviceConfig:
   corsEnabled: true
   defaultTenantId: ""
   timeoutDuration: 30s
+  threads:
+    io: 10
+    request: 10
   attributeService:
     host: attribute-service
     port: 9012
