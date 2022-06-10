@@ -17,6 +17,9 @@ data:
     graphql.urlPath = {{ .Values.serviceConfig.urlPath }}
     graphql.corsEnabled = {{ .Values.serviceConfig.corsEnabled }}
     graphql.timeout = {{ .Values.serviceConfig.timeoutDuration }}
+    
+    threads.io.max = {{ .Values.serviceConfig.threads.io }}
+    threads.request.max = {{ .Values.serviceConfig.threads.request }}
 
     attribute.service = {
       host = {{ .Values.serviceConfig.attributeService.host }}

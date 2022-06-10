@@ -14,12 +14,12 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.inject.Injector;
 import graphql.schema.DataFetcher;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
@@ -32,7 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class DefaultGraphQlRequestContextBuilderTest {
 
-  @Mock Injector mockInjector;
+  @Mock AsyncDataFetcherFactory mockDataFetcherFactory;
   @Mock HttpServletRequest mockRequest;
   @Mock HttpServletResponse mockResponse;
   @Mock GraphQlServiceConfig mockServiceConfig;
@@ -43,7 +43,8 @@ class DefaultGraphQlRequestContextBuilderTest {
   @BeforeEach
   void beforeEach() {
     this.contextBuilder =
-        new DefaultGraphQlRequestContextBuilder(this.mockInjector, this.mockServiceConfig);
+        new DefaultGraphQlRequestContextBuilder(
+            this.mockDataFetcherFactory, this.mockServiceConfig);
     this.requestContext = this.contextBuilder.build(this.mockRequest, this.mockResponse);
   }
 
@@ -70,9 +71,9 @@ class DefaultGraphQlRequestContextBuilderTest {
   }
 
   @Test
-  void canConstructDataFetcher() {
-    this.requestContext.constructDataFetcher(DataFetcher.class);
-    verify(this.mockInjector).getInstance(DataFetcher.class);
+  void canDelegateDataFetcherConstruction() {
+    this.requestContext.constructDataFetcher(TestDataFetcher.class);
+    verify(this.mockDataFetcherFactory).buildDataFetcher(TestDataFetcher.class);
   }
 
   @Test
@@ -135,4 +136,6 @@ class DefaultGraphQlRequestContextBuilderTest {
             "x-b3-parent-trace-id value"),
         this.requestContext.getTracingContextHeaders());
   }
+
+  private interface TestDataFetcher extends DataFetcher<CompletableFuture<String>> {}
 }

@@ -12,6 +12,9 @@ dependencies {
   implementation(project(":hypertrace-core-graphql-spi"))
   implementation("com.google.guava:guava")
 
+  annotationProcessor("org.projectlombok:lombok")
+  compileOnly("org.projectlombok:lombok")
+
   testImplementation("org.junit.jupiter:junit-jupiter")
   testImplementation("org.mockito:mockito-core")
   testImplementation("org.mockito:mockito-junit-jupiter")

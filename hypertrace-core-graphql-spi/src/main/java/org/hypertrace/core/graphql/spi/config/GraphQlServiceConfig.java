@@ -17,6 +17,8 @@ public interface GraphQlServiceConfig {
 
   Optional<String> getDefaultTenantId();
 
+  int getMaxRequestThreads();
+
   int getMaxIoThreads();
 
   String getAttributeServiceHost();

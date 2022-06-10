@@ -1,7 +1,6 @@
 package org.hypertrace.core.graphql.context;
 
 import com.google.common.collect.Streams;
-import com.google.inject.Injector;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContext;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContextBuilder;
 import graphql.kickstart.servlet.context.GraphQLServletContext;
@@ -10,6 +9,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
@@ -27,12 +27,13 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
   static final Set<String> TRACING_CONTEXT_HEADER_KEY_PREFIXES =
       Set.of("X-B3-", "traceparent", "tracestate");
 
-  private final Injector injector;
   private final GraphQlServiceConfig serviceConfig;
+  private final AsyncDataFetcherFactory dataFetcherFactory;
 
   @Inject
-  DefaultGraphQlRequestContextBuilder(Injector injector, GraphQlServiceConfig serviceConfig) {
-    this.injector = injector;
+  DefaultGraphQlRequestContextBuilder(
+      AsyncDataFetcherFactory dataFetcherFactory, GraphQlServiceConfig serviceConfig) {
+    this.dataFetcherFactory = dataFetcherFactory;
     this.serviceConfig = serviceConfig;
   }
 
@@ -63,8 +64,10 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
     }
 
     @Override
-    public <T extends DataFetcher<?>> T constructDataFetcher(Class<T> dataFetcherClass) {
-      return DefaultGraphQlRequestContextBuilder.this.injector.getInstance(dataFetcherClass);
+    public <T> DataFetcher<CompletableFuture<T>> constructDataFetcher(
+        Class<? extends DataFetcher<CompletableFuture<T>>> dataFetcherClass) {
+      return DefaultGraphQlRequestContextBuilder.this.dataFetcherFactory.buildDataFetcher(
+          dataFetcherClass);
     }
 
     @Override
