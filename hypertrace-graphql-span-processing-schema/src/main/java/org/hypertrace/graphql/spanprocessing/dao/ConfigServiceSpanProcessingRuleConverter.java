@@ -5,12 +5,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.NoSuchElementException;
 import javax.inject.Inject;
+import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfig;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRuleConfigType;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.SegmentMatchingBasedRuleConfig;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleDetails;
@@ -42,6 +44,28 @@ class ConfigServiceSpanProcessingRuleConverter {
                     Instant.ofEpochSecond(
                         ruleDetails.getMetadata().getLastUpdatedTimestamp().getSeconds(),
                         ruleDetails.getMetadata().getLastUpdatedTimestamp().getNanos())));
+  }
+
+  public Single<IncludeSpanRule> convert(
+      org.hypertrace.span.processing.config.service.v1.IncludeSpanRuleDetails ruleDetails) {
+    return this.filterConverter
+        .convert(ruleDetails.getRule().getRuleInfo().getFilter())
+        .map(
+            spanProcessingRuleFilter ->
+                ConvertedIncludeSpanRule.builder()
+                    .id(ruleDetails.getRule().getId())
+                    .name(ruleDetails.getRule().getRuleInfo().getName())
+                    .spanFilter(spanProcessingRuleFilter)
+                    .disabled(ruleDetails.getRule().getRuleInfo().getDisabled())
+                    .creationTime(
+                        Instant.ofEpochSecond(
+                            ruleDetails.getMetadata().getCreationTimestamp().getSeconds(),
+                            ruleDetails.getMetadata().getCreationTimestamp().getNanos()))
+                    .lastUpdatedTime(
+                        Instant.ofEpochSecond(
+                            ruleDetails.getMetadata().getLastUpdatedTimestamp().getSeconds(),
+                            ruleDetails.getMetadata().getLastUpdatedTimestamp().getNanos()))
+                    .build());
   }
 
   public Single<ApiNamingRule> convert(ApiNamingRuleDetails ruleDetails) {
@@ -82,6 +106,18 @@ class ConfigServiceSpanProcessingRuleConverter {
   @Value
   @Accessors(fluent = true)
   private static class ConvertedExcludeSpanRule implements ExcludeSpanRule {
+    String id;
+    String name;
+    SpanProcessingRuleFilter spanFilter;
+    boolean disabled;
+    Instant creationTime;
+    Instant lastUpdatedTime;
+  }
+
+  @Value
+  @Builder
+  @Accessors(fluent = true)
+  private static class ConvertedIncludeSpanRule implements IncludeSpanRule {
     String id;
     String name;
     SpanProcessingRuleFilter spanFilter;

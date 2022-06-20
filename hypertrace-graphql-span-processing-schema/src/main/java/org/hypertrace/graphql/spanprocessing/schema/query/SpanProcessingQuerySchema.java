@@ -6,9 +6,11 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import org.hypertrace.graphql.spanprocessing.fetcher.query.ApiNamingRulesFetcher;
 import org.hypertrace.graphql.spanprocessing.fetcher.query.ExcludeSpanRulesFetcher;
+import org.hypertrace.graphql.spanprocessing.fetcher.query.IncludeSpanRulesFetcher;
 
 public interface SpanProcessingQuerySchema {
   String EXCLUDE_SPAN_RULES_QUERY_NAME = "excludeSpanRules";
+  String INCLUDE_SPAN_RULES_QUERY_NAME = "includeSpanRules";
   String API_NAMING_RULES_QUERY_NAME = "apiNamingRules";
 
   @GraphQLField
@@ -16,6 +18,12 @@ public interface SpanProcessingQuerySchema {
   @GraphQLName(EXCLUDE_SPAN_RULES_QUERY_NAME)
   @GraphQLDataFetcher(ExcludeSpanRulesFetcher.class)
   ExcludeSpanRuleResultSet excludeSpanRules();
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(INCLUDE_SPAN_RULES_QUERY_NAME)
+  @GraphQLDataFetcher(IncludeSpanRulesFetcher.class)
+  IncludeSpanRuleResultSet includeSpanRules();
 
   @GraphQLField
   @GraphQLNonNull
