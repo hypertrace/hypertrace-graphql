@@ -63,7 +63,7 @@ public class ConfigServiceSpanProcessingResponseConverter {
       org.hypertrace.span.processing.config.service.v1.IncludeSpanRuleDetails ruleDetails) {
     return this.ruleConverter
         .convert(ruleDetails)
-        .doOnError(error -> log.error("Error converting ExcludeSpanRule", error))
+        .doOnError(error -> log.error("Error converting IncludeSpanRule", error))
         .onErrorComplete();
   }
 
@@ -71,7 +71,7 @@ public class ConfigServiceSpanProcessingResponseConverter {
       org.hypertrace.span.processing.config.service.v1.ApiNamingRuleDetails ruleDetails) {
     return this.ruleConverter
         .convert(ruleDetails)
-        .doOnError(error -> log.error("Error converting ExcludeSpanRule", error))
+        .doOnError(error -> log.error("Error converting ApiNamingRule", error))
         .onErrorComplete();
   }
 
