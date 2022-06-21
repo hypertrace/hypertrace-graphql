@@ -10,13 +10,20 @@ import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ApiNamingUpdateRul
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanCreateRuleMutator;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanDeleteRuleMutator;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanUpdateRuleMutator;
+import org.hypertrace.graphql.spanprocessing.fetcher.mutation.IncludeSpanCreateRuleMutator;
+import org.hypertrace.graphql.spanprocessing.fetcher.mutation.IncludeSpanDeleteRuleMutator;
+import org.hypertrace.graphql.spanprocessing.fetcher.mutation.IncludeSpanUpdateRuleMutator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
 
 public interface SpanProcessingMutationSchema {
   String CREATE_EXCLUDE_SPAN_RULE_MUTATION_NAME = "createExcludeSpanRule";
   String UPDATE_EXCLUDE_SPAN_RULE_MUTATION_NAME = "updateExcludeSpanRule";
   String DELETE_EXCLUDE_SPAN_RULE_MUTATION_NAME = "deleteExcludeSpanRule";
+  String CREATE_INCLUDE_SPAN_RULE_MUTATION_NAME = "createIncludeSpanRule";
+  String UPDATE_INCLUDE_SPAN_RULE_MUTATION_NAME = "updateIncludeSpanRule";
+  String DELETE_INCLUDE_SPAN_RULE_MUTATION_NAME = "deleteIncludeSpanRule";
   String CREATE_API_NAMING_RULE_MUTATION_NAME = "createApiNamingRule";
   String UPDATE_API_NAMING_RULE_MUTATION_NAME = "updateApiNamingRule";
   String DELETE_API_NAMING_RULE_MUTATION_NAME = "deleteApiNamingRule";
@@ -44,6 +51,30 @@ public interface SpanProcessingMutationSchema {
   DeleteSpanProcessingRuleResponse deleteExcludeSpanRule(
       @GraphQLName(ExcludeSpanRuleDelete.ARGUMENT_NAME) @GraphQLNonNull
           ExcludeSpanRuleDelete input);
+
+  @GraphQLField
+  @GraphQLName(CREATE_INCLUDE_SPAN_RULE_MUTATION_NAME)
+  @GraphQLNonNull
+  @GraphQLDataFetcher(IncludeSpanCreateRuleMutator.class)
+  IncludeSpanRule createIncludeSpanRule(
+      @GraphQLName(IncludeSpanRuleCreate.ARGUMENT_NAME) @GraphQLNonNull
+          IncludeSpanRuleCreate input);
+
+  @GraphQLField
+  @GraphQLName(UPDATE_INCLUDE_SPAN_RULE_MUTATION_NAME)
+  @GraphQLNonNull
+  @GraphQLDataFetcher(IncludeSpanUpdateRuleMutator.class)
+  IncludeSpanRule updateIncludeSpanRule(
+      @GraphQLName(IncludeSpanRuleUpdate.ARGUMENT_NAME) @GraphQLNonNull
+          IncludeSpanRuleUpdate input);
+
+  @GraphQLField
+  @GraphQLName(DELETE_INCLUDE_SPAN_RULE_MUTATION_NAME)
+  @GraphQLNonNull
+  @GraphQLDataFetcher(IncludeSpanDeleteRuleMutator.class)
+  DeleteSpanProcessingRuleResponse deleteIncludeSpanRule(
+      @GraphQLName(IncludeSpanRuleDelete.ARGUMENT_NAME) @GraphQLNonNull
+          IncludeSpanRuleDelete input);
 
   @GraphQLField
   @GraphQLName(CREATE_API_NAMING_RULE_MUTATION_NAME)
