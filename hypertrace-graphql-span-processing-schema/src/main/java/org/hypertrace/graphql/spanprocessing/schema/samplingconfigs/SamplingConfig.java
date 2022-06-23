@@ -8,7 +8,7 @@ import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 
 @GraphQLName(SamplingConfig.TYPE_NAME)
 public interface SamplingConfig extends Identifiable, SamplingConfigInfo {
-  String TYPE_NAME = "SamplingConfig";
+  String TYPE_NAME = "SpanProcessingSamplingConfig";
 
   String CREATION_TIME_KEY = "creationTime";
   String LAST_UPDATED_TIME_KEY = "lastUpdatedTime";

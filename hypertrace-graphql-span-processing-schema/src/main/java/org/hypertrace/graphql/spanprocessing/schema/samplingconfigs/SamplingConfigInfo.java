@@ -7,7 +7,7 @@ import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRu
 
 @GraphQLName(SamplingConfigInfo.TYPE_NAME)
 public interface SamplingConfigInfo {
-  String TYPE_NAME = "SamplingConfigInfo";
+  String TYPE_NAME = "SpanProcessingSamplingConfigInfo";
 
   String SPAN_FILTER_KEY = "spanFilter";
   String RATE_LIMIT_CONFIG_KEY = "rateLimitConfig";
