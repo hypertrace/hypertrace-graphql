@@ -11,22 +11,30 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateR
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanDeleteRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanUpdateRuleRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigCreateRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigDeleteRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigUpdateRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleUpdate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleUpdate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.IncludeSpanRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.IncludeSpanRuleUpdate;
+import org.hypertrace.graphql.spanprocessing.schema.mutation.SamplingConfigCreate;
+import org.hypertrace.graphql.spanprocessing.schema.mutation.SamplingConfigUpdate;
 import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleConfig;
 import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleInfo;
 import org.hypertrace.span.processing.config.service.v1.CreateApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.CreateExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.CreateIncludeSpanRuleRequest;
+import org.hypertrace.span.processing.config.service.v1.CreateSamplingConfigRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteIncludeSpanRuleRequest;
+import org.hypertrace.span.processing.config.service.v1.DeleteSamplingConfigRequest;
 import org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleInfo;
 import org.hypertrace.span.processing.config.service.v1.IncludeSpanRuleInfo;
+import org.hypertrace.span.processing.config.service.v1.SamplingConfigInfo;
 import org.hypertrace.span.processing.config.service.v1.SegmentMatchingBasedConfig;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRule;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRuleRequest;
@@ -34,14 +42,20 @@ import org.hypertrace.span.processing.config.service.v1.UpdateExcludeSpanRule;
 import org.hypertrace.span.processing.config.service.v1.UpdateExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.UpdateIncludeSpanRule;
 import org.hypertrace.span.processing.config.service.v1.UpdateIncludeSpanRuleRequest;
+import org.hypertrace.span.processing.config.service.v1.UpdateSamplingConfig;
+import org.hypertrace.span.processing.config.service.v1.UpdateSamplingConfigRequest;
 
 public class ConfigServiceSpanProcessingRequestConverter {
 
   private final ConfigServiceSpanFilterConverter filterConverter;
+  private final ConfigServiceRateLimitConfigConverter rateLimitConfigConverter;
 
   @Inject
-  ConfigServiceSpanProcessingRequestConverter(ConfigServiceSpanFilterConverter filterConverter) {
+  ConfigServiceSpanProcessingRequestConverter(
+      ConfigServiceSpanFilterConverter filterConverter,
+      ConfigServiceRateLimitConfigConverter rateLimitConfigConverter) {
     this.filterConverter = filterConverter;
+    this.rateLimitConfigConverter = rateLimitConfigConverter;
   }
 
   CreateExcludeSpanRuleRequest convert(ExcludeSpanCreateRuleRequest request) {
@@ -161,5 +175,38 @@ public class ConfigServiceSpanProcessingRequestConverter {
 
   DeleteApiNamingRuleRequest convert(ApiNamingDeleteRuleRequest request) {
     return DeleteApiNamingRuleRequest.newBuilder().setId(request.id()).build();
+  }
+
+  CreateSamplingConfigRequest convert(SamplingConfigCreateRequest request) {
+    return CreateSamplingConfigRequest.newBuilder()
+        .setSamplingConfigInfo(convertInput(request.createInput()))
+        .build();
+  }
+
+  private SamplingConfigInfo convertInput(SamplingConfigCreate samplingConfigCreate) {
+    return SamplingConfigInfo.newBuilder()
+        .setRateLimitConfig(
+            this.rateLimitConfigConverter.convert(samplingConfigCreate.rateLimitConfig()))
+        .setFilter(this.filterConverter.convert(samplingConfigCreate.spanFilter()))
+        .build();
+  }
+
+  UpdateSamplingConfigRequest convert(SamplingConfigUpdateRequest request) {
+    return UpdateSamplingConfigRequest.newBuilder()
+        .setSamplingConfig(convertInput(request.updateInput()))
+        .build();
+  }
+
+  private UpdateSamplingConfig convertInput(SamplingConfigUpdate samplingConfigUpdate) {
+    return UpdateSamplingConfig.newBuilder()
+        .setId(samplingConfigUpdate.id())
+        .setRateLimitConfig(
+            this.rateLimitConfigConverter.convert(samplingConfigUpdate.rateLimitConfig()))
+        .setFilter(this.filterConverter.convert(samplingConfigUpdate.spanFilter()))
+        .build();
+  }
+
+  DeleteSamplingConfigRequest convert(SamplingConfigDeleteRequest request) {
+    return DeleteSamplingConfigRequest.newBuilder().setId(request.id()).build();
   }
 }

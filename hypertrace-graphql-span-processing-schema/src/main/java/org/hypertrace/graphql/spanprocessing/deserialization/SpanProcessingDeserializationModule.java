@@ -21,5 +21,9 @@ public class SpanProcessingDeserializationModule extends AbstractModule {
     multibinder.addBinding().to(ApiNamingCreateInputDeserializationConfig.class);
     multibinder.addBinding().to(ApiNamingUpdateInputDeserializationConfig.class);
     multibinder.addBinding().to(ApiNamingDeleteInputDeserializationConfig.class);
+
+    multibinder.addBinding().to(SamplingConfigCreateInputDeserializationConfig.class);
+    multibinder.addBinding().to(SamplingConfigUpdateInputDeserializationConfig.class);
+    multibinder.addBinding().to(SamplingConfigDeleteInputDeserializationConfig.class);
   }
 }

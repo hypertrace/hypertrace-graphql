@@ -28,6 +28,13 @@ public class SpanProcessingMutationRequestModule extends AbstractModule {
     bind(ApiNamingDeleteRuleRequestBuilder.class)
         .to(DefaultApiNamingDeleteRuleRequestBuilder.class);
 
+    bind(SamplingConfigCreateRequestBuilder.class)
+        .to(DefaultSamplingConfigCreateRequestBuilder.class);
+    bind(SamplingConfigUpdateRequestBuilder.class)
+        .to(DefaultSamplingConfigUpdateRequestBuilder.class);
+    bind(SamplingConfigDeleteRequestBuilder.class)
+        .to(DefaultSamplingConfigDeleteRequestBuilder.class);
+
     requireBinding(ArgumentDeserializer.class);
   }
 }

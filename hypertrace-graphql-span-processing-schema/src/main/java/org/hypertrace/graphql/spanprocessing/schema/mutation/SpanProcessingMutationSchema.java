@@ -13,9 +13,13 @@ import org.hypertrace.graphql.spanprocessing.fetcher.mutation.ExcludeSpanUpdateR
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.IncludeSpanCreateRuleMutator;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.IncludeSpanDeleteRuleMutator;
 import org.hypertrace.graphql.spanprocessing.fetcher.mutation.IncludeSpanUpdateRuleMutator;
+import org.hypertrace.graphql.spanprocessing.fetcher.mutation.SamplingConfigCreateMutator;
+import org.hypertrace.graphql.spanprocessing.fetcher.mutation.SamplingConfigDeleteMutator;
+import org.hypertrace.graphql.spanprocessing.fetcher.mutation.SamplingConfigUpdateMutator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.samplingconfigs.SamplingConfig;
 
 public interface SpanProcessingMutationSchema {
   String CREATE_EXCLUDE_SPAN_RULE_MUTATION_NAME = "createExcludeSpanRule";
@@ -27,6 +31,9 @@ public interface SpanProcessingMutationSchema {
   String CREATE_API_NAMING_RULE_MUTATION_NAME = "createApiNamingRule";
   String UPDATE_API_NAMING_RULE_MUTATION_NAME = "updateApiNamingRule";
   String DELETE_API_NAMING_RULE_MUTATION_NAME = "deleteApiNamingRule";
+  String CREATE_SAMPLING_CONFIG_MUTATION_NAME = "createSamplingConfig";
+  String UPDATE_SAMPLING_CONFIG_MUTATION_NAME = "updateSamplingConfig";
+  String DELETE_SAMPLING_CONFIG_MUTATION_NAME = "deleteSamplingConfig";
 
   @GraphQLField
   @GraphQLName(CREATE_EXCLUDE_SPAN_RULE_MUTATION_NAME)
@@ -96,4 +103,25 @@ public interface SpanProcessingMutationSchema {
   @GraphQLDataFetcher(ApiNamingDeleteRuleMutator.class)
   DeleteSpanProcessingRuleResponse deleteApiNamingRule(
       @GraphQLName(ApiNamingRuleDelete.ARGUMENT_NAME) @GraphQLNonNull ApiNamingRuleDelete input);
+
+  @GraphQLField
+  @GraphQLName(CREATE_SAMPLING_CONFIG_MUTATION_NAME)
+  @GraphQLNonNull
+  @GraphQLDataFetcher(SamplingConfigCreateMutator.class)
+  SamplingConfig createSamplingConfig(
+      @GraphQLName(SamplingConfigCreate.ARGUMENT_NAME) @GraphQLNonNull SamplingConfigCreate input);
+
+  @GraphQLField
+  @GraphQLName(UPDATE_SAMPLING_CONFIG_MUTATION_NAME)
+  @GraphQLNonNull
+  @GraphQLDataFetcher(SamplingConfigUpdateMutator.class)
+  SamplingConfig updateSamplingConfig(
+      @GraphQLName(SamplingConfigUpdate.ARGUMENT_NAME) @GraphQLNonNull SamplingConfigUpdate input);
+
+  @GraphQLField
+  @GraphQLName(DELETE_SAMPLING_CONFIG_MUTATION_NAME)
+  @GraphQLNonNull
+  @GraphQLDataFetcher(SamplingConfigDeleteMutator.class)
+  DeleteSpanProcessingRuleResponse deleteSamplingConfig(
+      @GraphQLName(SamplingConfigDelete.ARGUMENT_NAME) @GraphQLNonNull SamplingConfigDelete input);
 }

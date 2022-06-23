@@ -12,31 +12,40 @@ import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessin
 import org.hypertrace.graphql.spanprocessing.schema.query.ApiNamingRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.IncludeSpanRuleResultSet;
+import org.hypertrace.graphql.spanprocessing.schema.query.SamplingConfigsResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.samplingconfigs.SamplingConfig;
 import org.hypertrace.span.processing.config.service.v1.CreateApiNamingRuleResponse;
 import org.hypertrace.span.processing.config.service.v1.CreateExcludeSpanRuleResponse;
 import org.hypertrace.span.processing.config.service.v1.CreateIncludeSpanRuleResponse;
+import org.hypertrace.span.processing.config.service.v1.CreateSamplingConfigResponse;
 import org.hypertrace.span.processing.config.service.v1.DeleteApiNamingRuleResponse;
 import org.hypertrace.span.processing.config.service.v1.DeleteExcludeSpanRuleResponse;
 import org.hypertrace.span.processing.config.service.v1.DeleteIncludeSpanRuleResponse;
+import org.hypertrace.span.processing.config.service.v1.DeleteSamplingConfigResponse;
 import org.hypertrace.span.processing.config.service.v1.GetAllApiNamingRulesResponse;
 import org.hypertrace.span.processing.config.service.v1.GetAllExcludeSpanRulesResponse;
 import org.hypertrace.span.processing.config.service.v1.GetAllIncludeSpanRulesResponse;
+import org.hypertrace.span.processing.config.service.v1.GetAllSamplingConfigsResponse;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRuleResponse;
 import org.hypertrace.span.processing.config.service.v1.UpdateExcludeSpanRuleResponse;
 import org.hypertrace.span.processing.config.service.v1.UpdateIncludeSpanRuleResponse;
+import org.hypertrace.span.processing.config.service.v1.UpdateSamplingConfigResponse;
 
 @Slf4j
 public class ConfigServiceSpanProcessingResponseConverter {
 
   private final ConfigServiceSpanProcessingRuleConverter ruleConverter;
+  private final ConfigServiceSamplingConfigConverter samplingConfigConverter;
 
   @Inject
   ConfigServiceSpanProcessingResponseConverter(
-      ConfigServiceSpanProcessingRuleConverter ruleConverter) {
+      ConfigServiceSpanProcessingRuleConverter ruleConverter,
+      ConfigServiceSamplingConfigConverter samplingConfigConverter) {
     this.ruleConverter = ruleConverter;
+    this.samplingConfigConverter = samplingConfigConverter;
   }
 
   Single<ExcludeSpanRuleResultSet> convert(GetAllExcludeSpanRulesResponse response) {
@@ -49,6 +58,10 @@ public class ConfigServiceSpanProcessingResponseConverter {
 
   Single<ApiNamingRuleResultSet> convert(GetAllApiNamingRulesResponse response) {
     return this.convertApiNamingRuleResultSet(response.getRuleDetailsList());
+  }
+
+  Single<SamplingConfigsResultSet> convert(GetAllSamplingConfigsResponse response) {
+    return this.convertSamplingConfigsResultSet(response.getSamplingConfigDetailsList());
   }
 
   private Maybe<ExcludeSpanRule> convertOrDrop(
@@ -75,6 +88,15 @@ public class ConfigServiceSpanProcessingResponseConverter {
         .onErrorComplete();
   }
 
+  private Maybe<SamplingConfig> convertOrDrop(
+      org.hypertrace.span.processing.config.service.v1.SamplingConfigDetails
+          samplingConfigDetails) {
+    return this.samplingConfigConverter
+        .convert(samplingConfigDetails)
+        .doOnError(error -> log.error("Error converting SamplingConfig", error))
+        .onErrorComplete();
+  }
+
   private Single<ExcludeSpanRuleResultSet> convertExcludeSpanRuleResultSet(
       List<org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails> ruleDetails) {
     return Observable.fromIterable(ruleDetails)
@@ -97,6 +119,15 @@ public class ConfigServiceSpanProcessingResponseConverter {
         .concatMapMaybe(this::convertOrDrop)
         .toList()
         .map(ConvertedApiNamingRuleResultSet::new);
+  }
+
+  private Single<SamplingConfigsResultSet> convertSamplingConfigsResultSet(
+      List<org.hypertrace.span.processing.config.service.v1.SamplingConfigDetails>
+          samplingConfigDetails) {
+    return Observable.fromIterable(samplingConfigDetails)
+        .concatMapMaybe(this::convertOrDrop)
+        .toList()
+        .map(ConvertedSamplingConfigsResultSet::new);
   }
 
   Single<ExcludeSpanRule> convert(CreateExcludeSpanRuleResponse response) {
@@ -132,6 +163,18 @@ public class ConfigServiceSpanProcessingResponseConverter {
   }
 
   Single<DeleteSpanProcessingRuleResponse> convert(DeleteApiNamingRuleResponse response) {
+    return Single.just(new DefaultDeleteSpanProcessingRuleResponse(true));
+  }
+
+  Single<SamplingConfig> convert(CreateSamplingConfigResponse response) {
+    return this.samplingConfigConverter.convert(response.getSamplingConfigDetails());
+  }
+
+  Single<SamplingConfig> convert(UpdateSamplingConfigResponse response) {
+    return this.samplingConfigConverter.convert(response.getSamplingConfigDetails());
+  }
+
+  Single<DeleteSpanProcessingRuleResponse> convert(DeleteSamplingConfigResponse response) {
     return Single.just(new DefaultDeleteSpanProcessingRuleResponse(true));
   }
 
@@ -178,6 +221,20 @@ public class ConfigServiceSpanProcessingResponseConverter {
     long count;
 
     private ConvertedApiNamingRuleResultSet(List<ApiNamingRule> results) {
+      this.results = results;
+      this.count = results.size();
+      this.total = results.size();
+    }
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class ConvertedSamplingConfigsResultSet implements SamplingConfigsResultSet {
+    List<SamplingConfig> results;
+    long total;
+    long count;
+
+    private ConvertedSamplingConfigsResultSet(List<SamplingConfig> results) {
       this.results = results;
       this.count = results.size();
       this.total = results.size();

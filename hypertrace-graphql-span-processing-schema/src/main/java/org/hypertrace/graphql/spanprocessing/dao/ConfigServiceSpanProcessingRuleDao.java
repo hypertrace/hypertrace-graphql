@@ -18,16 +18,22 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateR
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanDeleteRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanUpdateRuleRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigCreateRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigDeleteRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigUpdateRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
 import org.hypertrace.graphql.spanprocessing.schema.query.ApiNamingRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.IncludeSpanRuleResultSet;
+import org.hypertrace.graphql.spanprocessing.schema.query.SamplingConfigsResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.samplingconfigs.SamplingConfig;
 import org.hypertrace.span.processing.config.service.v1.GetAllApiNamingRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.GetAllExcludeSpanRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.GetAllIncludeSpanRulesRequest;
+import org.hypertrace.span.processing.config.service.v1.GetAllSamplingConfigsRequest;
 import org.hypertrace.span.processing.config.service.v1.SpanProcessingConfigServiceGrpc;
 
 public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao {
@@ -228,6 +234,64 @@ public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao
                             .withDeadlineAfter(
                                 serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
                             .deleteApiNamingRule(this.requestConverter.convert(request))))
+        .flatMap(this.responseConverter::convert);
+  }
+
+  @Override
+  public Single<SamplingConfigsResultSet> getSamplingConfigs(ContextualRequest request) {
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .call(
+                    () ->
+                        this.configStub
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
+                            .getAllSamplingConfigs(
+                                GetAllSamplingConfigsRequest.getDefaultInstance())))
+        .flatMap(this.responseConverter::convert);
+  }
+
+  @Override
+  public Single<SamplingConfig> createSamplingConfig(SamplingConfigCreateRequest request) {
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .call(
+                    () ->
+                        this.configStub
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
+                            .createSamplingConfig(this.requestConverter.convert(request))))
+        .flatMap(this.responseConverter::convert);
+  }
+
+  @Override
+  public Single<SamplingConfig> updateSamplingConfig(SamplingConfigUpdateRequest request) {
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .call(
+                    () ->
+                        this.configStub
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
+                            .updateSamplingConfig(this.requestConverter.convert(request))))
+        .flatMap(this.responseConverter::convert);
+  }
+
+  @Override
+  public Single<DeleteSpanProcessingRuleResponse> deleteSamplingConfig(
+      SamplingConfigDeleteRequest request) {
+    return Single.fromFuture(
+            this.grpcContextBuilder
+                .build(request.context())
+                .call(
+                    () ->
+                        this.configStub
+                            .withDeadlineAfter(
+                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
+                            .deleteSamplingConfig(this.requestConverter.convert(request))))
         .flatMap(this.responseConverter::convert);
   }
 }

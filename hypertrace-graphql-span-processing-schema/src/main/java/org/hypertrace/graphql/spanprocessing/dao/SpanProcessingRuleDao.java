@@ -11,13 +11,18 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateR
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanDeleteRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanUpdateRuleRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigCreateRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigDeleteRequest;
+import org.hypertrace.graphql.spanprocessing.request.mutation.SamplingConfigUpdateRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
 import org.hypertrace.graphql.spanprocessing.schema.query.ApiNamingRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.IncludeSpanRuleResultSet;
+import org.hypertrace.graphql.spanprocessing.schema.query.SamplingConfigsResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
+import org.hypertrace.graphql.spanprocessing.schema.samplingconfigs.SamplingConfig;
 
 public interface SpanProcessingRuleDao {
   Single<ExcludeSpanRuleResultSet> getExcludeSpanRules(ContextualRequest request);
@@ -45,4 +50,13 @@ public interface SpanProcessingRuleDao {
   Single<ApiNamingRule> updateApiNamingRule(ApiNamingUpdateRuleRequest request);
 
   Single<DeleteSpanProcessingRuleResponse> deleteApiNamingRule(ApiNamingDeleteRuleRequest request);
+
+  Single<SamplingConfigsResultSet> getSamplingConfigs(ContextualRequest request);
+
+  Single<SamplingConfig> createSamplingConfig(SamplingConfigCreateRequest request);
+
+  Single<SamplingConfig> updateSamplingConfig(SamplingConfigUpdateRequest request);
+
+  Single<DeleteSpanProcessingRuleResponse> deleteSamplingConfig(
+      SamplingConfigDeleteRequest request);
 }
