@@ -15,19 +15,13 @@ import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingUpdateRul
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequest;
-import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanCreateRuleRequest;
-import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanDeleteRuleRequest;
-import org.hypertrace.graphql.spanprocessing.request.mutation.IncludeSpanUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
 import org.hypertrace.graphql.spanprocessing.schema.query.ApiNamingRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
-import org.hypertrace.graphql.spanprocessing.schema.query.IncludeSpanRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
-import org.hypertrace.graphql.spanprocessing.schema.rule.IncludeSpanRule;
 import org.hypertrace.span.processing.config.service.v1.GetAllApiNamingRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.GetAllExcludeSpanRulesRequest;
-import org.hypertrace.span.processing.config.service.v1.GetAllIncludeSpanRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.SpanProcessingConfigServiceGrpc;
 
 public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao {
@@ -112,64 +106,6 @@ public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao
                             .withDeadlineAfter(
                                 serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
                             .deleteExcludeSpanRule(this.requestConverter.convert(request))))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<IncludeSpanRuleResultSet> getIncludeSpanRules(ContextualRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .getAllIncludeSpanRules(
-                                GetAllIncludeSpanRulesRequest.getDefaultInstance())))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<IncludeSpanRule> createIncludeSpanRule(IncludeSpanCreateRuleRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .createIncludeSpanRule(this.requestConverter.convert(request))))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<IncludeSpanRule> updateIncludeSpanRule(IncludeSpanUpdateRuleRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .updateIncludeSpanRule(this.requestConverter.convert(request))))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<DeleteSpanProcessingRuleResponse> deleteIncludeSpanRule(
-      IncludeSpanDeleteRuleRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .deleteIncludeSpanRule(this.requestConverter.convert(request))))
         .flatMap(this.responseConverter::convert);
   }
 
