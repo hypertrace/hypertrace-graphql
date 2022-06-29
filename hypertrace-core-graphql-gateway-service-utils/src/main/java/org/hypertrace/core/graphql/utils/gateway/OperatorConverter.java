@@ -33,6 +33,8 @@ class OperatorConverter implements Converter<FilterOperatorType, Operator> {
         return Single.just(Operator.CONTAINS_KEY);
       case CONTAINS_KEY_VALUE:
         return Single.just(Operator.CONTAINS_KEYVALUE);
+      case CONTAINS_KEY_LIKE:
+        return Single.just(Operator.CONTAINS_KEY_LIKE);
       default:
         return Single.error(
             new UnknownFormatConversionException(

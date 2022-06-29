@@ -14,7 +14,8 @@ public enum FilterOperatorType {
   IN,
   NOT_IN,
   CONTAINS_KEY,
-  CONTAINS_KEY_VALUE;
+  CONTAINS_KEY_VALUE,
+  CONTAINS_KEY_LIKE;
 
   public static final String TYPE_NAME = "FilterOperatorType";
 }
