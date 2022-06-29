@@ -14,13 +14,6 @@ public class SpanProcessingMutationRequestModule extends AbstractModule {
     bind(ExcludeSpanDeleteRuleRequestBuilder.class)
         .to(DefaultExcludeSpanDeleteRuleRequestBuilder.class);
 
-    bind(IncludeSpanCreateRuleRequestBuilder.class)
-        .to(DefaultIncludeSpanCreateRuleRequestBuilder.class);
-    bind(IncludeSpanUpdateRuleRequestBuilder.class)
-        .to(DefaultIncludeSpanUpdateRuleRequestBuilder.class);
-    bind(IncludeSpanDeleteRuleRequestBuilder.class)
-        .to(DefaultIncludeSpanDeleteRuleRequestBuilder.class);
-
     bind(ApiNamingCreateRuleRequestBuilder.class)
         .to(DefaultApiNamingCreateRuleRequestBuilder.class);
     bind(ApiNamingUpdateRuleRequestBuilder.class)
