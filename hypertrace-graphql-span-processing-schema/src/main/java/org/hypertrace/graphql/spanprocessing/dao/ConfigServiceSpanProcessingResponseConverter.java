@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.spanprocessing.dao;
 
+import static org.hypertrace.span.processing.config.service.v1.ApiNamingRuleConfig.RuleConfigCase.API_SPEC_BASED_CONFIG;
+
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -51,6 +53,12 @@ public class ConfigServiceSpanProcessingResponseConverter {
 
   private Maybe<ApiNamingRule> convertOrDrop(
       org.hypertrace.span.processing.config.service.v1.ApiNamingRuleDetails ruleDetails) {
+    // drop api spec based rules
+    if (API_SPEC_BASED_CONFIG.equals(
+        ruleDetails.getRule().getRuleInfo().getRuleConfig().getRuleConfigCase())) {
+      return Maybe.empty();
+    }
+
     return this.ruleConverter
         .convert(ruleDetails)
         .doOnError(error -> log.error("Error converting ApiNamingRule", error))
