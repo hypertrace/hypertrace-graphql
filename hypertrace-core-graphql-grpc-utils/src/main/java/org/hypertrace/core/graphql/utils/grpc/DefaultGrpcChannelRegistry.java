@@ -1,20 +1,14 @@
 package org.hypertrace.core.graphql.utils.grpc;
 
 import io.grpc.ManagedChannel;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.hypertrace.core.graphql.spi.lifecycle.GraphQlServiceLifecycle;
 import org.hypertrace.core.grpcutils.client.GrpcChannelConfig;
 
-@Singleton
 class DefaultGrpcChannelRegistry implements GrpcChannelRegistry {
 
-  private final org.hypertrace.core.grpcutils.client.GrpcChannelRegistry delegate =
-      new org.hypertrace.core.grpcutils.client.GrpcChannelRegistry();
+  private final org.hypertrace.core.grpcutils.client.GrpcChannelRegistry delegate;
 
-  @Inject
-  DefaultGrpcChannelRegistry(GraphQlServiceLifecycle serviceLifecycle) {
-    serviceLifecycle.shutdownCompletion().thenRun(this.delegate::shutdown);
+  DefaultGrpcChannelRegistry(org.hypertrace.core.grpcutils.client.GrpcChannelRegistry delegate) {
+    this.delegate = delegate;
   }
 
   @Override

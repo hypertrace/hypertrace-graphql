@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.google.inject.Guice;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.spi.lifecycle.GraphQlServiceLifecycle;
+import org.hypertrace.core.grpcutils.client.GrpcChannelRegistry;
 import org.junit.jupiter.api.Test;
 
 public class GraphQlModuleTest {
@@ -16,7 +17,9 @@ public class GraphQlModuleTest {
         () ->
             Guice.createInjector(
                     new GraphQlModule(
-                        mock(GraphQlServiceConfig.class), mock(GraphQlServiceLifecycle.class)))
+                        mock(GraphQlServiceConfig.class),
+                        mock(GraphQlServiceLifecycle.class),
+                        mock(GrpcChannelRegistry.class)))
                 .getAllBindings());
   }
 }

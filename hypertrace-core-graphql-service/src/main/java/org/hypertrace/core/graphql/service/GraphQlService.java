@@ -34,7 +34,10 @@ public class GraphQlService extends StandAloneHttpPlatformServiceContainer {
             .port(config.getServicePort())
             .contextPath(config.getGraphQlUrlPath())
             .corsConfig(buildCorsConfig(config))
-            .servlet(new GraphQlServiceHttpServlet(GraphQlFactory.build(config, serviceLifecycle)))
+            .servlet(
+                new GraphQlServiceHttpServlet(
+                    GraphQlFactory.build(
+                        config, serviceLifecycle, environment.getChannelRegistry())))
             .build());
   }
 
