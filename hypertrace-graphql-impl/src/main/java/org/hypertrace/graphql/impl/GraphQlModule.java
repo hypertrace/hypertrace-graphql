@@ -19,6 +19,7 @@ import org.hypertrace.core.graphql.trace.TraceSchemaModule;
 import org.hypertrace.core.graphql.utils.gateway.GatewayUtilsModule;
 import org.hypertrace.core.graphql.utils.grpc.GraphQlGrpcModule;
 import org.hypertrace.core.graphql.utils.schema.SchemaUtilsModule;
+import org.hypertrace.core.grpcutils.client.GrpcChannelRegistry;
 import org.hypertrace.graphql.atttribute.scopes.HypertraceAttributeScopeModule;
 import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
 import org.hypertrace.graphql.entity.EntityIdModule;
@@ -37,10 +38,15 @@ class GraphQlModule extends AbstractModule {
   private final HypertraceGraphQlServiceConfig config;
   private final GraphQlServiceLifecycle serviceLifecycle;
 
+  private final GrpcChannelRegistry grpcChannelRegistry;
+
   public GraphQlModule(
-      final HypertraceGraphQlServiceConfig config, final GraphQlServiceLifecycle serviceLifecycle) {
+      final HypertraceGraphQlServiceConfig config,
+      final GraphQlServiceLifecycle serviceLifecycle,
+      final GrpcChannelRegistry grpcChannelRegistry) {
     this.config = config;
     this.serviceLifecycle = serviceLifecycle;
+    this.grpcChannelRegistry = grpcChannelRegistry;
   }
 
   @Override
@@ -50,7 +56,7 @@ class GraphQlModule extends AbstractModule {
     bind(GraphQlServiceLifecycle.class).toInstance(this.serviceLifecycle);
     bind(Clock.class).toInstance(Clock.systemUTC());
     install(new GraphQlRequestContextModule());
-    install(new GraphQlGrpcModule());
+    install(new GraphQlGrpcModule(this.grpcChannelRegistry));
     install(new GraphQlSchemaRegistryModule());
     install(new GraphQlDeserializationRegistryModule());
     install(new HypertraceAttributeScopeModule());
