@@ -126,7 +126,7 @@ public class ConfigServiceSpanProcessingRequestConverter {
   RuleType convertExcludeSpanRuleRuleType(ExcludeSpanRuleRuleType ruleType) {
     // TODO: remove this check after making this field non-nullable
     if (ruleType == null) {
-      return RuleType.RULE_TYPE_UNSPECIFIED;
+      return RuleType.RULE_TYPE_USER;
     }
     switch (ruleType) {
       case SYSTEM:
@@ -134,8 +134,7 @@ public class ConfigServiceSpanProcessingRequestConverter {
       case USER:
         return RuleType.RULE_TYPE_USER;
       default:
-        // TODO: throw error here instead making this field non-nullable
-        return RuleType.RULE_TYPE_UNSPECIFIED;
+        throw new NoSuchElementException("Unsupported exclude span rule rule type: " + ruleType);
     }
   }
 }

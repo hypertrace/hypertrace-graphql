@@ -84,11 +84,11 @@ class ConfigServiceSpanProcessingRuleConverter {
 
   private ExcludeSpanRuleRuleType convertExcludeSpanRuleRuleType(RuleType ruleType) {
     switch (ruleType) {
+      case RULE_TYPE_UNSPECIFIED: // required to cater for the older user configs(as they didn't
+        // have a rule type field)
       case RULE_TYPE_USER:
         return ExcludeSpanRuleRuleType.USER;
       case RULE_TYPE_SYSTEM:
-      case RULE_TYPE_UNSPECIFIED: // required to cater for the older user configs(as they didn't
-        // have a rule type field)
         return ExcludeSpanRuleRuleType.SYSTEM;
       default:
         throw new NoSuchElementException("Unsupported Exclude span rule rule type: " + ruleType);
