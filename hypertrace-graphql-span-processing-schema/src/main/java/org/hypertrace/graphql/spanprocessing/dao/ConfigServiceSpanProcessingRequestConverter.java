@@ -12,6 +12,7 @@ import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleCreate
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ApiNamingRuleUpdate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleUpdate;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleRuleType;
 import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleConfig;
 import org.hypertrace.span.processing.config.service.v1.ApiNamingRuleInfo;
 import org.hypertrace.span.processing.config.service.v1.CreateApiNamingRuleRequest;
@@ -19,6 +20,7 @@ import org.hypertrace.span.processing.config.service.v1.CreateExcludeSpanRuleReq
 import org.hypertrace.span.processing.config.service.v1.DeleteApiNamingRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.DeleteExcludeSpanRuleRequest;
 import org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleInfo;
+import org.hypertrace.span.processing.config.service.v1.RuleType;
 import org.hypertrace.span.processing.config.service.v1.SegmentMatchingBasedConfig;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRule;
 import org.hypertrace.span.processing.config.service.v1.UpdateApiNamingRuleRequest;
@@ -45,6 +47,7 @@ public class ConfigServiceSpanProcessingRequestConverter {
         .setName(excludeSpanRuleCreate.name())
         .setFilter(this.filterConverter.convert(excludeSpanRuleCreate.spanFilter()))
         .setDisabled(excludeSpanRuleCreate.disabled())
+        .setType(convertExcludeSpanRuleRuleType(excludeSpanRuleCreate.ruleType()))
         .build();
   }
 
@@ -118,5 +121,20 @@ public class ConfigServiceSpanProcessingRequestConverter {
 
   DeleteApiNamingRuleRequest convert(ApiNamingDeleteRuleRequest request) {
     return DeleteApiNamingRuleRequest.newBuilder().setId(request.id()).build();
+  }
+
+  RuleType convertExcludeSpanRuleRuleType(ExcludeSpanRuleRuleType ruleType) {
+    // TODO: remove this check after making this field non-nullable
+    if (ruleType == null) {
+      return RuleType.RULE_TYPE_USER;
+    }
+    switch (ruleType) {
+      case SYSTEM:
+        return RuleType.RULE_TYPE_SYSTEM;
+      case USER:
+        return RuleType.RULE_TYPE_USER;
+      default:
+        throw new NoSuchElementException("Unsupported exclude span rule rule type: " + ruleType);
+    }
   }
 }
