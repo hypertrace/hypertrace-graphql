@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.ExcludeSpanRuleCreate;
+import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRuleRuleType;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
@@ -45,5 +46,6 @@ public class ExcludeSpanCreateInputDeserializationConfig implements ArgumentDese
     String name;
     SpanProcessingRuleFilter spanFilter;
     boolean disabled;
+    ExcludeSpanRuleRuleType ruleType;
   }
 }

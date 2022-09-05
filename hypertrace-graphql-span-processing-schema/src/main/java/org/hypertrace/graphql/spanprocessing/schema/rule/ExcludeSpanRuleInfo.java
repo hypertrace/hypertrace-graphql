@@ -12,6 +12,7 @@ public interface ExcludeSpanRuleInfo {
   String NAME_KEY = "name";
   String SPAN_FILTER_KEY = "spanFilter";
   String DISABLED_KEY = "disabled";
+  String RULE_TYPE_KEY = "ruleType";
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
@@ -27,4 +28,9 @@ public interface ExcludeSpanRuleInfo {
   @GraphQLName(DISABLED_KEY)
   @GraphQLNonNull
   boolean disabled();
+
+  @GraphQLField
+  @GraphQLName(RULE_TYPE_KEY)
+  // TODO: make this field non-nullable
+  ExcludeSpanRuleRuleType ruleType();
 }
