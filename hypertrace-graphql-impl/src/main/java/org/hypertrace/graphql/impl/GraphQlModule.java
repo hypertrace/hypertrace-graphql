@@ -54,9 +54,10 @@ class GraphQlModule extends AbstractModule {
     bind(GraphQlServiceConfig.class).toInstance(this.config);
     bind(HypertraceGraphQlServiceConfig.class).toInstance(this.config);
     bind(GraphQlServiceLifecycle.class).toInstance(this.serviceLifecycle);
+    bind(GrpcChannelRegistry.class).toInstance(this.grpcChannelRegistry);
     bind(Clock.class).toInstance(Clock.systemUTC());
     install(new GraphQlRequestContextModule());
-    install(new GraphQlGrpcModule(this.grpcChannelRegistry));
+    install(new GraphQlGrpcModule());
     install(new GraphQlSchemaRegistryModule());
     install(new GraphQlDeserializationRegistryModule());
     install(new HypertraceAttributeScopeModule());
