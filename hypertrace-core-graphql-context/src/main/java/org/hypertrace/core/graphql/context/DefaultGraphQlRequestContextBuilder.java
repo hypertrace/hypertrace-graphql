@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -45,6 +46,8 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
   private final class DefaultGraphQlRequestContext implements GraphQlRequestContext {
     private final GraphQLServletContext servletContext;
     private final ContextualCachingKey cachingKey;
+
+    private final String requestId = UUID.randomUUID().toString();
 
     private DefaultGraphQlRequestContext(HttpServletRequest request, HttpServletResponse response) {
       this.servletContext =
@@ -101,6 +104,12 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
     @Override
     public ContextualCachingKey getCachingKey() {
       return this.cachingKey;
+    }
+
+    @Nonnull
+    @Override
+    public String getRequestId() {
+      return this.requestId;
     }
   }
 

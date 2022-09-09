@@ -1,6 +1,7 @@
 package org.hypertrace.core.graphql.utils.grpc;
 
 import static org.hypertrace.core.grpcutils.context.RequestContextConstants.AUTHORIZATION_HEADER;
+import static org.hypertrace.core.grpcutils.context.RequestContextConstants.REQUEST_ID_HEADER_KEY;
 import static org.hypertrace.core.grpcutils.context.RequestContextConstants.TENANT_ID_HEADER_KEY;
 
 import java.util.Arrays;
@@ -23,7 +24,8 @@ class PlatformGrpcContextBuilder implements GrpcContextBuilder {
             this.flattenOptionalMap(
                 Map.of(
                     AUTHORIZATION_HEADER, this.extractAuthorizationHeader(requestContext),
-                    TENANT_ID_HEADER_KEY, this.extractTenantId(requestContext))));
+                    TENANT_ID_HEADER_KEY, this.extractTenantId(requestContext),
+                    REQUEST_ID_HEADER_KEY, Optional.of(requestContext.getRequestId()))));
 
     return this.build(grpcHeaders);
   }

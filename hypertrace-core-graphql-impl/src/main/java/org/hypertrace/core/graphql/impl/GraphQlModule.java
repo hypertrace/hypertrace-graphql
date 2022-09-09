@@ -25,7 +25,7 @@ class GraphQlModule extends AbstractModule {
 
   private final GraphQlServiceConfig config;
   private final GraphQlServiceLifecycle lifecycle;
-  private final org.hypertrace.core.grpcutils.client.GrpcChannelRegistry grpcChannelRegistry;
+  private final GrpcChannelRegistry grpcChannelRegistry;
 
   public GraphQlModule(
       final GraphQlServiceConfig config,
@@ -40,8 +40,9 @@ class GraphQlModule extends AbstractModule {
   protected void configure() {
     bind(GraphQlServiceConfig.class).toInstance(this.config);
     bind(GraphQlServiceLifecycle.class).toInstance(this.lifecycle);
+    bind(GrpcChannelRegistry.class).toInstance(this.grpcChannelRegistry);
     install(new GraphQlRequestContextModule());
-    install(new GraphQlGrpcModule(this.grpcChannelRegistry));
+    install(new GraphQlGrpcModule());
     install(new GraphQlSchemaRegistryModule());
     install(new GraphQlDeserializationRegistryModule());
     install(new CommonSchemaModule());

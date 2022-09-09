@@ -24,4 +24,6 @@ public interface GraphQlRequestContext extends GraphQLContext {
 
   @Nonnull
   ContextualCachingKey getCachingKey();
+
+  String getRequestId();
 }
