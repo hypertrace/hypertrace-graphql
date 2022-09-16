@@ -2,6 +2,7 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.AVG;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.COUNT;
+import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.DISTINCT;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.DISTINCT_COUNT;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.MAX;
 import static org.hypertrace.core.graphql.attributes.AttributeModelMetricAggregationType.MIN;
@@ -58,5 +59,10 @@ class ConvertedAggregationContainer implements MetricAggregationContainer {
   @Override
   public @GraphQLNonNull MetricAggregation distinctcount() {
     return this.metricAggregationMap.get(MetricLookupMapKey.basicAggregation(DISTINCT_COUNT));
+  }
+
+  @Override
+  public @GraphQLNonNull MetricAggregation distinct() {
+    return this.metricAggregationMap.get(MetricLookupMapKey.basicAggregation(DISTINCT));
   }
 }

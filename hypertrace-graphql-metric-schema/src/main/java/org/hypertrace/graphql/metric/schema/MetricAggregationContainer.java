@@ -17,6 +17,7 @@ public interface MetricAggregationContainer {
   String METRIC_AGGREGATION_CONTAINER_PERCENTILE_KEY = "percentile";
   String METRIC_AGGREGATION_CONTAINER_COUNT_KEY = "count";
   String METRIC_AGGREGATION_CONTAINER_DISTINCTCOUNT_KEY = "distinctcount";
+  String METRIC_AGGREGATION_CONTAINER_DISTINCT_KEY = "distinct";
 
   @GraphQLField
   @GraphQLNonNull
@@ -47,6 +48,11 @@ public interface MetricAggregationContainer {
   @GraphQLNonNull
   @GraphQLName(METRIC_AGGREGATION_CONTAINER_DISTINCTCOUNT_KEY)
   MetricAggregation distinctcount();
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(METRIC_AGGREGATION_CONTAINER_DISTINCT_KEY)
+  MetricAggregation distinct();
 
   @GraphQLField
   @GraphQLNonNull

@@ -5,6 +5,7 @@ import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.ME
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_AVG_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_COUNT_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_DISTINCTCOUNT_KEY;
+import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_DISTINCT_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_MAX_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_MIN_KEY;
 import static org.hypertrace.graphql.metric.schema.MetricAggregationContainer.METRIC_AGGREGATION_CONTAINER_PERCENTILE_KEY;
@@ -126,6 +127,8 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
         return Optional.of(AttributeModelMetricAggregationType.COUNT);
       case METRIC_AGGREGATION_CONTAINER_DISTINCTCOUNT_KEY:
         return Optional.of(AttributeModelMetricAggregationType.DISTINCT_COUNT);
+      case METRIC_AGGREGATION_CONTAINER_DISTINCT_KEY:
+        return Optional.of(AttributeModelMetricAggregationType.DISTINCT);
       default:
         return Optional.empty();
     }
@@ -143,6 +146,7 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
       case SUM:
       case MIN:
       case MAX:
+      case DISTINCT:
       case DISTINCT_COUNT:
       default:
         return Collections.emptyList();

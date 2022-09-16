@@ -165,6 +165,7 @@ class ExploreSelectionRequestBuilder {
       case PERCENTILE:
         return MetricArguments.percentileWithSize(size.orElseThrow());
       case DISTINCT_COUNT:
+      case DISTINCT:
       case COUNT:
       case AVG:
       case SUM:

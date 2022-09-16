@@ -27,6 +27,8 @@ class FunctionTypeConverter
         return Single.just(FunctionType.PERCENTILE);
       case DISTINCT_COUNT:
         return Single.just(FunctionType.DISTINCTCOUNT);
+      case DISTINCT:
+        return Single.just(FunctionType.DISTINCT);
       default:
         return Single.error(
             new UnknownFormatConversionException(
