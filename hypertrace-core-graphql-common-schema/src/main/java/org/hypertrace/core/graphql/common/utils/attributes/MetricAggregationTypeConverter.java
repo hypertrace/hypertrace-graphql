@@ -29,6 +29,8 @@ class MetricAggregationTypeConverter
         return Single.just(MetricAggregationType.PERCENTILE);
       case DISTINCT_COUNT:
         return Single.just(MetricAggregationType.DISTINCTCOUNT);
+      case DISTINCT_ARRAY:
+        return Single.just(MetricAggregationType.DISTINCT_ARRAY);
       default:
         return Single.error(
             new UnknownFormatConversionException(

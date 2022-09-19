@@ -14,8 +14,8 @@ dependencies {
     api("org.hypertrace.core.grpcutils:grpc-client-utils:0.7.7")
     api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.7.7")
     api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.7.7")
-    api("org.hypertrace.gateway.service:gateway-service-api:0.2.12")
-    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.13.6")
+    api("org.hypertrace.gateway.service:gateway-service-api:0.2.13")
+    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.14.8")
 
     api("com.google.inject:guice:5.1.0")
     api("com.graphql-java:graphql-java:15.0")

@@ -60,6 +60,8 @@ class AttributeModelTranslator {
         return AttributeModelMetricAggregationType.PERCENTILE;
       case DISTINCT_COUNT:
         return AttributeModelMetricAggregationType.DISTINCT_COUNT;
+      case DISTINCT_ARRAY:
+        return AttributeModelMetricAggregationType.DISTINCT_ARRAY;
       case AGG_UNDEFINED:
       case UNRECOGNIZED:
       default:
