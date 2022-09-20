@@ -58,4 +58,9 @@ class BaselinedConvertedAggregationContainer implements BaselinedMetricAggregati
   public @GraphQLNonNull BaselinedMetricAggregation distinctcount() {
     return this.metricAggregationMap.get(MetricLookupMapKey.basicAggregation(DISTINCT_COUNT));
   }
+
+  @Override
+  public @GraphQLNonNull BaselinedMetricAggregation distinctarray() {
+    return this.metricAggregationMap.get(MetricLookupMapKey.basicAggregation(DISTINCT_ARRAY));
+  }
 }
