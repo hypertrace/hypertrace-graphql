@@ -4,6 +4,9 @@ import static org.hypertrace.core.grpcutils.context.RequestContextConstants.AUTH
 import static org.hypertrace.core.grpcutils.context.RequestContextConstants.REQUEST_ID_HEADER_KEY;
 import static org.hypertrace.core.grpcutils.context.RequestContextConstants.TENANT_ID_HEADER_KEY;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -16,8 +19,12 @@ import org.hypertrace.core.grpcutils.context.RequestContext;
 
 class PlatformGrpcContextBuilder implements GrpcContextBuilder {
 
+  private final Cache<String, GraphQlRequestContext> contextCache =
+      CacheBuilder.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(1000).build();
+
   @Override
   public RequestContext build(GraphQlRequestContext requestContext) {
+    this.contextCache.put(requestContext.getRequestId(), requestContext);
     Map<String, String> grpcHeaders =
         this.mergeMaps(
             requestContext.getTracingContextHeaders(),
@@ -28,6 +35,11 @@ class PlatformGrpcContextBuilder implements GrpcContextBuilder {
                     REQUEST_ID_HEADER_KEY, Optional.of(requestContext.getRequestId()))));
 
     return this.build(grpcHeaders);
+  }
+
+  @Override
+  public Optional<GraphQlRequestContext> tryRestore(RequestContext requestContext) {
+    return requestContext.getRequestId().map(this.contextCache::getIfPresent);
   }
 
   private RequestContext build(@Nonnull Map<String, String> headers) {

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import java.util.Optional;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.grpcutils.context.RequestContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -60,5 +61,13 @@ class PlatformGrpcContextBuilderTest {
     assertEquals(
         "auth header",
         this.builder.build(this.mockRequestContext).getRequestHeaders().get("authorization"));
+  }
+
+  @Test
+  void testRestoreContext() {
+    when(this.mockRequestContext.getRequestId()).thenReturn("request id");
+    RequestContext resultContext = this.builder.build(this.mockRequestContext);
+    assertEquals(Optional.empty(), this.builder.tryRestore(RequestContext.forTenantId("other")));
+    assertEquals(Optional.of(this.mockRequestContext), this.builder.tryRestore(resultContext));
   }
 }
