@@ -14,9 +14,11 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.inject.Singleton;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.grpcutils.context.RequestContext;
 
+@Singleton
 class PlatformGrpcContextBuilder implements GrpcContextBuilder {
 
   private final Cache<String, GraphQlRequestContext> contextCache =
