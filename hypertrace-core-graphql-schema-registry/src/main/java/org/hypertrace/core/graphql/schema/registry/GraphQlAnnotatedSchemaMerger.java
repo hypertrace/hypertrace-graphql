@@ -12,6 +12,7 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -39,7 +40,8 @@ class GraphQlAnnotatedSchemaMerger implements Provider<GraphQLSchema> {
 
     return fragments.stream()
         .map(fragment -> this.fragmentToSchema(fragment, annotationProcessor))
-        .reduce(this.fragmentToSchema(rootFragment, annotationProcessor), this::merge);
+        .reduce(this.fragmentToSchema(rootFragment, annotationProcessor), this::merge)
+        .transform(this::removeRootPlaceholders);
   }
 
   private void registerAllTypeFunctions(
@@ -133,5 +135,37 @@ class GraphQlAnnotatedSchemaMerger implements Provider<GraphQLSchema> {
     return entries.stream()
         .filter(entry -> nonNull(entry) && nonNull(entry.getKey()) && nonNull(entry.getValue()))
         .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
+  }
+
+  private void removeRootPlaceholders(GraphQLSchema.Builder mergedSchema) {
+    GraphQLSchema mergedWithPlaceholders = mergedSchema.build();
+    // Queries must be defined, mutation is optional which is represented by a null
+    mergedSchema.query(
+        this.rebuildTypeWithoutPlaceholders(mergedWithPlaceholders.getQueryType()).orElseThrow());
+    mergedSchema.mutation(
+        this.rebuildTypeWithoutPlaceholders(mergedWithPlaceholders.getMutationType()).orElse(null));
+  }
+
+  private Optional<GraphQLObjectType> rebuildTypeWithoutPlaceholders(GraphQLObjectType objectType) {
+    // Schema validation now requires all objects to have at least one field. To merge partial
+    // fragments, we start with placeholders, identified by a constant, then remove them at the end.
+    GraphQLObjectType newType =
+        GraphQLObjectType.newObject(objectType)
+            .replaceFields(
+                objectType.getFields().stream()
+                    .filter(
+                        field ->
+                            Optional.ofNullable(field.getDescription())
+                                .map(
+                                    description ->
+                                        !description.equals(DefaultSchema.PLACEHOLDER_DESCRIPTION))
+                                .orElse(true))
+                    .collect(Collectors.toList()))
+            .build();
+
+    if (newType.getFields().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(newType);
   }
 }

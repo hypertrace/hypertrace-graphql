@@ -18,8 +18,8 @@ dependencies {
     api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.14.8")
 
     api("com.google.inject:guice:5.1.0")
-    api("com.graphql-java:graphql-java:15.0")
-    api("io.github.graphql-java:graphql-java-annotations:8.3")
+    api("com.graphql-java:graphql-java:19.2")
+    api("io.github.graphql-java:graphql-java-annotations:9.1")
     api("org.slf4j:slf4j-api:1.7.36")
     api("io.reactivex.rxjava3:rxjava:3.1.5")
     api("com.google.protobuf:protobuf-java-util:3.21.1")
@@ -28,7 +28,7 @@ dependencies {
     api("com.google.code.findbugs:jsr305:3.0.2")
     api("com.typesafe:config:1.4.2")
     api("com.google.guava:guava:31.1-jre")
-    api("com.graphql-java-kickstart:graphql-java-servlet:10.1.0")
+    api("com.graphql-java-kickstart:graphql-java-servlet:14.0.0")
 
     api("com.fasterxml.jackson.core:jackson-databind:2.13.4")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4")

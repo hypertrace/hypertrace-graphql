@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
@@ -67,7 +66,7 @@ class DefaultGraphQlRequestContextBuilderTest {
 
   @Test
   void delegatesDataLoaderRegistry() {
-    assertTrue(this.requestContext.getDataLoaderRegistry().isPresent());
+    assertNotNull(this.requestContext.getDataLoaderRegistry());
   }
 
   @Test

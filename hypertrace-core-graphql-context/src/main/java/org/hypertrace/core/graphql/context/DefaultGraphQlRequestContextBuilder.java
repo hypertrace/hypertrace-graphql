@@ -1,9 +1,8 @@
 package org.hypertrace.core.graphql.context;
 
 import com.google.common.collect.Streams;
-import graphql.kickstart.servlet.context.DefaultGraphQLServletContext;
+import graphql.kickstart.execution.context.DefaultGraphQLContext;
 import graphql.kickstart.servlet.context.DefaultGraphQLServletContextBuilder;
-import graphql.kickstart.servlet.context.GraphQLServletContext;
 import graphql.schema.DataFetcher;
 import java.util.Arrays;
 import java.util.Map;
@@ -14,10 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
-import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.dataloader.DataLoaderRegistry;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 
 class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBuilder
@@ -40,30 +37,20 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
 
   @Override
   public GraphQlRequestContext build(HttpServletRequest request, HttpServletResponse response) {
-    return new DefaultGraphQlRequestContext(request, response);
+    return new DefaultGraphQlRequestContext(request);
   }
 
-  private final class DefaultGraphQlRequestContext implements GraphQlRequestContext {
-    private final GraphQLServletContext servletContext;
+  private final class DefaultGraphQlRequestContext extends DefaultGraphQLContext
+      implements GraphQlRequestContext {
     private final ContextualCachingKey cachingKey;
 
     private final String requestId = UUID.randomUUID().toString();
+    private final HttpServletRequest request;
 
-    private DefaultGraphQlRequestContext(HttpServletRequest request, HttpServletResponse response) {
-      this.servletContext =
-          DefaultGraphQLServletContext.createServletContext().with(request).with(response).build();
+    private DefaultGraphQlRequestContext(HttpServletRequest request) {
+      this.request = request;
       this.cachingKey =
           new DefaultContextualCacheKey(this, this.getTenantId().orElse(DEFAULT_CONTEXT_ID));
-    }
-
-    @Override
-    public Optional<Subject> getSubject() {
-      return this.servletContext.getSubject();
-    }
-
-    @Override
-    public Optional<DataLoaderRegistry> getDataLoaderRegistry() {
-      return this.servletContext.getDataLoaderRegistry();
     }
 
     @Override
@@ -75,29 +62,24 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
 
     @Override
     public Optional<String> getAuthorizationHeader() {
-      HttpServletRequest request = this.servletContext.getHttpServletRequest();
       return Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER_KEY))
           .or(() -> Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER_KEY.toLowerCase())));
     }
 
     @Override
     public Optional<String> getTenantId() {
-      HttpServletRequest request = this.servletContext.getHttpServletRequest();
       return Optional.ofNullable(request.getHeader(TENANT_ID_HEADER_KEY))
           .or(DefaultGraphQlRequestContextBuilder.this.serviceConfig::getDefaultTenantId);
     }
 
     @Override
     public Map<String, String> getTracingContextHeaders() {
-      return Streams.stream(
-              this.servletContext.getHttpServletRequest().getHeaderNames().asIterator())
+      return Streams.stream(request.getHeaderNames().asIterator())
           .filter(
               header ->
                   TRACING_CONTEXT_HEADER_KEY_PREFIXES.stream()
                       .anyMatch(prefix -> header.toLowerCase().startsWith(prefix.toLowerCase())))
-          .collect(
-              Collectors.toUnmodifiableMap(
-                  String::toLowerCase, this.servletContext.getHttpServletRequest()::getHeader));
+          .collect(Collectors.toUnmodifiableMap(String::toLowerCase, request::getHeader));
     }
 
     @Nonnull

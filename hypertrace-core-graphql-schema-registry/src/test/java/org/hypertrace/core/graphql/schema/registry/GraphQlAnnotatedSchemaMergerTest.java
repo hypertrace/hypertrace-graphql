@@ -1,12 +1,14 @@
 package org.hypertrace.core.graphql.schema.registry;
 
+import static org.hypertrace.core.graphql.schema.registry.DefaultSchema.ROOT_MUTATION_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import graphql.Scalars;
 import graphql.annotations.annotationTypes.GraphQLDataFetcher;
 import graphql.annotations.annotationTypes.GraphQLField;
-import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.annotations.processor.typeFunctions.TypeFunction;
 import graphql.schema.DataFetcher;
@@ -30,19 +32,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class GraphQlAnnotatedSchemaMergerTest {
 
-  private static final String ROOT_QUERY_NAME = "root";
-  private static final String ROOT_MUTATION_NAME = "rootMutation";
-
   @Mock private GraphQlSchemaRegistry mockRegistry;
   @Mock private DataFetchingEnvironment mockDataFetchingEnvironment;
 
   private GraphQlAnnotatedSchemaMerger merger;
-
-  @GraphQLName(ROOT_QUERY_NAME)
-  interface RootQuerySchema {}
-
-  @GraphQLName(ROOT_MUTATION_NAME)
-  interface RootMutationSchema {}
 
   interface FirstQuerySchema {
     @GraphQLField
@@ -91,8 +84,7 @@ public class GraphQlAnnotatedSchemaMergerTest {
   public void beforeEach() {
     this.merger = new GraphQlAnnotatedSchemaMerger(mockRegistry);
 
-    when(mockRegistry.getRootFragment())
-        .thenReturn(this.createSchemaFragment(RootQuerySchema.class, RootMutationSchema.class));
+    when(mockRegistry.getRootFragment()).thenReturn(new DefaultSchema());
   }
 
   @Test
@@ -148,10 +140,13 @@ public class GraphQlAnnotatedSchemaMergerTest {
   @Test
   void supportsMutationOnlyFragment() {
     when(mockRegistry.getRegisteredFragments())
-        .thenReturn(Set.of(this.createSchemaFragment(null, FirstMutationSchema.class)));
+        .thenReturn(
+            Set.of(
+                this.createSchemaFragment(FirstQuerySchema.class),
+                this.createSchemaFragment(null, FirstMutationSchema.class)));
 
     this.verifySchemaWithMutationFields(this.merger.get(), Set.of("mutateOne"));
-    this.verifySchemaWithQueryFields(this.merger.get(), Set.of());
+    this.verifySchemaWithQueryFields(this.merger.get(), Set.of("first", "second"));
   }
 
   @Test
@@ -169,7 +164,13 @@ public class GraphQlAnnotatedSchemaMergerTest {
               Class<?> aClass,
               AnnotatedType annotatedType,
               ProcessingElementsContainer container) {
-            return GraphQLObjectType.newObject().name("typeFunctionType").build();
+            return GraphQLObjectType.newObject()
+                .name("typeFunctionType")
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
+                        .name("typeFunctionTypeField")
+                        .type(Scalars.GraphQLString))
+                .build();
           }
         };
 
@@ -220,7 +221,7 @@ public class GraphQlAnnotatedSchemaMergerTest {
   }
 
   private void verifySchemaWithQueryFields(GraphQLSchema schema, Set<String> fields) {
-    assertEquals(ROOT_QUERY_NAME, schema.getQueryType().getName());
+    assertEquals(DefaultSchema.ROOT_QUERY_NAME, schema.getQueryType().getName());
     List<GraphQLFieldDefinition> fieldDefinitions = schema.getQueryType().getFieldDefinitions();
     assertEquals(fields.size(), fieldDefinitions.size());
     assertTrue(
@@ -231,13 +232,19 @@ public class GraphQlAnnotatedSchemaMergerTest {
   }
 
   private void verifySchemaWithMutationFields(GraphQLSchema schema, Set<String> fields) {
-    assertEquals(ROOT_MUTATION_NAME, schema.getMutationType().getName());
-    List<GraphQLFieldDefinition> fieldDefinitions = schema.getMutationType().getFieldDefinitions();
-    assertEquals(fields.size(), fieldDefinitions.size());
-    assertTrue(
-        fields.containsAll(
-            fieldDefinitions.stream()
-                .map(GraphQLFieldDefinition::getName)
-                .collect(Collectors.toUnmodifiableSet())));
+    if (fields.isEmpty()) {
+      // A type must have fields, so if no fields expected, no type expected
+      assertNull(schema.getMutationType());
+    } else {
+      assertEquals(ROOT_MUTATION_NAME, schema.getMutationType().getName());
+      List<GraphQLFieldDefinition> fieldDefinitions =
+          schema.getMutationType().getFieldDefinitions();
+      assertEquals(fields.size(), fieldDefinitions.size());
+      assertTrue(
+          fields.containsAll(
+              fieldDefinitions.stream()
+                  .map(GraphQLFieldDefinition::getName)
+                  .collect(Collectors.toUnmodifiableSet())));
+    }
   }
 }

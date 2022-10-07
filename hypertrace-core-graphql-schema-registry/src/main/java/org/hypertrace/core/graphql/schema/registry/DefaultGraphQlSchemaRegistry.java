@@ -22,7 +22,7 @@ class DefaultGraphQlSchemaRegistry implements GraphQlSchemaRegistry {
   }
 
   @Override
-  public GraphQlSchemaFragment getRootFragment() {
+  public DefaultSchema getRootFragment() {
     return this.defaultSchemaFragment;
   }
 }

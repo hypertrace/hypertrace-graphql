@@ -1,13 +1,13 @@
 package org.hypertrace.core.graphql.context;
 
-import graphql.kickstart.execution.context.GraphQLContext;
+import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.schema.DataFetcher;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 
-public interface GraphQlRequestContext extends GraphQLContext {
+public interface GraphQlRequestContext extends GraphQLKickstartContext {
 
   /**
    * A tool to create data fetchers via injection container due to limitations in the framework. For
