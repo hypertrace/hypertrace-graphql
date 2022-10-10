@@ -9,18 +9,12 @@ import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.graphql.config.HypertraceGraphQlServiceConfig;
-import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingCreateRuleRequest;
-import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingDeleteRuleRequest;
-import org.hypertrace.graphql.spanprocessing.request.mutation.ApiNamingUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanCreateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanDeleteRuleRequest;
 import org.hypertrace.graphql.spanprocessing.request.mutation.ExcludeSpanUpdateRuleRequest;
 import org.hypertrace.graphql.spanprocessing.schema.mutation.DeleteSpanProcessingRuleResponse;
-import org.hypertrace.graphql.spanprocessing.schema.query.ApiNamingRuleResultSet;
 import org.hypertrace.graphql.spanprocessing.schema.query.ExcludeSpanRuleResultSet;
-import org.hypertrace.graphql.spanprocessing.schema.rule.ApiNamingRule;
 import org.hypertrace.graphql.spanprocessing.schema.rule.ExcludeSpanRule;
-import org.hypertrace.span.processing.config.service.v1.GetAllApiNamingRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.GetAllExcludeSpanRulesRequest;
 import org.hypertrace.span.processing.config.service.v1.SpanProcessingConfigServiceGrpc;
 
@@ -106,64 +100,6 @@ public class ConfigServiceSpanProcessingRuleDao implements SpanProcessingRuleDao
                             .withDeadlineAfter(
                                 serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
                             .deleteExcludeSpanRule(this.requestConverter.convert(request))))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<ApiNamingRuleResultSet> getApiNamingRules(ContextualRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .getAllApiNamingRules(
-                                GetAllApiNamingRulesRequest.getDefaultInstance())))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<ApiNamingRule> createApiNamingRule(ApiNamingCreateRuleRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .createApiNamingRule(this.requestConverter.convert(request))))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<ApiNamingRule> updateApiNamingRule(ApiNamingUpdateRuleRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .updateApiNamingRule(this.requestConverter.convert(request))))
-        .flatMap(this.responseConverter::convert);
-  }
-
-  @Override
-  public Single<DeleteSpanProcessingRuleResponse> deleteApiNamingRule(
-      ApiNamingDeleteRuleRequest request) {
-    return Single.fromFuture(
-            this.grpcContextBuilder
-                .build(request.context())
-                .call(
-                    () ->
-                        this.configStub
-                            .withDeadlineAfter(
-                                serviceConfig.getConfigServiceTimeout().toMillis(), MILLISECONDS)
-                            .deleteApiNamingRule(this.requestConverter.convert(request))))
         .flatMap(this.responseConverter::convert);
   }
 }
