@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.spanprocessing.dao;
 
+import static org.hypertrace.span.processing.config.service.v1.RuleType.RULE_TYPE_SYSTEM;
+
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
@@ -33,6 +35,11 @@ public class ConfigServiceSpanProcessingResponseConverter {
 
   private Maybe<ExcludeSpanRule> convertOrDrop(
       org.hypertrace.span.processing.config.service.v1.ExcludeSpanRuleDetails ruleDetails) {
+
+    // Drop system exclude span rules
+    if (RULE_TYPE_SYSTEM.equals(ruleDetails.getRule().getRuleInfo().getType())) {
+      return Maybe.empty();
+    }
     return this.ruleConverter
         .convert(ruleDetails)
         .doOnError(error -> log.error("Error converting ExcludeSpanRule", error))
