@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.attributes.arguments.AttributeExpression;
+import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.utils.BiConverter;
 import org.hypertrace.core.graphql.common.utils.TriConverter;
 import org.hypertrace.gateway.service.v1.baseline.BaselineEntitiesResponse;
@@ -33,6 +34,7 @@ import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.MetricContainer;
 
 class GatewayServiceEntityConverter {
+
   private final BiConverter<
           Collection<AttributeRequest>, Map<String, Value>, Map<AttributeExpression, Object>>
       attributeMapConverter;
@@ -143,6 +145,7 @@ class GatewayServiceEntityConverter {
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedEntity implements Entity {
+
     String id;
     String type;
     Map<AttributeExpression, Object> attributeValues;
@@ -161,13 +164,15 @@ class GatewayServiceEntityConverter {
     }
 
     @Override
-    public EdgeResultSet incomingEdges(EntityType neighborType, String neighborScope) {
+    public EdgeResultSet incomingEdges(
+        EntityType neighborType, String neighborScope, List<FilterArgument> filterBy) {
       return this.incomingEdges.getOrDefault(
           this.resolveEntityScope(neighborType, neighborScope), EMPTY_EDGE_RESULT_SET);
     }
 
     @Override
-    public EdgeResultSet outgoingEdges(EntityType neighborType, String neighborScope) {
+    public EdgeResultSet outgoingEdges(
+        EntityType neighborType, String neighborScope, List<FilterArgument> filterBy) {
 
       return this.outgoingEdges.getOrDefault(
           this.resolveEntityScope(neighborType, neighborScope), EMPTY_EDGE_RESULT_SET);
@@ -188,6 +193,7 @@ class GatewayServiceEntityConverter {
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedEntityResultSet implements EntityResultSet {
+
     List<Entity> results;
     long total;
     long count;

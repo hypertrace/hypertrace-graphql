@@ -3,8 +3,10 @@ package org.hypertrace.graphql.entity.schema;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import java.util.List;
 import org.hypertrace.core.graphql.common.schema.attributes.AttributeQueryable;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
+import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.type.Typed;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument;
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
@@ -29,14 +31,16 @@ public interface Entity extends AttributeQueryable, MetricQueryable, Identifiabl
   @GraphQLName(ENTITY_INCOMING_EDGES_KEY)
   EdgeResultSet incomingEdges(
       @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME) EntityType neighborType,
-      @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope);
+      @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope,
+      @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy);
 
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(ENTITY_OUTGOING_EDGES_KEY)
   EdgeResultSet outgoingEdges(
       @GraphQLName(NeighborEntityTypeArgument.ARGUMENT_NAME) EntityType neighborType,
-      @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope);
+      @GraphQLName(NeighborEntityScopeArgument.ARGUMENT_NAME) String neighborScope,
+      @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy);
 
   @GraphQLField
   @GraphQLNonNull
