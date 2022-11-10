@@ -1,5 +1,14 @@
 package org.hypertrace.core.graphql.attributes;
 
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_BOOL;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_DOUBLE;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_INT64;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_STRING;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_STRING_ARRAY;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_STRING_MAP;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_TIMESTAMP;
+
+import com.google.common.collect.ImmutableBiMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UnknownFormatConversionException;
@@ -11,8 +20,18 @@ import org.hypertrace.core.attribute.service.v1.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class AttributeModelTranslator {
+public class AttributeModelTranslator {
   private static final Logger LOGGER = LoggerFactory.getLogger(AttributeModelTranslator.class);
+  private static final ImmutableBiMap<AttributeKind, AttributeModelType> TYPE_MAPPING =
+      ImmutableBiMap.<AttributeKind, AttributeModelType>builder()
+          .put(TYPE_STRING, AttributeModelType.STRING)
+          .put(TYPE_BOOL, AttributeModelType.BOOLEAN)
+          .put(TYPE_INT64, AttributeModelType.LONG)
+          .put(TYPE_DOUBLE, AttributeModelType.DOUBLE)
+          .put(TYPE_TIMESTAMP, AttributeModelType.TIMESTAMP)
+          .put(TYPE_STRING_MAP, AttributeModelType.STRING_MAP)
+          .put(TYPE_STRING_ARRAY, AttributeModelType.STRING_ARRAY)
+          .build();
 
   public Optional<AttributeModel> translate(AttributeMetadata attributeMetadata) {
     try {
@@ -32,6 +51,14 @@ class AttributeModelTranslator {
       LOGGER.warn("Dropping attribute {} : {}", attributeMetadata.getId(), e.getMessage());
       return Optional.empty();
     }
+  }
+
+  public AttributeKind convertType(AttributeModelType type) {
+    return Optional.ofNullable(TYPE_MAPPING.inverse().get(type))
+        .orElseThrow(
+            () ->
+                new UnknownFormatConversionException(
+                    String.format("Unrecognized attribute type %s", type.name())));
   }
 
   private List<AttributeModelMetricAggregationType> convertMetricAggregationTypes(
@@ -71,30 +98,10 @@ class AttributeModelTranslator {
   }
 
   private AttributeModelType convertType(AttributeKind kind) {
-    switch (kind) {
-      case TYPE_STRING:
-        return AttributeModelType.STRING;
-      case TYPE_BOOL:
-        return AttributeModelType.BOOLEAN;
-      case TYPE_INT64:
-        return AttributeModelType.LONG;
-      case TYPE_DOUBLE:
-        return AttributeModelType.DOUBLE;
-      case TYPE_TIMESTAMP:
-        return AttributeModelType.TIMESTAMP;
-      case TYPE_STRING_MAP:
-        return AttributeModelType.STRING_MAP;
-      case TYPE_STRING_ARRAY:
-        return AttributeModelType.STRING_ARRAY;
-      case KIND_UNDEFINED:
-      case UNRECOGNIZED:
-      case TYPE_BYTES:
-      case TYPE_INT64_ARRAY:
-      case TYPE_DOUBLE_ARRAY:
-      case TYPE_BOOL_ARRAY:
-      default:
-        throw new UnknownFormatConversionException(
-            String.format("Unrecognized attribute kind %s", kind.name()));
-    }
+    return Optional.ofNullable(TYPE_MAPPING.get(kind))
+        .orElseThrow(
+            () ->
+                new UnknownFormatConversionException(
+                    String.format("Unrecognized attribute kind %s", kind.name())));
   }
 }

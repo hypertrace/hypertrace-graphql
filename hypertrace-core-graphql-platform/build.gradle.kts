@@ -6,6 +6,8 @@ javaPlatform {
   allowDependencies()
 }
 
+val attributeServiceVersion: String = "0.14.11"
+
 dependencies {
   api(platform("io.grpc:grpc-bom:1.47.0"))
   constraints {
@@ -15,7 +17,8 @@ dependencies {
     api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.8.2")
     api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.8.2")
     api("org.hypertrace.gateway.service:gateway-service-api:0.2.15")
-    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:0.14.8")
+    api("org.hypertrace.core.attribute.service:caching-attribute-service-client:${attributeServiceVersion}")
+    api("org.hypertrace.core.attribute.service:attribute-service-api:${attributeServiceVersion}")
 
     api("com.google.inject:guice:5.1.0")
     api("com.graphql-java:graphql-java:19.2")

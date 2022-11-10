@@ -14,6 +14,7 @@ dependencies {
   implementation("com.google.guava:guava")
 
   implementation("org.hypertrace.core.attribute.service:caching-attribute-service-client")
+  implementation("org.hypertrace.core.attribute.service:attribute-service-api")
   implementation("org.hypertrace.core.grpcutils:grpc-client-rx-utils")
   implementation(project(":hypertrace-core-graphql-grpc-utils"))
   implementation(project(":hypertrace-core-graphql-rx-utils"))

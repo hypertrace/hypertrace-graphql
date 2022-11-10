@@ -41,7 +41,7 @@ public class MetadataResponseBuilder {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  private Maybe<AttributeMetadata> build(AttributeModel model) {
+  public Maybe<AttributeMetadata> build(AttributeModel model) {
     return zip(
             this.convertMetricAggregationTypes(model.supportedMetricAggregationTypes()),
             this.typeConverter.convert(model.type()),
