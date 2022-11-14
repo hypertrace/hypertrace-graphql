@@ -7,6 +7,7 @@ import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.Value;
 import lombok.experimental.Accessors;
@@ -66,6 +67,7 @@ class GatewayServiceEntityInteractionRequestBuilder {
         .collect(Collectors.toUnmodifiableSet());
   }
 
+  // todo (aman) fix the name
   private Single<Filter> buildEntityTypeFilter(EdgeSetGroupRequest request) {
     return Observable.fromIterable(request.entityTypes())
         .collect(Collectors.toUnmodifiableSet())
@@ -76,7 +78,11 @@ class GatewayServiceEntityInteractionRequestBuilder {
                     new EntityNeighborTypeFilter(
                         request.neighborTypeAttribute().attributeExpressionAssociation().value(),
                         entityTypes)))
-        .flatMap(filterAssociation -> this.filterConverter.convert(Set.of(filterAssociation)));
+        .flatMap(
+            filterAssociation ->
+                this.filterConverter.convert(
+                    Stream.concat(request.filterArguments().stream(), Stream.of(filterAssociation))
+                        .collect(Collectors.toSet())));
   }
 
   @Value

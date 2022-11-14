@@ -319,6 +319,7 @@ class DefaultEntityAndRuleJoinerBuilder implements EntityAndRuleJoinerBuilder {
     Set<String> entityTypes = Collections.emptySet();
     Collection<AttributeRequest> attributeRequests = Collections.emptyList();
     Collection<MetricAggregationRequest> metricAggregationRequests = Collections.emptyList();
+    Collection<AttributeAssociation<FilterArgument>> filterArguments = Collections.emptyList();
     AttributeRequest neighborIdAttribute = null;
     AttributeRequest neighborTypeAttribute = null;
 
