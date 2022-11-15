@@ -35,13 +35,8 @@ import org.hypertrace.graphql.entity.schema.argument.NeighborEntityScopeArgument
 import org.hypertrace.graphql.entity.schema.argument.NeighborEntityTypeArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class EdgeRequestBuilder {
-
-  public static final Logger LOGGER = LoggerFactory.getLogger(EdgeRequestBuilder.class);
-
   private final String INCOMING_ENTITY_ID_KEY = "fromEntityId";
   private final String INCOMING_ENTITY_TYPE_KEY = "fromEntityType";
   private final String OUTGOING_ENTITY_ID_KEY = "toEntityId";
@@ -182,14 +177,12 @@ class EdgeRequestBuilder {
     }
   }
 
-  // todo aman check this
   private List<FilterArgument> getFilters(Set<SelectedField> selectedFields) {
     return selectedFields.stream()
         .map(
-            selectedField -> {
-              return this.argumentDeserializer.deserializeObjectList(
-                  selectedField.getArguments(), FilterArgument.class);
-            })
+            selectedField ->
+                this.argumentDeserializer.deserializeObjectList(
+                    selectedField.getArguments(), FilterArgument.class))
         .flatMap(arguments -> Stream.of(arguments.orElse(new ArrayList<>())))
         .flatMap(Collection::stream)
         .collect(Collectors.toList());

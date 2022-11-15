@@ -30,13 +30,11 @@ import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.label.joiner.LabelJoiner;
 import org.hypertrace.graphql.label.joiner.LabelJoinerBuilder;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Slf4j
 @Singleton
 class GatewayServiceEntityDao implements EntityDao {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GatewayServiceEntityDao.class);
+
   private final GatewayServiceFutureStub gatewayServiceStub;
   private final GrpcContextBuilder grpcContextBuilder;
   private final GatewayServiceEntityRequestBuilder requestBuilder;
@@ -75,9 +73,6 @@ class GatewayServiceEntityDao implements EntityDao {
   @Override
   public Single<EntityResultSet> getEntities(EntityRequest request) {
     GraphQlRequestContext context = request.resultSetRequest().context();
-    Single<EntitiesRequest> entitiesRequestSingle = this.requestBuilder.buildRequest(request);
-    LOGGER.info(
-        "get entities request from context is as follows {}", entitiesRequestSingle.blockingGet());
     return this.requestBuilder
         .buildRequest(request)
         .subscribeOn(this.boundedIoScheduler)
@@ -86,7 +81,6 @@ class GatewayServiceEntityDao implements EntityDao {
 
   private Single<EntityResultSet> fetchAndMapEntities(
       GraphQlRequestContext context, EntityRequest request, EntitiesRequest serverRequest) {
-    LOGGER.info("get entities request is as follows {}", serverRequest);
     return this.makeEntityRequest(context, serverRequest)
         .flatMap(serverResponse -> this.getEntityResultSet(request, serverRequest, serverResponse));
   }
