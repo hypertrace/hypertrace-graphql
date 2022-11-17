@@ -92,8 +92,9 @@ class EdgeRequestBuilder {
     List<FilterArgument> filterArguments = this.getFilters(edgeFields);
 
     if (!filterArguments.isEmpty() && edgeFields.size() > 1) {
-      throw Status.UNIMPLEMENTED.withDescription(
-          "Cannot specify more than one edge if using edge filter arguments").asRuntimeException();
+      throw Status.UNIMPLEMENTED
+          .withDescription("Cannot specify more than one edge if using edge filter arguments")
+          .asRuntimeException();
     }
 
     Map<String, Set<SelectedField>> edgesByType = this.getEdgesByType(edgeFields.stream());
