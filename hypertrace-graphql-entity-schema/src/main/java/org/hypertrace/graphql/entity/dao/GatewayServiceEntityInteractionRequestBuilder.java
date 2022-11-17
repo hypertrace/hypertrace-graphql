@@ -82,9 +82,9 @@ class GatewayServiceEntityInteractionRequestBuilder {
             filterAssociation ->
                 this.filterConverter.convert(
                     Stream.concat(
-                            request.filterArguments().stream(),
-                            Stream.of(filterAssociation)) // add all other filters
-                        .collect(Collectors.toSet())));
+                            request.filterArguments().stream(), // add all other filters
+                            Stream.of(filterAssociation))
+                        .collect(Collectors.toUnmodifiableSet())));
   }
 
   @Value

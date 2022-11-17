@@ -88,7 +88,7 @@ class EdgeRequestBuilder {
       Stream<SelectedField> edgeSetFields,
       EdgeType edgeType) {
 
-    Set<SelectedField> edgeFields = edgeSetFields.collect(Collectors.toSet());
+    Set<SelectedField> edgeFields = edgeSetFields.collect(Collectors.toUnmodifiableSet());
     List<FilterArgument> filterArguments = this.getFilters(edgeFields);
 
     Map<String, Set<SelectedField>> edgesByType = this.getEdgesByType(edgeFields.stream());
@@ -183,9 +183,9 @@ class EdgeRequestBuilder {
             selectedField ->
                 this.argumentDeserializer.deserializeObjectList(
                     selectedField.getArguments(), FilterArgument.class))
-        .flatMap(arguments -> Stream.of(arguments.orElse(new ArrayList<>())))
+        .flatMap(Optional::stream)
         .flatMap(Collection::stream)
-        .collect(Collectors.toList());
+        .collect(Collectors.toUnmodifiableList());
   }
 
   private Single<AttributeRequest> getNeighborTypeAttribute(
