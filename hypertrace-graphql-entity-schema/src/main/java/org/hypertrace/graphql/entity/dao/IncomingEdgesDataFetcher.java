@@ -42,13 +42,13 @@ public class IncomingEdgesDataFetcher extends InjectableDataFetcher<EdgeResultSe
     }
 
     private Optional<String> getNeighbourEntityScope(Map<String, Object> arguments) {
-      return this.argumentDeserializer
-          .deserializePrimitive(arguments, NeighborEntityScopeArgument.class);
+      return this.argumentDeserializer.deserializePrimitive(
+          arguments, NeighborEntityScopeArgument.class);
     }
 
     private Optional<EntityType> getNeighbourEntityType(Map<String, Object> arguments) {
-      return this.argumentDeserializer
-          .deserializePrimitive(arguments, NeighborEntityTypeArgument.class);
+      return this.argumentDeserializer.deserializePrimitive(
+          arguments, NeighborEntityTypeArgument.class);
     }
   }
 }

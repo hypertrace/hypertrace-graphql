@@ -3,8 +3,8 @@ package org.hypertrace.graphql.entity.request;
 import static io.reactivex.rxjava3.core.Single.zip;
 
 import graphql.schema.SelectedField;
+import io.grpc.Status;
 import io.reactivex.rxjava3.core.Single;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +37,7 @@ import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
 
 class EdgeRequestBuilder {
+
   private final String INCOMING_ENTITY_ID_KEY = "fromEntityId";
   private final String INCOMING_ENTITY_TYPE_KEY = "fromEntityType";
   private final String OUTGOING_ENTITY_ID_KEY = "toEntityId";
@@ -87,9 +88,13 @@ class EdgeRequestBuilder {
       Optional<String> space,
       Stream<SelectedField> edgeSetFields,
       EdgeType edgeType) {
-
     Set<SelectedField> edgeFields = edgeSetFields.collect(Collectors.toUnmodifiableSet());
     List<FilterArgument> filterArguments = this.getFilters(edgeFields);
+
+    if (!filterArguments.isEmpty() && edgeFields.size() > 1) {
+      throw Status.UNIMPLEMENTED.withDescription(
+          "Cannot specify more than one edge if using edge filter arguments").asRuntimeException();
+    }
 
     Map<String, Set<SelectedField>> edgesByType = this.getEdgesByType(edgeFields.stream());
     Set<SelectedField> allEdges =
