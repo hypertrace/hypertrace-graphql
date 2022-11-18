@@ -28,6 +28,13 @@ abstract class EdgesDataFetcherImpl implements DataFetcher<CompletableFuture<Edg
 
   @Override
   public CompletableFuture<EdgeResultSet> get(DataFetchingEnvironment environment) {
+    // TODO: Edges when used with filters have two limitations for now
+    // 1. We can only have one entityType incoming/outgoing edge
+    // 2. If different filters for same entity type, filters will be merged into one AND filter.
+    //
+    // We are passing the empty filter as argument to query the edges.
+    // This will work for now because we have restricted multiple edges selection in a request
+    // Fix this when we will solve the above two limitations.
     return CompletableFuture.completedFuture(
         getEdges(
             environment.getSource(),
