@@ -342,12 +342,14 @@ class DefaultEntityJoinerBuilderTest {
     }
 
     @Override
-    public EdgeResultSet incomingEdges(EntityType neighborType, String neighborScope) {
+    public EdgeResultSet incomingEdges(
+        EntityType neighborType, String neighborScope, List<FilterArgument> filterBy) {
       return null;
     }
 
     @Override
-    public EdgeResultSet outgoingEdges(EntityType neighborType, String neighborScope) {
+    public EdgeResultSet outgoingEdges(
+        EntityType neighborType, String neighborScope, List<FilterArgument> filterBy) {
       return null;
     }
 
