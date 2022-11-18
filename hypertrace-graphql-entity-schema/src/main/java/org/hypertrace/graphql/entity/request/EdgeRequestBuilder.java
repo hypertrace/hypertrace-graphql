@@ -93,7 +93,7 @@ class EdgeRequestBuilder {
 
     if (!filterArguments.isEmpty() && edgeFields.size() > 1) {
       throw Status.UNIMPLEMENTED
-          .withDescription("Cannot specify more than one edge if using edge filter arguments")
+          .withDescription("Cannot specify more than one edge type with edge filters")
           .asRuntimeException();
     }
 
