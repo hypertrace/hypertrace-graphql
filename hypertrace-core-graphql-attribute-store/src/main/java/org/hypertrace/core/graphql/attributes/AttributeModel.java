@@ -23,4 +23,6 @@ public interface AttributeModel {
   List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes();
 
   boolean groupable();
+
+  boolean isCustom();
 }

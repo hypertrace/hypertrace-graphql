@@ -20,6 +20,7 @@ public interface AttributeMetadata {
   String ATTRIBUTE_METADATA_ONLY_SUPPORTS_GROUPING_NAME = "onlySupportsGrouping";
   String ATTRIBUTE_METADATA_SUPPORTED_AGGREGATIONS_NAME = "supportedAggregations";
   String ATTRIBUTE_METADATA_GROUPABLE_NAME = "groupable";
+  String ATTRIBUTE_METADATA_IS_CUSTOM = "isCustom";
 
   @GraphQLField
   @GraphQLNonNull
@@ -67,4 +68,9 @@ public interface AttributeMetadata {
   @GraphQLNonNull
   @GraphQLName(ATTRIBUTE_METADATA_GROUPABLE_NAME)
   boolean groupable();
+
+  @GraphQLField
+  @GraphQLNonNull
+  @GraphQLName(ATTRIBUTE_METADATA_IS_CUSTOM)
+  boolean isCustom();
 }

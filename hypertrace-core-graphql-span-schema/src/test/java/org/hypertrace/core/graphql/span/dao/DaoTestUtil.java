@@ -51,6 +51,7 @@ class DaoTestUtil {
     boolean onlySupportsAggregation;
     List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes;
     boolean groupable;
+    boolean isCustom;
   }
 
   @Value
@@ -111,6 +112,7 @@ class DaoTestUtil {
                   false,
                   false,
                   Collections.emptyList(),
+                  false,
                   false),
               AttributeExpression.forAttributeKey("traceId")));
 
@@ -127,6 +129,7 @@ class DaoTestUtil {
                   false,
                   false,
                   Collections.emptyList(),
+                  false,
                   false),
               AttributeExpression.forAttributeKey("spanId")));
 
@@ -143,6 +146,7 @@ class DaoTestUtil {
                   false,
                   false,
                   Collections.emptyList(),
+                  false,
                   false),
               AttributeExpression.forAttributeKey("attributes")));
 
@@ -159,6 +163,7 @@ class DaoTestUtil {
                   false,
                   false,
                   Collections.emptyList(),
+                  false,
                   false),
               AttributeExpression.forAttributeKey("id")));
 

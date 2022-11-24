@@ -36,23 +36,28 @@ public class AttributeModelTranslator {
   public Optional<AttributeModel> translate(AttributeMetadata attributeMetadata) {
     try {
       return Optional.of(
-          new DefaultAttributeModel(
-              attributeMetadata.getId(),
-              attributeMetadata.getScopeString(),
-              attributeMetadata.getKey(),
-              attributeMetadata.getDisplayName(),
-              this.convertType(attributeMetadata.getValueKind()),
-              attributeMetadata.getUnit(),
-              attributeMetadata.getOnlyAggregationsAllowed(),
-              attributeMetadata.getType().equals(AttributeType.METRIC),
-              this.convertMetricAggregationTypes(attributeMetadata.getSupportedAggregationsList()),
-              attributeMetadata.getGroupable()));
+          DefaultAttributeModel.builder()
+              .id(attributeMetadata.getId())
+              .scope(attributeMetadata.getScopeString())
+              .key(attributeMetadata.getKey())
+              .displayName(attributeMetadata.getDisplayName())
+              .type(this.convertType(attributeMetadata.getValueKind()))
+              .units(attributeMetadata.getUnit())
+              .onlySupportsGrouping(attributeMetadata.getOnlyAggregationsAllowed())
+              .onlySupportsAggregation(attributeMetadata.getType().equals(AttributeType.METRIC))
+              .supportedMetricAggregationTypes(
+                  this.convertMetricAggregationTypes(
+                      attributeMetadata.getSupportedAggregationsList()))
+              .groupable(attributeMetadata.getGroupable())
+              .isCustom(attributeMetadata.getCustom())
+              .build());
     } catch (Exception e) {
       LOGGER.warn("Dropping attribute {} : {}", attributeMetadata.getId(), e.getMessage());
       return Optional.empty();
     }
   }
 
+  @SuppressWarnings("unused")
   public AttributeKind convertType(AttributeModelType type) {
     return Optional.ofNullable(TYPE_MAPPING.inverse().get(type))
         .orElseThrow(

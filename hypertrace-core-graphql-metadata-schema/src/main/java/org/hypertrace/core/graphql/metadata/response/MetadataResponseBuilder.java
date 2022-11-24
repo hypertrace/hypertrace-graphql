@@ -46,16 +46,18 @@ public class MetadataResponseBuilder {
             this.convertMetricAggregationTypes(model.supportedMetricAggregationTypes()),
             this.typeConverter.convert(model.type()),
             (aggregations, type) ->
-                new DefaultAttributeMetadata(
-                    this.scopeStringTranslator.toExternal(model.scope()),
-                    model.key(),
-                    model.displayName(),
-                    type,
-                    model.units(),
-                    model.onlySupportsGrouping(),
-                    model.onlySupportsAggregation(),
-                    aggregations,
-                    model.groupable()))
+                DefaultAttributeMetadata.builder()
+                    .scope(this.scopeStringTranslator.toExternal(model.scope()))
+                    .name(model.key())
+                    .displayName(model.displayName())
+                    .type(type)
+                    .units(model.units())
+                    .onlySupportsGrouping(model.onlySupportsGrouping())
+                    .onlySupportsAggregation(model.onlySupportsAggregation())
+                    .supportedAggregations(aggregations)
+                    .groupable(model.groupable())
+                    .isCustom(model.isCustom())
+                    .build())
         .cast(AttributeMetadata.class)
         .onErrorComplete();
   }

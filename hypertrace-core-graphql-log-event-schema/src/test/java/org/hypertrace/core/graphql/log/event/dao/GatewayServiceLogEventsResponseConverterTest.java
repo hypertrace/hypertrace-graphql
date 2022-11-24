@@ -95,6 +95,7 @@ class GatewayServiceLogEventsResponseConverterTest extends BaseDaoTest {
                         false,
                         false,
                         Collections.emptyList(),
+                        false,
                         false),
                     AttributeExpression.forAttributeKey("traceId"))),
             new DefaultAttributeRequest(
@@ -109,6 +110,7 @@ class GatewayServiceLogEventsResponseConverterTest extends BaseDaoTest {
                         false,
                         false,
                         Collections.emptyList(),
+                        false,
                         false),
                     AttributeExpression.forAttributeKey("timestamp"))));
     DefaultLogEventRequest defaultLogEventRequest =

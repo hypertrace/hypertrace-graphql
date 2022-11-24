@@ -1,6 +1,9 @@
 package org.hypertrace.core.graphql.metadata.response;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.Accessors;
@@ -11,6 +14,7 @@ import org.hypertrace.core.graphql.metadata.schema.AttributeMetadata;
 @Value
 @Builder
 @Accessors(fluent = true)
+@AllArgsConstructor(access = PRIVATE)
 class DefaultAttributeMetadata implements AttributeMetadata {
   String scope;
   String name;
@@ -21,4 +25,5 @@ class DefaultAttributeMetadata implements AttributeMetadata {
   boolean onlySupportsAggregation;
   List<MetricAggregationType> supportedAggregations;
   boolean groupable;
+  boolean isCustom;
 }

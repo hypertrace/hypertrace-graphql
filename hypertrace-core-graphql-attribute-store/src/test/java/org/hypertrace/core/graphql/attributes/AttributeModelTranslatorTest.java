@@ -32,6 +32,7 @@ class AttributeModelTranslatorTest {
             .setOnlyAggregationsAllowed(true)
             .addAllSupportedAggregations(List.of(AggregateFunction.SUM, AggregateFunction.AVG))
             .setGroupable(true)
+            .setCustom(true)
             .build();
 
     this.expectedModel =
@@ -49,6 +50,7 @@ class AttributeModelTranslatorTest {
                     AttributeModelMetricAggregationType.SUM,
                     AttributeModelMetricAggregationType.AVG))
             .groupable(true)
+            .isCustom(true)
             .build();
   }
 
@@ -90,6 +92,7 @@ class AttributeModelTranslatorTest {
             .addAllSupportedAggregations(
                 List.of(AggregateFunction.DISTINCT_COUNT, AggregateFunction.AVGRATE))
             .setGroupable(false)
+            .setCustom(false)
             .build();
 
     this.expectedModel =
@@ -106,6 +109,7 @@ class AttributeModelTranslatorTest {
                     AttributeModelMetricAggregationType.DISTINCT_COUNT,
                     AttributeModelMetricAggregationType.AVGRATE))
             .groupable(false)
+            .isCustom(false)
             .build();
 
     assertEquals(Optional.of(this.expectedModel), this.translator.translate(this.metadata));

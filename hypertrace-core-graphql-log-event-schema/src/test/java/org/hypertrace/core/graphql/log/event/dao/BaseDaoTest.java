@@ -53,6 +53,7 @@ class BaseDaoTest {
     boolean onlySupportsAggregation;
     List<AttributeModelMetricAggregationType> supportedMetricAggregationTypes;
     boolean groupable;
+    boolean isCustom;
   }
 
   @Value
