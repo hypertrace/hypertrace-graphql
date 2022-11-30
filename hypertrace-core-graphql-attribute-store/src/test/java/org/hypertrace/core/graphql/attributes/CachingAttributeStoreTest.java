@@ -1,10 +1,14 @@
 package org.hypertrace.core.graphql.attributes;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 import java.util.List;
@@ -14,6 +18,7 @@ import org.hypertrace.core.attribute.service.cachingclient.CachingAttributeClien
 import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
+import org.hypertrace.core.grpcutils.context.RequestContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -114,5 +119,16 @@ class CachingAttributeStoreTest {
     assertEquals(
         spanTraceIdAttribute,
         this.attributeStore.getForeignIdAttribute(mockContext, "SPAN", "TRACE").blockingGet());
+  }
+
+  @Test
+  void testCreate() {
+    final RequestContext requestContext = RequestContext.forTenantId("some-tenant");
+    final Completable mockCompletable = mock(Completable.class);
+    when(mockGrpcContextBuilder.build(mockContext)).thenReturn(requestContext);
+    when(mockAttributeClient.create(emptyList())).thenReturn(mockCompletable);
+
+    final Completable result = attributeStore.create(mockContext, emptyList());
+    assertSame(mockCompletable, result);
   }
 }

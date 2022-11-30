@@ -6,7 +6,7 @@ javaPlatform {
   allowDependencies()
 }
 
-val attributeServiceVersion: String = "0.14.12"
+val attributeServiceVersion: String = "0.14.13"
 
 dependencies {
   api(platform("io.grpc:grpc-bom:1.47.0"))
