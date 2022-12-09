@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.hypertrace.core.attribute.service.cachingclient.CachingAttributeClient;
 import org.hypertrace.core.attribute.service.v1.AttributeMetadata;
+import org.hypertrace.core.attribute.service.v1.AttributeMetadataFilter;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
@@ -94,6 +95,32 @@ class CachingAttributeStore implements AttributeStore {
         .call(() -> cachingAttributeClient.create(attributes));
   }
 
+  @Override
+  public Completable delete(
+      final GraphQlRequestContext context, final AttributeIdentifier identifier) {
+    return this.grpcContextBuilder
+        .build(context)
+        .call(() -> cachingAttributeClient.delete(buildFilter(identifier)));
+  }
+
+  @Override
+  public Single<AttributeModel> update(
+      final GraphQlRequestContext context,
+      final AttributeIdentifier identifier,
+      final AttributeUpdate update) {
+    final Single<AttributeModel> metadataSingle =
+        get(context, identifier.scope(), identifier.key());
+    return metadataSingle.flatMap(
+        metadata ->
+            this.grpcContextBuilder
+                .build(context)
+                .call(() -> cachingAttributeClient.update(metadata.id(), update.buildUpdates()))
+                .mapOptional(translator::translate)
+                .switchIfEmpty(
+                    Single.error(
+                        this.buildErrorForMissingAttribute(identifier.scope(), identifier.key()))));
+  }
+
   private Single<String> getForeignIdKey(
       GraphQlRequestContext context, String scope, String foreignScope) {
     return this.idLookup
@@ -124,5 +151,12 @@ class CachingAttributeStore implements AttributeStore {
   private NoSuchElementException buildErrorForMissingIdMapping(String scope) {
     return new NoSuchElementException(
         String.format("No id attribute registered for scope '%s'", scope));
+  }
+
+  private AttributeMetadataFilter buildFilter(final AttributeIdentifier filter) {
+    return AttributeMetadataFilter.newBuilder()
+        .addKey(filter.key())
+        .addScopeString(filter.scope())
+        .build();
   }
 }
