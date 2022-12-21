@@ -12,10 +12,10 @@ dependencies {
   api(platform("io.grpc:grpc-bom:1.47.0"))
   constraints {
 
-    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.8.2")
-    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.8.2")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.8.2")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.8.2")
+    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.11.2")
+    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.11.2")
+    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.11.2")
+    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.11.2")
     api("org.hypertrace.gateway.service:gateway-service-api:0.2.20")
     api("org.hypertrace.core.attribute.service:caching-attribute-service-client:${attributeServiceVersion}")
     api("org.hypertrace.core.attribute.service:attribute-service-api:${attributeServiceVersion}")
