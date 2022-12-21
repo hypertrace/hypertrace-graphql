@@ -39,6 +39,9 @@ public interface ResultSetRequestBuilder {
       Stream<SelectedField> attributeQueryableFields,
       Optional<String> spaceId);
 
+  <O extends OrderArgument> Single<ResultSetRequest<O>> rebuildWithAdditionalFilters(
+      ResultSetRequest<O> originalRequest, Collection<FilterArgument> additionalFilters);
+
   Single<ResultSetRequest<OrderArgument>> build(
       GraphQlRequestContext context,
       String requestScope,

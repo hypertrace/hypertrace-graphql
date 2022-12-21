@@ -188,6 +188,40 @@ class DefaultResultSetRequestBuilder implements ResultSetRequestBuilder {
                 Optional.empty()));
   }
 
+  @Override
+  public <O extends OrderArgument> Single<ResultSetRequest<O>> rebuildWithAdditionalFilters(
+      ResultSetRequest<O> originalRequest, Collection<FilterArgument> additionalFilters) {
+    return this.mergeFilterLists(
+            originalRequest.context(),
+            originalRequest.idAttribute().attributeExpressionAssociation().attribute().scope(),
+            originalRequest.filterArguments(),
+            additionalFilters)
+        .map(
+            mergedFilters ->
+                new DefaultResultSetRequest<>(
+                    originalRequest.context(),
+                    originalRequest.attributes(),
+                    originalRequest.idAttribute(),
+                    originalRequest.timeRange(),
+                    originalRequest.limit(),
+                    originalRequest.offset(),
+                    originalRequest.orderArguments(),
+                    mergedFilters,
+                    originalRequest.spaceId()));
+  }
+
+  private Single<List<AttributeAssociation<FilterArgument>>> mergeFilterLists(
+      GraphQlRequestContext requestContext,
+      String scope,
+      Collection<AttributeAssociation<FilterArgument>> original,
+      Collection<FilterArgument> additional) {
+    return this.filterRequestBuilder
+        .build(requestContext, scope, additional)
+        .flattenAsObservable(list -> list)
+        .concatWith(Observable.fromIterable(original))
+        .toList();
+  }
+
   private Observable<AttributeRequest> getAttributeRequests(
       GraphQlRequestContext context,
       String requestScope,
