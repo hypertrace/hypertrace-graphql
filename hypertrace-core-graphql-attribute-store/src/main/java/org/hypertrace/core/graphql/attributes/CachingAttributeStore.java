@@ -18,7 +18,6 @@ import org.hypertrace.core.grpcutils.client.rx.GrpcRxExecutionContext;
 
 @Singleton
 class CachingAttributeStore implements AttributeStore {
-
   private final CachingAttributeClient cachingAttributeClient;
   private final IdLookup idLookup;
   private final GrpcContextBuilder grpcContextBuilder;
