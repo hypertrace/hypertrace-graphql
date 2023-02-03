@@ -12,7 +12,6 @@ import graphql.language.ObjectValue;
 import graphql.language.StringValue;
 import graphql.schema.Coercing;
 import graphql.schema.CoercingParseLiteralException;
-import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import graphql.schema.GraphQLScalarType;
 import java.lang.reflect.AnnotatedType;
@@ -40,8 +39,8 @@ public class UnknownScalar implements TypeFunction {
                 }
 
                 @Override
-                public Object parseValue(Object input) throws CoercingParseValueException {
-                  return this.parseFromAst(input, CoercingParseValueException::new);
+                public Object parseValue(Object input) {
+                  return input;
                 }
 
                 @Override
@@ -49,7 +48,8 @@ public class UnknownScalar implements TypeFunction {
                   return this.parseFromAst(input, CoercingParseLiteralException::new);
                 }
 
-                private <E> Object parseFromAst(Object input, Function<Exception, E> errorWrapper) {
+                private <E extends RuntimeException> Object parseFromAst(
+                    Object input, Function<Exception, E> errorWrapper) throws E {
                   Function<Object, Object> recurse =
                       value -> this.parseFromAst(value, errorWrapper);
 
@@ -81,7 +81,7 @@ public class UnknownScalar implements TypeFunction {
                                     field -> recurse.apply(field.getValue())));
                   }
 
-                  return errorWrapper.apply(
+                  throw errorWrapper.apply(
                       new IllegalArgumentException(
                           String.format(
                               "Unsupported input of type %s",

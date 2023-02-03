@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.common.schema.scalars;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import graphql.annotations.processor.ProcessingElementsContainer;
@@ -10,6 +11,7 @@ import graphql.language.BooleanValue;
 import graphql.language.FloatValue;
 import graphql.language.IntValue;
 import graphql.language.StringValue;
+import graphql.schema.CoercingParseLiteralException;
 import graphql.schema.GraphQLScalarType;
 import java.lang.reflect.AnnotatedType;
 import java.math.BigDecimal;
@@ -92,5 +94,21 @@ class UnknownScalarTest {
                 ArrayValue.newArrayValue()
                     .value(StringValue.newStringValue("five").build())
                     .build()));
+
+    assertThrows(
+        CoercingParseLiteralException.class,
+        () -> unknownScalarType.getCoercing().parseLiteral("bad value"));
+  }
+
+  @Test
+  void canConvertFromValue() {
+    // A dumb bug requires a dumb test
+    assertEquals(true, unknownScalarType.getCoercing().parseValue(true));
+
+    assertEquals("value", unknownScalarType.getCoercing().parseValue("value"));
+
+    assertEquals(10, unknownScalarType.getCoercing().parseValue(10));
+
+    assertEquals(10.5, unknownScalarType.getCoercing().parseValue(10.5));
   }
 }
