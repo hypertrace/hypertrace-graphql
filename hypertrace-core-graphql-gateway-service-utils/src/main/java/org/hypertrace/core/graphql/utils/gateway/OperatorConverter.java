@@ -31,6 +31,8 @@ class OperatorConverter implements Converter<FilterOperatorType, Operator> {
         return Single.just(Operator.LIKE);
       case CONTAINS_KEY:
         return Single.just(Operator.CONTAINS_KEY);
+      case NOT_CONTAINS_KEY:
+        return Single.just(Operator.NOT_CONTAINS_KEY);
       case CONTAINS_KEY_VALUE:
         return Single.just(Operator.CONTAINS_KEYVALUE);
       case CONTAINS_KEY_LIKE:
