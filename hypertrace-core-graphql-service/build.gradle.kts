@@ -8,7 +8,7 @@ plugins {
 dependencies {
   implementation(platform(project(":hypertrace-core-graphql-platform")))
 
-  implementation("org.hypertrace.core.serviceframework:platform-http-service-framework:0.1.49")
+  implementation("org.hypertrace.core.serviceframework:platform-http-service-framework:0.1.50")
   implementation("org.slf4j:slf4j-api")
 
   implementation("com.graphql-java-kickstart:graphql-java-servlet")
