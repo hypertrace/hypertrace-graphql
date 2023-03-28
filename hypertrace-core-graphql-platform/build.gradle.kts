@@ -21,7 +21,7 @@ dependencies {
     api("org.hypertrace.core.attribute.service:attribute-service-api:${attributeServiceVersion}")
 
     api("com.google.inject:guice:5.1.0")
-    api("com.graphql-java:graphql-java:20.1")
+    api("com.graphql-java:graphql-java:19.4")
     api("io.github.graphql-java:graphql-java-annotations:9.1")
     api("org.slf4j:slf4j-api:1.7.36")
     api("io.reactivex.rxjava3:rxjava:3.1.5")
