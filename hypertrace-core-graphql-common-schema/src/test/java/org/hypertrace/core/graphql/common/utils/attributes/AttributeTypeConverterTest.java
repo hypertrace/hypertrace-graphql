@@ -31,5 +31,8 @@ public class AttributeTypeConverterTest {
     assertEquals(
         AttributeType.STRING_ARRAY,
         attributeTypeConverter.convert(AttributeModelType.STRING_ARRAY).blockingGet());
+    assertEquals(
+        AttributeType.DOUBLE_ARRAY,
+        attributeTypeConverter.convert(AttributeModelType.DOUBLE_ARRAY).blockingGet());
   }
 }

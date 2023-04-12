@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.attributes;
 
 import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_BOOL;
 import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_DOUBLE;
+import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_DOUBLE_ARRAY;
 import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_INT64;
 import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_STRING;
 import static org.hypertrace.core.attribute.service.v1.AttributeKind.TYPE_STRING_ARRAY;
@@ -31,6 +32,7 @@ public class AttributeModelTranslator {
           .put(TYPE_TIMESTAMP, AttributeModelType.TIMESTAMP)
           .put(TYPE_STRING_MAP, AttributeModelType.STRING_MAP)
           .put(TYPE_STRING_ARRAY, AttributeModelType.STRING_ARRAY)
+          .put(TYPE_DOUBLE_ARRAY, AttributeModelType.DOUBLE_ARRAY)
           .build();
 
   public Optional<AttributeModel> translate(AttributeMetadata attributeMetadata) {

@@ -10,7 +10,8 @@ public enum AttributeType {
   DOUBLE,
   TIMESTAMP,
   STRING_MAP,
-  STRING_ARRAY;
+  STRING_ARRAY,
+  DOUBLE_ARRAY;
 
   public static final String TYPE_NAME = "AttributeType";
 }

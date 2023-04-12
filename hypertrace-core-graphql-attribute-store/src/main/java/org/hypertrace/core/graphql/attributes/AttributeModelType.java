@@ -7,5 +7,6 @@ public enum AttributeModelType {
   DOUBLE,
   TIMESTAMP,
   STRING_MAP,
-  STRING_ARRAY
+  STRING_ARRAY,
+  DOUBLE_ARRAY
 }
