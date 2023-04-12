@@ -9,4 +9,11 @@
     <cpe>cpe:/a:utils_project:utils</cpe>
     <cpe>cpe:/a:processing:processing</cpe>
   </suppress>
+  <suppress>
+    <notes><![CDATA[
+   file name: graphql-java-annotations-9.1.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/io\.github\.graphql\-java/graphql\-java\-annotations@.*$</packageUrl>
+    <cpe>cpe:/a:graphql-java:graphql-java</cpe>
+  </suppress>
 </suppressions> 
