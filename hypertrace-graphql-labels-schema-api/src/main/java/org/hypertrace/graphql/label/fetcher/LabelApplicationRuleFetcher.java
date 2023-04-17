@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.label.fetcher;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +33,7 @@ public class LabelApplicationRuleFetcher
     public CompletableFuture<LabelApplicationRuleResultSet> get(
         DataFetchingEnvironment environment) {
       return this.labelApplicationRuleDao
-          .getLabelApplicationRules(this.requestBuilder.build(environment.getContext()))
+          .getLabelApplicationRules(this.requestBuilder.build(contextFromEnvironment(environment)))
           .toCompletionStage()
           .toCompletableFuture();
     }

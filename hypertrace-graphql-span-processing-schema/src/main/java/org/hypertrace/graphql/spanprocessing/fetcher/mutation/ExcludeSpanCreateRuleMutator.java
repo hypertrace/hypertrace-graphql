@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.spanprocessing.fetcher.mutation;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +33,7 @@ public class ExcludeSpanCreateRuleMutator extends InjectableDataFetcher<ExcludeS
     @Override
     public CompletableFuture<ExcludeSpanRule> get(DataFetchingEnvironment environment) {
       return this.requestBuilder
-          .build(environment.getContext(), environment.getArguments())
+          .build(contextFromEnvironment(environment), environment.getArguments())
           .flatMap(this.spanProcessingRuleDao::createExcludeSpanRule)
           .toCompletionStage()
           .toCompletableFuture();

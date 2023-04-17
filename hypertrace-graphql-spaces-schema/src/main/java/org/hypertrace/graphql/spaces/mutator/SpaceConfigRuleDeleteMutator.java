@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.spaces.mutator;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +33,7 @@ public class SpaceConfigRuleDeleteMutator extends InjectableDataFetcher<Boolean>
       return this.configDao
           .deleteRule(
               this.requestBuilder.buildDeleteRequest(
-                  environment.getContext(), environment.getArguments()))
+                  contextFromEnvironment(environment), environment.getArguments()))
           .toCompletionStage()
           .toCompletableFuture();
     }

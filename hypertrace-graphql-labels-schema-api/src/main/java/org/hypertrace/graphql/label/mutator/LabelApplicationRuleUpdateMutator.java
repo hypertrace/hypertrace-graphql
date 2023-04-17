@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.label.mutator;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +35,7 @@ public class LabelApplicationRuleUpdateMutator extends InjectableDataFetcher<Lab
       return this.labelApplicationRuleDao
           .updateLabelApplicationRule(
               this.requestBuilder.buildUpdateLabelApplicationRuleRequest(
-                  environment.getContext(), environment.getArguments()))
+                  contextFromEnvironment(environment), environment.getArguments()))
           .toCompletionStage()
           .toCompletableFuture();
     }

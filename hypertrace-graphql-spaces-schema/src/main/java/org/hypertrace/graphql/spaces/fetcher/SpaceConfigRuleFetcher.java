@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.spaces.fetcher;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +28,7 @@ public class SpaceConfigRuleFetcher extends InjectableDataFetcher<SpaceConfigRul
     @Override
     public CompletableFuture<SpaceConfigRuleResultSet> get(DataFetchingEnvironment environment) {
       return this.configDao
-          .getAllRules(environment.getContext())
+          .getAllRules(contextFromEnvironment(environment))
           .toCompletionStage()
           .toCompletableFuture();
     }

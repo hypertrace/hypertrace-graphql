@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.spaces.mutator;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +34,7 @@ public class SpaceConfigRuleCreationMutator extends InjectableDataFetcher<SpaceC
       return this.configDao
           .createRule(
               this.requestBuilder.buildCreationRequest(
-                  environment.getContext(), environment.getArguments()))
+                  contextFromEnvironment(environment), environment.getArguments()))
           .toCompletionStage()
           .toCompletableFuture();
     }
