@@ -17,6 +17,7 @@ import org.hypertrace.core.graphql.metadata.schema.AttributeMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -25,7 +26,10 @@ class MetadataFetcherTest {
 
   @Mock MetadataResponseBuilder mockResponseBuilder;
   @Mock AttributeStore mockAttributeStore;
-  @Mock DataFetchingEnvironment mockDataFetchingEnvironment;
+
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+  DataFetchingEnvironment mockDataFetchingEnvironment;
+
   @Mock AttributeModel mockModel;
   @Mock AttributeMetadata mockMetadata;
   @Mock GraphQlRequestContext mockContext;
@@ -35,7 +39,8 @@ class MetadataFetcherTest {
   void beforeEach() {
     List<AttributeModel> mockModelResult = List.of(mockModel);
     List<AttributeMetadata> mockMetadataResult = List.of(mockMetadata);
-    when(this.mockDataFetchingEnvironment.getContext()).thenReturn(this.mockContext);
+    when(this.mockDataFetchingEnvironment.getGraphQlContext().get(GraphQlRequestContext.class))
+        .thenReturn(this.mockContext);
     when(this.mockAttributeStore.getAllExternal(eq(this.mockContext)))
         .thenReturn(Single.just(mockModelResult));
     when(this.mockResponseBuilder.build(eq(mockModelResult)))

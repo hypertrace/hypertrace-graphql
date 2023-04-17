@@ -51,6 +51,7 @@ class DefaultGraphQlRequestContextBuilder extends DefaultGraphQLServletContextBu
       this.request = request;
       this.cachingKey =
           new DefaultContextualCacheKey(this, this.getTenantId().orElse(DEFAULT_CONTEXT_ID));
+      this.put(GraphQlRequestContext.class, this);
     }
 
     @Override

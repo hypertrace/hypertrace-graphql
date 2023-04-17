@@ -1,5 +1,7 @@
 package org.hypertrace.core.graphql.span.fetcher;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import io.reactivex.rxjava3.core.Single;
@@ -34,7 +36,7 @@ public class ExportSpanFetcher extends InjectableDataFetcher<ExportSpanResult> {
     public CompletableFuture<ExportSpanResult> get(DataFetchingEnvironment environment) {
       Single<SpanRequest> spanRequest =
           this.requestBuilder.build(
-              environment.getContext(),
+              contextFromEnvironment(environment),
               environment.getArguments(),
               SpanAttributes.SPAN_ATTRIBUTES,
               LogEventAttributes.LOG_EVENT_ATTRIBUTES);

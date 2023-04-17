@@ -1,5 +1,7 @@
 package org.hypertrace.core.graphql.metadata.fetcher;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.List;
@@ -30,7 +32,7 @@ public class MetadataFetcher extends InjectableDataFetcher<List<AttributeMetadat
     @Override
     public CompletableFuture<List<AttributeMetadata>> get(DataFetchingEnvironment environment) {
       return this.attributeStore
-          .getAllExternal(environment.getContext())
+          .getAllExternal(contextFromEnvironment(environment))
           .flatMap(this.responseBuilder::build)
           .toCompletionStage()
           .toCompletableFuture();

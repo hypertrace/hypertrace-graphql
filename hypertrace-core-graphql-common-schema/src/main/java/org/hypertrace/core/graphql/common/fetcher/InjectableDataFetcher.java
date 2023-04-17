@@ -1,5 +1,7 @@
 package org.hypertrace.core.graphql.common.fetcher;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +20,7 @@ public abstract class InjectableDataFetcher<T> implements DataFetcher<Completabl
 
   @Override
   public final CompletableFuture<T> get(DataFetchingEnvironment environment) throws Exception {
-    return this.getOrCreateImplementation(environment.getContext()).get(environment);
+    return this.getOrCreateImplementation(contextFromEnvironment(environment)).get(environment);
   }
 
   private DataFetcher<CompletableFuture<T>> getOrCreateImplementation(

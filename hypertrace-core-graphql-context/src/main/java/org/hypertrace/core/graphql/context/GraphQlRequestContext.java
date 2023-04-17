@@ -2,6 +2,7 @@ package org.hypertrace.core.graphql.context;
 
 import graphql.kickstart.execution.context.GraphQLKickstartContext;
 import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,4 +27,8 @@ public interface GraphQlRequestContext extends GraphQLKickstartContext {
   ContextualCachingKey getCachingKey();
 
   String getRequestId();
+
+  static GraphQlRequestContext contextFromEnvironment(DataFetchingEnvironment environment) {
+    return environment.getGraphQlContext().get(GraphQlRequestContext.class);
+  }
 }

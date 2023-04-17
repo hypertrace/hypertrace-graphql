@@ -1,5 +1,7 @@
 package org.hypertrace.core.graphql.trace.fetcher;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +31,9 @@ public class TraceFetcher extends InjectableDataFetcher<TraceResultSet> {
     public CompletableFuture<TraceResultSet> get(DataFetchingEnvironment environment) {
       return this.requestBuilder
           .build(
-              environment.getContext(), environment.getArguments(), environment.getSelectionSet())
+              contextFromEnvironment(environment),
+              environment.getArguments(),
+              environment.getSelectionSet())
           .flatMap(this.traceDao::getTraces)
           .toCompletionStage()
           .toCompletableFuture();
