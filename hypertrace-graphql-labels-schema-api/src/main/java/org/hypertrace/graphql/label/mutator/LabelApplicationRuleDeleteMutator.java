@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.label.mutator;
 
+import static org.hypertrace.core.graphql.context.GraphQlRequestContext.contextFromEnvironment;
+
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
@@ -31,7 +33,7 @@ public class LabelApplicationRuleDeleteMutator extends InjectableDataFetcher<Boo
       return this.labelApplicationRuleDao
           .deleteLabelApplicationRule(
               this.requestBuilder.buildDeleteLabelApplicationRuleRequest(
-                  environment.getContext(), environment.getArguments()))
+                  contextFromEnvironment(environment), environment.getArguments()))
           .toCompletionStage()
           .toCompletableFuture();
     }
