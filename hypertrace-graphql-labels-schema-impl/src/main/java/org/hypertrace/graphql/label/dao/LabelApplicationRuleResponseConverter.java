@@ -228,6 +228,8 @@ class LabelApplicationRuleResponseConverter {
         return Optional.of(StringCondition.Operator.OPERATOR_EQUALS);
       case OPERATOR_MATCHES_REGEX:
         return Optional.of(StringCondition.Operator.OPERATOR_MATCHES_REGEX);
+      case OPERATOR_CIDR:
+        return Optional.of(StringCondition.Operator.OPERATOR_CIDR);
       default:
         log.error(
             "Unrecognized Operator Type in String Condition {}",

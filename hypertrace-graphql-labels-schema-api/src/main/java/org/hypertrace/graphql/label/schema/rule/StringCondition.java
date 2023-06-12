@@ -14,7 +14,8 @@ public interface StringCondition {
   @GraphQLName(Operator.TYPE_NAME)
   enum Operator {
     OPERATOR_EQUALS,
-    OPERATOR_MATCHES_REGEX;
+    OPERATOR_MATCHES_REGEX,
+    OPERATOR_CIDR;
     private static final String TYPE_NAME = "StringConditionOperator";
   }
 
