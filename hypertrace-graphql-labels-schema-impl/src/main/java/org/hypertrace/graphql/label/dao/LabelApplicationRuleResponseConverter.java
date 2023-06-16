@@ -18,7 +18,6 @@ import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
 import org.hypertrace.graphql.label.schema.rule.LeafCondition;
 import org.hypertrace.graphql.label.schema.rule.StaticLabels;
 import org.hypertrace.graphql.label.schema.rule.StringCondition;
-import org.hypertrace.graphql.label.schema.rule.StringConditionValue;
 import org.hypertrace.graphql.label.schema.rule.UnaryCondition;
 import org.hypertrace.graphql.label.schema.rule.ValueCondition;
 import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplicationRuleResponse;
@@ -217,32 +216,23 @@ class LabelApplicationRuleResponseConverter {
               .StringCondition
           stringCondition) {
     Optional<StringCondition.Operator> operator = convertOperatorInStringCondition(stringCondition);
-    Optional<StringConditionValue> stringConditionValue =
-        convertStringConditionValue(stringCondition);
-    if (operator.isEmpty() || stringConditionValue.isEmpty()) {
-      return Optional.empty();
-    }
-    return Optional.of(
-        new ConvertedStringCondition(operator.orElseThrow(), stringConditionValue.orElseThrow()));
-  }
-
-  private Optional<StringConditionValue> convertStringConditionValue(
-      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
-              .StringCondition
-          stringCondition) {
     switch (stringCondition.getKindCase()) {
       case VALUE:
-        return Optional.of(
-            new ConvertedStringConditionValue(
-                stringCondition.getValue(),
-                null,
-                StringConditionValue.StringConditionValueType.VALUE));
+        return operator.map(
+            op ->
+                new ConvertedStringCondition(
+                    op,
+                    stringCondition.getValue(),
+                    null,
+                    StringCondition.StringConditionValueType.VALUE));
       case VALUES:
-        return Optional.of(
-            new ConvertedStringConditionValue(
-                null,
-                stringCondition.getValues().getValuesList(),
-                StringConditionValue.StringConditionValueType.VALUES));
+        return operator.map(
+            op ->
+                new ConvertedStringCondition(
+                    op,
+                    null,
+                    stringCondition.getValues().getValuesList(),
+                    StringCondition.StringConditionValueType.VALUES));
       default:
         log.error(
             "Unrecognized String Condition Value Type {}", stringCondition.getKindCase().name());
@@ -350,12 +340,6 @@ class LabelApplicationRuleResponseConverter {
   @Accessors(fluent = true)
   private static class ConvertedStringCondition implements StringCondition {
     Operator operator;
-    StringConditionValue stringConditionValue;
-  }
-
-  @Value
-  @Accessors(fluent = true)
-  private static class ConvertedStringConditionValue implements StringConditionValue {
     String value;
     List<String> values;
     StringConditionValueType stringConditionValueType;

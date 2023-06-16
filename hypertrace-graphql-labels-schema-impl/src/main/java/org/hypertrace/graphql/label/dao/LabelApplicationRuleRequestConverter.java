@@ -133,19 +133,15 @@ class LabelApplicationRuleRequestConverter {
     StringCondition.Builder stringConditionBuilder =
         StringCondition.newBuilder()
             .setOperator(convertStringConditionOperator(stringCondition.operator()));
-    switch (stringCondition.stringConditionValue().stringConditionValueType()) {
-      case VALUE:
-        return stringConditionBuilder
-            .setValue(stringCondition.stringConditionValue().value())
-            .build();
+    switch (stringCondition.stringConditionValueType()) {
       case VALUES:
         return stringConditionBuilder
             .setValues(
-                StringCondition.StringList.newBuilder()
-                    .addAllValues(stringCondition.stringConditionValue().values()))
+                StringCondition.StringList.newBuilder().addAllValues(stringCondition.values()))
             .build();
+      case VALUE:
       default:
-        throw new IllegalArgumentException("Unsupported String Condition value");
+        return stringConditionBuilder.setValue(stringCondition.value()).build();
     }
   }
 
