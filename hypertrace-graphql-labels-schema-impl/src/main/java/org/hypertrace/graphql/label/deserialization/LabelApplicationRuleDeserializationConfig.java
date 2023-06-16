@@ -146,6 +146,12 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
 
     @JsonProperty(VALUE_KEY)
     String value;
+
+    @JsonProperty(VALUES_KEY)
+    List<String> values;
+
+    @JsonProperty(STRING_CONDITION_VALUE_TYPE_KEY)
+    StringConditionValueType stringConditionValueType;
   }
 
   @Value

@@ -216,7 +216,28 @@ class LabelApplicationRuleResponseConverter {
               .StringCondition
           stringCondition) {
     Optional<StringCondition.Operator> operator = convertOperatorInStringCondition(stringCondition);
-    return operator.map(op -> new ConvertedStringCondition(op, stringCondition.getValue()));
+    switch (stringCondition.getKindCase()) {
+      case VALUE:
+        return operator.map(
+            op ->
+                new ConvertedStringCondition(
+                    op,
+                    stringCondition.getValue(),
+                    null,
+                    StringCondition.StringConditionValueType.VALUE));
+      case VALUES:
+        return operator.map(
+            op ->
+                new ConvertedStringCondition(
+                    op,
+                    null,
+                    stringCondition.getValues().getValuesList(),
+                    StringCondition.StringConditionValueType.VALUES));
+      default:
+        log.error(
+            "Unrecognized String Condition Value Type {}", stringCondition.getKindCase().name());
+        return Optional.empty();
+    }
   }
 
   private Optional<StringCondition.Operator> convertOperatorInStringCondition(
@@ -228,6 +249,10 @@ class LabelApplicationRuleResponseConverter {
         return Optional.of(StringCondition.Operator.OPERATOR_EQUALS);
       case OPERATOR_MATCHES_REGEX:
         return Optional.of(StringCondition.Operator.OPERATOR_MATCHES_REGEX);
+      case OPERATOR_MATCHES_IPS:
+        return Optional.of(StringCondition.Operator.OPERATOR_MATCHES_IPS);
+      case OPERATOR_NOT_MATCHES_IPS:
+        return Optional.of(StringCondition.Operator.OPERATOR_NOT_MATCHES_IPS);
       default:
         log.error(
             "Unrecognized Operator Type in String Condition {}",
@@ -316,6 +341,8 @@ class LabelApplicationRuleResponseConverter {
   private static class ConvertedStringCondition implements StringCondition {
     Operator operator;
     String value;
+    List<String> values;
+    StringConditionValueType stringConditionValueType;
   }
 
   @Value

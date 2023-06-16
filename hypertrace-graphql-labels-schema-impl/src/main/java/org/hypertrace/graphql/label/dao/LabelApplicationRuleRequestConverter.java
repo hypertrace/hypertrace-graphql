@@ -130,10 +130,19 @@ class LabelApplicationRuleRequestConverter {
 
   StringCondition convertStringCondition(
       org.hypertrace.graphql.label.schema.rule.StringCondition stringCondition) {
-    return StringCondition.newBuilder()
-        .setOperator(convertStringConditionOperator(stringCondition.operator()))
-        .setValue(stringCondition.value())
-        .build();
+    StringCondition.Builder stringConditionBuilder =
+        StringCondition.newBuilder()
+            .setOperator(convertStringConditionOperator(stringCondition.operator()));
+    switch (stringCondition.stringConditionValueType()) {
+      case VALUES:
+        return stringConditionBuilder
+            .setValues(
+                StringCondition.StringList.newBuilder().addAllValues(stringCondition.values()))
+            .build();
+      case VALUE:
+      default:
+        return stringConditionBuilder.setValue(stringCondition.value()).build();
+    }
   }
 
   UnaryCondition convertUnaryCondition(
@@ -150,6 +159,10 @@ class LabelApplicationRuleRequestConverter {
         return StringCondition.Operator.OPERATOR_EQUALS;
       case OPERATOR_MATCHES_REGEX:
         return StringCondition.Operator.OPERATOR_MATCHES_REGEX;
+      case OPERATOR_MATCHES_IPS:
+        return StringCondition.Operator.OPERATOR_MATCHES_IPS;
+      case OPERATOR_NOT_MATCHES_IPS:
+        return StringCondition.Operator.OPERATOR_NOT_MATCHES_IPS;
       default:
         throw new IllegalArgumentException("Unsupported String Condition Operator");
     }
