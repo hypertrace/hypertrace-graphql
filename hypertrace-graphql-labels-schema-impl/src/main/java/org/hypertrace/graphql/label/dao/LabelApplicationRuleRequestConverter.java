@@ -150,8 +150,10 @@ class LabelApplicationRuleRequestConverter {
         return StringCondition.Operator.OPERATOR_EQUALS;
       case OPERATOR_MATCHES_REGEX:
         return StringCondition.Operator.OPERATOR_MATCHES_REGEX;
-      case OPERATOR_CIDR:
-        return StringCondition.Operator.OPERATOR_CIDR;
+      case OPERATOR_MATCHES_IPS:
+        return StringCondition.Operator.OPERATOR_MATCHES_IPS;
+      case OPERATOR_NOT_MATCHES_IPS:
+        return StringCondition.Operator.OPERATOR_NOT_MATCHES_IPS;
       default:
         throw new IllegalArgumentException("Unsupported String Condition Operator");
     }

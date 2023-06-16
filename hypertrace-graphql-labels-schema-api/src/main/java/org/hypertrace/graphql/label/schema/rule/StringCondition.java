@@ -15,7 +15,8 @@ public interface StringCondition {
   enum Operator {
     OPERATOR_EQUALS,
     OPERATOR_MATCHES_REGEX,
-    OPERATOR_CIDR;
+    OPERATOR_MATCHES_IPS,
+    OPERATOR_NOT_MATCHES_IPS;
     private static final String TYPE_NAME = "StringConditionOperator";
   }
 
