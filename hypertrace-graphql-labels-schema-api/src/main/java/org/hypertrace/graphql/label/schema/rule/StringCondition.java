@@ -9,7 +9,7 @@ public interface StringCondition {
   String TYPE_NAME = "LabelApplicationStringCondition";
 
   String OPERATOR_KEY = "operator";
-  String VALUE_KEY = "value";
+  String STRING_CONDITION_VALUE_KEY = "stringConditionValue";
 
   @GraphQLName(Operator.TYPE_NAME)
   enum Operator {
@@ -27,6 +27,6 @@ public interface StringCondition {
 
   @GraphQLField
   @GraphQLNonNull
-  @GraphQLName(VALUE_KEY)
-  String value();
+  @GraphQLName(STRING_CONDITION_VALUE_KEY)
+  StringConditionValue stringConditionValue();
 }

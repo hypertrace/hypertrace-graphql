@@ -15,6 +15,7 @@ import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.schema.rule.LeafCondition;
 import org.hypertrace.graphql.label.schema.rule.StaticLabels;
 import org.hypertrace.graphql.label.schema.rule.StringCondition;
+import org.hypertrace.graphql.label.schema.rule.StringConditionValue;
 import org.hypertrace.graphql.label.schema.rule.UnaryCondition;
 import org.hypertrace.graphql.label.schema.rule.ValueCondition;
 
@@ -42,6 +43,7 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
             .addAbstractTypeMapping(LeafCondition.class, LeafConditionArgument.class)
             .addAbstractTypeMapping(ValueCondition.class, ValueConditionArgument.class)
             .addAbstractTypeMapping(StringCondition.class, StringConditionArgument.class)
+            .addAbstractTypeMapping(StringConditionValue.class, StringConditionValueArgument.class)
             .addAbstractTypeMapping(UnaryCondition.class, UnaryConditionArgument.class));
   }
 
@@ -144,8 +146,22 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
     @JsonProperty(OPERATOR_KEY)
     Operator operator;
 
+    @JsonProperty(STRING_CONDITION_VALUE_KEY)
+    StringConditionValue stringConditionValue;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  @NoArgsConstructor(force = true)
+  private static class StringConditionValueArgument implements StringConditionValue {
     @JsonProperty(VALUE_KEY)
     String value;
+
+    @JsonProperty(VALUES_KEY)
+    List<String> values;
+
+    @JsonProperty(STRING_CONDITION_VALUE_TYPE_KEY)
+    StringConditionValueType stringConditionValueType;
   }
 
   @Value

@@ -130,10 +130,23 @@ class LabelApplicationRuleRequestConverter {
 
   StringCondition convertStringCondition(
       org.hypertrace.graphql.label.schema.rule.StringCondition stringCondition) {
-    return StringCondition.newBuilder()
-        .setOperator(convertStringConditionOperator(stringCondition.operator()))
-        .setValue(stringCondition.value())
-        .build();
+    StringCondition.Builder stringConditionBuilder =
+        StringCondition.newBuilder()
+            .setOperator(convertStringConditionOperator(stringCondition.operator()));
+    switch (stringCondition.stringConditionValue().stringConditionValueType()) {
+      case VALUE:
+        return stringConditionBuilder
+            .setValue(stringCondition.stringConditionValue().value())
+            .build();
+      case VALUES:
+        return stringConditionBuilder
+            .setValues(
+                StringCondition.StringList.newBuilder()
+                    .addAllValues(stringCondition.stringConditionValue().values()))
+            .build();
+      default:
+        throw new IllegalArgumentException("Unsupported String Condition value");
+    }
   }
 
   UnaryCondition convertUnaryCondition(
