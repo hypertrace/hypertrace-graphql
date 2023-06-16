@@ -12,7 +12,7 @@ dependencies {
     api("org.hypertrace.entity.service:entity-type-service-rx-client:0.5.6")
     api("org.hypertrace.config.service:spaces-config-service-api:0.1.1")
     api("org.hypertrace.config.service:labels-config-service-api:0.1.15")
-    api("org.hypertrace.config.service:label-application-rule-config-service-api:0.1.51")
+    api("org.hypertrace.config.service:label-application-rule-config-service-api:0.1.52")
     api("org.hypertrace.config.service:span-processing-config-service-api:0.1.41")
   }
 }
