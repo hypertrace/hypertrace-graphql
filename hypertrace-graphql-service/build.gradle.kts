@@ -7,10 +7,10 @@ plugins {
 
 dependencies {
   implementation("com.typesafe:config")
-  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.50")
+  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.52")
   implementation("org.slf4j:slf4j-api")
 
-  implementation("org.hypertrace.core.serviceframework:platform-http-service-framework:0.1.50")
+  implementation("org.hypertrace.core.serviceframework:platform-http-service-framework:0.1.52")
 
   implementation("com.graphql-java-kickstart:graphql-java-servlet")
   implementation(project(":hypertrace-graphql-impl"))
