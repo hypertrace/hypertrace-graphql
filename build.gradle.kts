@@ -5,7 +5,7 @@ plugins {
   id("org.hypertrace.docker-java-application-plugin") version "0.9.5" apply false
   id("org.hypertrace.docker-publish-plugin") version "0.9.5" apply false
   id("org.hypertrace.code-style-plugin") version "1.1.2" apply false
-  id("org.owasp.dependencycheck") version "8.1.2"
+  id("org.owasp.dependencycheck") version "8.2.1"
 }
 
 subprojects {
