@@ -133,6 +133,9 @@ class LabelApplicationRuleRequestConverter {
     StringCondition.Builder stringConditionBuilder =
         StringCondition.newBuilder()
             .setOperator(convertStringConditionOperator(stringCondition.operator()));
+    if (stringCondition.stringConditionValueType() == null) {
+      return stringConditionBuilder.setValue(stringCondition.value()).build();
+    }
     switch (stringCondition.stringConditionValueType()) {
       case VALUES:
         return stringConditionBuilder
