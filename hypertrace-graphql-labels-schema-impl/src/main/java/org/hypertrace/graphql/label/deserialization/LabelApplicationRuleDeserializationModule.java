@@ -10,6 +10,10 @@ public class LabelApplicationRuleDeserializationModule extends AbstractModule {
     Multibinder<ArgumentDeserializationConfig> deserializationConfigBinder =
         Multibinder.newSetBinder(binder(), ArgumentDeserializationConfig.class);
 
+    deserializationConfigBinder
+        .addBinding()
+        .to(LabelApplicationRuleDataDeserializationConfig.class);
+
     deserializationConfigBinder.addBinding().to(LabelApplicationRuleDeserializationConfig.class);
 
     deserializationConfigBinder

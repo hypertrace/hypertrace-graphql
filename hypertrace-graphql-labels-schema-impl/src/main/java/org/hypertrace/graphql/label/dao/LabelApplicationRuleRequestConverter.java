@@ -1,5 +1,7 @@
 package org.hypertrace.graphql.label.dao;
 
+import static org.hypertrace.graphql.label.schema.rule.StringCondition.StringConditionValueType.VALUE;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -133,7 +135,9 @@ class LabelApplicationRuleRequestConverter {
     StringCondition.Builder stringConditionBuilder =
         StringCondition.newBuilder()
             .setOperator(convertStringConditionOperator(stringCondition.operator()));
-    switch (stringCondition.stringConditionValueType()) {
+    final org.hypertrace.graphql.label.schema.rule.StringCondition.StringConditionValueType type =
+        Optional.ofNullable(stringCondition.stringConditionValueType()).orElse(VALUE);
+    switch (type) {
       case VALUES:
         return stringConditionBuilder
             .setValues(
