@@ -13,10 +13,9 @@ dependencies {
   api(platform("com.fasterxml.jackson:jackson-bom:2.15.2"))
   constraints {
 
-    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.12.0")
-    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.12.0")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.12.0")
-    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.12.0")
+    api("org.hypertrace.core.grpcutils:grpc-context-utils:0.12.1")
+    api("org.hypertrace.core.grpcutils:grpc-client-utils:0.12.1")
+    api("org.hypertrace.core.grpcutils:grpc-client-rx-utils:0.12.1")
     api("org.hypertrace.gateway.service:gateway-service-api:0.2.25")
     api("org.hypertrace.core.attribute.service:caching-attribute-service-client:${attributeServiceVersion}")
     api("org.hypertrace.core.attribute.service:attribute-service-api:${attributeServiceVersion}")
