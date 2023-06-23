@@ -16,8 +16,16 @@ import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.explore.ExploreResponse;
+import org.hypertrace.graphql.explorer.fetcher.ExploreResultMapKey;
 import org.hypertrace.graphql.explorer.request.ExploreRequest;
+import org.hypertrace.graphql.explorer.schema.ExploreResult;
 import org.hypertrace.graphql.explorer.schema.ExploreResultSet;
+import org.hypertrace.graphql.explorer.schema.Selection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Singleton
 class GatewayServiceExplorerDao implements ExplorerDao {
@@ -60,7 +68,57 @@ class GatewayServiceExplorerDao implements ExplorerDao {
         .flatMap(this.requestBuilder::buildRequest)
         .subscribeOn(this.boundedIoScheduler)
         .flatMap(serverRequest -> this.makeRequest(request.context(), serverRequest))
-        .flatMap(serverResponse -> this.responseConverter.convert(request, serverResponse));
+        .flatMap(
+            serverResponse ->
+                this.responseConverter
+                    .convert(request, serverResponse)
+                    .map(resultSet -> updateName(request, resultSet)));
+  }
+
+  private ExploreResultSet updateName(ExploreRequest request, ExploreResultSet resultSet) {
+    if (request.scope().equals("DOMAIN_EVENT") && request.groupByAttributeRequests().stream()
+        .anyMatch(attr -> attr.attributeExpressionAssociation().value().key().equals("name"))) {
+
+      List<String> eventNames =
+          resultSet.results().stream()
+              .map(
+                  result ->
+                      result.selectionMap().keySet().stream()
+                          .filter(key -> key.getAttributeExpression().key().equals("name"))
+                          .findFirst()
+                          .map(key -> result.selectionMap().get(key).value().toString()))
+              .filter(Optional::isPresent)
+              .map(Optional::get)
+              .collect(Collectors.toList());
+
+      // TODO: here need to plugin call to python server to get summaries
+      Map<String, String> descriptions =
+          eventNames.stream()
+              .collect(Collectors.toMap(Function.identity(), str -> str + " :: some summary " + str.length()));
+      //          Map.of(
+      //              "MSSQL code execution and information gathering attempts",
+      //              "Some Description MYSQL",
+      //              "HTTP Response Splitting Attack (130)",
+      //              "some description HTTP");
+
+      for (ExploreResult result : resultSet.results()) {
+        Map<ExploreResultMapKey, Selection> selectionMap = result.selectionMap();
+        selectionMap.forEach(
+            (key, value) -> {
+              if (key.getAttributeExpression().key().equals("name")
+                  && descriptions.containsKey(value.value().toString())) {
+                selectionMap.put(
+                    key,
+                    new GatewayServiceSelectionMapConverter.ConvertedSelection(
+                        value.type(),
+                        value.value().toString()
+                            + " :: "
+                            + descriptions.get(value.value().toString())));
+              }
+            });
+      }
+    }
+    return resultSet;
   }
 
   private Single<ExploreResponse> makeRequest(

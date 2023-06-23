@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.attributes.AttributeModel;
@@ -28,7 +29,7 @@ import org.hypertrace.graphql.explorer.request.ExploreRequest;
 import org.hypertrace.graphql.explorer.schema.Selection;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
-class GatewayServiceSelectionMapConverter {
+public class GatewayServiceSelectionMapConverter {
   // TODO we should not be relying on a proto enum's name, but required in current API
   private static final String WELL_KNOWN_INTERVAL_KEY = ColumnName.INTERVAL_START_TIME.name();
 
@@ -55,7 +56,7 @@ class GatewayServiceSelectionMapConverter {
             this.buildAggregationMapEntries(request.aggregationRequests(), row),
             this.buildIntervalStartMapEntry(row).toObservable())
         .distinct()
-        .collect(CollectorUtils.immutableMapEntryCollector());
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
   }
 
   private Observable<Entry<ExploreResultMapKey, Selection>> buildAttributeMapEntries(
@@ -121,7 +122,7 @@ class GatewayServiceSelectionMapConverter {
 
   @lombok.Value
   @Accessors(fluent = true)
-  private static class ConvertedSelection implements Selection {
+  public static class ConvertedSelection implements Selection {
     AttributeType type;
     Object value;
   }
