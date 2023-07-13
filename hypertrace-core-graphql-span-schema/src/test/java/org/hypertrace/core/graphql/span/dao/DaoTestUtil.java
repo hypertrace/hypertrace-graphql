@@ -72,6 +72,7 @@ class DaoTestUtil {
     GraphQlRequestContext context;
     ResultSetRequest<OrderArgument> spanEventsRequest;
     Collection<AttributeRequest> logEventAttributes;
+    boolean fetchTotal;
   }
 
   @Value

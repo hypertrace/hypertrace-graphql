@@ -152,7 +152,8 @@ class SpanLogEventRequestBuilderTest {
             List.of(),
             Collections.emptyList(),
             Optional.empty());
-    SpanRequest spanRequest = new DefaultSpanRequest(null, resultSetRequest, logAttributeRequests);
+    SpanRequest spanRequest =
+        new DefaultSpanRequest(null, resultSetRequest, logAttributeRequests, true);
 
     LogEventsRequest expectedLogEventsRequest =
         LogEventsRequest.newBuilder()
@@ -193,7 +194,8 @@ class SpanLogEventRequestBuilderTest {
             List.of(),
             Collections.emptyList(),
             Optional.empty());
-    SpanRequest spanRequest = new DefaultSpanRequest(null, resultSetRequest, logAttributeRequests);
+    SpanRequest spanRequest =
+        new DefaultSpanRequest(null, resultSetRequest, logAttributeRequests, true);
 
     LogEventsRequest expectedLogEventsRequest =
         LogEventsRequest.newBuilder()

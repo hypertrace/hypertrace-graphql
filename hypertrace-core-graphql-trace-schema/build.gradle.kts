@@ -24,4 +24,5 @@ dependencies {
   implementation(project(":hypertrace-core-graphql-attribute-store"))
   implementation(project(":hypertrace-core-graphql-deserialization"))
   implementation(project(":hypertrace-core-graphql-request-transformation"))
+  implementation(project(":hypertrace-core-graphql-schema-utils"))
 }

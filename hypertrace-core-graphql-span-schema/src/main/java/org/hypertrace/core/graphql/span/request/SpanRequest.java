@@ -10,4 +10,6 @@ public interface SpanRequest extends ContextualRequest {
   ResultSetRequest<OrderArgument> spanEventsRequest();
 
   Collection<AttributeRequest> logEventAttributes();
+
+  boolean fetchTotal();
 }

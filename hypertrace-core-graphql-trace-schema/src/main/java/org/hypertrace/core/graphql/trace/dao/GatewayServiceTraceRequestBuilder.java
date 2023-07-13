@@ -54,6 +54,7 @@ class GatewayServiceTraceRequestBuilder {
                 .setFilter(filters)
                 .setSpaceId(
                     request.resultSetRequest().spaceId().orElse("")) // String proto default value
+                .setFetchTotal(request.fetchTotal())
                 .build());
   }
 }

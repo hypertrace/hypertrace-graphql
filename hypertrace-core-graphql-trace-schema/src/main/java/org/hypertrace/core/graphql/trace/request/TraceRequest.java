@@ -9,4 +9,6 @@ public interface TraceRequest extends ContextualRequest {
   ResultSetRequest<OrderArgument> resultSetRequest();
 
   TraceType traceType();
+
+  boolean fetchTotal();
 }

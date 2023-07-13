@@ -56,6 +56,7 @@ class GatewayServiceSpanRequestBuilder {
                         .spanEventsRequest()
                         .spaceId()
                         .orElse("")) // String proto default value
+                .setFetchTotal(gqlRequest.fetchTotal())
                 .build());
   }
 }

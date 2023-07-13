@@ -34,7 +34,7 @@ class GatewayServiceSpanConverter {
   }
 
   public Single<SpanResultSet> convert(SpanRequest request, SpanLogEventsResponse response) {
-    int total = response.spansResponse().getTotal();
+    int total = response.spansResponse().hasTotal() ? response.spansResponse().getTotal() : 0;
 
     return Observable.fromIterable(response.spansResponse().getSpansList())
         .flatMapSingle(spanEvent -> this.convert(request, spanEvent, response.spanIdToLogEvents()))

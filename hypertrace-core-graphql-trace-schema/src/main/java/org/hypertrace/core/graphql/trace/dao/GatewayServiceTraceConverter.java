@@ -30,8 +30,7 @@ public class GatewayServiceTraceConverter {
   }
 
   public Single<TraceResultSet> convert(ResultSetRequest<?> request, TracesResponse response) {
-    int total = response.getTotal();
-
+    int total = response.hasTotal() ? response.getTotal() : 0;
     return Observable.fromIterable(response.getTracesList())
         .flatMapSingle(trace -> this.convert(request, trace))
         .toList()
