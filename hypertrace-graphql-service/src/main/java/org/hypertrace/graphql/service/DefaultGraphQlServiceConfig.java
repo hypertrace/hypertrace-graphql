@@ -31,6 +31,8 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
   private static final String GATEWAY_SERVICE_CLIENT_TIMEOUT = "gateway.service.timeout";
+  private static final String GATEWAY_SERVICE_CLIENT_MAX_INBOUND_MESSAGE_SIZE =
+      "gateway.service.maxMessageSize.inbound";
 
   private static final String ENTITY_SERVICE_HOST_PROPERTY = "entity.service.host";
   private static final String ENTITY_SERVICE_PORT_PROPERTY = "entity.service.port";
@@ -54,6 +56,7 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
   String gatewayServiceHost;
   int gatewayServicePort;
   Duration gatewayServiceTimeout;
+  int gatewayServiceMaxInboundMessageSize;
   String entityServiceHost;
   int entityServicePort;
   Duration entityServiceTimeout;
@@ -92,6 +95,9 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
     this.entityServiceTimeout =
         getSuppliedDurationOrFallback(
             () -> untypedConfig.getDuration(ENTITY_SERVICE_CLIENT_TIMEOUT));
+
+    this.gatewayServiceMaxInboundMessageSize =
+        untypedConfig.getBytes(GATEWAY_SERVICE_CLIENT_MAX_INBOUND_MESSAGE_SIZE).intValue();
   }
 
   private Duration getSuppliedDurationOrFallback(Supplier<Duration> durationSupplier) {
