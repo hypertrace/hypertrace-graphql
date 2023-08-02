@@ -76,28 +76,29 @@ class DefaultGraphQlServiceConfig implements HypertraceGraphQlServiceConfig {
 
     this.attributeServiceHost = untypedConfig.getString(ATTRIBUTE_SERVICE_HOST_PROPERTY);
     this.attributeServicePort = untypedConfig.getInt(ATTRIBUTE_SERVICE_PORT_PROPERTY);
-    this.gatewayServiceHost = untypedConfig.getString(GATEWAY_SERVICE_HOST_PROPERTY);
-    this.gatewayServicePort = untypedConfig.getInt(GATEWAY_SERVICE_PORT_PROPERTY);
-    this.entityServiceHost = untypedConfig.getString(ENTITY_SERVICE_HOST_PROPERTY);
-    this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
-    this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
-    this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
-
-    this.gatewayServiceTimeout =
-        getSuppliedDurationOrFallback(
-            () -> untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT));
     this.attributeServiceTimeout =
         getSuppliedDurationOrFallback(
             () -> untypedConfig.getDuration(ATTRIBUTE_SERVICE_CLIENT_TIMEOUT));
-    this.configServiceTimeout =
+
+    this.gatewayServiceHost = untypedConfig.getString(GATEWAY_SERVICE_HOST_PROPERTY);
+    this.gatewayServicePort = untypedConfig.getInt(GATEWAY_SERVICE_PORT_PROPERTY);
+    this.gatewayServiceTimeout =
         getSuppliedDurationOrFallback(
-            () -> untypedConfig.getDuration(CONFIG_SERVICE_CLIENT_TIMEOUT));
+            () -> untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT));
+    this.gatewayServiceMaxInboundMessageSize =
+        untypedConfig.getBytes(GATEWAY_SERVICE_CLIENT_MAX_INBOUND_MESSAGE_SIZE).intValue();
+
+    this.entityServiceHost = untypedConfig.getString(ENTITY_SERVICE_HOST_PROPERTY);
+    this.entityServicePort = untypedConfig.getInt(ENTITY_SERVICE_PORT_PROPERTY);
     this.entityServiceTimeout =
         getSuppliedDurationOrFallback(
             () -> untypedConfig.getDuration(ENTITY_SERVICE_CLIENT_TIMEOUT));
 
-    this.gatewayServiceMaxInboundMessageSize =
-        untypedConfig.getBytes(GATEWAY_SERVICE_CLIENT_MAX_INBOUND_MESSAGE_SIZE).intValue();
+    this.configServiceHost = untypedConfig.getString(CONFIG_SERVICE_HOST_PROPERTY);
+    this.configServicePort = untypedConfig.getInt(CONFIG_SERVICE_PORT_PROPERTY);
+    this.configServiceTimeout =
+        getSuppliedDurationOrFallback(
+            () -> untypedConfig.getDuration(CONFIG_SERVICE_CLIENT_TIMEOUT));
   }
 
   private Duration getSuppliedDurationOrFallback(Supplier<Duration> durationSupplier) {
