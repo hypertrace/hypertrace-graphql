@@ -32,4 +32,6 @@ public interface GraphQlServiceConfig {
   int getGatewayServicePort();
 
   Duration getGatewayServiceTimeout();
+
+  int getGatewayServiceMaxInboundMessageSize();
 }

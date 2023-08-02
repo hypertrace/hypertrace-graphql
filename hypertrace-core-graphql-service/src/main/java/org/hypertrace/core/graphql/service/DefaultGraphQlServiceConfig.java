@@ -29,6 +29,8 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   private static final String GATEWAY_SERVICE_HOST_PROPERTY = "gateway.service.host";
   private static final String GATEWAY_SERVICE_PORT_PROPERTY = "gateway.service.port";
   private static final String GATEWAY_SERVICE_CLIENT_TIMEOUT = "gateway.service.timeout";
+  private static final String GATEWAY_SERVICE_CLIENT_MAX_INBOUND_MESSAGE_SIZE =
+      "gateway.service.maxMessageSize.inbound";
 
   private final String serviceName;
   private final int servicePort;
@@ -44,6 +46,7 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   private final String gatewayServiceHost;
   private final int gatewayServicePort;
   private final Duration gatewayServiceTimeout;
+  private final int gatewayServiceMaxInboundMessageSize;
 
   DefaultGraphQlServiceConfig(Config untypedConfig) {
     this.serviceName = untypedConfig.getString(SERVICE_NAME_CONFIG);
@@ -64,6 +67,8 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
     this.gatewayServicePort = untypedConfig.getInt(GATEWAY_SERVICE_PORT_PROPERTY);
     this.gatewayServiceTimeout =
         getTimeoutOrFallback(() -> untypedConfig.getDuration(GATEWAY_SERVICE_CLIENT_TIMEOUT));
+    this.gatewayServiceMaxInboundMessageSize =
+        untypedConfig.getBytes(GATEWAY_SERVICE_CLIENT_MAX_INBOUND_MESSAGE_SIZE).intValue();
   }
 
   @Override
@@ -134,6 +139,11 @@ class DefaultGraphQlServiceConfig implements GraphQlServiceConfig {
   @Override
   public Duration getGatewayServiceTimeout() {
     return gatewayServiceTimeout;
+  }
+
+  @Override
+  public int getGatewayServiceMaxInboundMessageSize() {
+    return this.gatewayServiceMaxInboundMessageSize;
   }
 
   private Duration getTimeoutOrFallback(Supplier<Duration> durationSupplier) {
