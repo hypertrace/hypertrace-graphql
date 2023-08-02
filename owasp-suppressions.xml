@@ -16,7 +16,7 @@
     <packageUrl regex="true">^pkg:maven/io\.github\.graphql\-java/graphql\-java\-annotations@.*$</packageUrl>
     <cpe>cpe:/a:graphql-java:graphql-java</cpe>
   </suppress>
-  <suppress until="2023-06-29Z">
+  <suppress until="2023-07-30Z">
     <notes><![CDATA[
    file name: jackson-databind-2.15.2.jar
    ]]></notes>
