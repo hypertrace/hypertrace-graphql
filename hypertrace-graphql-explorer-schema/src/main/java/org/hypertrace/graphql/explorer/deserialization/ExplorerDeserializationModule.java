@@ -56,5 +56,6 @@ public class ExplorerDeserializationModule extends AbstractModule {
 
     deserializationConfigMultibinder.addBinding().to(GroupByArgumentDeserializationConfig.class);
     deserializationConfigMultibinder.addBinding().to(IntervalArgumentDeserializationConfig.class);
+    deserializationConfigMultibinder.addBinding().to(EntityContextOptionsDeserializationConfig.class);
   }
 }

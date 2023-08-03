@@ -21,8 +21,11 @@ import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.TimeAggregation;
+import org.hypertrace.gateway.service.v1.explore.ContextOption;
+import org.hypertrace.gateway.service.v1.explore.EntityOption;
 import org.hypertrace.gateway.service.v1.explore.ExploreRequest.Builder;
 import org.hypertrace.graphql.explorer.request.ExploreRequest;
+import org.hypertrace.graphql.explorer.schema.argument.EntityContextOptions;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
@@ -59,7 +62,8 @@ public class GatewayServiceExploreRequestBuilder {
         this.filterConverter.convert(request.filterArguments()),
         this.buildAnyAggregations(request),
         this.buildAnyTimeAggregations(request),
-        (attributes, orderBys, groupBys, filter, aggregations, series) -> {
+        this.buildAnyContextOptions(request),
+        (attributes, orderBys, groupBys, filter, aggregations, series, contextOptions) -> {
           Builder builder =
               org.hypertrace.gateway.service.v1.explore.ExploreRequest.newBuilder()
                   .setContext(request.scope())
@@ -73,7 +77,8 @@ public class GatewayServiceExploreRequestBuilder {
                   .setOffset(request.offset())
                   .setFilter(filter)
                   .setSpaceId(request.spaceId().orElse("")) // String proto default value
-                  .setGroupLimit(request.groupLimit().orElse(0)); // Int proto default value
+                  .setGroupLimit(request.groupLimit().orElse(0)) // Int proto default value
+                  .setContextOption(contextOptions);
           request
               .timeRange()
               .ifPresent(
@@ -107,6 +112,20 @@ public class GatewayServiceExploreRequestBuilder {
         .cast(MetricSeriesRequest.class)
         .collect(Collectors.toUnmodifiableSet())
         .flatMap(this.seriesConverter::convert);
+  }
+
+  private Single<ContextOption> buildAnyContextOptions(ExploreRequest exploreRequest) {
+    if (exploreRequest.entityContextOptions().isEmpty()) {
+      return Single.just(ContextOption.newBuilder().build());
+    }
+    EntityContextOptions entityContextOptions = exploreRequest.entityContextOptions().get();
+    return Single.just(
+        ContextOption.newBuilder()
+            .setEntityOption(
+                EntityOption.newBuilder()
+                    .setIncludeNonLiveEntities(entityContextOptions.includeNonLiveEntities())
+                    .build())
+            .build());
   }
 
   @Value
