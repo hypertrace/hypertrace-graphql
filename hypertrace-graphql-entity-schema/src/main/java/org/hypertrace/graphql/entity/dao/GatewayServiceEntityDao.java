@@ -17,6 +17,7 @@ import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
 import org.hypertrace.core.graphql.utils.grpc.GrpcContextBuilder;
+import org.hypertrace.core.grpcutils.client.GrpcChannelConfig;
 import org.hypertrace.gateway.service.GatewayServiceGrpc;
 import org.hypertrace.gateway.service.GatewayServiceGrpc.GatewayServiceFutureStub;
 import org.hypertrace.gateway.service.v1.common.Value;
@@ -63,10 +64,17 @@ class GatewayServiceEntityDao implements EntityDao {
     this.serviceConfig = serviceConfig;
     this.boundedIoScheduler = boundedIoScheduler;
 
+    final GrpcChannelConfig grpcChannelConfig =
+        GrpcChannelConfig.builder()
+            .maxInboundMessageSize(serviceConfig.getGatewayServiceMaxInboundMessageSize())
+            .build();
+
     this.gatewayServiceStub =
         GatewayServiceGrpc.newFutureStub(
                 grpcChannelRegistry.forAddress(
-                    serviceConfig.getGatewayServiceHost(), serviceConfig.getGatewayServicePort()))
+                    serviceConfig.getGatewayServiceHost(),
+                    serviceConfig.getGatewayServicePort(),
+                    grpcChannelConfig))
             .withCallCredentials(credentials);
   }
 
