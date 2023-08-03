@@ -62,7 +62,7 @@ public class GatewayServiceExploreRequestBuilder {
         this.filterConverter.convert(request.filterArguments()),
         this.buildAnyAggregations(request),
         this.buildAnyTimeAggregations(request),
-        this.buildAnyContextOptions(request),
+        this.buildContextOptions(request),
         (attributes, orderBys, groupBys, filter, aggregations, series, contextOptions) -> {
           Builder builder =
               org.hypertrace.gateway.service.v1.explore.ExploreRequest.newBuilder()
@@ -114,7 +114,7 @@ public class GatewayServiceExploreRequestBuilder {
         .flatMap(this.seriesConverter::convert);
   }
 
-  private Single<ContextOption> buildAnyContextOptions(ExploreRequest exploreRequest) {
+  private Single<ContextOption> buildContextOptions(ExploreRequest exploreRequest) {
     if (exploreRequest.entityContextOptions().isEmpty()) {
       return Single.just(ContextOption.newBuilder().build());
     }

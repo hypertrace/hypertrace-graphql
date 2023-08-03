@@ -14,5 +14,4 @@ public interface EntityContextOptions {
   @GraphQLNonNull
   @GraphQLName(INCLUDE_NON_LIVE_ENTITIES)
   boolean includeNonLiveEntities();
-
 }
