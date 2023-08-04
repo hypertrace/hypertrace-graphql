@@ -12,6 +12,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.page.LimitArg
 import org.hypertrace.core.graphql.common.schema.results.arguments.page.OffsetArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.graphql.explorer.fetcher.ExplorerFetcher;
+import org.hypertrace.graphql.explorer.schema.argument.EntityContextOptions;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContextArgument;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerScopeArgument;
@@ -37,5 +38,6 @@ public interface ExplorerSchema {
       @GraphQLName(FilterArgument.ARGUMENT_NAME) List<FilterArgument> filterBy,
       @GraphQLName(OrderArgument.ARGUMENT_NAME) List<AggregatableOrderArgument> orderBy,
       @GraphQLName(GroupByArgument.ARGUMENT_NAME) GroupByArgument groupBy,
-      @GraphQLName(IntervalArgument.ARGUMENT_NAME) IntervalArgument interval);
+      @GraphQLName(IntervalArgument.ARGUMENT_NAME) IntervalArgument interval,
+      @GraphQLName(EntityContextOptions.ARGUMENT_NAME) EntityContextOptions entityContextOptions);
 }

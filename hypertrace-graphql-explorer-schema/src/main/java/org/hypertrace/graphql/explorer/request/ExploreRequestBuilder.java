@@ -10,6 +10,7 @@ import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.graphql.explorer.schema.argument.EntityContextOptions;
 import org.hypertrace.graphql.explorer.schema.argument.GroupByArgument;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
@@ -32,6 +33,7 @@ public interface ExploreRequestBuilder {
       List<AggregatableOrderArgument> requestedOrders,
       Optional<GroupByArgument> groupBy,
       Optional<IntervalArgument> intervalArgument,
+      Optional<EntityContextOptions> entityContextOptions,
       Single<Set<AttributeRequest>> attributeSelections,
       Single<Set<MetricAggregationRequest>> aggregationSelections);
 }

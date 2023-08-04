@@ -28,6 +28,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceAr
 import org.hypertrace.core.graphql.common.utils.attributes.AttributeScopeStringTranslator;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
+import org.hypertrace.graphql.explorer.schema.argument.EntityContextOptions;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContext;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerContextArgument;
 import org.hypertrace.graphql.explorer.schema.argument.ExplorerScopeArgument;
@@ -112,6 +113,9 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     Optional<IntervalArgument> intervalArgument =
         this.argumentDeserializer.deserializeObject(arguments, IntervalArgument.class);
 
+    Optional<EntityContextOptions> entityContextOptions =
+        this.argumentDeserializer.deserializeObject(arguments, EntityContextOptions.class);
+
     Single<Set<AttributeRequest>> attributeSelections =
         this.selectionRequestBuilder.getAttributeSelections(
             requestContext, explorerScope, selectionSet);
@@ -131,6 +135,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
         requestedOrders,
         groupBy,
         intervalArgument,
+        entityContextOptions,
         attributeSelections,
         aggregationSelections);
   }
@@ -147,6 +152,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
       List<AggregatableOrderArgument> requestedOrders,
       Optional<GroupByArgument> groupBy,
       Optional<IntervalArgument> intervalArgument,
+      Optional<EntityContextOptions> entityContextOptions,
       Single<Set<AttributeRequest>> attributeSelections,
       Single<Set<MetricAggregationRequest>> aggregationSelections) {
 
@@ -178,6 +184,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
                 filters,
                 groupByAttribute,
                 intervalArgument,
+                entityContextOptions,
                 groupBy.map(GroupByArgument::includeRest).orElse(false),
                 spaceId,
                 groupBy.map(GroupByArgument::groupLimit)));
@@ -221,6 +228,7 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
     List<AttributeAssociation<FilterArgument>> filterArguments;
     Set<AttributeRequest> groupByAttributeRequests;
     Optional<IntervalArgument> timeInterval;
+    Optional<EntityContextOptions> entityContextOptions;
     boolean includeRest;
     Optional<String> spaceId;
     Optional<Integer> groupLimit;

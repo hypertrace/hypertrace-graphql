@@ -33,6 +33,7 @@ import org.hypertrace.graphql.explorer.request.ExploreOrderArgument;
 import org.hypertrace.graphql.explorer.request.ExploreRequest;
 import org.hypertrace.graphql.explorer.schema.ExploreResultSet;
 import org.hypertrace.graphql.explorer.schema.Selection;
+import org.hypertrace.graphql.explorer.schema.argument.EntityContextOptions;
 import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
@@ -149,6 +150,7 @@ class ExplorerBackedSpacesDao implements SpacesDao {
     Set<AttributeRequest> attributeRequests = emptySet();
     List<AttributeAssociation<FilterArgument>> filterArguments = emptyList();
     Optional<IntervalArgument> timeInterval = Optional.empty();
+    Optional<EntityContextOptions> entityContextOptions = Optional.empty();
     boolean includeRest = false;
     Optional<String> spaceId = Optional.empty();
     Optional<Integer> groupLimit = Optional.of(MAX_SPACES);
