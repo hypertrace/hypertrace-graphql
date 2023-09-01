@@ -44,6 +44,9 @@ public class ConfigServiceSpanFilterConverter {
                   RelationalOperator.RELATIONAL_OPERATOR_CONTAINS,
                   SpanProcessingRelationalOperator.CONTAINS)
               .put(
+                  RelationalOperator.RELATIONAL_OPERATOR_NOT_CONTAINS,
+                  SpanProcessingRelationalOperator.NOT_CONTAINS)
+              .put(
                   RelationalOperator.RELATIONAL_OPERATOR_EQUALS,
                   SpanProcessingRelationalOperator.EQUALS)
               .put(
