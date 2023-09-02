@@ -7,6 +7,7 @@ public enum SpanProcessingRelationalOperator {
   EQUALS,
   NOT_EQUALS,
   CONTAINS,
+  NOT_CONTAINS,
   STARTS_WITH,
   ENDS_WITH,
   REGEX_MATCH,
