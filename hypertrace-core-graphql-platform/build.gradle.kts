@@ -30,7 +30,7 @@ dependencies {
     api("org.projectlombok:lombok:1.18.24")
     api("com.google.code.findbugs:jsr305:3.0.2")
     api("com.typesafe:config:1.4.2")
-    api("com.google.guava:guava:32.0.1-jre")
+    api("com.google.guava:guava:32.1.2-jre")
     api("com.graphql-java-kickstart:graphql-java-servlet:14.0.0")
 
     api("com.fasterxml.jackson.core:jackson-databind")
