@@ -84,7 +84,8 @@ class GatewayServiceEntityDao implements EntityDao {
     return this.requestBuilder
         .buildRequest(request)
         .subscribeOn(this.boundedIoScheduler)
-        .flatMap(serverRequest -> this.fetchAndMapEntities(context, request, serverRequest));
+        .flatMap(serverRequest -> this.fetchAndMapEntities(context, request, serverRequest))
+        .doOnError(error -> log.error("Error while handling entities request {}", request, error));
   }
 
   private Single<EntityResultSet> fetchAndMapEntities(
