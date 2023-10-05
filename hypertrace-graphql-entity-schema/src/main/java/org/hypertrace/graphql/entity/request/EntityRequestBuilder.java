@@ -14,7 +14,5 @@ public interface EntityRequestBuilder {
       DataFetchingFieldSelectionSet selectionSet);
 
   Single<EntityRequest> rebuildWithAdditionalFilters(
-      GraphQlRequestContext context,
-      EntityRequest originalRequest,
-      List<FilterArgument> filterArguments);
+      EntityRequest originalRequest, List<FilterArgument> filterArguments);
 }

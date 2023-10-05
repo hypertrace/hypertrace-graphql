@@ -77,9 +77,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
 
   @Override
   public Single<EntityRequest> rebuildWithAdditionalFilters(
-      GraphQlRequestContext context,
-      EntityRequest originalRequest,
-      List<FilterArgument> filterArguments) {
+      EntityRequest originalRequest, List<FilterArgument> filterArguments) {
     return this.resultSetRequestBuilder
         .rebuildWithAdditionalFilters(originalRequest.resultSetRequest(), filterArguments)
         .map(
