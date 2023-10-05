@@ -83,7 +83,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
         .map(
             newResultSetRequest ->
                 new DefaultEntityRequest(
-                    originalRequest.context(),
                     originalRequest.entityType(),
                     newResultSetRequest,
                     originalRequest.metricRequests(),
@@ -133,7 +132,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             outgoingEdges,
             optionalLabelsAttributeRequest) ->
             new DefaultEntityRequest(
-                context,
                 scope,
                 resultSetRequest,
                 metricRequestList,
@@ -178,7 +176,6 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEntityRequest implements EntityRequest {
-    GraphQlRequestContext context;
     String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests;

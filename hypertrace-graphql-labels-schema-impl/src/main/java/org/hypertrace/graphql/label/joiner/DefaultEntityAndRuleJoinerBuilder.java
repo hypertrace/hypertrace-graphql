@@ -291,7 +291,7 @@ class DefaultEntityAndRuleJoinerBuilder implements EntityAndRuleJoinerBuilder {
               filterArguments,
               selectionSet.getFields().stream(),
               Optional.empty())
-          .map(request -> new DefaultEntityRequest(context, entityType, request, fetchTotal));
+          .map(request -> new DefaultEntityRequest(entityType, request, fetchTotal));
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildLabelIdFilter(
@@ -303,7 +303,6 @@ class DefaultEntityAndRuleJoinerBuilder implements EntityAndRuleJoinerBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEntityRequest implements EntityRequest {
-    GraphQlRequestContext context;
     String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests = Collections.emptyList(); // Only support attributes for now

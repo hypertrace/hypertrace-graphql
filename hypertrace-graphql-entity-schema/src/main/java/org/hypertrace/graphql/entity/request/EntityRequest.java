@@ -4,10 +4,17 @@ import java.util.List;
 import java.util.Optional;
 import org.hypertrace.core.graphql.common.request.ContextualRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequest;
+import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 public interface EntityRequest extends ContextualRequest {
+
+  @Override
+  default GraphQlRequestContext context() {
+    return resultSetRequest().context();
+  }
+
   String entityType();
 
   ResultSetRequest<AggregatableOrderArgument> resultSetRequest();

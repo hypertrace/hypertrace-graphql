@@ -90,7 +90,6 @@ class NeighborEntitiesRequestBuilder {
             context, timeRange, space, this.getOutgoingEdges(neighborFields)),
         (resultSetRequest, metricRequestList, incomingEdges, outgoingEdges) ->
             new NeighborEntityRequest(
-                context,
                 entityScope,
                 resultSetRequest,
                 metricRequestList,
@@ -175,7 +174,6 @@ class NeighborEntitiesRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class NeighborEntityRequest implements EntityRequest {
-    GraphQlRequestContext context;
     String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests;
