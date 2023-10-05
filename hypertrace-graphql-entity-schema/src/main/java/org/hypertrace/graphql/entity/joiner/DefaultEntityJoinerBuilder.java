@@ -291,7 +291,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
               context, entityType, this.entityFieldsByType.get(entityType)),
           (resultSetRequest, metricRequestList, optionalLabelRequest) ->
               new DefaultEntityRequest(
-                  entityType, resultSetRequest, metricRequestList, optionalLabelRequest));
+                  context, entityType, resultSetRequest, metricRequestList, optionalLabelRequest));
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildIdFilter(
@@ -304,6 +304,7 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEntityRequest implements EntityRequest {
+    GraphQlRequestContext context;
     String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests;

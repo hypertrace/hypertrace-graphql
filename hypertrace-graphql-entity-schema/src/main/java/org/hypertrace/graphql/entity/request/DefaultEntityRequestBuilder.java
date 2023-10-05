@@ -18,6 +18,7 @@ import org.hypertrace.core.graphql.common.request.ResultSetRequest;
 import org.hypertrace.core.graphql.common.request.ResultSetRequestBuilder;
 import org.hypertrace.core.graphql.common.schema.arguments.TimeRangeArgument;
 import org.hypertrace.core.graphql.common.schema.results.ResultSet;
+import org.hypertrace.core.graphql.common.schema.results.arguments.filter.FilterArgument;
 import org.hypertrace.core.graphql.common.schema.results.arguments.space.SpaceArgument;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializer;
@@ -74,6 +75,27 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
     return this.build(context, arguments, entityScope, selectionSet);
   }
 
+  @Override
+  public Single<EntityRequest> rebuildWithAdditionalFilters(
+      GraphQlRequestContext context,
+      EntityRequest originalRequest,
+      List<FilterArgument> filterArguments) {
+    return this.resultSetRequestBuilder
+        .rebuildWithAdditionalFilters(originalRequest.resultSetRequest(), filterArguments)
+        .map(
+            newResultSetRequest ->
+                new DefaultEntityRequest(
+                    originalRequest.context(),
+                    originalRequest.entityType(),
+                    newResultSetRequest,
+                    originalRequest.metricRequests(),
+                    originalRequest.incomingEdgeRequests(),
+                    originalRequest.outgoingEdgeRequests(),
+                    originalRequest.includeInactive(),
+                    originalRequest.fetchTotal(),
+                    originalRequest.labelRequest()));
+  }
+
   private Single<EntityRequest> build(
       GraphQlRequestContext context,
       Map<String, Object> arguments,
@@ -113,6 +135,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
             outgoingEdges,
             optionalLabelsAttributeRequest) ->
             new DefaultEntityRequest(
+                context,
                 scope,
                 resultSetRequest,
                 metricRequestList,
@@ -157,6 +180,7 @@ class DefaultEntityRequestBuilder implements EntityRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEntityRequest implements EntityRequest {
+    GraphQlRequestContext context;
     String entityType;
     ResultSetRequest<AggregatableOrderArgument> resultSetRequest;
     List<MetricRequest> metricRequests;
