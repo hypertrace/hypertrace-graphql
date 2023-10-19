@@ -15,7 +15,29 @@
     <packageUrl regex="true">^pkg:maven/io\.github\.graphql\-java/graphql\-java\-annotations@.*$</packageUrl>
     <cpe>cpe:/a:graphql-java:graphql-java</cpe>
   </suppress>
-  <suppress until="2023-07-30Z">
+  <suppress until="2023-11-30Z">
+    <notes><![CDATA[
+  This vulnerability is disputed, with the argument that SSL configuration is the responsibility of the client rather
+  than the transport. The change in default is under consideration for the next major Netty release, revisit then.
+  Regardless, our client (which is what brings in this dependency) enables the concerned feature, hostname verification
+  Ref:
+  https://github.com/grpc/grpc-java/issues/10033
+  https://github.com/netty/netty/issues/8537#issuecomment-1527896917
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@.*$</packageUrl>
+    <vulnerabilityName>CVE-2023-4586</vulnerabilityName>
+  </suppress>
+  <suppress until="2023-11-30Z">
+    <notes><![CDATA[
+   This CVE is declared fixed from 9.4.52, but the vuln db is not reflecting that. Suppress that specific version until
+   db is updated.
+   Ref:
+   https://github.com/eclipse/jetty.project/security/advisories/GHSA-3gh6-v5v9-6v9j
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlets@9.4.53\..*$</packageUrl>
+    <vulnerabilityName>CVE-2023-36479</vulnerabilityName>
+  </suppress>
+  <suppress until="2023-11-30Z">
     <notes><![CDATA[
    file name: jackson-databind-2.15.2.jar
    ]]></notes>
