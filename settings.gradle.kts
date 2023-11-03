@@ -1,3 +1,5 @@
+import org.hypertrace.gradle.dependency.DependencyPluginSettingExtension
+
 rootProject.name = "hypertrace-graphql-root"
 
 pluginManagement {
@@ -10,7 +12,14 @@ pluginManagement {
 
 plugins {
   id("org.hypertrace.version-settings") version "0.2.0"
+  id("org.hypertrace.dependency-settings") version "0.1.1"
 }
+
+configure<DependencyPluginSettingExtension> {
+  catalogVersion.set("0.2.11")
+}
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 includeBuild("./hypertrace-core-graphql")
 include(":hypertrace-graphql-service")
@@ -23,7 +32,6 @@ include(":hypertrace-graphql-attribute-scope")
 include(":hypertrace-graphql-explorer-context")
 include(":hypertrace-graphql-entity-type")
 include(":hypertrace-graphql-service-config")
-include(":hypertrace-graphql-platform")
 include(":hypertrace-graphql-spaces-schema")
 include(":hypertrace-graphql-labels-schema-api")
 include(":hypertrace-graphql-labels-schema-impl")

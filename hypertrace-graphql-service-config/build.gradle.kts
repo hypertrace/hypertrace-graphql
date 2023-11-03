@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
+  api(localLibs.core.spi)
 }

@@ -1,24 +1,24 @@
 plugins {
   `java-library`
   jacoco
-  id("org.hypertrace.jacoco-report-plugin")
+  alias(commonLibs.plugins.hypertrace.jacoco)
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("com.graphql-java:graphql-java")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
-  api("io.github.graphql-java:graphql-java-annotations")
+  api(commonLibs.guice)
+  api(commonLibs.graphql.java)
+  api(localLibs.core.schema.common)
+  api(localLibs.core.spi)
+  api(localLibs.graphql.annotations)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 
-  implementation(project(":hypertrace-graphql-service-config"))
-  implementation("org.hypertrace.config.service:span-processing-config-service-api")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-context")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
-  implementation("org.slf4j:slf4j-api")
-  implementation("io.reactivex.rxjava3:rxjava")
+  implementation(projects.hypertraceGraphqlServiceConfig)
+  implementation(commonLibs.hypertrace.configservice.spanprocessing.api)
+  implementation(localLibs.core.context)
+  implementation(localLibs.core.grpc)
+  implementation(localLibs.core.deserialization)
+  implementation(commonLibs.slf4j2.api)
+  implementation(commonLibs.rxjava3)
 }

@@ -1,43 +1,41 @@
 plugins {
   `java-library`
   jacoco
-  id("org.hypertrace.jacoco-report-plugin")
+  alias(commonLibs.plugins.hypertrace.jacoco)
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("com.graphql-java:graphql-java")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
-  api("io.github.graphql-java:graphql-java-annotations")
-  api(project(":hypertrace-graphql-metric-schema"))
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
+  api(commonLibs.guice)
+  api(commonLibs.graphql.java)
+  api(localLibs.core.spi)
+  api(localLibs.graphql.annotations)
+  api(projects.hypertraceGraphqlMetricSchema)
+  api(localLibs.core.schema.common)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
-  compileOnly(project(":hypertrace-graphql-attribute-scope"))
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
+  compileOnly(projects.hypertraceGraphqlAttributeScope)
 
-  implementation("org.slf4j:slf4j-api")
-  implementation("io.reactivex.rxjava3:rxjava")
-  implementation("org.hypertrace.gateway.service:gateway-service-api")
-  implementation("com.google.protobuf:protobuf-java-util")
-  implementation("com.google.guava:guava")
+  implementation(commonLibs.slf4j2.api)
+  implementation(commonLibs.rxjava3)
+  implementation(commonLibs.hypertrace.gatewayservice.api)
+  implementation(commonLibs.protobuf.javautil)
+  implementation(commonLibs.guava)
+  implementation(commonLibs.hypertrace.grpcutils.client)
+  implementation(projects.hypertraceGraphqlLabelsSchemaApi)
 
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-context")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
+  implementation(localLibs.core.context)
+  implementation(localLibs.core.grpc)
+  implementation(localLibs.core.schema.utils)
+  implementation(localLibs.core.attribute.store)
+  implementation(localLibs.core.deserialization)
+  implementation(localLibs.core.rxutils)
 
-  implementation("org.hypertrace.core.grpcutils:grpc-client-utils")
-
-  implementation(project(":hypertrace-graphql-labels-schema-api"))
-
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.mockito:mockito-core")
-  testImplementation("org.mockito:mockito-junit-jupiter")
-  testAnnotationProcessor("org.projectlombok:lombok")
-  testCompileOnly("org.projectlombok:lombok")
+  testImplementation(commonLibs.junit.jupiter)
+  testImplementation(commonLibs.mockito.core)
+  testImplementation(commonLibs.mockito.junit)
+  testAnnotationProcessor(commonLibs.lombok)
+  testCompileOnly(commonLibs.lombok)
 }
 
 tasks.test {

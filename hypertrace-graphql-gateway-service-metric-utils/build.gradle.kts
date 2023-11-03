@@ -3,14 +3,14 @@ plugins {
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("org.hypertrace.gateway.service:gateway-service-api")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")
-  api("io.reactivex.rxjava3:rxjava")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
-  api(project(":hypertrace-graphql-metric-schema"))
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-gateway-service-utils")
+  api(commonLibs.guice)
+  api(commonLibs.hypertrace.gatewayservice.api)
+  api(localLibs.core.attribute.store)
+  api(commonLibs.rxjava3)
+  api(localLibs.core.schema.common)
+  api(projects.hypertraceGraphqlMetricSchema)
+  api(localLibs.core.gateway.utils)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 }

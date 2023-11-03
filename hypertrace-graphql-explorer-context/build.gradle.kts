@@ -3,11 +3,11 @@ plugins {
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("io.reactivex.rxjava3:rxjava")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
-  implementation(project(":hypertrace-graphql-explorer-schema"))
+  api(commonLibs.guice)
+  api(commonLibs.rxjava3)
+  implementation(localLibs.core.attribute.store)
+  implementation(localLibs.core.schema.common)
+  implementation(projects.hypertraceGraphqlExplorerSchema)
 
-  compileOnly(project(":hypertrace-graphql-attribute-scope"))
+  compileOnly(projects.hypertraceGraphqlAttributeScope)
 }

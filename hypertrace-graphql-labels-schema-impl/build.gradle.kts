@@ -1,36 +1,35 @@
 plugins {
   `java-library`
   jacoco
-  id("org.hypertrace.jacoco-report-plugin")
+  alias(commonLibs.plugins.hypertrace.jacoco)
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("com.graphql-java:graphql-java")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-spi")
-  api("io.github.graphql-java:graphql-java-annotations")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
-  api(project(":hypertrace-graphql-labels-schema-api"))
+  api(commonLibs.guice)
+  api(commonLibs.graphql.java)
+  api(localLibs.core.spi)
+  api(localLibs.graphql.annotations)
+  api(localLibs.core.schema.common)
+  api(projects.hypertraceGraphqlLabelsSchemaApi)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 
-  implementation("org.slf4j:slf4j-api")
-  implementation("io.reactivex.rxjava3:rxjava")
-  implementation("org.hypertrace.config.service:labels-config-service-api")
-  implementation("org.hypertrace.config.service:label-application-rule-config-service-api")
-  implementation("com.google.protobuf:protobuf-java-util")
-  implementation("com.google.guava:guava")
+  implementation(commonLibs.slf4j2.api)
+  implementation(commonLibs.rxjava3)
+  implementation(commonLibs.hypertrace.configservice.labels.api)
+  implementation(commonLibs.hypertrace.configservice.labelapplication.api)
+  implementation(commonLibs.protobuf.javautil)
+  implementation(commonLibs.guava)
 
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-context")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
+  implementation(localLibs.core.context)
+  implementation(localLibs.core.grpc)
+  implementation(localLibs.core.schema.utils)
+  implementation(localLibs.core.rxutils)
+  implementation(localLibs.core.deserialization)
 
-  implementation(project(":hypertrace-graphql-entity-schema"))
-
-  implementation(project(":hypertrace-graphql-service-config"))
+  implementation(projects.hypertraceGraphqlEntitySchema)
+  implementation(projects.hypertraceGraphqlServiceConfig)
 }
 
 tasks.test {
