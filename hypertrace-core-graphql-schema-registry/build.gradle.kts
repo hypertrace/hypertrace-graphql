@@ -1,21 +1,21 @@
 plugins {
   `java-library`
   jacoco
-  id("org.hypertrace.jacoco-report-plugin")
+  alias(commonLibs.plugins.hypertrace.jacoco)
 }
 
 dependencies {
-  api("com.graphql-java:graphql-java")
+  api(commonLibs.graphql.java)
 
-  implementation("org.slf4j:slf4j-api")
-  implementation("com.google.inject:guice")
+  implementation(commonLibs.slf4j2.api)
+  implementation(commonLibs.guice)
 
-  implementation(project(":hypertrace-core-graphql-spi"))
-  implementation("io.github.graphql-java:graphql-java-annotations")
+  implementation(projects.hypertraceCoreGraphqlSpi)
+  implementation(localLibs.graphql.annotations)
 
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.mockito:mockito-core")
-  testImplementation("org.mockito:mockito-junit-jupiter")
+  testImplementation(commonLibs.junit.jupiter)
+  testImplementation(commonLibs.mockito.core)
+  testImplementation(commonLibs.mockito.junit)
 }
 
 tasks.test {

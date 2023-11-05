@@ -1,0 +1,30 @@
+name: Update Locks
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '12 12 * * 5'
+jobs:
+  update-versions:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Calculate simple repository name
+        id: repo-basename
+        shell: bash
+        run: |
+          echo "value=`basename ${{ github.repository }}`" >> $GITHUB_OUTPUT
+      - name: Get Token from Github App
+        uses: tibdex/github-app-token@v2
+        id: generate-token
+        with:
+          app_id: ${{ secrets.GH_CI_APP_ID }}
+          private_key: ${{ secrets.GH_CI_APP_PRIVATE_KEY }}
+          repositories: >-
+            [${{ toJson(steps.repo-basename.outputs.value) }}]
+      - name: Update locks if needed
+        uses: hypertrace/github-actions/raise-lock-pr@main
+        with:
+          token: ${{ steps.generate-token.outputs.token }}

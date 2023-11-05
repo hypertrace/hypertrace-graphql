@@ -1,30 +1,30 @@
 plugins {
   `java-library`
   jacoco
-  id("org.hypertrace.jacoco-report-plugin")
+  alias(commonLibs.plugins.hypertrace.jacoco)
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api(project(":hypertrace-core-graphql-spi"))
-  api(project(":hypertrace-core-graphql-context"))
+  api(commonLibs.guice)
+  api(projects.hypertraceCoreGraphqlSpi)
+  api(projects.hypertraceCoreGraphqlContext)
 
-  implementation("org.slf4j:slf4j-api")
-  implementation("io.reactivex.rxjava3:rxjava")
-  implementation("com.google.guava:guava")
+  implementation(commonLibs.slf4j2.api)
+  implementation(commonLibs.rxjava3)
+  implementation(commonLibs.guava)
 
-  implementation("org.hypertrace.core.attribute.service:caching-attribute-service-client")
-  implementation("org.hypertrace.core.attribute.service:attribute-service-api")
-  implementation("org.hypertrace.core.grpcutils:grpc-client-rx-utils")
-  implementation(project(":hypertrace-core-graphql-grpc-utils"))
-  implementation(project(":hypertrace-core-graphql-rx-utils"))
+  implementation(commonLibs.hypertrace.attributeservice.cachingclient)
+  implementation(commonLibs.hypertrace.attributeservice.api)
+  implementation(commonLibs.hypertrace.grpcutils.rx.client)
+  implementation(projects.hypertraceCoreGraphqlGrpcUtils)
+  implementation(projects.hypertraceCoreGraphqlRxUtils)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.mockito:mockito-core")
-  testImplementation("org.mockito:mockito-junit-jupiter")
+  testImplementation(commonLibs.junit.jupiter)
+  testImplementation(commonLibs.mockito.core)
+  testImplementation(commonLibs.mockito.junit)
 }
 
 tasks.test {

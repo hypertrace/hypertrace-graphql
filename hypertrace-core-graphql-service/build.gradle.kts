@@ -1,22 +1,20 @@
 plugins {
   java
   application
-  id("org.hypertrace.docker-java-application-plugin")
-  id("org.hypertrace.docker-publish-plugin")
+  alias(commonLibs.plugins.hypertrace.docker.application)
+  alias(commonLibs.plugins.hypertrace.docker.publish)
 }
 
 dependencies {
-  implementation(platform(project(":hypertrace-core-graphql-platform")))
+  implementation(commonLibs.hypertrace.framework.http)
+  implementation(commonLibs.slf4j2.api)
 
-  implementation("org.hypertrace.core.serviceframework:platform-http-service-framework")
-  implementation("org.slf4j:slf4j-api")
+  implementation(localLibs.graphql.servlet)
+  implementation(projects.hypertraceCoreGraphqlImpl)
+  implementation(projects.hypertraceCoreGraphqlSpi)
 
-  implementation("com.graphql-java-kickstart:graphql-java-servlet")
-  implementation(project(":hypertrace-core-graphql-impl"))
-  implementation(project(":hypertrace-core-graphql-spi"))
-
-  runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
-  runtimeOnly("io.grpc:grpc-netty")
+  runtimeOnly(commonLibs.log4j.slf4j2.impl)
+  runtimeOnly(commonLibs.grpc.netty)
 }
 
 application {

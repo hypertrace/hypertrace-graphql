@@ -3,26 +3,26 @@ plugins {
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("com.graphql-java:graphql-java")
-  api(project(":hypertrace-core-graphql-spi"))
-  api("io.github.graphql-java:graphql-java-annotations")
+  api(commonLibs.guice)
+  api(commonLibs.graphql.java)
+  api(projects.hypertraceCoreGraphqlSpi)
+  api(localLibs.graphql.annotations)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 
-  compileOnly(project(":hypertrace-core-graphql-attribute-scope-constants"))
+  compileOnly(projects.hypertraceCoreGraphqlAttributeScopeConstants)
 
-  implementation("org.slf4j:slf4j-api")
-  implementation("io.reactivex.rxjava3:rxjava")
-  implementation("org.hypertrace.gateway.service:gateway-service-api")
-  implementation("com.google.protobuf:protobuf-java-util")
+  implementation(commonLibs.slf4j2.api)
+  implementation(commonLibs.rxjava3)
+  implementation(commonLibs.hypertrace.gatewayservice.api)
+  implementation(commonLibs.protobuf.javautil)
 
-  implementation(project(":hypertrace-core-graphql-context"))
-  implementation(project(":hypertrace-core-graphql-grpc-utils"))
-  implementation(project(":hypertrace-core-graphql-common-schema"))
-  implementation(project(":hypertrace-core-graphql-attribute-store"))
-  implementation(project(":hypertrace-core-graphql-deserialization"))
-  implementation(project(":hypertrace-core-graphql-request-transformation"))
-  implementation(project(":hypertrace-core-graphql-schema-utils"))
+  implementation(projects.hypertraceCoreGraphqlContext)
+  implementation(projects.hypertraceCoreGraphqlGrpcUtils)
+  implementation(projects.hypertraceCoreGraphqlCommonSchema)
+  implementation(projects.hypertraceCoreGraphqlAttributeStore)
+  implementation(projects.hypertraceCoreGraphqlDeserialization)
+  implementation(projects.hypertraceCoreGraphqlRequestTransformation)
+  implementation(projects.hypertraceCoreGraphqlSchemaUtils)
 }

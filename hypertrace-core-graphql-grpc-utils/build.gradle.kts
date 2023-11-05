@@ -1,29 +1,29 @@
 plugins {
   `java-library`
   jacoco
-  id("org.hypertrace.jacoco-report-plugin")
+  alias(commonLibs.plugins.hypertrace.jacoco)
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("com.graphql-java:graphql-java")
-  api("io.grpc:grpc-api")
-  api("io.grpc:grpc-core")
-  api("io.grpc:grpc-stub")
-  api(project(":hypertrace-core-graphql-context"))
-  api("org.hypertrace.core.grpcutils:grpc-context-utils")
+  api(commonLibs.guice)
+  api(commonLibs.graphql.java)
+  api(commonLibs.grpc.api)
+  api(commonLibs.grpc.core)
+  api(commonLibs.grpc.stub)
+  api(projects.hypertraceCoreGraphqlContext)
+  api(commonLibs.hypertrace.grpcutils.context)
 
-  implementation("org.hypertrace.core.grpcutils:grpc-client-utils")
-  implementation("io.grpc:grpc-context")
-  implementation("io.reactivex.rxjava3:rxjava")
-  implementation("org.slf4j:slf4j-api")
-  implementation(project(":hypertrace-core-graphql-spi"))
+  implementation(commonLibs.hypertrace.grpcutils.client)
+  implementation(commonLibs.grpc.context)
+  implementation(commonLibs.rxjava3)
+  implementation(commonLibs.slf4j2.api)
+  implementation(projects.hypertraceCoreGraphqlSpi)
 
-  testImplementation("org.junit.jupiter:junit-jupiter")
-  testImplementation("org.mockito:mockito-core")
-  testImplementation("org.mockito:mockito-junit-jupiter")
+  testImplementation(commonLibs.junit.jupiter)
+  testImplementation(commonLibs.mockito.core)
+  testImplementation(commonLibs.mockito.junit)
 
-  testRuntimeOnly("io.grpc:grpc-netty")
+  testRuntimeOnly(commonLibs.grpc.netty)
 }
 
 tasks.test {
