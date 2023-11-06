@@ -3,17 +3,17 @@ plugins {
 }
 
 dependencies {
-  api("com.google.inject:guice")
-  api("com.graphql-java:graphql-java")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store")
-  api("org.hypertrace.core.graphql:hypertrace-core-graphql-context")
-  api("io.reactivex.rxjava3:rxjava")
-  api("io.github.graphql-java:graphql-java-annotations")
+  api(commonLibs.guice)
+  api(commonLibs.graphql.java)
+  api(localLibs.core.attribute.store)
+  api(localLibs.core.context)
+  api(commonLibs.rxjava3)
+  api(localLibs.graphql.annotations)
 
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils")
-  implementation("org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema")
+  implementation(localLibs.core.deserialization)
+  implementation(localLibs.core.schema.utils)
+  implementation(localLibs.core.schema.common)
 }

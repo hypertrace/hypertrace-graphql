@@ -1,29 +1,23 @@
 plugins {
   java
   application
-  id("org.hypertrace.docker-java-application-plugin")
-  id("org.hypertrace.docker-publish-plugin")
+  alias(commonLibs.plugins.hypertrace.docker.application)
+  alias(commonLibs.plugins.hypertrace.docker.publish)
 }
 
 dependencies {
-  implementation("com.typesafe:config")
-  implementation("org.hypertrace.core.serviceframework:platform-service-framework:0.1.52")
-  implementation("org.slf4j:slf4j-api")
+  implementation(commonLibs.typesafe.config)
+  implementation(commonLibs.hypertrace.framework.http)
+  implementation(commonLibs.slf4j2.api)
+  implementation(localLibs.graphql.servlet)
+  implementation(projects.hypertraceGraphqlImpl)
+  implementation(projects.hypertraceGraphqlServiceConfig)
 
-  implementation("org.hypertrace.core.serviceframework:platform-http-service-framework:0.1.52")
+  annotationProcessor(commonLibs.lombok)
+  compileOnly(commonLibs.lombok)
 
-  implementation("com.graphql-java-kickstart:graphql-java-servlet")
-  implementation(project(":hypertrace-graphql-impl"))
-  implementation(project(":hypertrace-graphql-service-config"))
-
-  annotationProcessor("org.projectlombok:lombok")
-  compileOnly("org.projectlombok:lombok")
-
-  runtimeOnly("io.grpc:grpc-netty")
-  runtimeOnly("org.apache.logging.log4j:log4j-slf4j-impl")
-
-  annotationProcessor(platform(project(":hypertrace-graphql-platform")))
-  compileOnly(platform(project(":hypertrace-graphql-platform")))
+  runtimeOnly(commonLibs.grpc.netty)
+  runtimeOnly(commonLibs.log4j.slf4j2.impl)
 }
 
 application {

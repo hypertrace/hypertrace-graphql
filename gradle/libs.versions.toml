@@ -1,0 +1,20 @@
+[libraries]
+graphql-annotations = { module = "io.github.graphql-java:graphql-java-annotations", version = "9.1" }
+graphql-servlet = { module = "com.graphql-java-kickstart:graphql-java-servlet", version = "14.0.0" }
+
+core-attribute-constants = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-scope-constants" }
+core-schema-common = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-common-schema" }
+core-schema-utils = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-schema-utils" }
+core-schema-registry = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-schema-registry" }
+core-schema-metadata = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-metadata-schema" }
+core-schema-spans = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-span-schema" }
+core-schema-logevents = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-log-event-schema" }
+core-schema-traces = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-trace-schema" }
+core-attribute-store = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-attribute-store" }
+core-spi = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-spi" }
+core-grpc = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-grpc-utils" }
+core-context = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-context" }
+core-deserialization = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-deserialization" }
+core-rxutils = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-rx-utils" }
+core-request-transformation = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-request-transformation" }
+core-gateway-utils = { module = "org.hypertrace.core.graphql:hypertrace-core-graphql-gateway-service-utils" }
