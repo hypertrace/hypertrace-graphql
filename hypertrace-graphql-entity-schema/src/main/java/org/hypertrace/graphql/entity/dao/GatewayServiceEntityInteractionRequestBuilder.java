@@ -5,6 +5,7 @@ import static io.reactivex.rxjava3.core.Single.zip;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,13 +32,15 @@ class GatewayServiceEntityInteractionRequestBuilder {
   private final Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter;
   private final Converter<Collection<MetricAggregationRequest>, Set<Expression>>
       aggregationConverter;
-  private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
+  private final Converter<Collection<Collection<AttributeAssociation<FilterArgument>>>, Filter>
+      filterConverter;
 
   @Inject
   GatewayServiceEntityInteractionRequestBuilder(
       Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter,
       Converter<Collection<MetricAggregationRequest>, Set<Expression>> aggregationConverter,
-      Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter) {
+      Converter<Collection<Collection<AttributeAssociation<FilterArgument>>>, Filter>
+          filterConverter) {
     this.selectionConverter = selectionConverter;
     this.aggregationConverter = aggregationConverter;
     this.filterConverter = filterConverter;
@@ -69,22 +72,28 @@ class GatewayServiceEntityInteractionRequestBuilder {
   }
 
   private Single<Filter> buildEntityInteractionFilter(EdgeSetGroupRequest request) {
-    return Observable.fromIterable(request.entityTypes()) // add entity types filter
-        .collect(Collectors.toUnmodifiableSet())
+    return this.filterConverter.convert(this.buildFilterArguments(request));
+  }
+
+  private Collection<Collection<AttributeAssociation<FilterArgument>>> buildFilterArguments(
+      EdgeSetGroupRequest request) {
+    return request.filterArguments().entrySet().stream()
         .map(
-            entityTypes ->
-                AttributeAssociation.<FilterArgument>of(
-                    request.neighborTypeAttribute().attributeExpressionAssociation().attribute(),
-                    new EntityNeighborTypeFilter(
-                        request.neighborTypeAttribute().attributeExpressionAssociation().value(),
-                        entityTypes)))
-        .flatMap(
-            filterAssociation ->
-                this.filterConverter.convert(
-                    Stream.concat(
-                            request.filterArguments().stream(), // add all other filters
-                            Stream.of(filterAssociation))
-                        .collect(Collectors.toUnmodifiableSet())));
+            entry ->
+                Stream.concat(
+                        Stream.of(buildEntityTypeFilter(request, entry.getKey())),
+                        entry.getValue().stream())
+                    .collect(Collectors.toUnmodifiableList()))
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  private AttributeAssociation<FilterArgument> buildEntityTypeFilter(
+      EdgeSetGroupRequest request, String entityType) {
+    return AttributeAssociation.of(
+        request.neighborTypeAttribute().attributeExpressionAssociation().attribute(),
+        new EntityNeighborTypeFilter(
+            request.neighborTypeAttribute().attributeExpressionAssociation().value(),
+            List.of(entityType)));
   }
 
   @Value

@@ -2,6 +2,7 @@ package org.hypertrace.graphql.entity.request;
 
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import org.hypertrace.core.graphql.common.request.AttributeAssociation;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
@@ -23,5 +24,6 @@ public interface EdgeSetGroupRequest {
 
   Single<EntityRequest> buildNeighborRequest(String entityType, Collection<String> neighborIds);
 
-  Collection<AttributeAssociation<FilterArgument>> filterArguments();
+  // map of filters. All map values will become OR filter and all filter arguments will be AND
+  Map<String, Collection<AttributeAssociation<FilterArgument>>> filterArguments();
 }
