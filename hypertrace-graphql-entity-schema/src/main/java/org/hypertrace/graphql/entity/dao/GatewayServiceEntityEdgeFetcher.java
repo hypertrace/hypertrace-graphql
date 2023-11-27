@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class GatewayServiceEntityEdgeFetcher {
+
   private static final Logger LOG = LoggerFactory.getLogger(GatewayServiceEntityEdgeFetcher.class);
   static final EdgeResultSet EMPTY_EDGE_RESULT_SET = new ConvertedEdgeResultSet(List.of());
 
@@ -119,9 +120,17 @@ class GatewayServiceEntityEdgeFetcher {
 
     return zip(
             this.attributeMapConverter.convert(
-                edgeSetGroupRequest.attributeRequests(), response.getAttributeMap()),
+                edgeSetGroupRequest
+                    .edgeSetRequests()
+                    .get(source.getEntityType())
+                    .attributeRequests(),
+                response.getAttributeMap()),
             this.baselineMetricAggregationContainerMapConverter.convert(
-                edgeSetGroupRequest.metricAggregationRequests(), response.getMetricsMap()),
+                edgeSetGroupRequest
+                    .edgeSetRequests()
+                    .get(source.getEntityType())
+                    .metricAggregationRequests(),
+                response.getMetricsMap()),
             (attributes, metrics) -> (Edge) new ConvertedEdge(neighbor, attributes, metrics))
         .toMaybe();
   }
@@ -129,6 +138,7 @@ class GatewayServiceEntityEdgeFetcher {
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedEdge implements Edge {
+
     Entity neighbor;
     Map<AttributeExpression, Object> attributeValues;
     Map<AttributeExpression, BaselinedMetricAggregationContainer> metricContainers;
@@ -147,6 +157,7 @@ class GatewayServiceEntityEdgeFetcher {
   @lombok.Value
   @Accessors(fluent = true)
   private static class ConvertedEdgeResultSet implements EdgeResultSet {
+
     List<Edge> results;
 
     @Override
