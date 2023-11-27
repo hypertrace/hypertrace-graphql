@@ -58,11 +58,6 @@ public class GatewayUtilsModule extends AbstractModule {
             new TypeLiteral<
                 Converter<Collection<AttributeAssociation<FilterArgument>>, Filter>>() {}))
         .to(FilterConverter.class);
-    bind(Key.get(
-            new TypeLiteral<
-                Converter<
-                    Collection<Collection<AttributeAssociation<FilterArgument>>>, Filter>>() {}))
-        .to(MultiFilterConverter.class);
 
     bind(Key.get(new TypeLiteral<Converter<AttributeModel, ColumnIdentifier>>() {}))
         .to(ColumnIdentifierConverter.class);
