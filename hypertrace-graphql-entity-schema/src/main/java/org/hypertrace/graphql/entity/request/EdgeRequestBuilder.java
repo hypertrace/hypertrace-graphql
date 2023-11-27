@@ -3,6 +3,7 @@ package org.hypertrace.graphql.entity.request;
 import static io.reactivex.rxjava3.core.Single.zip;
 
 import graphql.schema.SelectedField;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
@@ -98,18 +99,14 @@ class EdgeRequestBuilder {
 
     Map<String, Set<FilterArgument>> edgesFiltersByType =
         getEdgesFiltersByType(edgeFields.stream());
-    Map<String, Collection<AttributeAssociation<FilterArgument>>> filterArguments =
-        edgesFiltersByType.entrySet().stream()
-            .collect(
-                Collectors.toMap(
-                    Entry::getKey, entry -> getFilterArguments(context, entry.getValue())));
+
     return zip(
         this.getRequestedAndRequiredAttributes(context, allEdgesSelections, edgeType),
         this.getNeighborIdAttribute(context, edgeType),
         this.getNeighborTypeAttribute(context, edgeType),
         this.metricAggregationRequestBuilder.build(
             context, HypertraceAttributeScopeString.INTERACTION, allEdgesSelections.stream()),
-        Single.just(filterArguments),
+        this.getFilterArguments(context, edgesFiltersByType),
         (attributeRequests, neighborIdRequest, neighborTypeRequest, metricRequests, filters) ->
             new DefaultEdgeSetGroupRequest(
                 edgesSelectionsByType.keySet(),
@@ -182,11 +179,19 @@ class EdgeRequestBuilder {
     }
   }
 
-  private List<AttributeAssociation<FilterArgument>> getFilterArguments(
-      GraphQlRequestContext context, Set<FilterArgument> edgeFields) {
+  private Single<Map<String, Collection<AttributeAssociation<FilterArgument>>>> getFilterArguments(
+      GraphQlRequestContext context, Map<String, Set<FilterArgument>> edgesFiltersByType) {
+    return Observable.fromIterable(edgesFiltersByType.entrySet())
+        .flatMapSingle(entry -> getFilterArgumentsEntry(context, entry.getKey(), entry.getValue()))
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+  }
+
+  private Single<Map.Entry<String, List<AttributeAssociation<FilterArgument>>>>
+      getFilterArgumentsEntry(
+          GraphQlRequestContext context, String key, Set<FilterArgument> edgeFields) {
     return this.filterRequestBuilder
         .build(context, HypertraceAttributeScopeString.INTERACTION, edgeFields)
-        .blockingGet();
+        .map(arguments -> Map.entry(key, arguments));
   }
 
   private Map<String, Set<FilterArgument>> getEdgesFiltersByType(

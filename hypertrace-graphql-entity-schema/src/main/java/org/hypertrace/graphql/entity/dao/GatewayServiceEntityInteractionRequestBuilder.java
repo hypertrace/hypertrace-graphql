@@ -22,6 +22,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
+import org.hypertrace.gateway.service.v1.common.Operator;
 import org.hypertrace.gateway.service.v1.entity.InteractionsRequest;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
@@ -32,15 +33,13 @@ class GatewayServiceEntityInteractionRequestBuilder {
   private final Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter;
   private final Converter<Collection<MetricAggregationRequest>, Set<Expression>>
       aggregationConverter;
-  private final Converter<Collection<Collection<AttributeAssociation<FilterArgument>>>, Filter>
-      filterConverter;
+  private final Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter;
 
   @Inject
   GatewayServiceEntityInteractionRequestBuilder(
       Converter<Collection<AttributeRequest>, Set<Expression>> selectionConverter,
       Converter<Collection<MetricAggregationRequest>, Set<Expression>> aggregationConverter,
-      Converter<Collection<Collection<AttributeAssociation<FilterArgument>>>, Filter>
-          filterConverter) {
+      Converter<Collection<AttributeAssociation<FilterArgument>>, Filter> filterConverter) {
     this.selectionConverter = selectionConverter;
     this.aggregationConverter = aggregationConverter;
     this.filterConverter = filterConverter;
@@ -72,19 +71,21 @@ class GatewayServiceEntityInteractionRequestBuilder {
   }
 
   private Single<Filter> buildEntityInteractionFilter(EdgeSetGroupRequest request) {
-    return this.filterConverter.convert(this.buildFilterArguments(request));
-  }
-
-  private Collection<Collection<AttributeAssociation<FilterArgument>>> buildFilterArguments(
-      EdgeSetGroupRequest request) {
-    return request.filterArguments().entrySet().stream()
+    return Observable.fromIterable(request.filterArguments().entrySet())
         .map(
             entry ->
                 Stream.concat(
                         Stream.of(buildEntityTypeFilter(request, entry.getKey())),
                         entry.getValue().stream())
                     .collect(Collectors.toUnmodifiableList()))
-        .collect(Collectors.toUnmodifiableList());
+        .flatMapSingle(this.filterConverter::convert)
+        .collect(Collectors.toUnmodifiableList())
+        .map(
+            childFilters ->
+                Filter.newBuilder()
+                    .setOperator(Operator.OR)
+                    .addAllChildFilter(childFilters)
+                    .build());
   }
 
   private AttributeAssociation<FilterArgument> buildEntityTypeFilter(

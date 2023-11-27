@@ -68,12 +68,6 @@ public class EntityDaoModule extends AbstractModule {
     requireBinding(
         Key.get(
             new TypeLiteral<
-                Converter<
-                    Collection<Collection<AttributeAssociation<FilterArgument>>>, Filter>>() {}));
-
-    requireBinding(
-        Key.get(
-            new TypeLiteral<
                 Converter<Collection<MetricAggregationRequest>, Set<Expression>>>() {}));
 
     requireBinding(
