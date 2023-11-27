@@ -5,7 +5,6 @@ import static io.reactivex.rxjava3.core.Single.zip;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,6 +70,7 @@ class GatewayServiceEntityInteractionRequestBuilder {
   }
 
   private Single<Filter> buildEntityInteractionFilter(EdgeSetGroupRequest request) {
+    // Todo: we should be using converter taking argument as logical filters with filter arg schema
     return Observable.fromIterable(request.filterArguments().entrySet())
         .map(
             entry ->
@@ -93,8 +93,7 @@ class GatewayServiceEntityInteractionRequestBuilder {
     return AttributeAssociation.of(
         request.neighborTypeAttribute().attributeExpressionAssociation().attribute(),
         new EntityNeighborTypeFilter(
-            request.neighborTypeAttribute().attributeExpressionAssociation().value(),
-            List.of(entityType)));
+            request.neighborTypeAttribute().attributeExpressionAssociation().value(), entityType));
   }
 
   @Value
@@ -103,8 +102,8 @@ class GatewayServiceEntityInteractionRequestBuilder {
     FilterType type = FilterType.ATTRIBUTE;
     String key = null;
     AttributeExpression keyExpression;
-    FilterOperatorType operator = FilterOperatorType.IN;
-    Collection<String> value;
+    FilterOperatorType operator = FilterOperatorType.EQUALS;
+    String value;
     AttributeScope idType = null;
     String idScope = null;
   }
