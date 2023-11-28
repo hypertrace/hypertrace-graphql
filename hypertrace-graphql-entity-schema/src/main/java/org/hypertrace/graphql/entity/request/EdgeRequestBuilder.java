@@ -118,14 +118,14 @@ class EdgeRequestBuilder {
       GraphQlRequestContext context, EdgeType edgeType, Set<SelectedField> edgeFields) {
     return Observable.fromIterable(edgeFields)
         .collect(Collectors.groupingBy(this::getEntityType, Collectors.toUnmodifiableSet()))
-        .flatMap(entry -> this.getEdgeSetRequest(context, edgeType, entry));
+        .flatMap(edgeFieldsMap -> this.getEdgeSetRequestMap(context, edgeType, edgeFieldsMap));
   }
 
-  private Single<Map<String, EdgeSetRequest>> getEdgeSetRequest(
+  private Single<Map<String, EdgeSetRequest>> getEdgeSetRequestMap(
       GraphQlRequestContext context,
       EdgeType edgeType,
-      Map<String, Set<SelectedField>> edgeFields) {
-    return Observable.fromIterable(edgeFields.entrySet())
+      Map<String, Set<SelectedField>> entityTypeToEdgeFieldsMap) {
+    return Observable.fromIterable(entityTypeToEdgeFieldsMap.entrySet())
         .flatMapSingle(
             entry ->
                 this.getEdgeSetRequestEntry(context, edgeType, entry.getKey(), entry.getValue()))
@@ -133,14 +133,18 @@ class EdgeRequestBuilder {
   }
 
   private Single<Map.Entry<String, EdgeSetRequest>> getEdgeSetRequestEntry(
-      GraphQlRequestContext context, EdgeType edgeType, String key, Set<SelectedField> edgeFields) {
+      GraphQlRequestContext context,
+      EdgeType edgeType,
+      String entityType,
+      Set<SelectedField> edgeFields) {
     return zip(
         this.getRequestedAndRequiredAttributes(context, edgeFields, edgeType),
-        this.getMetricAggregationRequestAttributes(context, edgeFields, edgeType),
+        this.getMetricAggregationRequestAttributes(context, edgeFields),
         this.getFilterArguments(context, edgeFields),
         (requestAttributes, metricAttributes, filters) ->
             Map.entry(
-                key, new DefaultEdgeSetRequest(requestAttributes, metricAttributes, filters)));
+                entityType,
+                new DefaultEdgeSetRequest(requestAttributes, metricAttributes, filters)));
   }
 
   private Map<String, Set<SelectedField>> getEdgesSelectionByType(
@@ -168,7 +172,7 @@ class EdgeRequestBuilder {
   }
 
   private Single<List<MetricAggregationRequest>> getMetricAggregationRequestAttributes(
-      GraphQlRequestContext context, Collection<SelectedField> edges, EdgeType edgeType) {
+      GraphQlRequestContext context, Collection<SelectedField> edges) {
     Set<SelectedField> selections =
         edges.stream()
             .collect(
