@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import lombok.experimental.Accessors;
@@ -21,6 +22,7 @@ import org.hypertrace.gateway.service.v1.common.AggregatedMetricValue;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.EntityInteraction;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
+import org.hypertrace.graphql.entity.request.EdgeSetRequest;
 import org.hypertrace.graphql.entity.schema.Edge;
 import org.hypertrace.graphql.entity.schema.EdgeResultSet;
 import org.hypertrace.graphql.entity.schema.Entity;
@@ -120,19 +122,26 @@ class GatewayServiceEntityEdgeFetcher {
 
     return zip(
             this.attributeMapConverter.convert(
-                edgeSetGroupRequest
-                    .edgeSetRequests()
-                    .get(source.getEntityType())
-                    .attributeRequests(),
-                response.getAttributeMap()),
+                getAllAttributeRequests(edgeSetGroupRequest), response.getAttributeMap()),
             this.baselineMetricAggregationContainerMapConverter.convert(
-                edgeSetGroupRequest
-                    .edgeSetRequests()
-                    .get(source.getEntityType())
-                    .metricAggregationRequests(),
-                response.getMetricsMap()),
+                getAllMetricAggregationRequests(edgeSetGroupRequest), response.getMetricsMap()),
             (attributes, metrics) -> (Edge) new ConvertedEdge(neighbor, attributes, metrics))
         .toMaybe();
+  }
+
+  private Set<AttributeRequest> getAllAttributeRequests(EdgeSetGroupRequest request) {
+    return request.edgeSetRequests().values().stream()
+        .map(EdgeSetRequest::attributeRequests)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private Set<MetricAggregationRequest> getAllMetricAggregationRequests(
+      EdgeSetGroupRequest request) {
+    return request.edgeSetRequests().values().stream()
+        .map(EdgeSetRequest::metricAggregationRequests)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   @lombok.Value
