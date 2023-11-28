@@ -56,7 +56,6 @@ import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
-import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
@@ -327,16 +326,6 @@ class DefaultEntityAndRuleJoinerBuilder implements EntityAndRuleJoinerBuilder {
       return Single.error(
           new UnsupportedOperationException(
               "Does not support fetching neighbors for joined entities"));
-    }
-
-    @Override
-    public Collection<AttributeRequest> getAllAttributeRequests() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<MetricAggregationRequest> getAllMetricAggregationRequests() {
-      return Collections.emptyList();
     }
   }
 

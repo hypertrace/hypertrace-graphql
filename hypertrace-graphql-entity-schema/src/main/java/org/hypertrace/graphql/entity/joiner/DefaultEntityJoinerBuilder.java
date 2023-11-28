@@ -60,7 +60,6 @@ import org.hypertrace.graphql.entity.schema.Entity;
 import org.hypertrace.graphql.entity.schema.EntityJoinable;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
 import org.hypertrace.graphql.entity.schema.argument.EntityTypeStringArgument;
-import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricRequestBuilder;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
@@ -328,16 +327,6 @@ class DefaultEntityJoinerBuilder implements EntityJoinerBuilder {
       return Single.error(
           new UnsupportedOperationException(
               "Does not support fetching neighbors for joined entities"));
-    }
-
-    @Override
-    public Collection<AttributeRequest> getAllAttributeRequests() {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<MetricAggregationRequest> getAllMetricAggregationRequests() {
-      return Collections.emptyList();
     }
   }
 

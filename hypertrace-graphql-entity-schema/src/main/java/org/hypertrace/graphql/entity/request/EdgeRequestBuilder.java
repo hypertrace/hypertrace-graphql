@@ -266,22 +266,6 @@ class EdgeRequestBuilder {
         String entityType, Collection<String> neighborIds) {
       return this.neighborRequestBuilder.apply(entityType, neighborIds);
     }
-
-    @Override
-    public Collection<AttributeRequest> getAllAttributeRequests() {
-      return this.edgeSetRequests.values().stream()
-          .map(EdgeSetRequest::attributeRequests)
-          .flatMap(Collection::stream)
-          .collect(Collectors.toUnmodifiableSet());
-    }
-
-    @Override
-    public Collection<MetricAggregationRequest> getAllMetricAggregationRequests() {
-      return this.edgeSetRequests.values().stream()
-          .map(EdgeSetRequest::metricAggregationRequests)
-          .flatMap(Collection::stream)
-          .collect(Collectors.toUnmodifiableSet());
-    }
   }
 
   @Value

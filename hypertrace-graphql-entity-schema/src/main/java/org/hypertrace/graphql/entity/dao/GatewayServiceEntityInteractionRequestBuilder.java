@@ -24,6 +24,7 @@ import org.hypertrace.gateway.service.v1.common.Filter;
 import org.hypertrace.gateway.service.v1.common.Operator;
 import org.hypertrace.gateway.service.v1.entity.InteractionsRequest;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
+import org.hypertrace.graphql.entity.request.EdgeSetRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
 class GatewayServiceEntityInteractionRequestBuilder {
@@ -62,10 +63,25 @@ class GatewayServiceEntityInteractionRequestBuilder {
 
   private Single<Set<Expression>> collectSelectionsAndAggregations(EdgeSetGroupRequest request) {
     return this.selectionConverter
-        .convert(request.getAllAttributeRequests())
-        .mergeWith(this.aggregationConverter.convert(request.getAllMetricAggregationRequests()))
+        .convert(getAllAttributeRequests(request))
+        .mergeWith(this.aggregationConverter.convert(getAllMetricAggregationRequests(request)))
         .toObservable()
         .flatMap(Observable::fromIterable)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private Set<AttributeRequest> getAllAttributeRequests(EdgeSetGroupRequest request) {
+    return request.edgeSetRequests().values().stream()
+        .map(EdgeSetRequest::attributeRequests)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private Set<MetricAggregationRequest> getAllMetricAggregationRequests(
+      EdgeSetGroupRequest request) {
+    return request.edgeSetRequests().values().stream()
+        .map(EdgeSetRequest::metricAggregationRequests)
+        .flatMap(Collection::stream)
         .collect(Collectors.toUnmodifiableSet());
   }
 

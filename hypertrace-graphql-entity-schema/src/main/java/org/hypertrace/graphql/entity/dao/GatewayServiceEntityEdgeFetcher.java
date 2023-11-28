@@ -120,9 +120,14 @@ class GatewayServiceEntityEdgeFetcher {
 
     return zip(
             this.attributeMapConverter.convert(
-                edgeSetGroupRequest.getAllAttributeRequests(), response.getAttributeMap()),
+                edgeSetGroupRequest.edgeSetRequests().get(neighbor.type()).attributeRequests(),
+                response.getAttributeMap()),
             this.baselineMetricAggregationContainerMapConverter.convert(
-                edgeSetGroupRequest.getAllMetricAggregationRequests(), response.getMetricsMap()),
+                edgeSetGroupRequest
+                    .edgeSetRequests()
+                    .get(neighbor.type())
+                    .metricAggregationRequests(),
+                response.getMetricsMap()),
             (attributes, metrics) -> (Edge) new ConvertedEdge(neighbor, attributes, metrics))
         .toMaybe();
   }
