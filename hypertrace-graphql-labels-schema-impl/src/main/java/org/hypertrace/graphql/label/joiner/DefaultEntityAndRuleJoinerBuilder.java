@@ -44,6 +44,7 @@ import org.hypertrace.core.graphql.utils.schema.GraphQlSelectionFinder;
 import org.hypertrace.core.graphql.utils.schema.SelectionQuery;
 import org.hypertrace.graphql.entity.dao.EntityDao;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
+import org.hypertrace.graphql.entity.request.EdgeSetRequest;
 import org.hypertrace.graphql.entity.request.EntityLabelRequest;
 import org.hypertrace.graphql.entity.request.EntityRequest;
 import org.hypertrace.graphql.entity.schema.EntityResultSet;
@@ -55,7 +56,6 @@ import org.hypertrace.graphql.label.schema.Label;
 import org.hypertrace.graphql.label.schema.LabelResultSet;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
-import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
@@ -316,12 +316,9 @@ class DefaultEntityAndRuleJoinerBuilder implements EntityAndRuleJoinerBuilder {
   @Value
   @Accessors(fluent = true)
   private static class EmptyEdgeSetGroupRequest implements EdgeSetGroupRequest {
-    Set<String> entityTypes = Collections.emptySet();
-    Collection<AttributeRequest> attributeRequests = Collections.emptyList();
-    Collection<MetricAggregationRequest> metricAggregationRequests = Collections.emptyList();
-    Collection<AttributeAssociation<FilterArgument>> filterArguments = Collections.emptyList();
     AttributeRequest neighborIdAttribute = null;
     AttributeRequest neighborTypeAttribute = null;
+    Map<String, EdgeSetRequest> edgeSetRequests = Collections.emptyMap();
 
     @Override
     public Single<EntityRequest> buildNeighborRequest(

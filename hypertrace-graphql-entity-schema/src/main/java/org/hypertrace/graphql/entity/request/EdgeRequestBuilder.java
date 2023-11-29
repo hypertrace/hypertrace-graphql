@@ -3,11 +3,12 @@ package org.hypertrace.graphql.entity.request;
 import static io.reactivex.rxjava3.core.Single.zip;
 
 import graphql.schema.SelectedField;
-import io.grpc.Status;
+import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -89,35 +90,18 @@ class EdgeRequestBuilder {
       Stream<SelectedField> edgeSetFields,
       EdgeType edgeType) {
     Set<SelectedField> edgeFields = edgeSetFields.collect(Collectors.toUnmodifiableSet());
-    List<FilterArgument> filterArguments = this.getFilters(edgeFields);
-
-    if (!filterArguments.isEmpty() && edgeFields.size() > 1) {
-      throw Status.UNIMPLEMENTED
-          .withDescription("Cannot specify more than one edge type with edge filters")
-          .asRuntimeException();
-    }
-
-    Map<String, Set<SelectedField>> edgesByType = this.getEdgesByType(edgeFields.stream());
-    Set<SelectedField> allEdges =
-        edgesByType.values().stream()
-            .flatMap(Collection::stream)
-            .collect(Collectors.toUnmodifiableSet());
+    Map<String, Set<SelectedField>> edgesSelectionsByType =
+        this.getEdgesSelectionByType(edgeFields.stream());
 
     return zip(
-        this.getRequestedAndRequiredAttributes(context, allEdges, edgeType),
         this.getNeighborIdAttribute(context, edgeType),
         this.getNeighborTypeAttribute(context, edgeType),
-        this.metricAggregationRequestBuilder.build(
-            context, HypertraceAttributeScopeString.INTERACTION, allEdges.stream()),
-        this.filterRequestBuilder.build(
-            context, HypertraceAttributeScopeString.INTERACTION, filterArguments),
-        (attributeRequests, neighborIdRequest, neighborTypeRequest, metricRequests, filters) ->
+        this.getEntityTypeToEdgeSetRequest(context, edgeType, edgeFields),
+        (neighborIdRequest, neighborTypeRequest, edgeRequests) ->
             new DefaultEdgeSetGroupRequest(
-                edgesByType.keySet(),
-                attributeRequests,
-                metricRequests,
                 neighborIdRequest,
                 neighborTypeRequest,
+                edgeRequests,
                 (entityType, neighborIds) ->
                     this.neighborEntitiesRequestBuilderProvider
                         .get()
@@ -127,12 +111,44 @@ class EdgeRequestBuilder {
                             timeRange,
                             space,
                             neighborIds,
-                            edgesByType.get(entityType)),
-                filters));
+                            edgesSelectionsByType.get(entityType))));
   }
 
-  private Map<String, Set<SelectedField>> getEdgesByType(Stream<SelectedField> edgeSetStream) {
+  private Single<Map<String, EdgeSetRequest>> getEntityTypeToEdgeSetRequest(
+      GraphQlRequestContext context, EdgeType edgeType, Set<SelectedField> edgeFields) {
+    return Observable.fromIterable(edgeFields)
+        .collect(Collectors.groupingBy(this::getEntityType, Collectors.toUnmodifiableSet()))
+        .flatMap(edgeFieldsMap -> this.getEdgeSetRequestMap(context, edgeType, edgeFieldsMap));
+  }
 
+  private Single<Map<String, EdgeSetRequest>> getEdgeSetRequestMap(
+      GraphQlRequestContext context,
+      EdgeType edgeType,
+      Map<String, Set<SelectedField>> entityTypeToEdgeFieldsMap) {
+    return Observable.fromIterable(entityTypeToEdgeFieldsMap.entrySet())
+        .flatMapSingle(
+            entry ->
+                this.getEdgeSetRequestEntry(context, edgeType, entry.getKey(), entry.getValue()))
+        .collect(Collectors.toUnmodifiableMap(Entry::getKey, Entry::getValue));
+  }
+
+  private Single<Map.Entry<String, EdgeSetRequest>> getEdgeSetRequestEntry(
+      GraphQlRequestContext context,
+      EdgeType edgeType,
+      String entityType,
+      Set<SelectedField> edgeFields) {
+    return zip(
+        this.getRequestedAndRequiredAttributes(context, edgeFields, edgeType),
+        this.getMetricAggregationRequestAttributes(context, edgeFields),
+        this.getFilterArguments(context, edgeFields),
+        (requestAttributes, metricAttributes, filters) ->
+            Map.entry(
+                entityType,
+                new DefaultEdgeSetRequest(requestAttributes, metricAttributes, filters)));
+  }
+
+  private Map<String, Set<SelectedField>> getEdgesSelectionByType(
+      Stream<SelectedField> edgeSetStream) {
     return edgeSetStream.collect(
         Collectors.groupingBy(
             this::getEntityType,
@@ -155,11 +171,25 @@ class EdgeRequestBuilder {
         .orElseThrow();
   }
 
+  private Single<List<MetricAggregationRequest>> getMetricAggregationRequestAttributes(
+      GraphQlRequestContext context, Collection<SelectedField> edges) {
+    Set<SelectedField> selections =
+        edges.stream()
+            .collect(
+                Collectors.flatMapping(this::getEdgesForEdgeSet, Collectors.toUnmodifiableSet()));
+    return this.metricAggregationRequestBuilder.build(
+        context, HypertraceAttributeScopeString.INTERACTION, selections.stream());
+  }
+
   private Single<List<AttributeRequest>> getRequestedAndRequiredAttributes(
       GraphQlRequestContext context, Collection<SelectedField> edges, EdgeType edgeType) {
+    Set<SelectedField> selections =
+        edges.stream()
+            .collect(
+                Collectors.flatMapping(this::getEdgesForEdgeSet, Collectors.toUnmodifiableSet()));
     return this.attributeRequestBuilder
         .buildForAttributeQueryableFields(
-            context, HypertraceAttributeScopeString.INTERACTION, edges.stream())
+            context, HypertraceAttributeScopeString.INTERACTION, selections.stream())
         .mergeWith(this.getNeighborIdAttribute(context, edgeType))
         .mergeWith(this.getNeighborTypeAttribute(context, edgeType))
         .collect(Collectors.toUnmodifiableList());
@@ -183,15 +213,21 @@ class EdgeRequestBuilder {
     }
   }
 
-  private List<FilterArgument> getFilters(Set<SelectedField> selectedFields) {
-    return selectedFields.stream()
-        .map(
-            selectedField ->
-                this.argumentDeserializer.deserializeObjectList(
-                    selectedField.getArguments(), FilterArgument.class))
-        .flatMap(Optional::stream)
-        .flatMap(Collection::stream)
-        .collect(Collectors.toUnmodifiableList());
+  private Single<List<AttributeAssociation<FilterArgument>>> getFilterArguments(
+      GraphQlRequestContext context, Set<SelectedField> edgeFields) {
+    Set<FilterArgument> filterArguments =
+        edgeFields.stream()
+            .collect(Collectors.flatMapping(this::getFilter, Collectors.toUnmodifiableSet()));
+
+    return this.filterRequestBuilder.build(
+        context, HypertraceAttributeScopeString.INTERACTION, filterArguments);
+  }
+
+  private Stream<FilterArgument> getFilter(SelectedField selectedField) {
+    return this.argumentDeserializer
+        .deserializeObjectList(selectedField.getArguments(), FilterArgument.class)
+        .stream()
+        .flatMap(Collection::stream);
   }
 
   private Single<AttributeRequest> getNeighborTypeAttribute(
@@ -220,19 +256,23 @@ class EdgeRequestBuilder {
   @Value
   @Accessors(fluent = true)
   private static class DefaultEdgeSetGroupRequest implements EdgeSetGroupRequest {
-
-    Set<String> entityTypes;
-    Collection<AttributeRequest> attributeRequests;
-    Collection<MetricAggregationRequest> metricAggregationRequests;
     AttributeRequest neighborIdAttribute;
     AttributeRequest neighborTypeAttribute;
+    Map<String, EdgeSetRequest> edgeSetRequests;
     BiFunction<String, Collection<String>, Single<EntityRequest>> neighborRequestBuilder;
-    Collection<AttributeAssociation<FilterArgument>> filterArguments;
 
     @Override
     public Single<EntityRequest> buildNeighborRequest(
         String entityType, Collection<String> neighborIds) {
       return this.neighborRequestBuilder.apply(entityType, neighborIds);
     }
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class DefaultEdgeSetRequest implements EdgeSetRequest {
+    Collection<AttributeRequest> attributeRequests;
+    Collection<MetricAggregationRequest> metricAggregationRequests;
+    Collection<AttributeAssociation<FilterArgument>> filterArguments;
   }
 }

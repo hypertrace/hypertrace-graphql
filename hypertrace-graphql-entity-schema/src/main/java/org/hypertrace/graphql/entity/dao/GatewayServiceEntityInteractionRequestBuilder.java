@@ -21,8 +21,10 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.filter.Filter
 import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.Filter;
+import org.hypertrace.gateway.service.v1.common.Operator;
 import org.hypertrace.gateway.service.v1.entity.InteractionsRequest;
 import org.hypertrace.graphql.entity.request.EdgeSetGroupRequest;
+import org.hypertrace.graphql.entity.request.EdgeSetRequest;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 
 class GatewayServiceEntityInteractionRequestBuilder {
@@ -44,7 +46,7 @@ class GatewayServiceEntityInteractionRequestBuilder {
   }
 
   Single<InteractionsRequest> build(EdgeSetGroupRequest edgeSetRequestGroup) {
-    if (edgeSetRequestGroup.entityTypes().isEmpty()) {
+    if (edgeSetRequestGroup.edgeSetRequests().isEmpty()) {
       return Single.just(InteractionsRequest.getDefaultInstance());
     }
 
@@ -61,40 +63,64 @@ class GatewayServiceEntityInteractionRequestBuilder {
 
   private Single<Set<Expression>> collectSelectionsAndAggregations(EdgeSetGroupRequest request) {
     return this.selectionConverter
-        .convert(request.attributeRequests())
-        .mergeWith(this.aggregationConverter.convert(request.metricAggregationRequests()))
+        .convert(getAllAttributeRequests(request))
+        .mergeWith(this.aggregationConverter.convert(getAllMetricAggregationRequests(request)))
         .toObservable()
         .flatMap(Observable::fromIterable)
         .collect(Collectors.toUnmodifiableSet());
   }
 
+  private Set<AttributeRequest> getAllAttributeRequests(EdgeSetGroupRequest request) {
+    return request.edgeSetRequests().values().stream()
+        .map(EdgeSetRequest::attributeRequests)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
+  private Set<MetricAggregationRequest> getAllMetricAggregationRequests(
+      EdgeSetGroupRequest request) {
+    return request.edgeSetRequests().values().stream()
+        .map(EdgeSetRequest::metricAggregationRequests)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toUnmodifiableSet());
+  }
+
   private Single<Filter> buildEntityInteractionFilter(EdgeSetGroupRequest request) {
-    return Observable.fromIterable(request.entityTypes()) // add entity types filter
-        .collect(Collectors.toUnmodifiableSet())
+    // Todo: we should be using converter taking argument as logical filters with filter arg schema
+    return Observable.fromIterable(request.edgeSetRequests().entrySet())
         .map(
-            entityTypes ->
-                AttributeAssociation.<FilterArgument>of(
-                    request.neighborTypeAttribute().attributeExpressionAssociation().attribute(),
-                    new EntityNeighborTypeFilter(
-                        request.neighborTypeAttribute().attributeExpressionAssociation().value(),
-                        entityTypes)))
-        .flatMap(
-            filterAssociation ->
-                this.filterConverter.convert(
-                    Stream.concat(
-                            request.filterArguments().stream(), // add all other filters
-                            Stream.of(filterAssociation))
-                        .collect(Collectors.toUnmodifiableSet())));
+            entry ->
+                Stream.concat(
+                        Stream.of(buildEntityTypeFilter(request, entry.getKey())),
+                        entry.getValue().filterArguments().stream())
+                    .collect(Collectors.toUnmodifiableList()))
+        .flatMapSingle(this.filterConverter::convert)
+        .collect(Collectors.toUnmodifiableList())
+        .map(
+            childFilters ->
+                Filter.newBuilder()
+                    .setOperator(Operator.OR)
+                    .addAllChildFilter(childFilters)
+                    .build());
+  }
+
+  private AttributeAssociation<FilterArgument> buildEntityTypeFilter(
+      EdgeSetGroupRequest request, String entityType) {
+    return AttributeAssociation.of(
+        request.neighborTypeAttribute().attributeExpressionAssociation().attribute(),
+        new EntityNeighborTypeFilter(
+            request.neighborTypeAttribute().attributeExpressionAssociation().value(), entityType));
   }
 
   @Value
   @Accessors(fluent = true)
   private static class EntityNeighborTypeFilter implements FilterArgument {
+
     FilterType type = FilterType.ATTRIBUTE;
     String key = null;
     AttributeExpression keyExpression;
-    FilterOperatorType operator = FilterOperatorType.IN;
-    Collection<String> value;
+    FilterOperatorType operator = FilterOperatorType.EQUALS;
+    String value;
     AttributeScope idType = null;
     String idScope = null;
   }
