@@ -12,6 +12,7 @@ import graphql.schema.GraphQLScalarType;
 import java.lang.reflect.AnnotatedType;
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.function.Function;
 
@@ -45,10 +46,10 @@ public class DateTimeScalar implements TypeFunction {
                       return Instant.from((TemporalAccessor) instantInput);
                     }
                     if (instantInput instanceof CharSequence) {
-                      return Instant.parse((CharSequence) instantInput);
+                      return parse((CharSequence) instantInput);
                     }
                     if (instantInput instanceof StringValue) {
-                      return Instant.parse(((StringValue) instantInput).getValue());
+                      return parse(((StringValue) instantInput).getValue());
                     }
                   } catch (DateTimeException exception) {
                     throw errorWrapper.apply(exception);
@@ -74,5 +75,9 @@ public class DateTimeScalar implements TypeFunction {
       AnnotatedType annotatedType,
       ProcessingElementsContainer container) {
     return DATE_TIME_SCALAR;
+  }
+
+  private static Instant parse(CharSequence charSequence) {
+    return OffsetDateTime.parse(charSequence).toInstant();
   }
 }

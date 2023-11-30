@@ -8,14 +8,7 @@
     <cpe>cpe:/a:grpc:grpc</cpe>
     <cpe>cpe:/a:utils_project:utils</cpe>
   </suppress>
-  <suppress>
-    <notes><![CDATA[
-   file name: graphql-java-annotations-9.1.jar
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/io\.github\.graphql\-java/graphql\-java\-annotations@.*$</packageUrl>
-    <cpe>cpe:/a:graphql-java:graphql-java</cpe>
-  </suppress>
-  <suppress until="2023-11-30Z">
+  <suppress until="2023-12-31Z">
     <notes><![CDATA[
   This vulnerability is disputed, with the argument that SSL configuration is the responsibility of the client rather
   than the transport. The change in default is under consideration for the next major Netty release, revisit then.
@@ -27,7 +20,7 @@
     <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@.*$</packageUrl>
     <vulnerabilityName>CVE-2023-4586</vulnerabilityName>
   </suppress>
-  <suppress until="2023-11-30Z">
+  <suppress until="2023-12-31Z">
     <notes><![CDATA[
    This CVE is declared fixed from 9.4.52, but the vuln db is not reflecting that. Suppress that specific version until
    db is updated.
@@ -37,7 +30,7 @@
     <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlets@9.4.53\..*$</packageUrl>
     <vulnerabilityName>CVE-2023-36479</vulnerabilityName>
   </suppress>
-  <suppress until="2023-11-30Z">
+  <suppress until="2023-12-31Z">
     <notes><![CDATA[
    file name: jackson-databind-2.15.2.jar
    ]]></notes>
