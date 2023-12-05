@@ -33,10 +33,11 @@
   </suppress>
   <suppress until="2023-12-31Z">
     <notes><![CDATA[
-   file name: jackson-databind-2.15.2.jar
+   This CVE (rapid RST) is already mitigated as our servers aren't directly exposed, but it's also
+   addressed in 1.59.1, which the CVE doesn't reflect (not all grpc impls versions are exactly aligned).
+   Ref: https://github.com/grpc/grpc-java/pull/10675
    ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$
-    </packageUrl>
-    <cve>CVE-2023-35116</cve>
+    <packageUrl regex="true">^pkg:maven/io\.grpc/grpc\-.*@.*$</packageUrl>
+    <cve>CVE-2023-44487</cve>
   </suppress>
 </suppressions> 
