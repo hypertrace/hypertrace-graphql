@@ -2,11 +2,11 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 aopalliance:aopalliance:1.0=compileClasspath,runtimeClasspath
-com.fasterxml.jackson.core:jackson-annotations:2.15.2=compileClasspath,runtimeClasspath
-com.fasterxml.jackson.core:jackson-core:2.15.2=compileClasspath,runtimeClasspath
-com.fasterxml.jackson.core:jackson-databind:2.15.2=compileClasspath,runtimeClasspath
-com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.15.2=compileClasspath,runtimeClasspath
-com.fasterxml.jackson:jackson-bom:2.15.2=compileClasspath,runtimeClasspath
+com.fasterxml.jackson.core:jackson-annotations:2.16.0=compileClasspath,runtimeClasspath
+com.fasterxml.jackson.core:jackson-core:2.16.0=compileClasspath,runtimeClasspath
+com.fasterxml.jackson.core:jackson-databind:2.16.0=compileClasspath,runtimeClasspath
+com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.16.0=compileClasspath,runtimeClasspath
+com.fasterxml.jackson:jackson-bom:2.16.0=compileClasspath,runtimeClasspath
 com.google.code.findbugs:jsr305:3.0.2=compileClasspath,runtimeClasspath
 com.google.errorprone:error_prone_annotations:2.18.0=compileClasspath,runtimeClasspath
 com.google.guava:failureaccess:1.0.1=compileClasspath,runtimeClasspath
@@ -21,14 +21,14 @@ com.graphql-java:graphql-java-extended-scalars:17.0=compileClasspath,runtimeClas
 com.graphql-java:graphql-java:19.6=compileClasspath,runtimeClasspath
 com.graphql-java:java-dataloader:3.2.0=compileClasspath,runtimeClasspath
 io.github.graphql-java:graphql-java-annotations:9.1=compileClasspath,runtimeClasspath
-io.grpc:grpc-bom:1.57.2=compileClasspath,runtimeClasspath
+io.grpc:grpc-bom:1.59.1=compileClasspath,runtimeClasspath
 jakarta.inject:jakarta.inject-api:2.0.1=compileClasspath,runtimeClasspath
 javax.inject:javax.inject:1=compileClasspath,runtimeClasspath
 javax.servlet:javax.servlet-api:4.0.1=compileClasspath,runtimeClasspath
 javax.validation:validation-api:1.1.0.Final=compileClasspath,runtimeClasspath
 javax.websocket:javax.websocket-api:1.1=compileClasspath,runtimeClasspath
 org.checkerframework:checker-qual:3.33.0=compileClasspath,runtimeClasspath
-org.hypertrace.bom:hypertrace-bom:0.3.1=compileClasspath,runtimeClasspath
+org.hypertrace.bom:hypertrace-bom:0.3.2=compileClasspath,runtimeClasspath
 org.hypertrace.core.kafkastreams.framework:kafka-bom:0.3.9=compileClasspath,runtimeClasspath
 org.projectlombok:lombok:1.18.28=annotationProcessor,compileClasspath
 org.reactivestreams:reactive-streams:1.0.3=compileClasspath,runtimeClasspath
