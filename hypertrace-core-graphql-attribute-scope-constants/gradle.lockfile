@@ -3,6 +3,6 @@
 # This file is expected to be part of source control.
 com.fasterxml.jackson:jackson-bom:2.16.0=compileClasspath,runtimeClasspath
 io.grpc:grpc-bom:1.60.0=compileClasspath,runtimeClasspath
-org.hypertrace.bom:hypertrace-bom:0.3.8=compileClasspath,runtimeClasspath
+org.hypertrace.bom:hypertrace-bom:0.3.9=compileClasspath,runtimeClasspath
 org.hypertrace.core.kafkastreams.framework:kafka-bom:0.4.5=compileClasspath,runtimeClasspath
 empty=annotationProcessor
