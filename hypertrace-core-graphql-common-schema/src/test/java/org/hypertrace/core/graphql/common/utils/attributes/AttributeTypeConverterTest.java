@@ -34,5 +34,11 @@ public class AttributeTypeConverterTest {
     assertEquals(
         AttributeType.DOUBLE_ARRAY,
         attributeTypeConverter.convert(AttributeModelType.DOUBLE_ARRAY).blockingGet());
+    assertEquals(
+        AttributeType.LONG_ARRAY,
+        attributeTypeConverter.convert(AttributeModelType.LONG_ARRAY).blockingGet());
+    assertEquals(
+        AttributeType.BOOLEAN_ARRAY,
+        attributeTypeConverter.convert(AttributeModelType.BOOLEAN_ARRAY).blockingGet());
   }
 }

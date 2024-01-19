@@ -1,9 +1,11 @@
 package org.hypertrace.core.graphql.common.utils.attributes;
 
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.BOOLEAN;
+import static org.hypertrace.core.graphql.attributes.AttributeModelType.BOOLEAN_ARRAY;
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.DOUBLE;
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.DOUBLE_ARRAY;
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.LONG;
+import static org.hypertrace.core.graphql.attributes.AttributeModelType.LONG_ARRAY;
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.STRING;
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.STRING_ARRAY;
 import static org.hypertrace.core.graphql.attributes.AttributeModelType.STRING_MAP;
@@ -28,6 +30,8 @@ public class AttributeTypeConverter implements Converter<AttributeModelType, Att
           .put(STRING_MAP, AttributeType.STRING_MAP)
           .put(STRING_ARRAY, AttributeType.STRING_ARRAY)
           .put(DOUBLE_ARRAY, AttributeType.DOUBLE_ARRAY)
+          .put(LONG_ARRAY, AttributeType.LONG_ARRAY)
+          .put(BOOLEAN_ARRAY, AttributeType.BOOLEAN_ARRAY)
           .build();
 
   @Override

@@ -11,7 +11,9 @@ public enum AttributeType {
   TIMESTAMP,
   STRING_MAP,
   STRING_ARRAY,
-  DOUBLE_ARRAY;
+  DOUBLE_ARRAY,
+  LONG_ARRAY,
+  BOOLEAN_ARRAY;
 
   public static final String TYPE_NAME = "AttributeType";
 }
