@@ -4,6 +4,7 @@ import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import java.util.List;
+import org.hypertrace.core.graphql.common.schema.operator.LogicalOperator;
 
 @GraphQLName(SpanProcessingLogicalFilter.TYPE_NAME)
 public interface SpanProcessingLogicalFilter {
@@ -15,7 +16,7 @@ public interface SpanProcessingLogicalFilter {
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_LOGICAL_OPERATOR_KEY)
   @GraphQLNonNull
-  SpanProcessingLogicalOperator logicalOperator();
+  LogicalOperator logicalOperator();
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_FILTERS_KEY)
