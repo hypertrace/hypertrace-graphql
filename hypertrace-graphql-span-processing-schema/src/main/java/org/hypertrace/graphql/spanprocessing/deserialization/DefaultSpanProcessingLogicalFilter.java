@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
+import org.hypertrace.core.graphql.common.schema.operator.LogicalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
-import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
 
 @Value
@@ -14,6 +14,6 @@ import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRu
 @Jacksonized
 @Builder
 public class DefaultSpanProcessingLogicalFilter implements SpanProcessingLogicalFilter {
-  SpanProcessingLogicalOperator logicalOperator;
+  LogicalOperator logicalOperator;
   List<SpanProcessingRuleFilter> spanFilters;
 }

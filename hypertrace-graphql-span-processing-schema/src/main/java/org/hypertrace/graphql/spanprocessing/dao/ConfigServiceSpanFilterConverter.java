@@ -11,7 +11,6 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingFilterField;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalFilter;
-import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingLogicalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalFilter;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRelationalOperator;
 import org.hypertrace.graphql.spanprocessing.schema.rule.filter.SpanProcessingRuleFilter;
@@ -26,15 +25,17 @@ import org.hypertrace.span.processing.config.service.v1.SpanFilterValue;
 
 public class ConfigServiceSpanFilterConverter {
 
-  private static final ImmutableBiMap<LogicalOperator, SpanProcessingLogicalOperator>
+  private static final ImmutableBiMap<
+          LogicalOperator, org.hypertrace.core.graphql.common.schema.operator.LogicalOperator>
       LOGICAL_OPERATOR_OPERATOR_BI_MAP =
           ImmutableBiMap.of(
               LogicalOperator.LOGICAL_OPERATOR_AND,
-              SpanProcessingLogicalOperator.AND,
+                  org.hypertrace.core.graphql.common.schema.operator.LogicalOperator.AND,
               LogicalOperator.LOGICAL_OPERATOR_OR,
-              SpanProcessingLogicalOperator.OR);
+                  org.hypertrace.core.graphql.common.schema.operator.LogicalOperator.OR);
 
-  private static final ImmutableBiMap<SpanProcessingLogicalOperator, LogicalOperator>
+  private static final ImmutableBiMap<
+          org.hypertrace.core.graphql.common.schema.operator.LogicalOperator, LogicalOperator>
       OPERATOR_LOGICAL_OPERATOR_IMMUTABLE_BI_MAP = LOGICAL_OPERATOR_OPERATOR_BI_MAP.inverse();
 
   private static final ImmutableBiMap<RelationalOperator, SpanProcessingRelationalOperator>
@@ -223,7 +224,7 @@ public class ConfigServiceSpanFilterConverter {
   @Value
   @Accessors(fluent = true)
   private static class ConvertedSpanProcessingLogicalFilter implements SpanProcessingLogicalFilter {
-    SpanProcessingLogicalOperator logicalOperator;
+    org.hypertrace.core.graphql.common.schema.operator.LogicalOperator logicalOperator;
     List<SpanProcessingRuleFilter> spanFilters;
   }
 
