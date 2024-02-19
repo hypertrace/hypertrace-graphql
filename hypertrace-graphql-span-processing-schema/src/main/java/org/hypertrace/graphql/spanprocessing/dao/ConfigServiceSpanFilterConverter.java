@@ -72,6 +72,7 @@ public class ConfigServiceSpanFilterConverter {
       FIELD_FILTER_FIELD_IMMUTABLE_BI_MAP =
           ImmutableBiMap.<Field, SpanProcessingFilterField>builder()
               .put(Field.FIELD_URL, SpanProcessingFilterField.URL)
+              .put(Field.FIELD_URL_PATH, SpanProcessingFilterField.URL_PATH)
               .put(Field.FIELD_SERVICE_NAME, SpanProcessingFilterField.SERVICE_NAME)
               .put(Field.FIELD_ENVIRONMENT_NAME, SpanProcessingFilterField.ENVIRONMENT_NAME)
               .build();
