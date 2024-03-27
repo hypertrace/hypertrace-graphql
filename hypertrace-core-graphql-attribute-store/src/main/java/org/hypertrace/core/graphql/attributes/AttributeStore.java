@@ -13,6 +13,8 @@ public interface AttributeStore {
 
   Single<AttributeModel> getIdAttribute(GraphQlRequestContext context, String scope);
 
+  Single<AttributeModel> getAttributeById(GraphQlRequestContext context, String attributeId);
+
   Single<AttributeModel> getForeignIdAttribute(
       GraphQlRequestContext context, String scope, String foreignScope);
 

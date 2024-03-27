@@ -87,6 +87,16 @@ class CachingAttributeStore implements AttributeStore {
   }
 
   @Override
+  public Single<AttributeModel> getAttributeById(
+      GraphQlRequestContext context, String attributeId) {
+    return grpcContextBuilder
+        .build(context)
+        .call(() -> cachingAttributeClient.get(attributeId))
+        .mapOptional(this.translator::translate)
+        .switchIfEmpty(Single.error(this.buildErrorForMissingAttributeId(attributeId)));
+  }
+
+  @Override
   public Completable create(
       final GraphQlRequestContext context, final List<AttributeMetadata> attributes) {
     return this.grpcContextBuilder
@@ -137,6 +147,11 @@ class CachingAttributeStore implements AttributeStore {
   private NoSuchElementException buildErrorForMissingAttribute(String scope, String key) {
     return new NoSuchElementException(
         String.format("No attribute available for scope '%s' and key '%s'", scope, key));
+  }
+
+  private NoSuchElementException buildErrorForMissingAttributeId(String attributeId) {
+    return new NoSuchElementException(
+        String.format("No attribute available for attribute id '%s'", attributeId));
   }
 
   private NoSuchElementException buildErrorForMissingForeignScopeMapping(
