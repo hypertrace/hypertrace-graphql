@@ -1,7 +1,8 @@
 package org.hypertrace.graphql.service;
 
+import com.typesafe.config.Config;
 import java.util.List;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 import org.hypertrace.core.serviceframework.http.HttpContainerEnvironment;
 import org.hypertrace.core.serviceframework.http.HttpHandlerDefinition;
 import org.hypertrace.core.serviceframework.http.HttpHandlerDefinition.CorsConfig;
@@ -14,25 +15,29 @@ public class GraphQlServiceFactory implements HttpHandlerFactory {
 
   @Override
   public List<HttpHandlerDefinition> buildHandlers(HttpContainerEnvironment environment) {
-    HypertraceGraphQlServiceConfig config =
-        new DefaultGraphQlServiceConfig(environment.getConfig(SERVICE_NAME));
+    Config rawConfig = environment.getConfig(SERVICE_NAME);
+    HypertraceGraphQlServiceConfig serviceConfig = new DefaultGraphQlServiceConfig(rawConfig);
+    GraphQlEndpointConfig endpointConfig = DefaultGraphQlEndpointConfig.fromConfig(rawConfig);
     DefaultGraphQlServiceLifecycle serviceLifecycle = new DefaultGraphQlServiceLifecycle();
     environment.getLifecycle().shutdownComplete().thenRun(serviceLifecycle::shutdown);
 
     return List.of(
         HttpHandlerDefinition.builder()
             .name("graphql")
-            .port(config.getServicePort())
-            .contextPath(config.getGraphQlUrlPath())
-            .corsConfig(buildCorsConfig(config))
+            .port(serviceConfig.getServicePort())
+            .contextPath(endpointConfig.getUrlPath())
+            .corsConfig(buildCorsConfig(endpointConfig))
             .servlet(
                 new GraphQlServiceHttpServlet(
                     GraphQlFactory.build(
-                        config, serviceLifecycle, environment.getChannelRegistry())))
+                        serviceConfig,
+                        endpointConfig,
+                        serviceLifecycle,
+                        environment.getChannelRegistry())))
             .build());
   }
 
-  private CorsConfig buildCorsConfig(GraphQlServiceConfig config) {
+  private CorsConfig buildCorsConfig(GraphQlEndpointConfig config) {
     if (!config.isCorsEnabled()) {
       return null;
     }
