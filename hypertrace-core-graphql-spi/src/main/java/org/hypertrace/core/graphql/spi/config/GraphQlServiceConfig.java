@@ -9,17 +9,7 @@ public interface GraphQlServiceConfig {
 
   String getServiceName();
 
-  String getGraphQlUrlPath();
-
-  boolean isCorsEnabled();
-
-  Duration getGraphQlTimeout();
-
   Optional<String> getDefaultTenantId();
-
-  int getMaxRequestThreads();
-
-  int getMaxIoThreads();
 
   String getAttributeServiceHost();
 

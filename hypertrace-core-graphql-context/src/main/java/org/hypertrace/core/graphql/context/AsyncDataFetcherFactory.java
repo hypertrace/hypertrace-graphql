@@ -12,36 +12,36 @@ import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import lombok.AllArgsConstructor;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 
 @Singleton
 class AsyncDataFetcherFactory {
 
   private final Injector injector;
-  private final GraphQlServiceConfig config;
+  private final GraphQlEndpointConfig endpointConfig;
   private final ExecutorService requestExecutor;
 
   @Inject
-  AsyncDataFetcherFactory(Injector injector, GraphQlServiceConfig config) {
+  AsyncDataFetcherFactory(Injector injector, GraphQlEndpointConfig endpointConfig) {
     this.injector = injector;
-    this.config = config;
+    this.endpointConfig = endpointConfig;
     this.requestExecutor =
         Executors.newFixedThreadPool(
-            config.getMaxRequestThreads(),
+            endpointConfig.getMaxRequestThreads(),
             new ThreadFactoryBuilder().setDaemon(true).setNameFormat("request-handler-%d").build());
   }
 
   <T> DataFetcher<CompletableFuture<T>> buildDataFetcher(
       Class<? extends DataFetcher<CompletableFuture<T>>> dataFetcherClass) {
     return new AsyncForwardingDataFetcher<>(
-        this.injector.getInstance(dataFetcherClass), requestExecutor, config);
+        this.injector.getInstance(dataFetcherClass), requestExecutor, endpointConfig);
   }
 
   @AllArgsConstructor
   private static class AsyncForwardingDataFetcher<T> implements DataFetcher<CompletableFuture<T>> {
     private final DataFetcher<CompletableFuture<T>> delegate;
     private final ExecutorService executorService;
-    private final GraphQlServiceConfig config;
+    private final GraphQlEndpointConfig config;
 
     @Override
     public CompletableFuture<T> get(DataFetchingEnvironment dataFetchingEnvironment)
@@ -52,7 +52,7 @@ class AsyncDataFetcherFactory {
             try {
               return delegate
                   .get(dataFetchingEnvironment)
-                  .get(config.getGraphQlTimeout().toMillis(), MILLISECONDS);
+                  .get(config.getTimeout().toMillis(), MILLISECONDS);
             } catch (Exception e) {
               throw new RuntimeException(e);
             }

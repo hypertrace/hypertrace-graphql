@@ -8,6 +8,7 @@ import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLCodeRegistry.Builder;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
+import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Map;
@@ -19,15 +20,18 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 
 class GraphQlAnnotatedSchemaMerger implements Provider<GraphQLSchema> {
 
   private final GraphQlSchemaRegistry registry;
+  private final GraphQlEndpointConfig config;
 
   @Inject
-  GraphQlAnnotatedSchemaMerger(GraphQlSchemaRegistry registry) {
+  GraphQlAnnotatedSchemaMerger(GraphQlSchemaRegistry registry, GraphQlEndpointConfig config) {
     this.registry = registry;
+    this.config = config;
   }
 
   @Override
@@ -41,7 +45,8 @@ class GraphQlAnnotatedSchemaMerger implements Provider<GraphQLSchema> {
     return fragments.stream()
         .map(fragment -> this.fragmentToSchema(fragment, annotationProcessor))
         .reduce(this.fragmentToSchema(rootFragment, annotationProcessor), this::merge)
-        .transform(this::removeRootPlaceholders);
+        .transform(this::removeRootPlaceholders)
+        .transform(this::applyConfig);
   }
 
   private void registerAllTypeFunctions(
@@ -144,6 +149,20 @@ class GraphQlAnnotatedSchemaMerger implements Provider<GraphQLSchema> {
         this.rebuildTypeWithoutPlaceholders(mergedWithPlaceholders.getQueryType()).orElseThrow());
     mergedSchema.mutation(
         this.rebuildTypeWithoutPlaceholders(mergedWithPlaceholders.getMutationType()).orElse(null));
+  }
+
+  private void applyConfig(GraphQLSchema.Builder builder) {
+    if (!this.config.isIntrospectionAllowed()) {
+      GraphQLSchema schemaSoFar = builder.build();
+      GraphQLCodeRegistry registryWithoutIntrospection =
+          schemaSoFar
+              .getCodeRegistry()
+              .transform(
+                  registry ->
+                      registry.fieldVisibility(
+                          NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY));
+      builder.codeRegistry(registryWithoutIntrospection);
+    }
   }
 
   private Optional<GraphQLObjectType> rebuildTypeWithoutPlaceholders(GraphQLObjectType objectType) {

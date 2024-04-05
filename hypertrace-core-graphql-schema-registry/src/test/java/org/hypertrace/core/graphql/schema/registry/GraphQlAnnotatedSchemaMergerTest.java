@@ -2,6 +2,9 @@ package org.hypertrace.core.graphql.schema.registry;
 
 import static org.hypertrace.core.graphql.schema.registry.DefaultSchema.ROOT_MUTATION_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -17,11 +20,13 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
+import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility;
 import java.lang.reflect.AnnotatedType;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 import org.hypertrace.core.graphql.spi.schema.GraphQlSchemaFragment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +39,7 @@ public class GraphQlAnnotatedSchemaMergerTest {
 
   @Mock private GraphQlSchemaRegistry mockRegistry;
   @Mock private DataFetchingEnvironment mockDataFetchingEnvironment;
+  @Mock private GraphQlEndpointConfig mockConfig;
 
   private GraphQlAnnotatedSchemaMerger merger;
 
@@ -82,7 +88,7 @@ public class GraphQlAnnotatedSchemaMergerTest {
 
   @BeforeEach
   public void beforeEach() {
-    this.merger = new GraphQlAnnotatedSchemaMerger(mockRegistry);
+    this.merger = new GraphQlAnnotatedSchemaMerger(mockRegistry, mockConfig);
 
     when(mockRegistry.getRootFragment()).thenReturn(new DefaultSchema());
   }
@@ -184,6 +190,28 @@ public class GraphQlAnnotatedSchemaMergerTest {
         "typeFunctionType",
         ((GraphQLObjectType) schema.getQueryType().getFieldDefinition("second").getType())
             .getName());
+  }
+
+  @Test
+  void supportsEnablingIntrospection() {
+    when(mockRegistry.getRegisteredFragments())
+        .thenReturn(Set.of(this.createSchemaFragment(FirstQuerySchema.class)));
+    when(mockConfig.isIntrospectionAllowed()).thenReturn(true);
+    GraphQLSchema schema = this.merger.get();
+    assertNotNull(schema.getIntrospectionSchemaType());
+    assertFalse(
+        schema.getCodeRegistry().getFieldVisibility()
+            instanceof NoIntrospectionGraphqlFieldVisibility);
+  }
+
+  @Test
+  void supportsDisablingIntrospection() {
+    when(mockRegistry.getRegisteredFragments())
+        .thenReturn(Set.of(this.createSchemaFragment(FirstQuerySchema.class)));
+    when(mockConfig.isIntrospectionAllowed()).thenReturn(false);
+    GraphQLSchema schema = this.merger.get();
+    assertInstanceOf(
+        NoIntrospectionGraphqlFieldVisibility.class, schema.getCodeRegistry().getFieldVisibility());
   }
 
   private GraphQlSchemaFragment createSchemaFragment(Class<?> queryClass) {

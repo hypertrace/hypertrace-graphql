@@ -7,7 +7,7 @@ import com.google.inject.Guice;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import java.util.concurrent.CompletableFuture;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,14 +15,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class AsyncDataFetcherFactoryTest {
-  @Mock GraphQlServiceConfig graphQlServiceConfig;
+  @Mock GraphQlEndpointConfig endpointConfig;
   @Mock DataFetchingEnvironment dataFetchingEnvironment;
 
   @Test
   void canBuildAsyncDataFetcher() throws Exception {
-    when(graphQlServiceConfig.getMaxRequestThreads()).thenReturn(1);
+    when(endpointConfig.getMaxRequestThreads()).thenReturn(1);
     DataFetcher<CompletableFuture<Thread>> fetcher =
-        new AsyncDataFetcherFactory(Guice.createInjector(), graphQlServiceConfig)
+        new AsyncDataFetcherFactory(Guice.createInjector(), endpointConfig)
             .buildDataFetcher(ThreadEchoingDataFetcher.class);
 
     Thread fetcherThread = fetcher.get(dataFetchingEnvironment).get();

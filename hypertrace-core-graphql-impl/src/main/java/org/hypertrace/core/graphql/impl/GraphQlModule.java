@@ -13,6 +13,7 @@ import org.hypertrace.core.graphql.request.transformation.RequestTransformationM
 import org.hypertrace.core.graphql.rx.RxUtilModule;
 import org.hypertrace.core.graphql.schema.registry.GraphQlSchemaRegistryModule;
 import org.hypertrace.core.graphql.span.SpanSchemaModule;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.spi.lifecycle.GraphQlServiceLifecycle;
 import org.hypertrace.core.graphql.trace.TraceSchemaModule;
@@ -23,22 +24,26 @@ import org.hypertrace.core.grpcutils.client.GrpcChannelRegistry;
 
 class GraphQlModule extends AbstractModule {
 
-  private final GraphQlServiceConfig config;
+  private final GraphQlServiceConfig serviceConfig;
+  private final GraphQlEndpointConfig endpointConfig;
   private final GraphQlServiceLifecycle lifecycle;
   private final GrpcChannelRegistry grpcChannelRegistry;
 
   public GraphQlModule(
-      final GraphQlServiceConfig config,
+      final GraphQlServiceConfig serviceConfig,
+      final GraphQlEndpointConfig endpointConfig,
       final GraphQlServiceLifecycle lifecycle,
       final GrpcChannelRegistry grpcChannelRegistry) {
-    this.config = config;
+    this.serviceConfig = serviceConfig;
+    this.endpointConfig = endpointConfig;
     this.lifecycle = lifecycle;
     this.grpcChannelRegistry = grpcChannelRegistry;
   }
 
   @Override
   protected void configure() {
-    bind(GraphQlServiceConfig.class).toInstance(this.config);
+    bind(GraphQlServiceConfig.class).toInstance(this.serviceConfig);
+    bind(GraphQlEndpointConfig.class).toInstance(this.endpointConfig);
     bind(GraphQlServiceLifecycle.class).toInstance(this.lifecycle);
     bind(GrpcChannelRegistry.class).toInstance(this.grpcChannelRegistry);
     install(new GraphQlRequestContextModule());

@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
+import org.hypertrace.core.graphql.spi.config.GraphQlEndpointConfig;
 
 /**
  * A scheduler using up to a configuration-based number of threads.
@@ -19,11 +19,11 @@ import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 class BoundedIoSchedulerProvider implements Provider<Scheduler> {
 
   private final Scheduler scheduler;
-  private final GraphQlServiceConfig serviceConfig;
+  private final GraphQlEndpointConfig endpointConfig;
 
   @Inject
-  BoundedIoSchedulerProvider(GraphQlServiceConfig serviceConfig) {
-    this.serviceConfig = serviceConfig;
+  BoundedIoSchedulerProvider(GraphQlEndpointConfig endpointConfig) {
+    this.endpointConfig = endpointConfig;
     this.scheduler = Schedulers.from(this.buildExecutor());
   }
 
@@ -34,7 +34,7 @@ class BoundedIoSchedulerProvider implements Provider<Scheduler> {
 
   private Executor buildExecutor() {
     return Executors.newFixedThreadPool(
-        this.serviceConfig.getMaxIoThreads(), this.buildThreadFactory());
+        this.endpointConfig.getMaxIoThreads(), this.buildThreadFactory());
   }
 
   private ThreadFactory buildThreadFactory() {
