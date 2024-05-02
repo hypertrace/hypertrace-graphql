@@ -36,4 +36,7 @@ public interface ExploreRequestBuilder {
       Optional<EntityContextOptions> entityContextOptions,
       Single<Set<AttributeRequest>> attributeSelections,
       Single<Set<MetricAggregationRequest>> aggregationSelections);
+
+  Single<ExploreRequest> rebuildWithAdditionalFilters(
+      ExploreRequest originalRequest, List<FilterArgument> filterArguments);
 }

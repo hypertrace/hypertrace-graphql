@@ -6,6 +6,7 @@ import static java.util.Collections.emptyList;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
-class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
+public class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   private static final int DEFAULT_LIMIT = 100;
   private static final int DEFAULT_OFFSET = 0;
 
@@ -188,6 +189,46 @@ class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
                 groupBy.map(GroupByArgument::includeRest).orElse(false),
                 spaceId,
                 groupBy.map(GroupByArgument::groupLimit)));
+  }
+
+  @Override
+  public Single<ExploreRequest> rebuildWithAdditionalFilters(
+      ExploreRequest originalRequest, List<FilterArgument> additionalFilterArguments) {
+    return this.mergeFilterLists(
+            originalRequest.context(),
+            originalRequest.scope(),
+            originalRequest.filterArguments(),
+            additionalFilterArguments)
+        .map(
+            newFilterArguments ->
+                new DefaultExploreRequest(
+                    originalRequest.context(),
+                    originalRequest.scope(),
+                    originalRequest.timeRange(),
+                    originalRequest.limit(),
+                    originalRequest.offset(),
+                    originalRequest.attributeRequests(),
+                    originalRequest.aggregationRequests(),
+                    originalRequest.orderArguments(),
+                    newFilterArguments,
+                    originalRequest.groupByAttributeRequests(),
+                    originalRequest.timeInterval(),
+                    originalRequest.entityContextOptions(),
+                    originalRequest.includeRest(),
+                    originalRequest.spaceId(),
+                    originalRequest.groupLimit()));
+  }
+
+  private Single<List<AttributeAssociation<FilterArgument>>> mergeFilterLists(
+      GraphQlRequestContext requestContext,
+      String scope,
+      Collection<AttributeAssociation<FilterArgument>> original,
+      Collection<FilterArgument> additional) {
+    return this.filterRequestBuilder
+        .build(requestContext, scope, additional)
+        .flattenAsObservable(list -> list)
+        .concatWith(Observable.fromIterable(original))
+        .toList();
   }
 
   private Single<Set<AttributeRequest>> buildGroupByAttributes(
