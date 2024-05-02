@@ -38,7 +38,7 @@ import org.hypertrace.graphql.explorer.schema.argument.IntervalArgument;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
-public class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
+class DefaultExploreRequestBuilder implements ExploreRequestBuilder {
   private static final int DEFAULT_LIMIT = 100;
   private static final int DEFAULT_OFFSET = 0;
 
