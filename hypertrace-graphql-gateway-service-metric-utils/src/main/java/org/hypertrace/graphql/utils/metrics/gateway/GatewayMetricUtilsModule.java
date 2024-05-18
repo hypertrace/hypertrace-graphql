@@ -24,6 +24,7 @@ import org.hypertrace.gateway.service.v1.common.TimeAggregation;
 import org.hypertrace.gateway.service.v1.common.Value;
 import org.hypertrace.gateway.service.v1.entity.Entity;
 import org.hypertrace.graphql.metric.request.MetricAggregationRequest;
+import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
 import org.hypertrace.graphql.metric.request.MetricRequest;
 import org.hypertrace.graphql.metric.request.MetricSeriesRequest;
 import org.hypertrace.graphql.metric.schema.BaselinedMetricAggregationContainer;
@@ -76,5 +77,6 @@ public class GatewayMetricUtilsModule extends AbstractModule {
         Key.get(
             new TypeLiteral<
                 Converter<MetricAggregationType, AttributeModelMetricAggregationType>>() {}));
+    requireBinding(MetricAggregationRequestBuilder.class);
   }
 }

@@ -2,11 +2,9 @@ package org.hypertrace.graphql.utils.metrics.gateway;
 
 import static io.reactivex.rxjava3.core.Single.zip;
 
-import com.google.protobuf.StringValue;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,25 +47,6 @@ class MetricAggregationExpressionConverter
             metricAggregation.aggregation(),
             metricAggregation.arguments(),
             alias)
-        .map(functionExpression -> Expression.newBuilder().setFunction(functionExpression).build());
-  }
-
-  Single<Expression> convertForNoArgsOrAlias(
-      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
-      AttributeModelMetricAggregationType aggregationType) {
-    return convertForArgsButNoAlias(
-        attributeExpressionAssociation, aggregationType, Collections.emptyList());
-  }
-
-  Single<Expression> convertForArgsButNoAlias(
-      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
-      AttributeModelMetricAggregationType aggregationType,
-      List<Object> arguments) {
-    return this.buildAggregationFunctionExpression(
-            attributeExpressionAssociation,
-            aggregationType,
-            arguments,
-            StringValue.getDefaultInstance().getValue())
         .map(functionExpression -> Expression.newBuilder().setFunction(functionExpression).build());
   }
 

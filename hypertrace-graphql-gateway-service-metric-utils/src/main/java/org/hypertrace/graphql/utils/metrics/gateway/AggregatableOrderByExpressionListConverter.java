@@ -5,8 +5,8 @@ import static io.reactivex.rxjava3.core.Single.zip;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -19,6 +19,7 @@ import org.hypertrace.core.graphql.common.utils.Converter;
 import org.hypertrace.gateway.service.v1.common.Expression;
 import org.hypertrace.gateway.service.v1.common.OrderByExpression;
 import org.hypertrace.gateway.service.v1.common.SortOrder;
+import org.hypertrace.graphql.metric.request.MetricAggregationRequestBuilder;
 import org.hypertrace.graphql.metric.schema.argument.AggregatableOrderArgument;
 
 class AggregatableOrderByExpressionListConverter
@@ -31,6 +32,7 @@ class AggregatableOrderByExpressionListConverter
   private final Converter<OrderDirection, SortOrder> sortOrderConverter;
   private final Converter<MetricAggregationType, AttributeModelMetricAggregationType>
       aggregationTypeConverter;
+  private final MetricAggregationRequestBuilder metricAggregationRequestBuilder;
 
   @Inject
   AggregatableOrderByExpressionListConverter(
@@ -38,11 +40,13 @@ class AggregatableOrderByExpressionListConverter
       MetricAggregationExpressionConverter metricAggregationExpressionConverter,
       Converter<OrderDirection, SortOrder> sortOrderConverter,
       Converter<MetricAggregationType, AttributeModelMetricAggregationType>
-          aggregationTypeConverter) {
+          aggregationTypeConverter,
+      MetricAggregationRequestBuilder metricAggregationRequestBuilder) {
     this.columnExpressionConverter = columnExpressionConverter;
     this.metricAggregationExpressionConverter = metricAggregationExpressionConverter;
     this.sortOrderConverter = sortOrderConverter;
     this.aggregationTypeConverter = aggregationTypeConverter;
+    this.metricAggregationRequestBuilder = metricAggregationRequestBuilder;
   }
 
   @Override
@@ -66,17 +70,20 @@ class AggregatableOrderByExpressionListConverter
       AttributeAssociation<AggregatableOrderArgument> orderArgument) {
     AttributeAssociation<AttributeExpression> attributeExpressionAssociation =
         this.buildAttributeExpressionAssociation(orderArgument);
+    List<Object> aggregationArguments =
+        Optional.<Object>ofNullable(orderArgument.value().size())
+            .map(List::of)
+            .orElseGet(Collections::emptyList);
     return Maybe.fromOptional(Optional.ofNullable(orderArgument.value().aggregation()))
         .flatMapSingle(this.aggregationTypeConverter::convert)
-        .flatMapSingle(
+        .map(
             aggregationType ->
-                orderArgument.value().size() == null
-                    ? this.metricAggregationExpressionConverter.convertForNoArgsOrAlias(
-                        attributeExpressionAssociation, aggregationType)
-                    : this.metricAggregationExpressionConverter.convertForArgsButNoAlias(
-                        attributeExpressionAssociation,
-                        aggregationType,
-                        List.of(Objects.requireNonNull(orderArgument.value().size()))))
+                this.metricAggregationRequestBuilder.build(
+                    attributeExpressionAssociation, aggregationType, aggregationArguments))
+        .flatMapSingle(
+            aggregationRequest ->
+                this.metricAggregationExpressionConverter.convert(
+                    aggregationRequest, aggregationRequest.alias()))
         .switchIfEmpty(this.columnExpressionConverter.convert(attributeExpressionAssociation));
   }
 
