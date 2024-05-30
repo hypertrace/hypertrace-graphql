@@ -10,6 +10,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.SelectedField;
 import io.reactivex.rxjava3.core.Single;
@@ -30,6 +32,7 @@ import org.hypertrace.core.graphql.common.schema.results.arguments.order.OrderAr
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
 import org.hypertrace.core.graphql.log.event.schema.LogEventResultSet;
 import org.hypertrace.core.graphql.span.dao.SpanDao;
+import org.hypertrace.core.graphql.span.joiner.SpanJoiner.MultipleSpanIdGetter;
 import org.hypertrace.core.graphql.span.joiner.SpanJoiner.SpanIdGetter;
 import org.hypertrace.core.graphql.span.request.SpanRequest;
 import org.hypertrace.core.graphql.span.schema.Span;
@@ -45,8 +48,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class SpanJoinerBuilderTest {
 
-  private static final String FIRST_SPAN_ID = "spanId1";
-  private static final String SECOND_SPAN_ID = "spanId2";
+  private static final String SPAN_ID1 = "spanId1";
+  private static final String SPAN_ID2 = "spanId2";
+  private static final String SPAN_ID3 = "spanId3";
+  private static final String SPAN_ID4 = "spanId4";
 
   @Mock private SpanDao mockSpanDao;
   @Mock private GraphQlSelectionFinder mockSelectionFinder;
@@ -72,30 +77,17 @@ public class SpanJoinerBuilderTest {
 
   @Test
   void fetchSpans() {
-    Span span1 = new TestSpan(FIRST_SPAN_ID);
-    Span span2 = new TestSpan(SECOND_SPAN_ID);
-    TestJoinSource joinSource1 = new TestJoinSource(FIRST_SPAN_ID);
-    TestJoinSource joinSource2 = new TestJoinSource(SECOND_SPAN_ID);
+    Span span1 = new TestSpan(SPAN_ID1);
+    Span span2 = new TestSpan(SPAN_ID2);
+    TestJoinSource joinSource1 = new TestJoinSource(SPAN_ID1);
+    TestJoinSource joinSource2 = new TestJoinSource(SPAN_ID2);
     Map<TestJoinSource, Span> expected =
         Map.ofEntries(entry(joinSource1, span1), entry(joinSource2, span2));
     List<TestJoinSource> joinSources = List.of(joinSource1, joinSource2);
-    mockRequestedSelectionFields(
-        List.of(mock(SelectedField.class), mock(SelectedField.class)), "pathToSpan");
-    mockRequestBuilding();
-    mockResult(List.of(span1, span2));
-    SpanJoiner joiner =
-        this.spanJoinerBuilder
-            .build(
-                this.mockRequestContext,
-                this.mockTimeRangeArgument,
-                this.mockSelectionSet,
-                List.of("pathToSpan"))
-            .blockingGet();
-    assertEquals(
-        expected, joiner.joinSpans(joinSources, new TestJoinSourceIdGetter()).blockingGet());
-  }
-
-  private void mockRequestBuilding() {
+    when(mockSelectionFinder.findSelections(
+            mockSelectionSet,
+            SelectionQuery.builder().selectionPath(List.of("pathToSpan", "span")).build()))
+        .thenReturn(Stream.of(mock(SelectedField.class), mock(SelectedField.class)));
     when(mockFilterRequestBuilder.build(eq(mockRequestContext), eq(SPAN), anySet()))
         .thenReturn(Single.just(List.of(mockFilter)));
 
@@ -110,18 +102,65 @@ public class SpanJoinerBuilderTest {
             any(Stream.class),
             eq(Optional.empty())))
         .thenReturn(Single.just(mockResultSetRequest));
+    mockResult(List.of(span1, span2));
+    SpanJoiner joiner =
+        this.spanJoinerBuilder
+            .build(
+                this.mockRequestContext,
+                this.mockTimeRangeArgument,
+                this.mockSelectionSet,
+                List.of("pathToSpan"))
+            .blockingGet();
+    assertEquals(
+        expected, joiner.joinSpan(joinSources, new TestJoinSourceIdGetter()).blockingGet());
   }
 
-  private void mockRequestedSelectionFields(List<SelectedField> selectedFields, String location) {
+  @Test
+  void fetchMultipleSpans() {
+    Span span1 = new TestSpan(SPAN_ID1);
+    Span span2 = new TestSpan(SPAN_ID2);
+    TestMultipleJoinSource joinSource1 = new TestMultipleJoinSource(List.of(SPAN_ID1, SPAN_ID2));
+    TestMultipleJoinSource joinSource2 = new TestMultipleJoinSource(List.of(SPAN_ID3, SPAN_ID4));
+    ListMultimap<TestMultipleJoinSource, Span> expected = ArrayListMultimap.create();
+    expected.put(joinSource1, span1);
+    expected.put(joinSource1, span2);
+    List<TestMultipleJoinSource> joinSources = List.of(joinSource1, joinSource2);
     when(mockSelectionFinder.findSelections(
             mockSelectionSet,
-            SelectionQuery.builder().selectionPath(List.of(location, "span")).build()))
-        .thenReturn(selectedFields.stream());
+            SelectionQuery.builder().selectionPath(List.of("pathToSpans", "spans")).build()))
+        .thenReturn(Stream.of(mock(SelectedField.class), mock(SelectedField.class)));
+    when(mockFilterRequestBuilder.build(eq(mockRequestContext), eq(SPAN), anySet()))
+        .thenReturn(Single.just(List.of(mockFilter)));
+
+    when(mockResultSetRequestBuilder.build(
+            eq(mockRequestContext),
+            eq(SPAN),
+            eq(4),
+            eq(0),
+            eq(mockTimeRangeArgument),
+            eq(emptyList()),
+            eq(List.of(mockFilter)),
+            any(Stream.class),
+            eq(Optional.empty())))
+        .thenReturn(Single.just(mockResultSetRequest));
+
+    mockResult(List.of(span1, span2));
+    SpanJoiner joiner =
+        this.spanJoinerBuilder
+            .build(
+                this.mockRequestContext,
+                this.mockTimeRangeArgument,
+                this.mockSelectionSet,
+                List.of("pathToSpans"))
+            .blockingGet();
+    assertEquals(
+        expected,
+        joiner.joinSpans(joinSources, new TestMultipleJoinSourceIdGetter()).blockingGet());
   }
 
   private void mockResult(List<Span> spans) {
     when(mockSpanDao.getSpans(any(SpanRequest.class)))
-        .thenAnswer(invocation -> Single.just(new TestSpanResultSet(spans)));
+        .thenReturn(Single.just(new TestSpanResultSet(spans)));
   }
 
   @Value
@@ -160,6 +199,19 @@ public class SpanJoinerBuilderTest {
     @Override
     public LogEventResultSet logEvents() {
       return null;
+    }
+  }
+
+  @Value
+  private static class TestMultipleJoinSource {
+    List<String> spanIds;
+  }
+
+  private static class TestMultipleJoinSourceIdGetter
+      implements MultipleSpanIdGetter<TestMultipleJoinSource> {
+    @Override
+    public Single<List<String>> getSpanIds(TestMultipleJoinSource source) {
+      return Single.just(source.getSpanIds());
     }
   }
 }
