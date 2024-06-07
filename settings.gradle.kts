@@ -12,11 +12,11 @@ pluginManagement {
 
 plugins {
   id("org.hypertrace.version-settings") version "0.2.1"
-  id("org.hypertrace.dependency-settings") version "0.1.1"
+  id("org.hypertrace.dependency-settings") version "0.1.2"
 }
 
 configure<DependencyPluginSettingExtension> {
-  catalogVersion.set("0.2.10")
+  catalogVersion.set("0.3.23")
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
