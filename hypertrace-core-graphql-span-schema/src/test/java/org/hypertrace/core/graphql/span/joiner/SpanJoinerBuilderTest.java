@@ -5,7 +5,7 @@ import static java.util.Map.entry;
 import static org.hypertrace.core.graphql.atttributes.scopes.HypertraceCoreAttributeScopeString.SPAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -15,6 +15,7 @@ import com.google.common.collect.ListMultimap;
 import graphql.schema.DataFetchingFieldSelectionSet;
 import graphql.schema.SelectedField;
 import io.reactivex.rxjava3.core.Single;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public class SpanJoinerBuilderTest {
             mockSelectionSet,
             SelectionQuery.builder().selectionPath(List.of("pathToSpan", "span")).build()))
         .thenReturn(Stream.of(mock(SelectedField.class), mock(SelectedField.class)));
-    when(mockFilterRequestBuilder.build(eq(mockRequestContext), eq(SPAN), anySet()))
+    when(mockFilterRequestBuilder.build(eq(mockRequestContext), eq(SPAN), anyList()))
         .thenReturn(Single.just(List.of(mockFilter)));
 
     when(mockResultSetRequestBuilder.build(
@@ -112,7 +113,10 @@ public class SpanJoinerBuilderTest {
                 List.of("pathToSpan"))
             .blockingGet();
     assertEquals(
-        expected, joiner.joinSpan(joinSources, new TestJoinSourceIdGetter()).blockingGet());
+        expected,
+        joiner
+            .joinSpan(joinSources, new TestJoinSourceIdGetter(), Collections.emptyList())
+            .blockingGet());
   }
 
   @Test
@@ -129,7 +133,7 @@ public class SpanJoinerBuilderTest {
             mockSelectionSet,
             SelectionQuery.builder().selectionPath(List.of("pathToSpans", "spans")).build()))
         .thenReturn(Stream.of(mock(SelectedField.class), mock(SelectedField.class)));
-    when(mockFilterRequestBuilder.build(eq(mockRequestContext), eq(SPAN), anySet()))
+    when(mockFilterRequestBuilder.build(eq(mockRequestContext), eq(SPAN), anyList()))
         .thenReturn(Single.just(List.of(mockFilter)));
 
     when(mockResultSetRequestBuilder.build(
@@ -155,7 +159,9 @@ public class SpanJoinerBuilderTest {
             .blockingGet();
     assertEquals(
         expected,
-        joiner.joinSpans(joinSources, new TestMultipleJoinSourceIdGetter()).blockingGet());
+        joiner
+            .joinSpans(joinSources, new TestMultipleJoinSourceIdGetter(), Collections.emptyList())
+            .blockingGet());
   }
 
   private void mockResult(List<Span> spans) {

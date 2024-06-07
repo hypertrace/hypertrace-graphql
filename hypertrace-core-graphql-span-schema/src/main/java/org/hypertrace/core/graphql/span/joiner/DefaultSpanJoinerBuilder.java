@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -86,26 +86,32 @@ public class DefaultSpanJoinerBuilder implements SpanJoinerBuilder {
 
     @Override
     public <T> Single<Map<T, Span>> joinSpan(
-        Collection<T> joinSources, SpanIdGetter<T> spanIdGetter) {
+        Collection<T> joinSources,
+        SpanIdGetter<T> spanIdGetter,
+        Collection<FilterArgument> filterArguments) {
       Function<T, Single<List<String>>> idsGetter =
           source -> spanIdGetter.getSpanId(source).map(List::of);
-      return this.joinSpans(joinSources, idsGetter, SPAN_KEY).map(this::reduceMap);
+      return this.joinSpans(joinSources, idsGetter, filterArguments, SPAN_KEY).map(this::reduceMap);
     }
 
     @Override
     public <T> Single<ListMultimap<T, Span>> joinSpans(
-        Collection<T> joinSources, MultipleSpanIdGetter<T> multipleSpanIdGetter) {
-      return this.joinSpans(joinSources, multipleSpanIdGetter::getSpanIds, SPANS_KEY);
+        Collection<T> joinSources,
+        MultipleSpanIdGetter<T> multipleSpanIdGetter,
+        Collection<FilterArgument> filterArguments) {
+      return this.joinSpans(
+          joinSources, multipleSpanIdGetter::getSpanIds, filterArguments, SPANS_KEY);
     }
 
     private <T> Single<ListMultimap<T, Span>> joinSpans(
         Collection<T> joinSources,
         Function<T, Single<List<String>>> idsGetter,
+        Collection<FilterArgument> filterArguments,
         String joinSpanKey) {
       return this.buildSourceToIdsMap(joinSources, idsGetter)
           .flatMap(
               sourceToSpanIdsMap ->
-                  this.buildSpanRequest(sourceToSpanIdsMap, joinSpanKey)
+                  this.buildSpanRequest(sourceToSpanIdsMap, joinSpanKey, filterArguments)
                       .flatMap(spanDao::getSpans)
                       .map(this::buildSpanIdToSpanMap)
                       .map(
@@ -152,15 +158,16 @@ public class DefaultSpanJoinerBuilder implements SpanJoinerBuilder {
     }
 
     private <T> Single<SpanRequest> buildSpanRequest(
-        ListMultimap<T, String> sourceToSpanIdsMultimap, String joinSpanKey) {
+        ListMultimap<T, String> sourceToSpanIdsMultimap,
+        String joinSpanKey,
+        Collection<FilterArgument> filterArguments) {
       Collection<String> spanIds =
           sourceToSpanIdsMultimap.values().stream()
               .distinct()
               .collect(Collectors.toUnmodifiableList());
       List<SelectedField> selectedFields = getSelections(joinSpanKey);
-      return buildSpanIdsFilter(context, spanIds)
-          .flatMap(
-              filterArguments -> buildSpanRequest(spanIds.size(), filterArguments, selectedFields));
+      return buildSpanIdsFilter(context, spanIds, filterArguments)
+          .flatMap(filters -> buildSpanRequest(spanIds.size(), filters, selectedFields));
     }
 
     private Single<SpanRequest> buildSpanRequest(
@@ -182,8 +189,14 @@ public class DefaultSpanJoinerBuilder implements SpanJoinerBuilder {
     }
 
     private Single<List<AttributeAssociation<FilterArgument>>> buildSpanIdsFilter(
-        GraphQlRequestContext context, Collection<String> spanIds) {
-      return filterRequestBuilder.build(context, SPAN, Set.of(new SpanIdFilter(spanIds)));
+        GraphQlRequestContext context,
+        Collection<String> spanIds,
+        Collection<FilterArgument> filterArguments) {
+      return filterRequestBuilder.build(
+          context,
+          SPAN,
+          Stream.concat(filterArguments.stream(), Stream.of(new SpanIdFilter(spanIds)))
+              .collect(Collectors.toUnmodifiableList()));
     }
   }
 
