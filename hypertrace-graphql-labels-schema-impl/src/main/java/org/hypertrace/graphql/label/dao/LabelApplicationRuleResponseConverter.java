@@ -161,7 +161,9 @@ class LabelApplicationRuleResponseConverter {
         .map(
             rule ->
                 new ConvertedTokenExtractionRule(
-                    rule.getKey(), rule.getAlias(), rule.getRegexCapture()))
+                    rule.getKey(),
+                    rule.hasAlias() ? rule.getAlias() : null,
+                    rule.hasRegexCapture() ? rule.getRegexCapture() : null))
         .collect(Collectors.toList());
   }
 
