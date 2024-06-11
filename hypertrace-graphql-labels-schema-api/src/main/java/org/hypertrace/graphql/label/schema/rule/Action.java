@@ -27,7 +27,7 @@ public interface Action {
   enum ActionType {
     STATIC_LABELS,
     DYNAMIC_LABEL_KEY,
-    DYNAMIC_LABEL_EXPRESSION;
+    DYNAMIC_LABEL;
     private static final String TYPE_NAME = "LabelApplicationActionType";
   }
 

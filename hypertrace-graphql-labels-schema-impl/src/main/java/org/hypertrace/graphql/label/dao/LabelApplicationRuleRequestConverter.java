@@ -83,7 +83,7 @@ class LabelApplicationRuleRequestConverter {
             .build();
       case DYNAMIC_LABEL_KEY:
         return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
-      case DYNAMIC_LABEL_EXPRESSION:
+      case DYNAMIC_LABEL:
         return actionBuilder
             .setDynamicLabelExpression(
                 Action.DynamicLabel.newBuilder()

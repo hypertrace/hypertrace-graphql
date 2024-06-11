@@ -124,12 +124,7 @@ class LabelApplicationRuleResponseConverter {
         return operation.map(
             op ->
                 new ConvertedAction(
-                    entityTypes,
-                    op,
-                    null,
-                    null,
-                    dynamicLabel,
-                    Action.ActionType.DYNAMIC_LABEL_EXPRESSION));
+                    entityTypes, op, null, null, dynamicLabel, Action.ActionType.DYNAMIC_LABEL));
       default:
         log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
         return Optional.empty();
