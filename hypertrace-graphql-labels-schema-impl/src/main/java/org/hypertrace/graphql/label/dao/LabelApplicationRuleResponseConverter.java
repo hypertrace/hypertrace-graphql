@@ -129,7 +129,7 @@ class LabelApplicationRuleResponseConverter {
                     null,
                     null,
                     dynamicLabelExpression,
-                    Action.ActionType.DYNAMIC_LABEL_KEY));
+                    Action.ActionType.DYNAMIC_LABEL_EXPRESSION));
       default:
         log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
         return Optional.empty();
