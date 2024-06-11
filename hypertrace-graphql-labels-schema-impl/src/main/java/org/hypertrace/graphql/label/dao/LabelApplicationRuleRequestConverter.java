@@ -12,6 +12,7 @@ import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplic
 import org.hypertrace.label.application.rule.config.service.v1.DeleteLabelApplicationRuleRequest;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action;
+import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action.DynamicLabel.TokenExtractionRule;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.CompositeCondition;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Condition;
 import org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.LeafCondition;
@@ -82,9 +83,32 @@ class LabelApplicationRuleRequestConverter {
             .build();
       case DYNAMIC_LABEL_KEY:
         return actionBuilder.setDynamicLabelKey(action.dynamicLabelKey()).build();
+      case DYNAMIC_LABEL_EXPRESSION:
+        return actionBuilder
+            .setDynamicLabelExpression(
+                Action.DynamicLabel.newBuilder()
+                    .setLabelExpression(action.dynamicLabelExpression().labelExpression())
+                    .addAllTokenExtractionRules(
+                        convertTokenExtractionRules(
+                            action.dynamicLabelExpression().tokenExtractionRules())))
+            .build();
       default:
         throw new IllegalArgumentException("Unsupported action value");
     }
+  }
+
+  private List<TokenExtractionRule> convertTokenExtractionRules(
+      List<org.hypertrace.graphql.label.schema.rule.TokenExtractionRule> tokenExtractionRules) {
+    return tokenExtractionRules.stream()
+        .map(
+            rule -> {
+              TokenExtractionRule.Builder builder =
+                  TokenExtractionRule.newBuilder().setKey(rule.key());
+              Optional.ofNullable(rule.alias()).ifPresent(builder::setAlias);
+              Optional.ofNullable(rule.regexCapture()).ifPresent(builder::setRegexCapture);
+              return builder.build();
+            })
+        .collect(Collectors.toList());
   }
 
   Condition convertConditionList(

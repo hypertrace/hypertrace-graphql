@@ -12,12 +12,14 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.graphql.label.schema.rule.Action;
 import org.hypertrace.graphql.label.schema.rule.Condition;
+import org.hypertrace.graphql.label.schema.rule.DynamicLabelExpression;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
 import org.hypertrace.graphql.label.schema.rule.LeafCondition;
 import org.hypertrace.graphql.label.schema.rule.StaticLabels;
 import org.hypertrace.graphql.label.schema.rule.StringCondition;
+import org.hypertrace.graphql.label.schema.rule.TokenExtractionRule;
 import org.hypertrace.graphql.label.schema.rule.UnaryCondition;
 import org.hypertrace.graphql.label.schema.rule.ValueCondition;
 import org.hypertrace.label.application.rule.config.service.v1.CreateLabelApplicationRuleResponse;
@@ -105,7 +107,7 @@ class LabelApplicationRuleResponseConverter {
         return operation.map(
             op ->
                 new ConvertedAction(
-                    entityTypes, op, staticLabels, null, Action.ActionType.STATIC_LABELS));
+                    entityTypes, op, staticLabels, null, null, Action.ActionType.STATIC_LABELS));
       case DYNAMIC_LABEL_KEY:
         return operation.map(
             op ->
@@ -114,7 +116,20 @@ class LabelApplicationRuleResponseConverter {
                     op,
                     null,
                     action.getDynamicLabelKey(),
+                    null,
                     Action.ActionType.DYNAMIC_LABEL_KEY));
+      case DYNAMIC_LABEL_EXPRESSION:
+        DynamicLabelExpression dynamicLabelExpression =
+            convertDynamicLabelExpression(action.getDynamicLabelExpression());
+        return operation.map(
+            op ->
+                new ConvertedAction(
+                    entityTypes,
+                    op,
+                    null,
+                    null,
+                    dynamicLabelExpression,
+                    Action.ActionType.DYNAMIC_LABEL_EXPRESSION));
       default:
         log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
         return Optional.empty();
@@ -126,6 +141,30 @@ class LabelApplicationRuleResponseConverter {
               .StaticLabels
           staticLabels) {
     return new ConvertedStaticLabels(staticLabels.getIdsList());
+  }
+
+  private DynamicLabelExpression convertDynamicLabelExpression(
+      org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
+              .DynamicLabel
+          dynamicLabel) {
+    return new ConvertedDynamicLabelExpression(
+        dynamicLabel.getLabelExpression(),
+        convertTokenExtractionRules(dynamicLabel.getTokenExtractionRulesList()));
+  }
+
+  private List<TokenExtractionRule> convertTokenExtractionRules(
+      List<
+              org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData
+                  .Action.DynamicLabel.TokenExtractionRule>
+          tokenExtractionRules) {
+    return tokenExtractionRules.stream()
+        .map(
+            rule ->
+                new ConvertedTokenExtractionRule(
+                    rule.getKey(),
+                    rule.hasAlias() ? rule.getAlias() : null,
+                    rule.hasRegexCapture() ? rule.getRegexCapture() : null))
+        .collect(Collectors.toList());
   }
 
   private List<Condition> convertCondition(
@@ -300,6 +339,7 @@ class LabelApplicationRuleResponseConverter {
     Operation operation;
     StaticLabels staticLabels;
     String dynamicLabelKey;
+    DynamicLabelExpression dynamicLabelExpression;
     ActionType type;
   }
 
@@ -307,6 +347,21 @@ class LabelApplicationRuleResponseConverter {
   @Accessors(fluent = true)
   private static class ConvertedStaticLabels implements StaticLabels {
     List<String> ids;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class ConvertedDynamicLabelExpression implements DynamicLabelExpression {
+    String labelExpression;
+    List<TokenExtractionRule> tokenExtractionRules;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  private static class ConvertedTokenExtractionRule implements TokenExtractionRule {
+    String key;
+    String alias;
+    String regexCapture;
   }
 
   @Value

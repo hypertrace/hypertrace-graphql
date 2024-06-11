@@ -10,11 +10,13 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.label.schema.rule.Action;
 import org.hypertrace.graphql.label.schema.rule.Condition;
+import org.hypertrace.graphql.label.schema.rule.DynamicLabelExpression;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.schema.rule.LeafCondition;
 import org.hypertrace.graphql.label.schema.rule.StaticLabels;
 import org.hypertrace.graphql.label.schema.rule.StringCondition;
+import org.hypertrace.graphql.label.schema.rule.TokenExtractionRule;
 import org.hypertrace.graphql.label.schema.rule.UnaryCondition;
 import org.hypertrace.graphql.label.schema.rule.ValueCondition;
 
@@ -38,6 +40,9 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
                 LabelApplicationRuleData.class, LabelApplicationRuleDataArgument.class)
             .addAbstractTypeMapping(Action.class, ActionArgument.class)
             .addAbstractTypeMapping(StaticLabels.class, StaticLabelsArgument.class)
+            .addAbstractTypeMapping(
+                DynamicLabelExpression.class, DynamicLabelExpressionArgument.class)
+            .addAbstractTypeMapping(TokenExtractionRule.class, TokenExtractionRuleArgument.class)
             .addAbstractTypeMapping(Condition.class, ConditionArgument.class)
             .addAbstractTypeMapping(LeafCondition.class, LeafConditionArgument.class)
             .addAbstractTypeMapping(ValueCondition.class, ValueConditionArgument.class)
@@ -92,6 +97,9 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
     @JsonProperty(DYNAMIC_LABEL_KEY_KEY)
     String dynamicLabelKey;
 
+    @JsonProperty(DYNAMIC_LABEL_EXPRESSION_KEY)
+    DynamicLabelExpression dynamicLabelExpression;
+
     @JsonProperty(ACTION_TYPE_KEY)
     ActionType type;
   }
@@ -102,6 +110,31 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
   private static class StaticLabelsArgument implements StaticLabels {
     @JsonProperty(IDS_KEY)
     List<String> ids;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  @NoArgsConstructor(force = true)
+  private static class DynamicLabelExpressionArgument implements DynamicLabelExpression {
+    @JsonProperty(LABEL_EXPRESSION_KEY)
+    String labelExpression;
+
+    @JsonProperty(TOKEN_EXTRACTION_RULES_KEY)
+    List<TokenExtractionRule> tokenExtractionRules;
+  }
+
+  @Value
+  @Accessors(fluent = true)
+  @NoArgsConstructor(force = true)
+  private static class TokenExtractionRuleArgument implements TokenExtractionRule {
+    @JsonProperty(KEY_NAME)
+    String key;
+
+    @JsonProperty(ALIAS_KEY)
+    String alias;
+
+    @JsonProperty(REGEX_CAPTURE_KEY)
+    String regexCapture;
   }
 
   @Value
