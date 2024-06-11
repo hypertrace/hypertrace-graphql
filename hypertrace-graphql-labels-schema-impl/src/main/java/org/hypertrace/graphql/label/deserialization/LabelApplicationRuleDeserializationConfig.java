@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import org.hypertrace.core.graphql.deserialization.ArgumentDeserializationConfig;
 import org.hypertrace.graphql.label.schema.rule.Action;
 import org.hypertrace.graphql.label.schema.rule.Condition;
-import org.hypertrace.graphql.label.schema.rule.DynamicLabelExpression;
+import org.hypertrace.graphql.label.schema.rule.DynamicLabel;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.schema.rule.LeafCondition;
@@ -40,8 +40,7 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
                 LabelApplicationRuleData.class, LabelApplicationRuleDataArgument.class)
             .addAbstractTypeMapping(Action.class, ActionArgument.class)
             .addAbstractTypeMapping(StaticLabels.class, StaticLabelsArgument.class)
-            .addAbstractTypeMapping(
-                DynamicLabelExpression.class, DynamicLabelExpressionArgument.class)
+            .addAbstractTypeMapping(DynamicLabel.class, DynamicLabelArgument.class)
             .addAbstractTypeMapping(TokenExtractionRule.class, TokenExtractionRuleArgument.class)
             .addAbstractTypeMapping(Condition.class, ConditionArgument.class)
             .addAbstractTypeMapping(LeafCondition.class, LeafConditionArgument.class)
@@ -97,8 +96,8 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
     @JsonProperty(DYNAMIC_LABEL_KEY_KEY)
     String dynamicLabelKey;
 
-    @JsonProperty(DYNAMIC_LABEL_EXPRESSION_KEY)
-    DynamicLabelExpression dynamicLabelExpression;
+    @JsonProperty(DYNAMIC_LABEL_KEY)
+    DynamicLabel dynamicLabel;
 
     @JsonProperty(ACTION_TYPE_KEY)
     ActionType type;
@@ -115,9 +114,9 @@ public class LabelApplicationRuleDeserializationConfig implements ArgumentDeseri
   @Value
   @Accessors(fluent = true)
   @NoArgsConstructor(force = true)
-  private static class DynamicLabelExpressionArgument implements DynamicLabelExpression {
-    @JsonProperty(LABEL_EXPRESSION_KEY)
-    String labelExpression;
+  private static class DynamicLabelArgument implements DynamicLabel {
+    @JsonProperty(EXPRESSION_KEY)
+    String expression;
 
     @JsonProperty(TOKEN_EXTRACTION_RULES_KEY)
     List<TokenExtractionRule> tokenExtractionRules;

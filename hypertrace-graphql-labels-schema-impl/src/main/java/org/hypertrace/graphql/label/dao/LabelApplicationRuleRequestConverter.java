@@ -87,10 +87,9 @@ class LabelApplicationRuleRequestConverter {
         return actionBuilder
             .setDynamicLabelExpression(
                 Action.DynamicLabel.newBuilder()
-                    .setLabelExpression(action.dynamicLabelExpression().labelExpression())
+                    .setLabelExpression(action.dynamicLabel().expression())
                     .addAllTokenExtractionRules(
-                        convertTokenExtractionRules(
-                            action.dynamicLabelExpression().tokenExtractionRules())))
+                        convertTokenExtractionRules(action.dynamicLabel().tokenExtractionRules())))
             .build();
       default:
         throw new IllegalArgumentException("Unsupported action value");

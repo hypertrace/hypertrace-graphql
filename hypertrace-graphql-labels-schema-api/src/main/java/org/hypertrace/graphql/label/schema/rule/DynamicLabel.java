@@ -5,17 +5,17 @@ import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
 import java.util.List;
 
-@GraphQLName(DynamicLabelExpression.TYPE_NAME)
-public interface DynamicLabelExpression {
-  String TYPE_NAME = "DynamicLabelExpression";
+@GraphQLName(DynamicLabel.TYPE_NAME)
+public interface DynamicLabel {
+  String TYPE_NAME = "DynamicLabel";
 
-  String LABEL_EXPRESSION_KEY = "labelExpression";
+  String EXPRESSION_KEY = "expression";
   String TOKEN_EXTRACTION_RULES_KEY = "tokenExtractionRules";
 
   @GraphQLField
-  @GraphQLName(LABEL_EXPRESSION_KEY)
+  @GraphQLName(EXPRESSION_KEY)
   @GraphQLNonNull
-  String labelExpression();
+  String expression();
 
   @GraphQLField
   @GraphQLNonNull

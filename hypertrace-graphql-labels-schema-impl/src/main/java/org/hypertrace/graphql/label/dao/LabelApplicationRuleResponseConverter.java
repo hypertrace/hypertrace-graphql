@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.graphql.label.schema.rule.Action;
 import org.hypertrace.graphql.label.schema.rule.Condition;
-import org.hypertrace.graphql.label.schema.rule.DynamicLabelExpression;
+import org.hypertrace.graphql.label.schema.rule.DynamicLabel;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRule;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleData;
 import org.hypertrace.graphql.label.schema.rule.LabelApplicationRuleResultSet;
@@ -119,7 +119,7 @@ class LabelApplicationRuleResponseConverter {
                     null,
                     Action.ActionType.DYNAMIC_LABEL_KEY));
       case DYNAMIC_LABEL_EXPRESSION:
-        DynamicLabelExpression dynamicLabelExpression =
+        DynamicLabel dynamicLabel =
             convertDynamicLabelExpression(action.getDynamicLabelExpression());
         return operation.map(
             op ->
@@ -128,7 +128,7 @@ class LabelApplicationRuleResponseConverter {
                     op,
                     null,
                     null,
-                    dynamicLabelExpression,
+                    dynamicLabel,
                     Action.ActionType.DYNAMIC_LABEL_EXPRESSION));
       default:
         log.error("Unrecognized Value type in Action {}", action.getValueCase().name());
@@ -143,11 +143,11 @@ class LabelApplicationRuleResponseConverter {
     return new ConvertedStaticLabels(staticLabels.getIdsList());
   }
 
-  private DynamicLabelExpression convertDynamicLabelExpression(
+  private DynamicLabel convertDynamicLabelExpression(
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
               .DynamicLabel
           dynamicLabel) {
-    return new ConvertedDynamicLabelExpression(
+    return new ConvertedDynamicLabel(
         dynamicLabel.getLabelExpression(),
         convertTokenExtractionRules(dynamicLabel.getTokenExtractionRulesList()));
   }
@@ -339,7 +339,7 @@ class LabelApplicationRuleResponseConverter {
     Operation operation;
     StaticLabels staticLabels;
     String dynamicLabelKey;
-    DynamicLabelExpression dynamicLabelExpression;
+    DynamicLabel dynamicLabel;
     ActionType type;
   }
 
@@ -351,8 +351,8 @@ class LabelApplicationRuleResponseConverter {
 
   @Value
   @Accessors(fluent = true)
-  private static class ConvertedDynamicLabelExpression implements DynamicLabelExpression {
-    String labelExpression;
+  private static class ConvertedDynamicLabel implements DynamicLabel {
+    String expression;
     List<TokenExtractionRule> tokenExtractionRules;
   }
 
