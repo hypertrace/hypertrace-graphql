@@ -45,7 +45,6 @@ class GatewayServiceEntityDao implements EntityDao {
   private final GraphQlServiceConfig serviceConfig;
   private final Scheduler boundedIoScheduler;
   private final LabelJoinerBuilder labelJoinerBuilder;
-
   private final RequestTransformer requestTransformer;
 
   @Inject
