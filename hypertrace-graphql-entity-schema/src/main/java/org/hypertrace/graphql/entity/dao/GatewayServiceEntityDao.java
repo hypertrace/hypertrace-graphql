@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.hypertrace.core.graphql.common.request.AttributeRequest;
 import org.hypertrace.core.graphql.context.GraphQlRequestContext;
+import org.hypertrace.core.graphql.request.transformation.RequestTransformer;
 import org.hypertrace.core.graphql.rx.BoundedIoScheduler;
 import org.hypertrace.core.graphql.spi.config.GraphQlServiceConfig;
 import org.hypertrace.core.graphql.utils.grpc.GrpcChannelRegistry;
@@ -44,6 +45,7 @@ class GatewayServiceEntityDao implements EntityDao {
   private final GraphQlServiceConfig serviceConfig;
   private final Scheduler boundedIoScheduler;
   private final LabelJoinerBuilder labelJoinerBuilder;
+  private final RequestTransformer requestTransformer;
 
   @Inject
   GatewayServiceEntityDao(
@@ -55,6 +57,7 @@ class GatewayServiceEntityDao implements EntityDao {
       GatewayServiceEntityConverter entityConverter,
       BaselineDao baselineDao,
       LabelJoinerBuilder labelJoinerBuilder,
+      RequestTransformer requestTransformer,
       @BoundedIoScheduler Scheduler boundedIoScheduler) {
     this.grpcContextBuilder = grpcContextBuilder;
     this.requestBuilder = requestBuilder;
@@ -62,6 +65,7 @@ class GatewayServiceEntityDao implements EntityDao {
     this.baselineDao = baselineDao;
     this.labelJoinerBuilder = labelJoinerBuilder;
     this.serviceConfig = serviceConfig;
+    this.requestTransformer = requestTransformer;
     this.boundedIoScheduler = boundedIoScheduler;
 
     final GrpcChannelConfig grpcChannelConfig =
@@ -81,8 +85,9 @@ class GatewayServiceEntityDao implements EntityDao {
   @Override
   public Single<EntityResultSet> getEntities(EntityRequest request) {
     GraphQlRequestContext context = request.resultSetRequest().context();
-    return this.requestBuilder
-        .buildRequest(request)
+    return this.requestTransformer
+        .transform(request)
+        .flatMap(this.requestBuilder::buildRequest)
         .subscribeOn(this.boundedIoScheduler)
         .flatMap(serverRequest -> this.fetchAndMapEntities(context, request, serverRequest));
   }
