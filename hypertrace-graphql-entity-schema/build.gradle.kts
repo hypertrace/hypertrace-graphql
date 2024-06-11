@@ -24,6 +24,7 @@ dependencies {
   implementation(commonLibs.hypertrace.grpcutils.client)
   implementation(projects.hypertraceGraphqlLabelsSchemaApi)
 
+  implementation(localLibs.core.request.transformation)
   implementation(localLibs.core.context)
   implementation(localLibs.core.grpc)
   implementation(localLibs.core.schema.utils)
