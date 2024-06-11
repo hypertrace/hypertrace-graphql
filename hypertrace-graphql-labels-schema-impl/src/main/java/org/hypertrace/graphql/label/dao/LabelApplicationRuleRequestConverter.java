@@ -101,12 +101,13 @@ class LabelApplicationRuleRequestConverter {
       List<org.hypertrace.graphql.label.schema.rule.TokenExtractionRule> tokenExtractionRules) {
     return tokenExtractionRules.stream()
         .map(
-            rule ->
-                TokenExtractionRule.newBuilder()
-                    .setKey(rule.key())
-                    .setAlias(rule.alias())
-                    .setRegexCapture(rule.regexCapture())
-                    .build())
+            rule -> {
+              TokenExtractionRule.Builder builder =
+                  TokenExtractionRule.newBuilder().setKey(rule.key());
+              Optional.ofNullable(rule.alias()).ifPresent(builder::setAlias);
+              Optional.ofNullable(rule.regexCapture()).ifPresent(builder::setRegexCapture);
+              return builder.build();
+            })
         .collect(Collectors.toList());
   }
 
