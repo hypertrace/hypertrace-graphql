@@ -119,8 +119,7 @@ class LabelApplicationRuleResponseConverter {
                     null,
                     Action.ActionType.DYNAMIC_LABEL_KEY));
       case DYNAMIC_LABEL_EXPRESSION:
-        DynamicLabel dynamicLabel =
-            convertDynamicLabelExpression(action.getDynamicLabelExpression());
+        DynamicLabel dynamicLabel = convertDynamicLabel(action.getDynamicLabelExpression());
         return operation.map(
             op ->
                 new ConvertedAction(
@@ -138,7 +137,7 @@ class LabelApplicationRuleResponseConverter {
     return new ConvertedStaticLabels(staticLabels.getIdsList());
   }
 
-  private DynamicLabel convertDynamicLabelExpression(
+  private DynamicLabel convertDynamicLabel(
       org.hypertrace.label.application.rule.config.service.v1.LabelApplicationRuleData.Action
               .DynamicLabel
           dynamicLabel) {
