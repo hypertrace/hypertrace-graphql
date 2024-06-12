@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.label.schema.rule;
 
+import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -52,6 +53,7 @@ public interface Action {
   String dynamicLabelKey();
 
   @GraphQLField
+  @GraphQLDescription("Definition to generate dynamic labels")
   @Nullable
   @GraphQLName(DYNAMIC_LABEL_KEY)
   DynamicLabel dynamicLabel();
