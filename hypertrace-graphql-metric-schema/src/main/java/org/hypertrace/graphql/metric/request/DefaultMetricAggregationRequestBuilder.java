@@ -80,16 +80,25 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
       AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments) {
-    return this.build(attributeExpressionAssociation, aggregationType, arguments, false);
+    return this.build(attributeExpressionAssociation, aggregationType, arguments, false, null);
+  }
+
+  public MetricAggregationRequest build(
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
+      AttributeModelMetricAggregationType aggregationType,
+      List<Object> arguments,
+      String alias) {
+    return this.build(attributeExpressionAssociation, aggregationType, arguments, false, alias);
   }
 
   private MetricAggregationRequest build(
       AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments,
-      boolean baseline) {
+      boolean baseline,
+      String alias) {
     return new DefaultMetricAggregationRequest(
-        attributeExpressionAssociation, aggregationType, arguments, baseline);
+        attributeExpressionAssociation, aggregationType, arguments, baseline, alias);
   }
 
   private MetricAggregationRequest requestForAggregationField(
@@ -105,7 +114,8 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
             .findSelections(
                 field.getSelectionSet(), SelectionQuery.namedChild(BASELINE_AGGREGATION_VALUE))
             .findAny()
-            .isPresent());
+            .isPresent(),
+        field.getAlias());
   }
 
   private Optional<AttributeModelMetricAggregationType> getAggregationTypeForField(
@@ -181,9 +191,14 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
     AttributeModelMetricAggregationType aggregation;
     List<Object> arguments;
     boolean baseline;
+    String alias;
 
     @Override
     public String alias() {
+      if (alias != null) {
+        return alias;
+      }
+
       return String.format(
           "%s_%s_%s",
           this.aggregation.name(),
