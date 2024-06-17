@@ -24,4 +24,10 @@ public interface MetricAggregationRequestBuilder {
       AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
       AttributeModelMetricAggregationType aggregationType,
       List<Object> arguments);
+
+  MetricAggregationRequest build(
+      AttributeAssociation<AttributeExpression> attributeExpressionAssociation,
+      AttributeModelMetricAggregationType aggregationType,
+      List<Object> arguments,
+      String alias);
 }
