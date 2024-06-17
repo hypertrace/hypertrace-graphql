@@ -200,7 +200,12 @@ class ExploreSelectionRequestBuilder {
         AttributeExpression attributeExpression,
         AttributeModelMetricAggregationType aggregationType,
         List<Object> aggregationArguments) {
-      this(SelectionType.AGGREGATION, attributeExpression, aggregationType, aggregationArguments, null);
+      this(
+          SelectionType.AGGREGATION,
+          attributeExpression,
+          aggregationType,
+          aggregationArguments,
+          null);
     }
 
     SelectionArguments(
@@ -208,7 +213,12 @@ class ExploreSelectionRequestBuilder {
         AttributeModelMetricAggregationType aggregationType,
         List<Object> aggregationArguments,
         String alias) {
-      this(SelectionType.AGGREGATION, attributeExpression, aggregationType, aggregationArguments, alias);
+      this(
+          SelectionType.AGGREGATION,
+          attributeExpression,
+          aggregationType,
+          aggregationArguments,
+          alias);
     }
   }
 }
