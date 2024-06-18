@@ -7,8 +7,9 @@ import graphql.annotations.annotationTypes.GraphQLNonNull;
 import java.time.Instant;
 import org.hypertrace.core.graphql.common.schema.id.Identifiable;
 
-@GraphQLDescription("Exclude span rules are the set of rules created using filters based on span attributes based on which we exclude spans at source from reaching the platform")
 @GraphQLName(ExcludeSpanRule.TYPE_NAME)
+@GraphQLDescription(
+    "Exclude span rules are the set of rules created using filters on span attributes based on which we exclude spans at source from reaching the platform")
 public interface ExcludeSpanRule extends Identifiable, ExcludeSpanRuleInfo {
   String TYPE_NAME = "ExcludeSpanRule";
 
