@@ -184,10 +184,15 @@ class DefaultMetricAggregationRequestBuilder implements MetricAggregationRequest
 
     @Override
     public String alias() {
+      // We have purposefully removed attribute().getId()
+      // because id contains dot(.) which messes up with
+      // database operations because we need to encode dot
+      // at multiple places and it causes data alias mismatch.
       return String.format(
-          "%s_%s_%s",
+          "%s_%s_%s_%s",
           this.aggregation.name(),
-          this.attributeExpressionAssociation.attribute().id(),
+          this.attributeExpressionAssociation.attribute().scope(),
+          this.attributeExpressionAssociation.attribute().key(),
           this.arguments);
     }
 
