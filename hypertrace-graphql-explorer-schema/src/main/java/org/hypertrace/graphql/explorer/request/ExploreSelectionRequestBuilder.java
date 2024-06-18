@@ -119,8 +119,7 @@ class ExploreSelectionRequestBuilder {
                 new SelectionArguments(
                     attributeExpression,
                     aggregationType,
-                    this.getArguments(selectedField, aggregationType),
-                    selectedField.getAlias()))
+                    this.getArguments(selectedField, aggregationType)))
         .orElse(new SelectionArguments(attributeExpression));
   }
 
@@ -146,8 +145,7 @@ class ExploreSelectionRequestBuilder {
                 this.aggregationRequestBuilder.build(
                     attributeExpressionAttributeAssociation,
                     arguments.getAggregationType(),
-                    arguments.getAggregationArguments(),
-                    arguments.getAlias()));
+                    arguments.getAggregationArguments()));
   }
 
   private List<Object> getArguments(
@@ -190,35 +188,16 @@ class ExploreSelectionRequestBuilder {
     @Nonnull AttributeExpression attributeExpression;
     @Nullable AttributeModelMetricAggregationType aggregationType;
     @Nullable List<Object> aggregationArguments;
-    @Nullable String alias;
 
     SelectionArguments(AttributeExpression attributeExpression) {
-      this(SelectionType.ATTRIBUTE, attributeExpression, null, null, null);
+      this(SelectionType.ATTRIBUTE, attributeExpression, null, null);
     }
 
     SelectionArguments(
         AttributeExpression attributeExpression,
         AttributeModelMetricAggregationType aggregationType,
         List<Object> aggregationArguments) {
-      this(
-          SelectionType.AGGREGATION,
-          attributeExpression,
-          aggregationType,
-          aggregationArguments,
-          null);
-    }
-
-    SelectionArguments(
-        AttributeExpression attributeExpression,
-        AttributeModelMetricAggregationType aggregationType,
-        List<Object> aggregationArguments,
-        String alias) {
-      this(
-          SelectionType.AGGREGATION,
-          attributeExpression,
-          aggregationType,
-          aggregationArguments,
-          alias);
+      this(SelectionType.AGGREGATION, attributeExpression, aggregationType, aggregationArguments);
     }
   }
 }
