@@ -16,6 +16,6 @@ public interface ExcludeSpanRuleResultSet extends ResultSet<ExcludeSpanRule> {
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(RESULT_SET_RESULTS_NAME)
-  @GraphQLDescription("Exclude span rule list")
+  @GraphQLDescription("Exclude span rule list in")
   List<ExcludeSpanRule> results();
 }

@@ -23,19 +23,21 @@ public interface ExcludeSpanRuleInfo {
 
   @GraphQLField
   @GraphQLName(SPAN_FILTER_KEY)
-  @GraphQLDescription("Span processing rule filter")
+  @GraphQLDescription("Span processing rule filter contains filters based on span attributes")
   @GraphQLNonNull
   SpanProcessingRuleFilter spanFilter();
 
   @GraphQLField
   @GraphQLName(DISABLED_KEY)
-  @GraphQLDescription("Exclude span rule is disabled or not")
+  @GraphQLDescription(
+      "Disabled field denotes whether the rule is disabled or not. By default it is enabled")
   @GraphQLNonNull
   boolean disabled();
 
   @GraphQLField
   @GraphQLName(RULE_TYPE_KEY)
-  @GraphQLDescription("Exclude span rule type")
+  @GraphQLDescription(
+      "Exclude span rule type tells us whether it is user configured rule or system rule")
   // TODO: make this field non-nullable
   ExcludeSpanRuleRuleType ruleType();
 }

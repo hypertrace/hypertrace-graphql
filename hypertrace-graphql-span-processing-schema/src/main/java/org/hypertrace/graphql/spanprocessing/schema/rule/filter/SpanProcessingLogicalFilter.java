@@ -16,13 +16,15 @@ public interface SpanProcessingLogicalFilter {
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_LOGICAL_OPERATOR_KEY)
-  @GraphQLDescription("Span processing logical operator")
+  @GraphQLDescription(
+      "The logical operator is used to combine the list of filters provided in the spanFilters field")
   @GraphQLNonNull
   LogicalOperator logicalOperator();
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_FILTERS_KEY)
-  @GraphQLDescription("Span processing filters")
+  @GraphQLDescription(
+      "List of span filters to be evaluated combining together with the logical operator provided")
   @GraphQLNonNull
   List<SpanProcessingRuleFilter> spanFilters();
 }

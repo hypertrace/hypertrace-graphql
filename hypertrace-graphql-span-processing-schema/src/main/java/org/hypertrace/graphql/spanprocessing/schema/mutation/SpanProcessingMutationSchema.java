@@ -17,7 +17,8 @@ public interface SpanProcessingMutationSchema {
 
   @GraphQLField
   @GraphQLName(CREATE_EXCLUDE_SPAN_RULE_MUTATION_NAME)
-  @GraphQLDescription("Create exclude span rule")
+  @GraphQLDescription(
+      "Create exclude span rule by providing the rule name, filters, rule type, enabled or disabled state")
   @GraphQLNonNull
   @GraphQLDataFetcher(ExcludeSpanCreateRuleMutator.class)
   ExcludeSpanRule createExcludeSpanRule(
@@ -26,7 +27,8 @@ public interface SpanProcessingMutationSchema {
 
   @GraphQLField
   @GraphQLName(UPDATE_EXCLUDE_SPAN_RULE_MUTATION_NAME)
-  @GraphQLDescription("Update exclude span rule")
+  @GraphQLDescription(
+      "Update exclude span rule name, filters and enable/disable it for the provided ruleId")
   @GraphQLNonNull
   @GraphQLDataFetcher(ExcludeSpanUpdateRuleMutator.class)
   ExcludeSpanRule updateExcludeSpanRule(
@@ -35,7 +37,7 @@ public interface SpanProcessingMutationSchema {
 
   @GraphQLField
   @GraphQLName(DELETE_EXCLUDE_SPAN_RULE_MUTATION_NAME)
-  @GraphQLDescription("Delete exclude span rule")
+  @GraphQLDescription("Delete exclude span rule based on ruleId")
   @GraphQLNonNull
   @GraphQLDataFetcher(ExcludeSpanDeleteRuleMutator.class)
   DeleteSpanProcessingRuleResponse deleteExcludeSpanRule(

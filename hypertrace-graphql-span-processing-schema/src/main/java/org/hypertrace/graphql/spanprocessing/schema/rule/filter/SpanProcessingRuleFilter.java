@@ -13,11 +13,13 @@ public interface SpanProcessingRuleFilter {
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_LOGICAL_FILTER_KEY)
-  @GraphQLDescription("Span processing logical filter")
+  @GraphQLDescription(
+      "Span processing logical filter containing list of spanFilters and the logical operator")
   SpanProcessingLogicalFilter logicalSpanFilter();
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_RELATIONAL_FILTER_KEY)
-  @GraphQLDescription("Span processing relational filter")
+  @GraphQLDescription(
+      "Span processing relational filter which takes in lhs and lhs, combining them with relational operator")
   SpanProcessingRelationalFilter relationalSpanFilter();
 }

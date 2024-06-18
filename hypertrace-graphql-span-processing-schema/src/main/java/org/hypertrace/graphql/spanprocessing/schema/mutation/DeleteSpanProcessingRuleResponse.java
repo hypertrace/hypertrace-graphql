@@ -13,6 +13,6 @@ public interface DeleteSpanProcessingRuleResponse {
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(DELETE_SPAN_PROCESSING_RULE_RESPONSE_SUCCESS)
-  @GraphQLDescription("Delete span processing rule is success or not")
+  @GraphQLDescription("Success field tells us whether the delete call was a success or not")
   boolean success();
 }
