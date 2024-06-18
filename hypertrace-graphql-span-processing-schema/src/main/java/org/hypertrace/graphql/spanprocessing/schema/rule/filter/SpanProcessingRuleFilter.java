@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spanprocessing.schema.rule.filter;
 
+import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 
@@ -12,9 +13,11 @@ public interface SpanProcessingRuleFilter {
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_LOGICAL_FILTER_KEY)
+  @GraphQLDescription("Span processing logical filter")
   SpanProcessingLogicalFilter logicalSpanFilter();
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_RELATIONAL_FILTER_KEY)
+  @GraphQLDescription("Span processing relational filter")
   SpanProcessingRelationalFilter relationalSpanFilter();
 }

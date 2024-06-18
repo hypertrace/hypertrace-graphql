@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spanprocessing.schema.rule;
 
+import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -15,11 +16,13 @@ public interface ExcludeSpanRule extends Identifiable, ExcludeSpanRuleInfo {
 
   @GraphQLField
   @GraphQLName(CREATION_TIME_KEY)
+  @GraphQLDescription("Exclude span rule creation tme")
   @GraphQLNonNull
   Instant creationTime();
 
   @GraphQLField
   @GraphQLName(LAST_UPDATED_TIME_KEY)
+  @GraphQLDescription("Exclude span rule last update tme")
   @GraphQLNonNull
   Instant lastUpdatedTime();
 }

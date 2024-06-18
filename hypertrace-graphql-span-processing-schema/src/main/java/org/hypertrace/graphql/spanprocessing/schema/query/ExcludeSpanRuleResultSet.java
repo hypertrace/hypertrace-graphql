@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spanprocessing.schema.query;
 
+import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -15,5 +16,6 @@ public interface ExcludeSpanRuleResultSet extends ResultSet<ExcludeSpanRule> {
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(RESULT_SET_RESULTS_NAME)
+  @GraphQLDescription("Exclude span rule list")
   List<ExcludeSpanRule> results();
 }
