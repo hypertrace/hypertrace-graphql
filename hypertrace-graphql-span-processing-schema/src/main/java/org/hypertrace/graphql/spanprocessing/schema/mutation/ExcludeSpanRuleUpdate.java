@@ -24,7 +24,7 @@ public interface ExcludeSpanRuleUpdate extends Identifiable {
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_FILTER_KEY)
-  @GraphQLDescription("Update the existing spanFilters for the input ruleId")
+  @GraphQLDescription("Replace the existing spanFilters for the input ruleId")
   @GraphQLNonNull
   SpanProcessingRuleFilter spanFilter();
 

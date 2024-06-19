@@ -18,7 +18,7 @@ public interface SpanProcessingRelationalFilter {
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_FILTER_KEY_KEY)
   @GraphQLDescription(
-      "Span processing filter key is the span attribute provided as string like http.request.body.email")
+      "Span processing filter key is the span attribute provided as string like http.request.header.authorization")
   String key();
 
   @GraphQLField

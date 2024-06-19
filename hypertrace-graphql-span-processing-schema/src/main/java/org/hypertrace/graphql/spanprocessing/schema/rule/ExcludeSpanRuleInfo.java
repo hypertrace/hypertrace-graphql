@@ -30,7 +30,7 @@ public interface ExcludeSpanRuleInfo {
   @GraphQLField
   @GraphQLName(DISABLED_KEY)
   @GraphQLDescription(
-      "Disabled field denotes whether the rule is disabled or not. By default it is enabled")
+      "Disabled field denotes whether the rule is disabled or not. By default it is enabled on write")
   @GraphQLNonNull
   boolean disabled();
 
