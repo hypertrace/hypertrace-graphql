@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spanprocessing.schema.mutation;
 
+import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -17,16 +18,19 @@ public interface ExcludeSpanRuleUpdate extends Identifiable {
 
   @GraphQLField
   @GraphQLName(NAME_KEY)
+  @GraphQLDescription("Update the rule name for the provided ruleId")
   @GraphQLNonNull
   String name();
 
   @GraphQLField
   @GraphQLName(SPAN_PROCESSING_FILTER_KEY)
+  @GraphQLDescription("Replace the existing spanFilters for the input ruleId")
   @GraphQLNonNull
   SpanProcessingRuleFilter spanFilter();
 
   @GraphQLField
   @GraphQLName(DISABLED_KEY)
+  @GraphQLDescription("Enable or disable the rule")
   @GraphQLNonNull
   boolean disabled();
 }

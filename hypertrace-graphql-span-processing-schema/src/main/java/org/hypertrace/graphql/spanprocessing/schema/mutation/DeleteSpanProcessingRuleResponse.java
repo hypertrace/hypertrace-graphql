@@ -1,5 +1,6 @@
 package org.hypertrace.graphql.spanprocessing.schema.mutation;
 
+import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
@@ -12,5 +13,6 @@ public interface DeleteSpanProcessingRuleResponse {
   @GraphQLField
   @GraphQLNonNull
   @GraphQLName(DELETE_SPAN_PROCESSING_RULE_RESPONSE_SUCCESS)
+  @GraphQLDescription("Success field tells us whether the delete call was a success or not")
   boolean success();
 }
