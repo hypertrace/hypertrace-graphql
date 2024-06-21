@@ -1,0 +1,64 @@
+replicaCount: 1
+maxUnavailable: 0
+
+image:
+  repository: hypertrace/hypertrace-core-graphql-service
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+service:
+  type: ClusterIP
+  port: 23431
+  adminPort: 23432
+
+podLabels:
+  app: hypertrace-core-graphql
+
+deploymentSelectorMatchLabels:
+  app: hypertrace-core-graphql
+
+serviceSelectorLabels:
+  app: hypertrace-core-graphql
+
+nodeLabels: {}
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 10
+readinessProbe:
+  initialDelaySeconds: 2
+  periodSeconds: 5
+
+javaOpts: "-Xms256M -Xmx512M"
+
+resources:
+  limits:
+    cpu: 0.5
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+serviceConfig:
+  name: hypertrace-core-graphql-service-config
+  urlPath: /graphql
+  corsEnabled: true
+  defaultTenantId: ""
+  timeoutDuration: 30s
+  threads:
+    io: 10
+    request: 10
+  attributeService:
+    host: attribute-service
+    port: 9012
+  gatewayService:
+    host: gateway-service
+    port: 50071
+logConfig:
+  name: hypertrace-core-graphql-log-config
+  rootLogger:
+    level: INFO
+  appender:
+    rolling:
+      enabled: false

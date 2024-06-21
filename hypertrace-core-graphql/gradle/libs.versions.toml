@@ -1,0 +1,5 @@
+
+[libraries]
+graphql-annotations = { module = "io.github.graphql-java:graphql-java-annotations", version = "9.1" }
+graphql-servlet = { module = "com.graphql-java-kickstart:graphql-java-servlet", version = "14.0.0" }
+opentelemetry-proto = { module = "io.opentelemetry:opentelemetry-proto", version = "1.1.0-alpha" }
